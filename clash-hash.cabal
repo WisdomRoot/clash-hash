@@ -80,7 +80,9 @@ common common-options
     clash-prelude >= 1.8.1 && < 1.10,
     ghc-typelits-natnormalise,
     ghc-typelits-extra,
-    ghc-typelits-knownnat
+    ghc-typelits-knownnat,
+
+    clash-multicycle-moore
 
 
 library

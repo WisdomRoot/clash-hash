@@ -39,6 +39,17 @@ packages:
       size: 300
   original:
     hackage: prettyprinter-interp-0.2.0.0@sha256:69c339a95b265dab9b3478ca19ec96952b6b472bd0ff6e2127112a9562362c1d,2086
+- completed:
+    commit: e333a68957eba08d5f3c1848058567511fe07516
+    git: ssh://git@github.com/chenmoucheng/clash-multicycle-moore.git
+    name: clash-multicycle-moore
+    pantry-tree:
+      sha256: 03a51635250ac4750c35b1b2c919d0fc439f62eb8076e9b6e18c1bdbeede2d16
+      size: 897
+    version: '0.1'
+  original:
+    commit: e333a68957eba08d5f3c1848058567511fe07516
+    git: ssh://git@github.com/chenmoucheng/clash-multicycle-moore.git
 snapshots:
 - completed:
     sha256: 08bd13ce621b41a8f5e51456b38d5b46d7783ce114a50ab604d6bbab0d002146
