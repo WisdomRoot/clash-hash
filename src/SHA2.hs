@@ -1,6 +1,5 @@
 module SHA2
-  (
-    sha256
+  ( sha256
   ) where
 
 import Clash.Prelude
@@ -14,9 +13,19 @@ import Clash.Prelude
 -- | SHA256
 -- >>> showHex (unpack @(Unsigned 256) $ sha256 @0 @0 0) ""
 -- "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+-- >>> showHex (unpack @(Unsigned 256) $ sha256 @0 @8 0xd3) ""
+-- "28969cdfa74a12c82f3bad960b0b000aca2ac329deea5c2328ebc6f2ba9802c1"
+-- >>> showHex (unpack @(Unsigned 256) $ sha256 @0 @16 0x11af) ""
+-- "5ca7133fa735326081558ac312c620eeca9970d1e70a4b95533d956f072d1f98"
+-- >>> showHex (unpack @(Unsigned 256) $ sha256 @1 @504 0xe2f76e97606a872e317439f1a03fcd92e632e5bd4e7cbc4e97f1afc19a16fde92d77cbe546416b51640cddb92af996534dfd81edb17c4424cf1ac4d75aceeb) ""
+-- "18041bd4665083001fba8c5411d2d748e8abbfdcdfd9218cb02b68a78e7d4c23"
+-- >>> showHex (unpack @(Unsigned 256) $ sha256 @1 @512 0x5a86b737eaea8ee976a0a24da63e7ed7eefad18a101c1211e2b3650c5187c2a8a650547208251f6d4237e661c7bf4c77f335390394c37fa1a9f9be836ac28509) ""
+-- "42e61e174fbb3897d6dd6cef3dd2802fe67b331953b06114a65c772859dfc1aa"
 
-sha256 :: forall n ell k. (KnownNat n, KnownNat ell, KnownNat k, ell + 1 + k + 64 ~ 512 * (n + 1)) => BitVector ell -> BitVector 256
-sha256 msg = pack $ compfunc k (head chunks) inithash where
+sha256 :: forall n ell k. (KnownNat n, KnownNat ell, KnownNat k, ell + 1 + k + 64 ~ 512 * (n + 1))
+       => BitVector ell
+       -> BitVector 256
+sha256 msg = pack $ foldl (compfunc k) inithash chunks where
   h0 = 0x6a09e667 :: Unsigned 32
   h1 = 0xbb67ae85 :: Unsigned 32
   h2 = 0x3c6ef372 :: Unsigned 32
@@ -40,8 +49,8 @@ sha256 msg = pack $ compfunc k (head chunks) inithash where
 
 --
 
-compfunc :: Vec 64 (Unsigned 32) -> Vec 16 (Unsigned 32) -> Vec 8 (Unsigned 32) -> Vec 8 (Unsigned 32)
-compfunc ks chunk inithash = zipWith (+) inithash $ foldl compfuncround inithash $ zip ks ws where
+compfunc :: Vec 64 (Unsigned 32) -> Vec 8 (Unsigned 32) -> Vec 16 (Unsigned 32) -> Vec 8 (Unsigned 32)
+compfunc ks hash chunk = zipWith (+) hash . foldl compfuncround hash $ zip ks ws where
   ws = chunk ++ unfoldrI f chunk where
     -- f :: Vec 16 (Unsigned 32) -> (Unsigned 32, Vec 16 (Unsigned 32))
     f xs = (x, xs <<+ x) where
