@@ -1,9 +1,9 @@
 cabal-version:       2.4
 name:                clash-hash
 version:             0.1
-license:             BSD-2-Clause
-author:              John Smith <john@example.com>
-maintainer:          John Smith <john@example.com>
+license:             MIT
+author:              Chen-Mou Cheng <chenmou.cheng@gmail.com>
+maintainer:          Chen-Mou Cheng <chenmou.cheng@gmail.com>
 
 common common-options
   default-extensions:
