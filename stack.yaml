@@ -5,6 +5,7 @@ extra-deps:
 - clash-lib-1.8.2@sha256:bf494184c73cdb27016ce61d471a2ba3d3959703e576dda3181d85431fba47e2,15721
 - clash-prelude-1.8.2@sha256:a9409f93aa7806a4fb4d39efc7fae78f638cfd0e9bd57140adf04e0f2fcc27bf,17871
 - clash-prelude-hedgehog-1.8.2@sha256:4ffc0a4897a60cfae1bee5feaa946be652942bcdd624b3bf153b4596754ddd0b,1410
+- modular-arithmetic-2.0.0.3@sha256:2fa424db61ef94cb9f0ae28665c6dbd76b0c910cc34d8bb0d6971bfbca80b956,1659
 - prettyprinter-interp-0.2.0.0@sha256:69c339a95b265dab9b3478ca19ec96952b6b472bd0ff6e2127112a9562362c1d,2086
 - git: ssh://git@github.com/chenmoucheng/clash-multicycle-moore.git
   commit: e333a68957eba08d5f3c1848058567511fe07516
