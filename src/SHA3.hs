@@ -18,6 +18,7 @@ module SHA3
   , sha3_512
   , shake_128
   , shake_256
+  , topEntity
   ) where
 
 import Data.Bifunctor (Bifunctor(..))
@@ -92,6 +93,7 @@ type KeccakParameter l w b = ( KnownNat l
                              , 1 <= b
                              , 1 <= b `Div` 8
                              , w ~ 2 ^ l
+                             , w <= 64
                              , b ~ 25 * w
                              , b ~ 5 * (5 * w)
                              , b ~ (b `Div` 8) * 8
@@ -130,32 +132,35 @@ s @@@ (i, j, k) = s !! unMod i !! unMod j !! unMod k
 -- "07 00 00 00 00 08 00 00 00 00 00 00 00 60 00 00 00 20 03 00 00 08 00 00 06 00 00 00 00 00 00 00 00 20 03 00 00 60 00 00 00 00 00 00 00 00 00 00 00 00 C8 00 00 C0 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 C0 00 00 00 00 C8 00 00 00 00 20 0C 00 00 00 00 00 00 00 C0 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8C 0C 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 18 00 64 00 00 00 00 00 80 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 80 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 06 00 40 00 00 00 00 00 00 40 00 18 00 00 00 40 06 00 00 00 00 00 00 00 00 00 40 18 00 00 00 00 00 40 00 "
 
 theta :: (KeccakParameter l w b) => StateArray w -> StateArray w
-theta = imapping3 $ \(i, j, k) s -> s @@@ (i, j, k)
+theta = imapping3 $ \ (i, j, k) s -> s @@@ (i, j, k)
   `xor` s @@@ (0, j - 1, k)     `xor` s @@@ (1, j - 1, k)     `xor` s @@@ (2, j - 1, k)     `xor` s @@@ (3, j - 1, k)     `xor` s @@@ (4, j - 1, k)
   `xor` s @@@ (0, j + 1, k - 1) `xor` s @@@ (1, j + 1, k - 1) `xor` s @@@ (2, j + 1, k - 1) `xor` s @@@ (3, j + 1, k - 1) `xor` s @@@ (4, j + 1, k - 1)
 
 rho :: forall l w b. (KeccakParameter l w b) => StateArray w -> StateArray w
-rho = imapping2 g where
+rho = imapping2 $ \ (i, j) s -> rotateRight (s @@ (i, j)) $ r_amount !! unMod i !! unMod j
+
+r_amount :: Vec 5 (Vec 5 Int)
+r_amount = unconcatI $ 0 :> (snd . unzip . sort $ unfoldrI f (0, 0 :: Int/5, 1, 1)) where
   compareSwap a b = if fst a > fst b then (a,b) else (b,a)
   insert y xs = let (y',xs') = mapAccumL compareSwap y xs in xs' :< y'
   sort = vfold $ const insert
-  z = (0 :: Integer, 0 :: Integer/5, 1, 1)
   f (t, i, j, k) = ((5*(unMod i) + unMod j, k), (t + 1, 3*i + 2*j, i, k * (t + 3) `div` (t + 1)))
-  r = unconcatI $ 0 :> (fmap fromInteger . snd . unzip . sort $ unfoldrI f z) :: Vec 5 (Vec 5 ((Index b)/w))
-  g (i, j) s = rotateRight (s @@ (i, j)) . unMod $ r !! unMod i !! unMod j
 
 pi :: (KeccakParameter l w b) => StateArray w -> StateArray w
-pi = imapping2 $ \(i, j) s -> s @@ (j, 3*i + j)
+pi = imapping2 $ \ (i, j) s -> s @@ (j, 3*i + j)
 
 chi :: (KeccakParameter l w b) => StateArray w -> StateArray w
-chi = imapping3 $ \(i, j, k) s -> s @@@ (i, j, k) `xor` (complement (s @@@ (i, j + 1, k)) .&. s @@@ (i, j + 2, k))
+chi = imapping3 $ \ (i, j, k) s -> s @@@ (i, j, k) `xor` (complement (s @@@ (i, j + 1, k)) .&. s @@@ (i, j + 2, k))
 
 iota :: forall l w b. (KeccakParameter l w b) => Index (12 + 2 * l) -> StateArray w -> StateArray w
-iota i s = unconcatI . replace (0 :: Index 25) (zipWith xor (rcs !! i) $ s @@ (0, 0)) $ concat s where
-  lfsr = unconcatI . unfoldrI f $ bv2v $(bLit "10000000") :: Vec (12 + 2 * l) (BitString 7)
+iota i s = unconcatI . replace (0 :: Index 25) (zipWith xor rc $ s @@ (0, 0)) $ concat s where
+  rc = leToPlusKN @w @64 takeI $ rcs !! i
+
+rcs :: Vec 24 (BitString 64)
+rcs = fmap (ifoldl g $ repeat 0) lfsr where
+  lfsr = unconcatI . unfoldrI f $ bv2v $(bLit "10000000") :: Vec 24 (BitString 7)
   f t = (head t, zipWith xor (0 +>> t) . fmap (last t .&.) $ bv2v $(bLit "10001110"))
-  g t j b = replace @_ @(Unsigned (l + 1)) (2 P.^ j - 1) b t
-  rcs = fmap (ifoldl g $ repeat 0) lfsr
+  g t j b = replace @_ @(Unsigned 7) (2 P.^ j - 1) b t
 
 -- | Keccak-f[1600] & Keccak[1024]
 -- >>> s = unconcatI . unconcatI $ bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: StateArray 64
@@ -274,3 +279,24 @@ shake_128 = keccak @256 @d @1344 @n @(m + 4) @k . flip (++) (bv2v $(bLit "1111")
 shake_256 :: forall m d n k. (KnownNat m, SpongeParameter 1600 1088 n (m + 4) k d)
          => BitString m -> BitString d
 shake_256 = keccak @512 @d @1088 @n @(m + 4) @k . flip (++) (bv2v $(bLit "1111"))
+
+--
+
+{-# ANN topEntity
+  (Synthesize
+    { t_name = "SHA3_256"
+    , t_inputs = [ PortName "CLK"
+                 , PortName "RST"
+                 , PortName "EN"
+                 , PortName "DIN"
+                 ]
+    , t_output = PortName "DOUT"
+    }) #-}
+{-# OPAQUE topEntity #-}
+
+topEntity :: Clock System
+          -> Reset System
+          -> Enable System
+          -> Signal System (StateArray 64)
+          -> Signal System (StateArray 64)
+topEntity = exposeClockResetEnable $ fmap (iota 0 . chi . pi . rho . theta)
