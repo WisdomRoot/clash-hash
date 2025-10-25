@@ -93,7 +93,8 @@ library
   hs-source-dirs: src
   exposed-modules:
     SHA2,
-    SHA3
+    SHA3,
+    SHA3constants
   default-language: Haskell2010
 
 -- Builds the executable 'clash', with clash-hash project in scope

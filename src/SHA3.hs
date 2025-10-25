@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module SHA3
   ( StateArray
   , bs2v
@@ -21,13 +23,14 @@ module SHA3
   , topEntity
   ) where
 
-import Data.Bifunctor (Bifunctor(..))
+import qualified Prelude as P
+import Clash.Prelude hiding (pi)
+
 import Data.Modular
 import Data.Proxy (Proxy(..))
-import qualified Prelude as P
 import Text.Printf (printf)
 
-import Clash.Prelude hiding (pi)
+import SHA3constants
 
 -- $
 
@@ -137,14 +140,8 @@ theta = imapping3 $ \ (i, j, k) s -> s @@@ (i, j, k)
   `xor` s @@@ (0, j + 1, k - 1) `xor` s @@@ (1, j + 1, k - 1) `xor` s @@@ (2, j + 1, k - 1) `xor` s @@@ (3, j + 1, k - 1) `xor` s @@@ (4, j + 1, k - 1)
 
 rho :: forall l w b. (KeccakParameter l w b) => StateArray w -> StateArray w
-rho = imapping2 $ \ (i, j) s -> rotateRight (s @@ (i, j)) $ r_amount !! unMod i !! unMod j
-
-r_amount :: Vec 5 (Vec 5 Int)
-r_amount = unconcatI $ 0 :> (snd . unzip . sort $ unfoldrI f (0, 0 :: Int/5, 1, 1)) where
-  compareSwap a b = if fst a > fst b then (a,b) else (b,a)
-  insert y xs = let (y',xs') = mapAccumL compareSwap y xs in xs' :< y'
-  sort = vfold $ const insert
-  f (t, i, j, k) = ((5*(unMod i) + unMod j, k), (t + 1, 3*i + 2*j, i, k * (t + 3) `div` (t + 1)))
+rho = imapping2 $ \ (i, j) s -> rotateRight (s @@ (i, j)) $ r !! unMod i !! unMod j where
+  r = $(lift rho_constant) :: Vec 5 (Vec 5 Int)
 
 pi :: (KeccakParameter l w b) => StateArray w -> StateArray w
 pi = imapping2 $ \ (i, j) s -> s @@ (j, 3*i + j)
@@ -154,13 +151,7 @@ chi = imapping3 $ \ (i, j, k) s -> s @@@ (i, j, k) `xor` (complement (s @@@ (i, 
 
 iota :: forall l w b. (KeccakParameter l w b) => Index (12 + 2 * l) -> StateArray w -> StateArray w
 iota i s = unconcatI . replace (0 :: Index 25) (zipWith xor rc $ s @@ (0, 0)) $ concat s where
-  rc = leToPlusKN @w @64 takeI $ rcs !! i
-
-rcs :: Vec 24 (BitString 64)
-rcs = fmap (ifoldl g $ repeat 0) lfsr where
-  lfsr = unconcatI . unfoldrI f $ bv2v $(bLit "10000000") :: Vec 24 (BitString 7)
-  f t = (head t, zipWith xor (0 +>> t) . fmap (last t .&.) $ bv2v $(bLit "10001110"))
-  g t j b = replace @_ @(Unsigned 7) (2 P.^ j - 1) b t
+  rc = leToPlusKN @w @64 takeI $ $(lift iota_constant) !! i
 
 -- | Keccak-f[1600] & Keccak[1024]
 -- >>> s = unconcatI . unconcatI $ bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: StateArray 64
