@@ -1,18 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module SHA3
-  ( StateArray
-  , bs2v
-  , v2bs
-  , hexdump
-  , toBitString
-  , theta
-  , rho
-  , pi
-  , chi
-  , iota
-  , keccakf
-  , sponge
+  ( keccakf
   , keccak
   , sha3_224
   , sha3_256
@@ -23,155 +12,42 @@ module SHA3
   , topEntity
   ) where
 
-import qualified Prelude as P
 import Clash.Prelude hiding (pi)
-
-import Data.Modular
-import Data.Proxy (Proxy(..))
-import Text.Printf (printf)
-
-import SHA3constants
+import SHA3internal
 
 -- $
 
 -- $setup
--- >>> import Clash.Prelude hiding (pi)
+-- >>> import Clash.Prelude
+-- >>> import SHA3internal (State, hexdump, toBitString, v2bs)
 
-imapping :: forall s n a. (KnownNat s, KnownNat n, 1 <= n)
-         => ((Index s)/n -> Vec n a -> a)
-         -> Vec n a
-         -> Vec n a
-imapping f s = fmap (flip f s . toMod . resize) indicesI
-
-imapping2 :: forall s n m a. (KnownNat s, KnownNat n, KnownNat m, 1 <= n, 1 <= m, 1 <= n * m)
-          => (((Index s)/n, (Index s)/m) -> Vec n (Vec m a) -> a)
-          -> Vec n (Vec m a)
-          -> Vec n (Vec m a)
-imapping2 f = unconcatI . imapping g . concat where
-  m = fromInteger . natVal $ Proxy @m
-  g i = f (bimap toMod toMod $ unMod i `divMod` m) . unconcatI
-
-imapping3 :: forall s n m l a. ( KnownNat s
-                               , KnownNat n
-                               , KnownNat m
-                               , KnownNat l
-                               , 1 <= n
-                               , 1 <= m
-                               , 1 <= l
-                               , 1 <= n * m * l)
-          => (((Index s)/n, (Index s)/m, (Index s)/l) -> Vec n (Vec m (Vec l a)) -> a)
-          -> Vec n (Vec m (Vec l a))
-          -> Vec n (Vec m (Vec l a))
-imapping3 f = unconcatI . unconcatI . imapping g . concat . concat where
-  ml = fromInteger . natVal $ Proxy @(m * l)
-  l = fromInteger . natVal $ Proxy @l
-  g idx = f (toMod i, toMod j, toMod k) . unconcatI . unconcatI where
-    (i, r) = unMod idx `divMod` ml
-    (j, k) = r `divMod` l
-
---
-
-type BitString n = Vec n Bit
-
-bs2v :: (KnownNat n, BitPack a) => BitString (n * BitSize a) -> Vec n a
-bs2v = map (unpack . v2bv . reverse) . unconcatI
-
-v2bs :: (KnownNat n, BitPack a) => Vec n a -> BitString (n * BitSize a)
-v2bs = concat . map (reverse . bv2v . pack)
-
-hexdump :: (KnownNat n) => String -> BitString (8 * n) -> String
-hexdump fmt = foldl (P.++) "" . map (printf fmt) . bs2v @_ @(Unsigned 8)
-
-toBitString :: forall n. (KnownNat n) => Vec n Char -> BitString (8 * n)
-toBitString = v2bs @_ @(Unsigned 8) . map (fromIntegral . fromEnum)
-
---
-
-type KeccakParameter l w b = ( KnownNat l
-                             , KnownNat w
-                             , KnownNat b
-                             , 3 <= l
-                             , l <= 6
-                             , 1 <= w
-                             , 1 <= b
-                             , 1 <= b `Div` 8
-                             , w ~ 2 ^ l
-                             , w <= 64
-                             , b ~ 25 * w
-                             , b ~ 5 * (5 * w)
-                             , b ~ (b `Div` 8) * 8
-                             )
-
-type StateArray w = Vec 5 (Vec 5 (BitString w))
-type Index2 b = ((Index (2 * b))/5, (Index (2 * b))/5)
-type Index3 w b = ((Index (2 * b))/5, (Index (2 * b))/5, (Index (2 * b))/w)
-
-infixl 9 @@
-(@@) :: (KeccakParameter l w b) => StateArray w -> Index2 b -> BitString w
-s @@ (i, j) = s !! unMod i !! unMod j
-
-infixl 9 @@@
-(@@@) :: (KeccakParameter l w b) => StateArray w -> Index3 w b -> Bit
-s @@@ (i, j, k) = s !! unMod i !! unMod j !! unMod k
-
--- | Keccak block transformations
--- >>> s = unconcatI . unconcatI $ bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: StateArray 64
--- >>> hexdump "%02X " . concat $ concat s
--- "06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
--- >>> t0 = theta s
--- >>> hexdump "%02X " . concat $ concat t0
--- "06 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 0C 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 06 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C 00 00 00 00 00 00 80 "
--- >>> t1 = rho t0
--- >>> hexdump "%02X " . concat $ concat t1
--- "06 00 00 00 00 00 00 00 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 00 00 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 60 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00 00 40 00 00 00 C8 00 00 00 00 00 00 00 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C0 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 00 00 00 00 20 03 00 00 00 00 00 "
--- >>> t2 = pi t1
--- >>> hexdump "%02X " . concat $ concat t2
--- "06 00 00 00 00 00 00 00 00 00 00 00 00 60 00 00 00 00 00 00 00 08 00 00 00 00 00 00 00 00 00 00 00 20 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C8 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C0 00 00 00 00 00 00 00 00 00 20 0C 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 00 00 00 00 00 00 40 00 00 00 00 00 40 06 00 00 00 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 "
--- >>> t3 = chi t2
--- >>> hexdump "%02X " . concat $ concat t3
--- "06 00 00 00 00 08 00 00 00 00 00 00 00 60 00 00 00 20 03 00 00 08 00 00 06 00 00 00 00 00 00 00 00 20 03 00 00 60 00 00 00 00 00 00 00 00 00 00 00 00 C8 00 00 C0 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 C0 00 00 00 00 C8 00 00 00 00 20 0C 00 00 00 00 00 00 00 C0 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8C 0C 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 18 00 64 00 00 00 00 00 80 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 80 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 06 00 40 00 00 00 00 00 00 40 00 18 00 00 00 40 06 00 00 00 00 00 00 00 00 00 40 18 00 00 00 00 00 40 00 "
--- >>> t4 = iota 0 t3
--- >>> hexdump "%02X " . concat $ concat t4
--- "07 00 00 00 00 08 00 00 00 00 00 00 00 60 00 00 00 20 03 00 00 08 00 00 06 00 00 00 00 00 00 00 00 20 03 00 00 60 00 00 00 00 00 00 00 00 00 00 00 00 C8 00 00 C0 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 C0 00 00 00 00 C8 00 00 00 00 20 0C 00 00 00 00 00 00 00 C0 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8C 0C 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 18 00 64 00 00 00 00 00 80 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 80 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 06 00 40 00 00 00 00 00 00 40 00 18 00 00 00 40 06 00 00 00 00 00 00 00 00 00 40 18 00 00 00 00 00 40 00 "
-
-theta :: (KeccakParameter l w b) => StateArray w -> StateArray w
-theta = imapping3 $ \ (i, j, k) s -> s @@@ (i, j, k)
-  `xor` s @@@ (0, j - 1, k)     `xor` s @@@ (1, j - 1, k)     `xor` s @@@ (2, j - 1, k)     `xor` s @@@ (3, j - 1, k)     `xor` s @@@ (4, j - 1, k)
-  `xor` s @@@ (0, j + 1, k - 1) `xor` s @@@ (1, j + 1, k - 1) `xor` s @@@ (2, j + 1, k - 1) `xor` s @@@ (3, j + 1, k - 1) `xor` s @@@ (4, j + 1, k - 1)
-
-rho :: forall l w b. (KeccakParameter l w b) => StateArray w -> StateArray w
-rho = imapping2 $ \ (i, j) s -> rotateRight (s @@ (i, j)) $ r !! unMod i !! unMod j where
-  r = $(lift rho_constant) :: Vec 5 (Vec 5 Int)
-
-pi :: (KeccakParameter l w b) => StateArray w -> StateArray w
-pi = imapping2 $ \ (i, j) s -> s @@ (j, 3*i + j)
-
-chi :: (KeccakParameter l w b) => StateArray w -> StateArray w
-chi = imapping3 $ \ (i, j, k) s -> s @@@ (i, j, k) `xor` (complement (s @@@ (i, j + 1, k)) .&. s @@@ (i, j + 2, k))
-
-iota :: forall l w b. (KeccakParameter l w b) => Index (12 + 2 * l) -> StateArray w -> StateArray w
-iota i s = unconcatI . replace (0 :: Index 25) (zipWith xor rc $ s @@ (0, 0)) $ concat s where
-  rc = leToPlusKN @w @64 takeI $ $(lift iota_constant) !! i
-
--- | Keccak-f[1600] & Keccak[1024]
--- >>> s = unconcatI . unconcatI $ bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: StateArray 64
--- >>> hexdump "%02X " . concat . concat $ keccakf s
+-- | Keccak-f[1600]
+-- >>> s = bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: State 1600
+-- >>> hexdump "%02X " $ keccakf s
 -- "A6 9F 73 CC A2 3A 9A C5 C8 B5 67 DC 18 5A 75 6E 97 C9 82 16 4F E2 58 59 E0 D1 DC C1 47 5C 80 A6 15 B2 12 3A F1 F5 F9 4C 11 E3 E9 40 2C 3A C5 58 F5 00 19 9D 95 B6 D3 E3 01 75 85 86 28 1D CD 26 36 4B C5 B8 E7 8F 53 B8 23 DD A7 F4 DE 9F AD 00 E6 7D B7 2F 9F 9F EA 0C E3 C9 FE F1 5A 76 AD C5 85 EB 2E FD 11 87 FB 65 F9 C9 A2 73 31 51 67 E3 14 FA 68 B6 A3 22 D4 07 01 5D 50 2A CD EC 8C 88 5C 4F 77 84 CE D0 46 09 BB 35 15 4A 96 48 4B 56 25 D3 41 7C 88 60 7A CD E4 C2 C9 9B AE 5E DF 9E EA 2A D0 FB 55 A2 26 18 9E 11 D2 49 60 43 3E 2B 0E E0 45 A4 73 09 97 76 DD 5D E7 39 DB 9B A8 19 D5 4C B9 03 A7 A5 D7 EE "
--- >>> i = bv2v $(bLit "01")
--- >>> hexdump "%02X " $ keccak @1024 @512 i
--- "A6 9F 73 CC A2 3A 9A C5 C8 B5 67 DC 18 5A 75 6E 97 C9 82 16 4F E2 58 59 E0 D1 DC C1 47 5C 80 A6 15 B2 12 3A F1 F5 F9 4C 11 E3 E9 40 2C 3A C5 58 F5 00 19 9D 95 B6 D3 E3 01 75 85 86 28 1D CD 26 "
 
 keccakp :: forall b nr l w. ( KeccakParameter l w b
                             , KnownNat nr
                             , 1 <= nr
                             , nr <= 12 + 2 * l
                             )
-        => StateArray w
-        -> StateArray w
-keccakp = foldl (flip f) id $ dropI @(12 + 2 * l - nr) indicesI where f i = (.) (iota i . chi . pi . rho . theta)
+        => State b
+        -> State b
+keccakp = foldl (flip f) id $ dropI @(12 + 2 * l - nr) indicesI where
+  f i = (.) ( iota  sha3_constants i
+            . chi   sha3_constants
+            . pi    sha3_constants
+            . rho   sha3_constants
+            . theta sha3_constants
+            )
 
-keccakf :: forall l w b. (KeccakParameter l w b) => StateArray w -> StateArray w
+keccakf :: forall l w b. (KeccakParameter l w b) => State b -> State b
 keccakf = keccakp @b @(12 + 2 * l) @l @w
+
+-- | Keccak[1024]
+-- >>> i = bv2v $(bLit "01")
+-- >>> hexdump "%02X " $ keccak @1024 @512 i
+-- "A6 9F 73 CC A2 3A 9A C5 C8 B5 67 DC 18 5A 75 6E 97 C9 82 16 4F E2 58 59 E0 D1 DC C1 47 5C 80 A6 15 B2 12 3A F1 F5 F9 4C 11 E3 E9 40 2C 3A C5 58 F5 00 19 9D 95 B6 D3 E3 01 75 85 86 28 1D CD 26 "
 
 type SpongeParameter b r n m k d = ( KnownNat b
                                    , KnownNat r
@@ -213,7 +89,7 @@ keccak :: forall c d r n m k. ( KnownNat c
                               )
        => BitString m
        -> BitString d
-keccak = sponge @1600 @r @n @m @k @d $ concat . concat . keccakf @6 @64 @1600 . unconcatI . unconcatI
+keccak = sponge @1600 @r @n @m @k @d $ keccakf @6 @64 @1600
 
 -- | SHA3 hash functions
 -- >>> hexdump "%02x" . sha3_224 . v2bs $ toBitString $(listToVecTH "abc")
@@ -288,6 +164,7 @@ shake_256 = keccak @512 @d @1088 @n @(m + 4) @k . flip (++) (bv2v $(bLit "1111")
 topEntity :: Clock System
           -> Reset System
           -> Enable System
-          -> Signal System (StateArray 64)
-          -> Signal System (StateArray 64)
-topEntity = exposeClockResetEnable $ fmap (iota 0 . chi . pi . rho . theta)
+          -> Signal System (State 1600)
+          -> Signal System (State 1600)
+topEntity = exposeClockResetEnable $ fmap (iota c 0 . chi c . pi c . rho c . theta c) where
+  c = $(lift $ sha3_constants @6 @64 @1600)
