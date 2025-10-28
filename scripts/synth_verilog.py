@@ -23,7 +23,6 @@ LIBERTY_CANDIDATES = [
     PROJECT_ROOT / "lib" / "NangateOpenCellLibrary_typical.lib",
 ]
 ABC_SCRIPT_CANDIDATES = [
-    PROJECT_ROOT / "script" / "abc_fast.script",
     PROJECT_ROOT / "scripts" / "abc_fast.script",
 ]
 MODULE_PATTERN = re.compile(r"^\s*module\s+([A-Za-z_][\w$]*)\b")
@@ -43,7 +42,6 @@ class SynthTarget:
 @dataclass(frozen=True)
 class SynthConfig:
     liberty: Path
-    mode: str
     output_root: Path
     abc_script: Path | None
     dry_run: bool
@@ -207,24 +205,10 @@ def build_yosys_commands(target: SynthTarget, conf: SynthConfig, netlist_path: P
         f"hierarchy -check -top {top}",
         "proc",
         "flatten",
+        f"synth -top {top}",
+        "opt -purge",
+        f"dfflibmap -liberty {liberty}",
     ]
-
-    if conf.mode == "fast":
-        base_commands.extend(
-            [
-                f"synth -top {top} -run coarse",
-                "opt_clean",
-            ]
-        )
-    else:
-        base_commands.append(f"synth -top {top}")
-
-    base_commands.extend(
-        [
-            "opt -purge",
-            f"dfflibmap -liberty {liberty}",
-        ]
-    )
 
     if conf.abc_script:
         script = shlex.quote(str(conf.abc_script))
@@ -333,12 +317,6 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
         help="Path to the liberty file.",
     )
     parser.add_argument(
-        "--mode",
-        choices=["full", "fast"],
-        default="full",
-        help="Choose the synthesis recipe.",
-    )
-    parser.add_argument(
         "--out",
         default=str(DEFAULT_OUTPUT_ROOT),
         help="Directory to store synthesis outputs.",
@@ -360,7 +338,6 @@ def main(argv: Sequence[str]) -> None:
 
     conf = SynthConfig(
         liberty=liberty,
-        mode=args.mode,
         output_root=output_root,
         abc_script=abc_script,
         dry_run=args.dry_run,
