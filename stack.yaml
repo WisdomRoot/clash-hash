@@ -9,3 +9,5 @@ extra-deps:
 - prettyprinter-interp-0.2.0.0@sha256:69c339a95b265dab9b3478ca19ec96952b6b472bd0ff6e2127112a9562362c1d,2086
 - git: ssh://git@github.com/chenmoucheng/clash-multicycle-moore.git
   commit: e333a68957eba08d5f3c1848058567511fe07516
+
+notify-if-nix-on-path: false

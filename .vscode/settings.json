@@ -12,5 +12,7 @@
     },
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "haskell.toolchain": "stack",
+    "haskell.stackExecutablePath": "stack"
 }

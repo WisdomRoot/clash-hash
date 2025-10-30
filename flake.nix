@@ -55,15 +55,25 @@
             config.allowUnsupportedSystem = true;
           };
           pkgSet = mkPackages system;
+          gccShim = pkgs.writeShellScriptBin "gcc" ''
+            exec ${pkgs.clang}/bin/clang "$@"
+          '';
         in {
           default = pkgs.mkShell {
             packages = [
               pkgSet.yosysPkg
               pkgs.python3
               pkgSet.synthCli
+              pkgs.clang
+              pkgs.stack
+              pkgs.pkg-config
+              pkgs.git
+              gccShim
             ];
             shellHook = ''
               export NANGATE45_LIB=$PWD/lib/nangate45/NangateOpenCellLibrary_typical.lib
+              export CC=${pkgs.clang}/bin/clang
+              export CXX=${pkgs.clang}/bin/clang++
             '';
           };
         });

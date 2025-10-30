@@ -1,12 +1,27 @@
 cradle:
-  cabal:
+  multi:
     - path: "./src"
-      component: "lib:clash-hash"
+      config:
+        cradle:
+          stack:
+            component: "clash-hash:lib"
     - path: "./tests/doctests.hs"
-      component: "clash-hash:doctests"
+      config:
+        cradle:
+          stack:
+            component: "clash-hash:test:doctests"
     - path: "./tests"
-      component: "clash-hash:test-library"
+      config:
+        cradle:
+          stack:
+            component: "clash-hash:test:test-library"
     - path: "./bin/Clashi.hs"
-      component: "clash-hash:exe:clashi"
+      config:
+        cradle:
+          stack:
+            component: "clash-hash:exe:clashi"
     - path: "./bin/Clash.hs"
-      component: "clash-hash:exe:clash"
+      config:
+        cradle:
+          stack:
+            component: "clash-hash:exe:clash"

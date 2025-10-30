@@ -5,3 +5,8 @@ write-ghc-environment-files: always
 
 -- Eliminates the need for `--enable-tests`, which is needed for HLS.
 tests: true
+
+source-repository-package
+  type: git
+  location: https://github.com/chenmoucheng/clash-multicycle-moore.git
+  commit: e333a68957eba08d5f3c1848058567511fe07516
