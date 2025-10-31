@@ -6,11 +6,15 @@ module SHA3internal
     toBitString,
     KeccakParameter,
     State,
+    LaneState,
+    stateToLanes,
+    lanesToState,
     SHA3Constants (..),
     sha3_constants,
     constants25,
     theta,
     theta2,
+    theta3,
     rho,
     pi,
     chi,
@@ -62,6 +66,18 @@ type KeccakParameter l w b =
 type State b = BitString b
 
 type Index3 w b = ((Index (2 * b)) / 5, (Index (2 * b)) / 5, (Index (2 * b)) / w)
+
+-- | Lane representation: 5×5 grid of w-bit lanes
+-- lanes!!y!!x is the lane at position (x,y)
+type LaneState w = Vec 5 (Vec 5 (Vec w Bit))
+
+-- | Convert flat state to lane representation
+stateToLanes :: forall l w b. (KeccakParameter l w b) => State b -> LaneState w
+stateToLanes = unconcatI . unconcatI
+
+-- | Convert lane representation back to flat state
+lanesToState :: forall l w b. (KeccakParameter l w b) => LaneState w -> State b
+lanesToState = concat . concat
 
 flatten :: forall l w b. (KeccakParameter l w b) => Index3 w b -> Index b
 flatten (i, j, k) = resize $ unMod i * (5 * w) + unMod j * w + unMod k
@@ -155,7 +171,7 @@ theta c s = fmap (fold xor . fmap (s !!)) $ theta_constants c
 
 -- | Improved theta using structured vectors instead of precomputed index tables
 -- Reshapes state into 5x5 grid of w-bit lanes, computes column parities,
--- and applies D[x] = C[x-1] ⊕ C[x+1] to each lane
+-- and applies D[x] = C[x-1] ⊕ rot(C[x+1], 1) to each lane
 theta2 :: forall l w b. (KeccakParameter l w b) => State b -> State b
 theta2 s = concat $ concat lanes'
   where
@@ -167,12 +183,33 @@ theta2 s = concat $ concat lanes'
     cols :: Vec 5 (Vec w Bit)
     cols = map (fold (zipWith xor)) (transpose lanes)
 
-    -- Compute D[x] = C[x-1] ⊕ C[x+1]
+    -- Compute D[x] = C[x-1] ⊕ rot(C[x+1], 1)
     d :: Vec 5 (Vec w Bit)
-    d = imap (\x _ -> zipWith xor (cols!!((x+4) `mod` 5)) (cols!!((x+1) `mod` 5))) indicesI
+    d = imap (\x _ -> zipWith xor (cols!!((x+4) `mod` 5)) (rotateLeft (cols!!((x+1) `mod` 5)) 1)) indicesI
 
     -- Apply D[x] to each lane: A'[x,y] = A[x,y] ⊕ D[x]
     lanes' :: Vec 5 (Vec 5 (Vec w Bit))
+    lanes' = map (\row -> imap (\x lane -> zipWith xor lane (d!!x)) row) lanes
+
+-- | Theta operating entirely on lane representation
+-- No flattening or constant tables - works directly on 5×5×w structure
+-- >>> s = bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: State 1600
+-- >>> lanesToState (theta3 (stateToLanes s)) == theta sha3_constants s
+-- True
+theta3 :: forall l w b. (KeccakParameter l w b) => LaneState w -> LaneState w
+theta3 lanes = lanes'
+  where
+    -- Compute column parities: C[x] = ⊕_{y=0}^4 A[x,y]
+    -- transpose lanes gives Vec 5 (Vec 5 (Vec w Bit)) where outer Vec is columns (x)
+    cols :: Vec 5 (Vec w Bit)
+    cols = map (fold (zipWith xor)) (transpose lanes)
+
+    -- Compute D[x] = C[(x-1) mod 5] ⊕ rot(C[(x+1) mod 5], 1)
+    d :: Vec 5 (Vec w Bit)
+    d = imap (\x _ -> zipWith xor (cols!!((x+4) `mod` 5)) (rotateLeft (cols!!((x+1) `mod` 5)) 1)) indicesI
+
+    -- Apply D[x] to each lane: A'[x,y] = A[x,y] ⊕ D[x]
+    lanes' :: LaneState w
     lanes' = map (\row -> imap (\x lane -> zipWith xor lane (d!!x)) row) lanes
 
 rho :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b

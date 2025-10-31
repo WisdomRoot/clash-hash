@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module SHA3F25
-  ( keccakf25OneRound
+  ( keccakf25OneRound2
+  , keccakf25OneRound3
   , topEntity
   ) where
 
@@ -13,9 +14,14 @@ import SHA3internal
 
 type State25 = State 25
 
--- One round of Keccak-f[25] using SHA3internal transformations
-keccakf25OneRound :: State25 -> State25
-keccakf25OneRound = iota constants25 0 . chi constants25 . pi constants25 . rho constants25 . theta2
+-- One round of Keccak-f[25] using SHA3internal transformations (old version with theta2)
+keccakf25OneRound2 :: State25 -> State25
+keccakf25OneRound2 = iota constants25 0 . chi constants25 . pi constants25 . rho constants25 . theta2
+
+-- One round of Keccak-f[25] using lane representation with theta3
+-- Converts to lanes once, applies theta3, converts back, then applies remaining steps
+keccakf25OneRound3 :: State25 -> State25
+keccakf25OneRound3 = iota constants25 0 . chi constants25 . pi constants25 . rho constants25 . lanesToState . theta3 . stateToLanes
 
 -- Hardware top entity
 {-# ANN topEntity
@@ -35,4 +41,4 @@ topEntity :: Clock System
           -> Enable System
           -> Signal System State25
           -> Signal System State25
-topEntity = exposeClockResetEnable $ fmap keccakf25OneRound
+topEntity = exposeClockResetEnable $ fmap keccakf25OneRound3
