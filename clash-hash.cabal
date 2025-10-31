@@ -96,7 +96,8 @@ library
     SHA3,
     SHA3F25,
     SHA3F252,
-    SHA3internal
+    SHA3internal,
+    KeccakF800
   default-language: Haskell2010
 
 -- Builds the executable 'clash', with clash-hash project in scope
