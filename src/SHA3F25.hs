@@ -15,7 +15,7 @@ type State25 = State 25
 
 -- One round of Keccak-f[25] using SHA3internal transformations
 keccakf25OneRound :: State25 -> State25
-keccakf25OneRound = iota constants25 0 . chi constants25 . pi constants25 . rho constants25 . theta constants25
+keccakf25OneRound = iota constants25 0 . chi constants25 . pi constants25 . rho constants25 . theta2
 
 -- Hardware top entity
 {-# ANN topEntity

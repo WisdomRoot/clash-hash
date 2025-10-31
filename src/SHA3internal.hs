@@ -10,6 +10,7 @@ module SHA3internal
     sha3_constants,
     constants25,
     theta,
+    theta2,
     rho,
     pi,
     chi,
@@ -152,6 +153,28 @@ _iota_constants = fmap (ifoldl g $ repeat 0) lfsr
 theta :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
 theta c s = fmap (fold xor . fmap (s !!)) $ theta_constants c
 
+-- | Improved theta using structured vectors instead of precomputed index tables
+-- Reshapes state into 5x5 grid of w-bit lanes, computes column parities,
+-- and applies D[x] = C[x-1] ⊕ C[x+1] to each lane
+theta2 :: forall l w b. (KeccakParameter l w b) => State b -> State b
+theta2 s = concat $ concat lanes'
+  where
+    -- Reshape state into 5x5 grid of w-bit lanes: lanes!!y!!x is lane at (x,y)
+    lanes :: Vec 5 (Vec 5 (Vec w Bit))
+    lanes = unconcatI (unconcatI s)
+
+    -- Compute column parities: C[x] = ⊕_{y=0}^4 A[x,y]
+    cols :: Vec 5 (Vec w Bit)
+    cols = map (fold (zipWith xor)) (transpose lanes)
+
+    -- Compute D[x] = C[x-1] ⊕ C[x+1]
+    d :: Vec 5 (Vec w Bit)
+    d = imap (\x _ -> zipWith xor (cols!!((x+4) `mod` 5)) (cols!!((x+1) `mod` 5))) indicesI
+
+    -- Apply D[x] to each lane: A'[x,y] = A[x,y] ⊕ D[x]
+    lanes' :: Vec 5 (Vec 5 (Vec w Bit))
+    lanes' = map (\row -> imap (\x lane -> zipWith xor lane (d!!x)) row) lanes
+
 rho :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
 rho c s = fmap (s !!) $ rho_constants c
 
@@ -176,32 +199,12 @@ iota c i = concat . f . unconcatI @25
     f s = (zipWith xor rc $ head s) :> tail s
     rc = leToPlusKN @w @64 takeI $ iota_constants c !! i
 
--- | Specialized theta constants for Keccak-f[25] where w=1
--- For w=1, all z-coordinates must be 0 (since z ∈ [0,w))
--- theta computes: C[x] = ⊕_y A[x,y,0], D[x] = C[x-1] ⊕ C[x+1], A'[x,y] = A[x,y] ⊕ D[x]
-_theta_constants_25 :: Vec 25 (Vec 11 (Index 25))
-_theta_constants_25 = fmap f indicesI where
-  f idx = let x = idx `mod` 5 in
-    idx :>  -- A[x,y,0]
-    -- C[x-1,0]: all positions ((x-1) mod 5, y', 0) for y' in [0..4]
-    ((x - 1) `mod` 5 + 0 * 5) :>
-    ((x - 1) `mod` 5 + 1 * 5) :>
-    ((x - 1) `mod` 5 + 2 * 5) :>
-    ((x - 1) `mod` 5 + 3 * 5) :>
-    ((x - 1) `mod` 5 + 4 * 5) :>
-    -- C[x+1,0]: all positions ((x+1) mod 5, y', 0) for y' in [0..4]
-    ((x + 1) `mod` 5 + 0 * 5) :>
-    ((x + 1) `mod` 5 + 1 * 5) :>
-    ((x + 1) `mod` 5 + 2 * 5) :>
-    ((x + 1) `mod` 5 + 3 * 5) :>
-    ((x + 1) `mod` 5 + 4 * 5) :> Nil
-
 -- | Pre-computed constants for Keccak-f[25]
 -- The generic sha3_constants generator has overflow issues for small variants
 constants25 :: SHA3Constants 0 1 25
 constants25 =
   SHA3Constants
-    _theta_constants_25  -- Specialized to avoid z-coordinate overflow for w=1
+    (_theta_constants @0 @1 @25)
     indicesI  -- Identity permutation: for w=1, rotation offsets are 0 but mapping is identity
     (_pi_constants @0 @1 @25)
     (_chi_constants @0 @1 @25)
