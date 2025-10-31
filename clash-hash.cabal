@@ -97,6 +97,7 @@ library
     SHA3F25,
     SHA3F252,
     SHA3internal,
+    KeccakF100,
     KeccakF200,
     KeccakF400,
     KeccakF800

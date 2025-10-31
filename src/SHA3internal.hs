@@ -19,6 +19,16 @@ module SHA3internal
     pi,
     chi,
     iota,
+    -- Lane-based primitives
+    thetaLane,
+    rhoLane,
+    piLane,
+    chiLane,
+    iotaLane,
+    laneRound,
+    roundConstants,
+    roundConstantsLane,
+    applyRounds,
   )
 where
 
@@ -246,3 +256,81 @@ constants25 =
     (_pi_constants @0 @1 @25)
     (_chi_constants @0 @1 @25)
     _iota_constants
+
+--------------------------------------------------------------------------------
+-- Lane-based primitives (no constant tables, work directly on LaneState)
+--------------------------------------------------------------------------------
+
+-- | Theta transformation on lane representation
+-- Share column data instead of recomputing per lane
+thetaLane :: forall l w b. (KeccakParameter l w b) => LaneState w -> LaneState w
+thetaLane lanes = map upd rows
+  where
+    rows      = lanes
+    columns   = transpose lanes                                 -- Vec 5 (Vec 5 (Vec w Bit))
+    colsXor   = map (fold (zipWith xor)) columns                -- C[x]
+    colsPrev  = rotateRight colsXor 1                           -- C[x-1]
+    colsNext  = rotateLeft  colsXor 1                           -- C[x+1]
+    dVec      = zipWith (\p n -> zipWith xor p (rotateLeft n 1)) colsPrev colsNext
+    upd row   = imap (\x lane -> zipWith xor lane (dVec !! x)) row
+
+-- | Rho transformation: rotate each lane by its offset
+-- Precompute offsets modulo w once per call
+rhoLane :: forall w. (KnownNat w) => LaneState w -> LaneState w
+rhoLane lanes = imap (\y row -> imap (\x lane -> rotateLeft lane (mods !! y !! x)) row) lanes
+  where
+    mods :: Vec 5 (Vec 5 (Index w))
+    mods = fmap (fmap toIndexW) rhoOffsets
+
+    rhoOffsets :: Vec 5 (Vec 5 Integer)
+    rhoOffsets =
+      ( 0 :> 36 :>  3 :> 41 :> 18 :> Nil) :>
+      ( 1 :> 44 :> 10 :> 45 :>  2 :> Nil) :>
+      (62 :>  6 :> 43 :> 15 :> 61 :> Nil) :>
+      (28 :> 55 :> 25 :> 21 :> 56 :> Nil) :>
+      (27 :> 20 :> 39 :>  8 :> 14 :> Nil) :> Nil
+
+    -- Convert Integer to Index w after taking mod w
+    toIndexW :: Integer -> Index w
+    toIndexW n = fromInteger (n `mod` natVal (Proxy @w))
+
+-- | Pi transformation: permute lanes according to (x', y') = (y, 2x + 3y)
+-- Precompute the source (x,y) indices
+piLane :: LaneState w -> LaneState w
+piLane lanes = imap (\y _ -> imap (\x _ -> lanes !! (piY !! y !! x) !! (piX !! y !! x)) indicesI) indicesI
+  where
+    piX, piY :: Vec 5 (Vec 5 (Index 5))
+    piX = imap (\_ _ -> indicesI) indicesI  -- Each row gets [0,1,2,3,4]
+    piY = imap (\y _ -> imap (\x _ -> (2*x + 3*y) `mod` 5) indicesI) indicesI
+
+-- | Chi transformation: apply nonlinear mixing row-wise
+-- Reuse neighbour lanes without repeated indexing
+chiLane :: LaneState w -> LaneState w
+chiLane lanes = map chiRow lanes
+  where
+    chiRow row =
+      let row1 = rotateLeft row 1
+          row2 = rotateLeft row 2
+      in zipWith3 (\a b c -> zipWith3 (\bitA bitB bitC -> bitA `xor` (complement bitB .&. bitC)) a b c) row row1 row2
+
+-- | Iota transformation: XOR round constant into lane (0,0)
+-- Takes first w bits of the 64-bit round constant
+iotaLane :: forall w. (KnownNat w) => Vec w Bit -> LaneState w -> LaneState w
+iotaLane rc lanes = replace 0 (replace 0 (zipWith xor (lanes!!0!!0) rc) (lanes!!0)) lanes
+
+-- | Extract round constants for a given l value
+-- Returns all 12+2*l round constants needed for Keccak-f[b]
+roundConstants :: forall l. (KnownNat l, (12 + 2 * l) <= 24) => Vec (12 + 2 * l) (Vec 64 Bit)
+roundConstants = leToPlusKN @(12 + 2 * l) @24 $ takeI _iota_constants
+
+-- | Lane-friendly round constants: pre-sliced to w bits
+roundConstantsLane :: forall l w. (KnownNat l, KnownNat w, (12 + 2 * l) <= 24, w <= 64) => Vec (12 + 2 * l) (Vec w Bit)
+roundConstantsLane = map (leToPlusKN @w @64 takeI) (roundConstants @l)
+
+-- | Complete Keccak round using lane-based primitives
+laneRound :: forall l w b. (KeccakParameter l w b) => Vec w Bit -> LaneState w -> LaneState w
+laneRound rc st = iotaLane rc (chiLane (piLane (rhoLane (thetaLane st))))
+
+-- | Apply all rounds to a lane state
+applyRounds :: forall l w b. (KeccakParameter l w b) => Vec (12 + 2 * l) (Vec w Bit) -> LaneState w -> LaneState w
+applyRounds rcs st = ifoldl (\acc _ rc -> laneRound rc acc) st rcs
