@@ -107,7 +107,7 @@ data SHA3Constants l w b = SHA3Constants
   { theta_constants :: Vec b (Vec 11 (Index b)),
     rho_constants :: Vec b (Index b),
     pi_constants :: Vec b (Index b),
-    chi_constants :: Vec b (Vec 3 (Index b)),
+    chi_constants :: Vec b (Index b, Index b, Index b),
     iota_constants :: Vec 24 (Vec 64 Bit)
   }
   deriving (Lift)
@@ -145,10 +145,11 @@ _rho_constants = fmap (resize . flatten . f . erect) indicesI
 _pi_constants :: forall l w b. (KeccakParameter l w b) => Vec b (Index b)
 _pi_constants = fmap (resize . flatten . f . erect) indicesI where f (i, j, k) = (j, 3 * i + j, k)
 
-_chi_constants :: forall l w b. (KeccakParameter l w b) => Vec b (Vec 3 (Index b))
-_chi_constants = fmap (fmap (resize . flatten) . f . erect) indicesI
+_chi_constants :: forall l w b. (KeccakParameter l w b) => Vec b (Index b, Index b, Index b)
+_chi_constants = fmap (g . erect) indicesI
   where
-    f (i, j, k) = (i, j, k) :> (i, j + 1, k) :> (i, j + 2, k) :> Nil
+    g (i, j, k) = let f = resize . flatten
+                  in (f (i, j, k), f (i, j + 1, k), f (i, j + 2, k))
 
 _iota_constants :: Vec 24 (Vec 64 Bit)
 _iota_constants = fmap (ifoldl g $ repeat 0) lfsr
@@ -231,8 +232,7 @@ pi c s = fmap (s !!) $ pi_constants c
 chi :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
 chi c s = fmap f $ chi_constants c
   where
-    f (i0 :> i1 :> i2 :> Nil) = s !! i0 `xor` (complement (s !! i1) .&. s !! i2)
-    f _ = P.error "chi: impossible"
+    f (i0, i1, i2) = s !! i0 `xor` (complement (s !! i1) .&. s !! i2)
 
 iota ::
   forall l w b.

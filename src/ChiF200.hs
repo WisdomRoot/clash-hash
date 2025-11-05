@@ -25,14 +25,13 @@ chiF200 = $(do
                    (conT ''Index `appT` litT (numTyLit 200))
 
   -- Generate one bit expression: s !! i0 `xor` (complement (s !! i1) .&. s !! i2)
-  let bitExpr (i0 :> i1 :> i2 :> Nil) =
+  let bitExpr (i0, i1, i2) =
         infixE (Just (infixE (Just (varE s)) (varE '(!!)) (Just (idx i0))))
                (varE 'xor)
                (Just (infixE (Just (appE (varE 'complement)
                                          (infixE (Just (varE s)) (varE '(!!)) (Just (idx i1)))))
                              (varE '(.&.))
                              (Just (infixE (Just (varE s)) (varE '(!!)) (Just (idx i2))))))
-      bitExpr _ = fail "Expected 3 indices"
 
   -- Build Vec from expressions
   let vec [] = [| Nil |]
