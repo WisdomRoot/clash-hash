@@ -94,6 +94,7 @@ library
   hs-source-dirs: src
   exposed-modules:
     ChiF200,
+    ChiF200BitVec,
     SHA2,
     SHA3,
     SHA3F25,
