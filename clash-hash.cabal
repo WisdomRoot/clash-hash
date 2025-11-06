@@ -95,6 +95,7 @@ library
   exposed-modules:
     ChiF200,
     ChiF200BitVec,
+    KeccakF200BitVec,
     SHA2,
     SHA3,
     SHA3F25,
