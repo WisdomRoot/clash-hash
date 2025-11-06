@@ -42,5 +42,6 @@ cabal.config
 /vhdl
 /verilog
 /systemverilog
+/build
 
 .vscode
