@@ -8,6 +8,7 @@ module KeccakF200BitVec
 import Clash.Prelude
 import Clash.Sized.Internal.BitVector (replaceBit#)
 import SHA3internal (sha3_constants, SHA3Constants(..), chi_constants, pi_constants)
+import qualified Constants
 
 type State200 = BitVector 200
 
@@ -20,8 +21,8 @@ piIndices :: Vec 200 (Index 200)
 piIndices = pi_constants (sha3_constants @3 @8 @200)
 
 -- Pre-computed round constant for Iota (round 0, w=8 bits)
-iotaRC0 :: Vec 8 Bit
-iotaRC0 = takeI $ head $ iota_constants (sha3_constants @3 @8 @200)
+iotaRC0 :: BitVector 8
+iotaRC0 = resize $ head Constants.iota
 
 -- Chi transformation expressed directly on BitVector
 chiF200BitVec :: BitVector 200 -> BitVector 200
@@ -46,13 +47,9 @@ piF200BitVec bv =
 -- Iota transformation: XOR round constant into first lane (bits 0-7)
 iotaF200BitVec :: BitVector 200 -> BitVector 200
 iotaF200BitVec bv =
-  ifoldl
-    (\acc bitIdx rcBit ->
-       let oldBit = bv ! fromIntegral bitIdx
-           newBit = oldBit `xor` rcBit
-       in  replaceBit# acc (fromIntegral bitIdx) newBit)
-    bv
-    iotaRC0
+  let lane0 = slice d7 d0 bv       -- Extract first 8 bits (lane 0)
+      lane0' = lane0 `xor` iotaRC0  -- Single 8-bit XOR operation
+  in  (slice d199 d8 bv) ++# lane0' -- Replace bits 0-7 with result
 
 -- Partial Keccak round: Pi followed by Chi followed by Iota
 piChiIotaF200BitVec :: BitVector 200 -> BitVector 200
