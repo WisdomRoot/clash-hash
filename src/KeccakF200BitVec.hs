@@ -7,7 +7,7 @@ module KeccakF200BitVec
 
 import Clash.Prelude
 import Clash.Sized.Internal.BitVector (replaceBit#)
-import SHA3internal (sha3_constants, chi_constants, pi_constants, roundConstantsLane)
+import SHA3internal (sha3_constants, SHA3Constants(..), chi_constants, pi_constants)
 
 type State200 = BitVector 200
 
@@ -21,7 +21,7 @@ piIndices = pi_constants (sha3_constants @3 @8 @200)
 
 -- Pre-computed round constant for Iota (round 0, w=8 bits)
 iotaRC0 :: Vec 8 Bit
-iotaRC0 = head $ roundConstantsLane @3 @8
+iotaRC0 = takeI $ head $ iota_constants (sha3_constants @3 @8 @200)
 
 -- Chi transformation expressed directly on BitVector
 chiF200BitVec :: BitVector 200 -> BitVector 200
@@ -75,4 +75,4 @@ topEntity :: Clock System
           -> Enable System
           -> Signal System State200
           -> Signal System State200
-topEntity = exposeClockResetEnable $ fmap (chiF200BitVec . piF200BitVec)
+topEntity = exposeClockResetEnable $ fmap piChiIotaF200BitVec
