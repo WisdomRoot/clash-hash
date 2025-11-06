@@ -29,7 +29,7 @@ chiF200BitVec :: BitVector 200 -> BitVector 200
 chiF200BitVec bv =
   ifoldl
     (\acc idx (i0, i1, i2) ->
-       let bitOut = bv ! fromIntegral i0 `xor` (complement (bv ! fromIntegral i1) .&. bv ! fromIntegral i2)
+       let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
        in  replaceBit# acc (fromIntegral idx) bitOut)
     0
     chiTriples
@@ -39,7 +39,7 @@ piF200BitVec :: BitVector 200 -> BitVector 200
 piF200BitVec bv =
   ifoldl
     (\acc idx srcIdx ->
-       let bitOut = bv ! fromIntegral srcIdx
+       let bitOut = bv ! srcIdx
        in  replaceBit# acc (fromIntegral idx) bitOut)
     0
     piIndices
@@ -49,7 +49,7 @@ iotaF200BitVec :: BitVector 200 -> BitVector 200
 iotaF200BitVec bv =
   let lane0 = slice d7 d0 bv       -- Extract first 8 bits (lane 0)
       lane0' = lane0 `xor` iotaRC0  -- Single 8-bit XOR operation
-  in  (slice d199 d8 bv) ++# lane0' -- Replace bits 0-7 with result
+  in  slice d199 d8 bv ++# lane0' -- Replace bits 0-7 with result
 
 -- Partial Keccak round: Pi followed by Chi followed by Iota
 piChiIotaF200BitVec :: BitVector 200 -> BitVector 200

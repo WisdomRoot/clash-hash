@@ -18,7 +18,7 @@ chiF200BitVec :: BitVector 200 -> BitVector 200
 chiF200BitVec bv =
   foldl
     (\acc (idx, (i0, i1, i2)) ->
-       let bitOut = bv ! fromIntegral i0 `xor` (complement (bv ! fromIntegral i1) .&. bv ! fromIntegral i2)
+       let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
        in  replaceBit# acc (fromIntegral idx) bitOut)
     0
     (zip indicesI chiTriples)

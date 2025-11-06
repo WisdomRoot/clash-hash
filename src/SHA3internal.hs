@@ -13,6 +13,7 @@ module SHA3internal
     pi,
     chi,
     iota,
+    _iota_constants,
   )
 where
 

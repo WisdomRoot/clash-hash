@@ -28,8 +28,32 @@ import qualified Prelude as P
 -- - Keccak-f[800]:  12 + 2*5 = 22 rounds (use indices 0-21)
 -- - Keccak-f[1600]: 12 + 2*6 = 24 rounds (use all indices 0-23)
 iota :: Vec 24 (BitVector 64)
-iota = fmap (v2bv . reverse . ifoldl g (repeat 0)) lfsr
+iota = unfoldrI generateRoundConstant (0b10000000 :: BitVector 8)
   where
-    lfsr = unconcatI . unfoldrI f $ bv2v $(bLit "10000000") :: Vec 24 (Vec 7 Bit)
-    f t = (head t, zipWith xor (0 +>> t) . fmap (last t .&.) $ bv2v $(bLit "10001110"))
-    g t j b = replace @_ @(Unsigned 7) (2 P.^ j - 1) b t
+    -- Generate one round constant and next LFSR state
+    generateRoundConstant :: BitVector 8 -> (BitVector 64, BitVector 8)
+    generateRoundConstant lfsr = (expandLFSR lfsr, lfsrStep lfsr)
+
+    -- LFSR step with feedback polynomial x^8 + x^6 + x^5 + x^4 + 1
+    lfsrStep :: BitVector 8 -> BitVector 8
+    lfsrStep s =
+      let fb = testBit s 0
+          s' = s `rotateR` 1
+          mask = 0b10001110 :: BitVector 8
+      in if fb then s' `xor` mask else s'
+
+    -- Expand 8-bit LFSR to 64-bit round constant
+    -- Bits placed at positions 2^j - 1 for j in 0..6
+    expandLFSR :: BitVector 8 -> BitVector 64
+    expandLFSR s = P.foldl setBitAt 0 (P.zip [0..6] bitPositions)
+      where
+        bitPositions :: [Int]
+        bitPositions = [0, 1, 3, 7, 15, 31, 63]
+
+        setBitAt acc (j, pos) =
+          -- `BitVector` stores bit 0 at the LSB, but the Keccak spec numbers
+          -- the taps from the MSB side. Map j=0..6 onto bits 7..1 accordingly.
+          let tap = 7 - j
+          in if testBit s tap
+               then setBit acc pos
+               else acc
