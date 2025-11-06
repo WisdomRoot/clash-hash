@@ -103,6 +103,8 @@ library
     KeccakF200,
     KeccakF400,
     KeccakF800
+  other-modules:
+    Constants.TH
   default-language: Haskell2010
 
 -- Builds the executable 'clash', with clash-hash project in scope
