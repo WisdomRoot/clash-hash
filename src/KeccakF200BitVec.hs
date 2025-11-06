@@ -26,33 +26,33 @@ iotaRC0 = takeI $ head $ iota_constants (sha3_constants @3 @8 @200)
 -- Chi transformation expressed directly on BitVector
 chiF200BitVec :: BitVector 200 -> BitVector 200
 chiF200BitVec bv =
-  foldl
-    (\acc (idx, (i0, i1, i2)) ->
+  ifoldl
+    (\acc idx (i0, i1, i2) ->
        let bitOut = bv ! fromIntegral i0 `xor` (complement (bv ! fromIntegral i1) .&. bv ! fromIntegral i2)
        in  replaceBit# acc (fromIntegral idx) bitOut)
     0
-    (zip indicesI chiTriples)
+    chiTriples
 
 -- Pi transformation: bit permutation on BitVector
 piF200BitVec :: BitVector 200 -> BitVector 200
 piF200BitVec bv =
-  foldl
-    (\acc (idx, srcIdx) ->
+  ifoldl
+    (\acc idx srcIdx ->
        let bitOut = bv ! fromIntegral srcIdx
        in  replaceBit# acc (fromIntegral idx) bitOut)
     0
-    (zip indicesI piIndices)
+    piIndices
 
 -- Iota transformation: XOR round constant into first lane (bits 0-7)
 iotaF200BitVec :: BitVector 200 -> BitVector 200
 iotaF200BitVec bv =
-  foldl
-    (\acc (bitIdx, rcBit) ->
+  ifoldl
+    (\acc bitIdx rcBit ->
        let oldBit = bv ! fromIntegral bitIdx
            newBit = oldBit `xor` rcBit
        in  replaceBit# acc (fromIntegral bitIdx) newBit)
     bv
-    (zip indicesI iotaRC0)
+    iotaRC0
 
 -- Partial Keccak round: Pi followed by Chi followed by Iota
 piChiIotaF200BitVec :: BitVector 200 -> BitVector 200
