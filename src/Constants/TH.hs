@@ -48,8 +48,8 @@ iota = do
 -- Chi formula: A'[x,y] = A[x,y] ⊕ (¬A[x+1,y] ∧ A[x+2,y])
 chi :: Q Exp
 chi = do
-  let w = 8   -- lane width for Keccak-f[200]
-      b = 200 -- total state size
+  let w = 8 :: Int   -- lane width for Keccak-f[200]
+      b = 200 :: Int -- total state size
 
       -- Convert flat index to (i,j,k) coordinates
       -- i = row (0-4), j = column (0-4), k = bit in lane (0-7)
@@ -72,10 +72,17 @@ chi = do
             i0 = flatten (i, j, k)
             i1 = flatten (i, (j P.+ 1) `P.mod` 5, k)
             i2 = flatten (i, (j P.+ 2) `P.mod` 5, k)
-        in (i0, i1, i2)
+        in (i0, i1, i2) :: (Int, Int, Int)
 
-      -- Generate all 200 triples
+      -- Generate all 200 triples as Int tuples
       triples :: [(Int, Int, Int)]
       triples = P.map chiTriple [0..b P.- 1]
 
-  listToVecTH triples
+      -- Convert Int tuples to Index 200 tuples
+      mkTriple :: (Int, Int, Int) -> (Index 200, Index 200, Index 200)
+      mkTriple (i0, i1, i2) = (P.fromIntegral i0, P.fromIntegral i1, P.fromIntegral i2)
+
+      indexTriples :: [(Index 200, Index 200, Index 200)]
+      indexTriples = P.map mkTriple triples
+
+  listToVecTH indexTriples
