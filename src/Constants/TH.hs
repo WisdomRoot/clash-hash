@@ -5,6 +5,7 @@ module Constants.TH
   , chi
   , pi
   , rho
+  , theta
   ) where
 
 import Clash.Prelude hiding (Exp, pi)
@@ -195,3 +196,60 @@ rho = do
       indexList = P.map P.fromIntegral srcIndices
 
   listToVecTH indexList
+
+-- | Template Haskell generator for Theta transformation index lookup.
+-- For Keccak-f[200]: generates Vec 200 (Vec 11 (Index 200))
+-- Theta formula: A'[i,j,k] = A[i,j,k] ⊕ parity(column j-1, bit k) ⊕ parity(column j+1, bit k-1)
+-- where parity is XOR of all 5 rows in that column.
+theta :: Q Exp
+theta = do
+  let w = 8 :: Int   -- lane width for Keccak-f[200]
+      b = 200 :: Int -- total state size
+
+      -- Convert flat index to (i,j,k) coordinates
+      erect idx =
+        let i = idx `P.div` (5 P.* w)
+            j = (idx `P.mod` (5 P.* w)) `P.div` w
+            k = idx `P.mod` w
+        in (i, j, k)
+
+      -- Convert (i,j,k) back to flat index
+      flatten (i, j, k) = i P.* (5 P.* w) P.+ j P.* w P.+ k
+
+      -- Generate theta index list for position idx
+      -- Returns 11 indices:
+      --   1. The bit itself: (i, j, k)
+      --   2-6. All 5 rows in column j-1 at bit k: (0..4, j-1, k)
+      --   7-11. All 5 rows in column j+1 at bit k-1: (0..4, j+1, k-1)
+      thetaIndices idx =
+        let (i, j, k) = erect idx
+
+            -- The bit itself
+            self = flatten (i, j, k)
+
+            -- All rows in column j-1 at bit position k
+            col_jMinus1 = [flatten (row, (j P.- 1) `P.mod` 5, k) | row <- [0..4]]
+
+            -- All rows in column j+1 at bit position k-1
+            col_jPlus1 = [flatten (row, (j P.+ 1) `P.mod` 5, (k P.- 1) `P.mod` w) | row <- [0..4]]
+
+        in self : col_jMinus1 P.++ col_jPlus1
+
+      -- Generate all 200 index lists
+      allIndices :: [[Int]]
+      allIndices = P.map thetaIndices [0..b P.- 1]
+
+      -- Convert [[Int]] to [[Index 200]] and then to [Vec 11 (Index 200)]
+      convertInner :: [Int] -> Vec 11 (Index 200)
+      convertInner xs =
+        let idxs = P.map P.fromIntegral xs :: [Index 200]
+        in case idxs of
+             [i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10] ->
+               i0 :> i1 :> i2 :> i3 :> i4 :> i5 :> i6 :> i7 :> i8 :> i9 :> i10 :> Nil
+             _ -> error "thetaIndices must produce exactly 11 elements"
+
+      indexVecs :: [Vec 11 (Index 200)]
+      indexVecs = P.map convertInner allIndices
+
+  -- Now convert [Vec 11 (Index 200)] to Vec 200 (Vec 11 (Index 200))
+  listToVecTH indexVecs

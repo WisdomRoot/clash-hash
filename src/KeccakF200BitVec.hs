@@ -1,7 +1,8 @@
 module KeccakF200BitVec
-  ( chiF200
-  , piF200
+  ( thetaF200
   , rhoF200
+  , piF200
+  , chiF200
   , iotaF200
   , topEntity
   ) where
@@ -11,7 +12,11 @@ import qualified Constants
 
 type State200 = BitVector 200
 
--- Pre-computed constants for Keccak-f[200]
+-- Pre-computed constants for Theta transformation
+thetaIndices :: Vec 200 (Vec 11 (Index 200))
+thetaIndices = Constants.theta
+
+-- Pre-computed constants for Chi transformation
 chiTriples :: Vec 200 (Index 200, Index 200, Index 200)
 chiTriples = Constants.chi
 
@@ -26,6 +31,16 @@ rhoIndices = Constants.rho
 -- Pre-computed round constant for Iota (round 0, w=8 bits)
 iotaRC0 :: BitVector 8
 iotaRC0 = resize $ head Constants.iota
+
+-- Theta transformation: XOR with column parities
+thetaF200 :: BitVector 200 -> BitVector 200
+thetaF200 bv =
+  ifoldl
+    (\acc idx indices11 ->
+       let bitOut = fold xor (map (bv !) indices11)
+       in  replaceBit idx bitOut acc)
+    0
+    thetaIndices
 
 -- Chi transformation expressed directly on BitVector
 chiF200 :: BitVector 200 -> BitVector 200
@@ -64,13 +79,13 @@ iotaF200 bv =
       lane0' = lane0 `xor` iotaRC0  -- Single 8-bit XOR operation
   in  slice d199 d8 bv ++# lane0' -- Replace bits 0-7 with result
 
--- Partial Keccak round: Rho, Pi, Chi, Iota (missing Theta)
-rhoPiChiIotaF200 :: BitVector 200 -> BitVector 200
-rhoPiChiIotaF200 = iotaF200 . chiF200 . piF200 . rhoF200
+-- Complete Keccak-f[200] round: Theta, Rho, Pi, Chi, Iota
+keccakF200Round :: BitVector 200 -> BitVector 200
+keccakF200Round = iotaF200 . chiF200 . piF200 . rhoF200 . thetaF200
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "RhoPiChiIota_F200_OneRound"
+    { t_name = "KeccakF200_OneRound"
     , t_inputs = [ PortName "CLK"
                  , PortName "RST"
                  , PortName "EN"
@@ -85,4 +100,4 @@ topEntity :: Clock System
           -> Enable System
           -> Signal System State200
           -> Signal System State200
-topEntity = exposeClockResetEnable $ fmap rhoPiChiIotaF200
+topEntity = exposeClockResetEnable $ fmap keccakF200Round

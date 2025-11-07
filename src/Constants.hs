@@ -5,6 +5,7 @@ module Constants
   , chi
   , pi
   , rho
+  , theta
   ) where
 
 import Clash.Prelude hiding (pi)
@@ -40,3 +41,12 @@ pi = $(TH.pi)
 -- Generated at compile time via Template Haskell.
 rho :: Vec 200 (Index 200)
 rho = $(TH.rho)
+
+-- | Theta transformation index lookup table for Keccak-f[200].
+--
+-- Contains 200 lists of 11 indices each.
+-- For each output bit, these 11 indices identify the input bits to XOR together.
+-- Theta formula: A'[i,j,k] = A[i,j,k] ⊕ parity(column j-1, bit k) ⊕ parity(column j+1, bit k-1)
+-- Generated at compile time via Template Haskell.
+theta :: Vec 200 (Vec 11 (Index 200))
+theta = $(TH.theta)
