@@ -74,6 +74,7 @@
               export NANGATE45_LIB=$PWD/lib/nangate45/NangateOpenCellLibrary_typical.lib
               export CC=${pkgs.clang}/bin/clang
               export CXX=${pkgs.clang}/bin/clang++
+              export MACOSX_DEPLOYMENT_TARGET=15.0
             '';
           };
         });

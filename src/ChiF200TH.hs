@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module ChiF200
+module ChiF200TH
   ( chiF200
   , topEntity
   ) where
