@@ -4,6 +4,7 @@ module Constants
   ( iota
   , chi
   , pi
+  , rho
   ) where
 
 import Clash.Prelude hiding (pi)
@@ -31,3 +32,11 @@ chi = $(TH.chi)
 -- Generated at compile time via Template Haskell.
 pi :: Vec 200 (Index 200)
 pi = $(TH.pi)
+
+-- | Rho transformation permutation table for Keccak-f[200].
+--
+-- Contains 200 source indices for the rho permutation.
+-- Rho rotates each lane by a different offset according to the Keccak specification.
+-- Generated at compile time via Template Haskell.
+rho :: Vec 200 (Index 200)
+rho = $(TH.rho)

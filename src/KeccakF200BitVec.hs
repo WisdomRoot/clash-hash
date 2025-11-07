@@ -1,6 +1,7 @@
 module KeccakF200BitVec
   ( chiF200
   , piF200
+  , rhoF200
   , iotaF200
   , topEntity
   ) where
@@ -17,6 +18,10 @@ chiTriples = Constants.chi
 -- Pre-computed constants for Pi permutation
 piIndices :: Vec 200 (Index 200)
 piIndices = Constants.pi
+
+-- Pre-computed constants for Rho permutation
+rhoIndices :: Vec 200 (Index 200)
+rhoIndices = Constants.rho
 
 -- Pre-computed round constant for Iota (round 0, w=8 bits)
 iotaRC0 :: BitVector 8
@@ -42,6 +47,16 @@ piF200 bv =
     0
     piIndices
 
+-- Rho transformation: bit permutation on BitVector (lane rotation)
+rhoF200 :: BitVector 200 -> BitVector 200
+rhoF200 bv =
+  ifoldl
+    (\acc idx srcIdx ->
+       let bitOut = bv ! srcIdx
+       in  replaceBit idx bitOut acc)
+    0
+    rhoIndices
+
 -- Iota transformation: XOR round constant into first lane (bits 0-7)
 iotaF200 :: BitVector 200 -> BitVector 200
 iotaF200 bv =
@@ -49,13 +64,13 @@ iotaF200 bv =
       lane0' = lane0 `xor` iotaRC0  -- Single 8-bit XOR operation
   in  slice d199 d8 bv ++# lane0' -- Replace bits 0-7 with result
 
--- Partial Keccak round: Pi followed by Chi followed by Iota
-piChiIotaF200 :: BitVector 200 -> BitVector 200
-piChiIotaF200 = iotaF200 . chiF200 . piF200
+-- Partial Keccak round: Rho, Pi, Chi, Iota (missing Theta)
+rhoPiChiIotaF200 :: BitVector 200 -> BitVector 200
+rhoPiChiIotaF200 = iotaF200 . chiF200 . piF200 . rhoF200
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "PiChiIota_F200_OneRound"
+    { t_name = "RhoPiChiIota_F200_OneRound"
     , t_inputs = [ PortName "CLK"
                  , PortName "RST"
                  , PortName "EN"
@@ -70,4 +85,4 @@ topEntity :: Clock System
           -> Enable System
           -> Signal System State200
           -> Signal System State200
-topEntity = exposeClockResetEnable $ fmap piChiIotaF200
+topEntity = exposeClockResetEnable $ fmap rhoPiChiIotaF200
