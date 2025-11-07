@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module KeccakF200
   ( thetaF200
   , rhoF200
@@ -19,7 +21,7 @@ thetaF200 bv =
        let bitOut = fold xor (map (bv !) indices11)
        in  replaceBit idx bitOut acc)
     0
-    Constants.theta
+    (Constants.theta @3)
 
 -- Chi transformation expressed directly on BitVector
 chiF200 :: BitVector 200 -> BitVector 200

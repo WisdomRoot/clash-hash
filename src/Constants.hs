@@ -1,15 +1,20 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Constants
-  ( iota
-  , chi
-  , pi
-  , rho
-  , theta
-  ) where
+  ( iota,
+    chi,
+    pi,
+    rho,
+    theta,
+  )
+where
 
 import Clash.Prelude hiding (pi)
 import qualified Constants.TH as TH
+import Data.Type.Equality ((:~:) (Refl))
 
 -- | All 24 round constants for Keccak-f, 64 bits each.
 --
@@ -42,11 +47,32 @@ pi = $(TH.pi)
 rho :: Vec 200 (Index 200)
 rho = $(TH.rho)
 
--- | Theta transformation index lookup table for Keccak-f[200].
+-- | Theta transformation index lookup table parameterized by lane size.
 --
--- Contains 200 lists of 11 indices each.
--- For each output bit, these 11 indices identify the input bits to XOR together.
--- Theta formula: A'[i,j,k] = A[i,j,k] ⊕ parity(column j-1, bit k) ⊕ parity(column j+1, bit k-1)
--- Generated at compile time via Template Haskell.
-theta :: Vec 200 (Vec 11 (Index 200))
-theta = $(TH.theta)
+-- Given Keccak parameter l (lane size w = 2^l, state size b = 25w), produce the
+-- 11-source index vectors needed for each bit of the Theta step.
+theta ::
+  forall l w b.
+  (Parameter l w b) =>
+  Vec b (Vec 11 (Index b))
+theta
+  | Just Refl <- sameNat (SNat @l) (SNat @0) = $(TH.theta 0)
+  | Just Refl <- sameNat (SNat @l) (SNat @1) = $(TH.theta 1)
+  | Just Refl <- sameNat (SNat @l) (SNat @2) = $(TH.theta 2)
+  | Just Refl <- sameNat (SNat @l) (SNat @3) = $(TH.theta 3)
+  | Just Refl <- sameNat (SNat @l) (SNat @4) = $(TH.theta 4)
+  | Just Refl <- sameNat (SNat @l) (SNat @5) = $(TH.theta 5)
+  | Just Refl <- sameNat (SNat @l) (SNat @6) = $(TH.theta 6)
+  | otherwise = errorX "theta: unsupported lane parameter"
+
+----
+
+type Parameter l w b =
+  ( KnownNat l,
+    KnownNat w,
+    KnownNat b,
+    w ~ (2 ^ l),
+    b ~ 25 * w,
+    0 <= l,
+    l <= 6
+  )
