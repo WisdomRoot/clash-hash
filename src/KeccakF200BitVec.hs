@@ -6,7 +6,6 @@ module KeccakF200BitVec
   ) where
 
 import Clash.Prelude
-import SHA3internal (sha3_constants, pi_constants)
 import qualified Constants
 
 type State200 = BitVector 200
@@ -17,7 +16,7 @@ chiTriples = Constants.chi
 
 -- Pre-computed constants for Pi permutation
 piIndices :: Vec 200 (Index 200)
-piIndices = pi_constants (sha3_constants @3 @8 @200)
+piIndices = Constants.pi
 
 -- Pre-computed round constant for Iota (round 0, w=8 bits)
 iotaRC0 :: BitVector 8

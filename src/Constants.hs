@@ -3,9 +3,10 @@
 module Constants
   ( iota
   , chi
+  , pi
   ) where
 
-import Clash.Prelude
+import Clash.Prelude hiding (pi)
 import qualified Constants.TH as TH
 
 -- | All 24 round constants for Keccak-f, 64 bits each.
@@ -22,3 +23,11 @@ iota = $(TH.iota)
 -- Generated at compile time via Template Haskell.
 chi :: Vec 200 (Index 200, Index 200, Index 200)
 chi = $(TH.chi)
+
+-- | Pi transformation permutation table for Keccak-f[200].
+--
+-- Contains 200 source indices for the pi permutation.
+-- Pi formula: (i, j, k) -> (j, 3*i + j, k)
+-- Generated at compile time via Template Haskell.
+pi :: Vec 200 (Index 200)
+pi = $(TH.pi)
