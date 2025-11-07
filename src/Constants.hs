@@ -15,8 +15,8 @@ import qualified Constants.TH as TH
 --
 -- The constants are generated at compile time via Template Haskell so that
 -- synthesized hardware sees a literal Vec instead of rebuilding the LFSR.
-iota :: Vec 24 (BitVector 64)
-iota = $(TH.iota)
+iota :: Index 24 -> BitVector 8
+iota idx = truncateB ($(TH.iota) !! idx)
 
 -- | Chi transformation index lookup table for Keccak-f[200].
 --
