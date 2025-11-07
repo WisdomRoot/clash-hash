@@ -8,8 +8,8 @@ module Constants.TH
   , theta
   ) where
 
-import Clash.Prelude hiding (Exp, Type, pi)
-import qualified Prelude as P
+import Clash.Prelude (BitVector, Vec((:>), Nil), Index, unfoldrI, listToVecTH, toList, testBit, setBit, rotateR, xor)
+import Prelude hiding (pi)
 import Language.Haskell.TH
 
 -- | Template Haskell generator that produces the Vec of 24 Keccak round constants.
@@ -23,7 +23,7 @@ iota = do
 
       expandLFSR :: BitVector 8 -> BitVector 64
       expandLFSR s =
-        P.foldl setBitAt 0 (P.zip [0 .. 6] bitPositions)
+        foldl setBitAt 0 (zip [0 .. 6] bitPositions)
         where
           setBitAt acc (j, pos) =
             let tap = 7 - j
@@ -57,13 +57,13 @@ chi = do
       -- Convert flat index to (i,j,k) coordinates
       -- i = row (0-4), j = column (0-4), k = bit in lane (0-7)
       erect idx =
-        let i = idx `P.div` (5 P.* w)
-            j = (idx `P.mod` (5 P.* w)) `P.div` w
-            k = idx `P.mod` w
+        let i = idx `div` (5 * w)
+            j = (idx `mod` (5 * w)) `div` w
+            k = idx `mod` w
         in (i, j, k)
 
       -- Convert (i,j,k) back to flat index
-      flatten (i, j, k) = i P.* (5 P.* w) P.+ j P.* w P.+ k
+      flatten (i, j, k) = i * (5 * w) + j * w + k
 
       -- Generate chi triple for position idx
       -- Returns (i0, i1, i2) where:
@@ -73,20 +73,20 @@ chi = do
       chiTriple idx =
         let (i, j, k) = erect idx
             i0 = flatten (i, j, k)
-            i1 = flatten (i, (j P.+ 1) `P.mod` 5, k)
-            i2 = flatten (i, (j P.+ 2) `P.mod` 5, k)
+            i1 = flatten (i, (j + 1) `mod` 5, k)
+            i2 = flatten (i, (j + 2) `mod` 5, k)
         in (i0, i1, i2) :: (Int, Int, Int)
 
       -- Generate all 200 triples as Int tuples
       triples :: [(Int, Int, Int)]
-      triples = P.map chiTriple [0..b P.- 1]
+      triples = map chiTriple [0..b - 1]
 
       -- Convert Int tuples to Index 200 tuples
       mkTriple :: (Int, Int, Int) -> (Index 200, Index 200, Index 200)
-      mkTriple (i0, i1, i2) = (P.fromIntegral i0, P.fromIntegral i1, P.fromIntegral i2)
+      mkTriple (i0, i1, i2) = (fromIntegral i0, fromIntegral i1, fromIntegral i2)
 
       indexTriples :: [(Index 200, Index 200, Index 200)]
-      indexTriples = P.map mkTriple triples
+      indexTriples = map mkTriple triples
 
   listToVecTH indexTriples
 
@@ -101,30 +101,30 @@ pi = do
       -- Convert flat index to (i,j,k) coordinates
       -- i = row (0-4), j = column (0-4), k = bit in lane (0-7)
       erect idx =
-        let i = idx `P.div` (5 P.* w)
-            j = (idx `P.mod` (5 P.* w)) `P.div` w
-            k = idx `P.mod` w
+        let i = idx `div` (5 * w)
+            j = (idx `mod` (5 * w)) `div` w
+            k = idx `mod` w
         in (i, j, k)
 
       -- Convert (i,j,k) back to flat index
-      flatten (i, j, k) = i P.* (5 P.* w) P.+ j P.* w P.+ k
+      flatten (i, j, k) = i * (5 * w) + j * w + k
 
       -- Generate pi permutation for position idx
       -- Pi transformation: (i, j, k) -> (j, 3*i + j, k)
       piPermute idx =
         let (i, j, k) = erect idx
             i' = j
-            j' = (3 P.* i P.+ j) `P.mod` 5
+            j' = (3 * i + j) `mod` 5
             k' = k
         in flatten (i', j', k')
 
       -- Generate all 200 source indices as Int
       srcIndices :: [Int]
-      srcIndices = P.map piPermute [0..b P.- 1]
+      srcIndices = map piPermute [0..b - 1]
 
       -- Convert Int to Index 200
       indexList :: [Index 200]
-      indexList = P.map P.fromIntegral srcIndices
+      indexList = map fromIntegral srcIndices
 
   listToVecTH indexList
 
@@ -138,13 +138,13 @@ rho = do
 
       -- Convert flat index to (i,j,k) coordinates
       erect idx =
-        let i = idx `P.div` (5 P.* w)
-            j = (idx `P.mod` (5 P.* w)) `P.div` w
-            k = idx `P.mod` w
+        let i = idx `div` (5 * w)
+            j = (idx `mod` (5 * w)) `div` w
+            k = idx `mod` w
         in (i, j, k)
 
       -- Convert (i,j,k) back to flat index
-      flatten (i, j, k) = i P.* (5 P.* w) P.+ j P.* w P.+ k
+      flatten (i, j, k) = i * (5 * w) + j * w + k
 
       -- Generate the 5×5 rotation offsets matrix per Keccak specification
       -- r[0][0] = 0, and for (x,y) starting at (1,0), traversing via (x,y) ← (y, 2x+3y):
@@ -152,48 +152,48 @@ rho = do
       rotationOffsets :: [[Int]]
       rotationOffsets =
         let -- Start with r[0][0] = 0
-            initial = P.replicate 5 (P.replicate 5 0)
+            initial = replicate 5 (replicate 5 0)
 
             -- Generate states (t, x, y) for t = 0..23, starting with (x, y) = (1, 0)
             -- Coordinate update: (x, y) ← (y, (2x + 3y) mod 5)
-            states = P.take 24 $ P.iterate step (0, 1, 0)
+            states = take 24 $ iterate step (0, 1, 0)
               where
                 step (t, x, y) =
-                  let t' = t P.+ 1
+                  let t' = t + 1
                       x' = y
-                      y' = (2 P.* x P.+ 3 P.* y) `P.mod` 5
+                      y' = (2 * x + 3 * y) `mod` 5
                   in (t', x', y')
 
             -- Compute rotation amount r = ((t+1)(t+2)/2) mod w for each state
-            statesWithRotation = P.map (\(t, x, y) ->
-              (x, y, ((t P.+ 1) P.* (t P.+ 2) `P.div` 2) `P.mod` w)) states
+            statesWithRotation = map (\(t, x, y) ->
+              (x, y, ((t + 1) * (t + 2) `div` 2) `mod` w)) states
 
             -- Fill in the rotation amounts
             fillOffset matrix (x, y, r) =
-              let row = matrix P.!! x
-                  row' = P.take y row P.++ [r] P.++ P.drop (y P.+ 1) row
-              in P.take x matrix P.++ [row'] P.++ P.drop (x P.+ 1) matrix
+              let row = matrix !! x
+                  row' = take y row ++ [r] ++ drop (y + 1) row
+              in take x matrix ++ [row'] ++ drop (x + 1) matrix
 
-        in P.foldl fillOffset initial statesWithRotation
+        in foldl fillOffset initial statesWithRotation
 
       -- Get rotation offset for position (i, j)
-      getOffset i j = (rotationOffsets P.!! i) P.!! j
+      getOffset i j = (rotationOffsets !! i) !! j
 
       -- Generate rho permutation for position idx
       -- Rho transformation: (i, j, k) -> (i, j, k - offset[i][j])
       rhoPermute idx =
         let (i, j, k) = erect idx
             offset = getOffset i j
-            k' = (k P.- offset) `P.mod` w
+            k' = (k - offset) `mod` w
         in flatten (i, j, k')
 
       -- Generate all 200 source indices as Int
       srcIndices :: [Int]
-      srcIndices = P.map rhoPermute [0..b P.- 1]
+      srcIndices = map rhoPermute [0..b - 1]
 
       -- Convert Int to Index 200
       indexList :: [Index 200]
-      indexList = P.map P.fromIntegral srcIndices
+      indexList = map fromIntegral srcIndices
 
   listToVecTH indexList
 
@@ -202,26 +202,26 @@ rho = do
 -- @Vec (25*w) (Vec 11 (Index (25*w)))@.
 theta :: Int -> Q Exp
 theta l = do
-  let w = 2 P.^ l
+  let w = 2 ^ l
       b = 25 * w
 
       erect idx =
-        let i = idx `P.div` (5 P.* w)
-            j = (idx `P.mod` (5 P.* w)) `P.div` w
-            k = idx `P.mod` w
+        let i = idx `div` (5 * w)
+            j = (idx `mod` (5 * w)) `div` w
+            k = idx `mod` w
         in (i, j, k)
 
-      flatten (i, j, k) = i P.* (5 P.* w) P.+ j P.* w P.+ k
+      flatten (i, j, k) = i * (5 * w) + j * w + k
 
       thetaIndices idx =
         let (i, j, k) = erect idx
             self = flatten (i, j, k)
-            colMinus = [flatten (row, (j P.- 1) `P.mod` 5, k) | row <- [0..4]]
-            colPlus  = [flatten (row, (j P.+ 1) `P.mod` 5, (k P.- 1) `P.mod` w) | row <- [0..4]]
-        in self : colMinus P.++ colPlus
+            colMinus = [flatten (row, (j - 1) `mod` 5, k) | row <- [0..4]]
+            colPlus  = [flatten (row, (j + 1) `mod` 5, (k - 1) `mod` w) | row <- [0..4]]
+        in self : colMinus ++ colPlus
 
       allIndices :: [[Int]]
-      allIndices = P.map thetaIndices [0 .. b P.- 1]
+      allIndices = map thetaIndices [0 .. b - 1]
 
       idxType = AppT (ConT ''Index) (LitT (NumTyLit (fromIntegral b)))
       vec11Type = AppT (AppT (ConT ''Vec) (LitT (NumTyLit 11))) idxType
@@ -232,11 +232,11 @@ theta l = do
       mkVec :: Int -> Type -> [Exp] -> Exp
       mkVec len elemType elems =
         let cons x xs = InfixE (Just x) (ConE '(:>)) (Just xs)
-            body = P.foldr cons (ConE 'Nil) elems
+            body = foldr cons (ConE 'Nil) elems
             vecType = AppT (AppT (ConT ''Vec) (LitT (NumTyLit (fromIntegral len)))) elemType
         in SigE body vecType
 
-      mkInner row = mkVec 11 idxType (P.map mkIndex row)
-      mkOuter rows = mkVec b vec11Type (P.map mkInner rows)
+      mkInner row = mkVec 11 idxType (map mkIndex row)
+      mkOuter rows = mkVec b vec11Type (map mkInner rows)
 
   pure (mkOuter allIndices)
