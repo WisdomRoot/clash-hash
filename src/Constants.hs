@@ -13,7 +13,6 @@
 --
 -- then Clash will try to synthesize ALL branches of the function
 -- even if only one branch is ever taken at runtime!
-
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -57,13 +56,27 @@ chi = $(TH.chi)
 pi :: Vec 200 (Index 200)
 pi = $(TH.pi)
 
--- | Rho transformation permutation table for Keccak-f[200].
---
--- Contains 200 source indices for the rho permutation.
--- Rho rotates each lane by a different offset according to the Keccak specification.
--- Generated at compile time via Template Haskell.
-rho :: Vec 200 (Index 200)
-rho = $(TH.rho)
+-- | Template Haskell generator for Rho transformation permutation.
+-- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
+-- @Vec (25*w) (Index (25*w))@.
+rho :: Int -> Q Exp
+rho l = do
+  let srcIndices = Indices.rho l
+      b = 25 * (2 ^ l)
+
+      idxType = AppT (ConT ''Index) (LitT (NumTyLit (fromIntegral b)))
+
+      mkIndex n =
+        SigE (LitE (IntegerL (fromIntegral n))) idxType
+
+      mkVec :: Int -> Type -> [Exp] -> Exp
+      mkVec len elemType elems =
+        let cons x xs = InfixE (Just x) (ConE '(:>)) (Just xs)
+            body = foldr cons (ConE 'Nil) elems
+            vecType = AppT (AppT (ConT ''Vec) (LitT (NumTyLit (fromIntegral len)))) elemType
+         in SigE body vecType
+
+  pure (mkVec b idxType (map mkIndex srcIndices))
 
 -- | Template Haskell generator for Theta transformation index lookup.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
