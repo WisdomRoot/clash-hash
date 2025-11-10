@@ -40,13 +40,23 @@ import Prelude hiding (pi, (!!))
 iota :: Index 24 -> BitVector 8
 iota idx = truncateB ($(TH.iota) !! idx)
 
--- | Chi transformation index lookup table for Keccak-f[200].
---
--- Contains 200 index triples (i0, i1, i2) where:
---   output[idx] = state[i0] ⊕ (¬state[i1] ∧ state[i2])
--- Generated at compile time via Template Haskell.
-chi :: Vec 200 (Index 200, Index 200, Index 200)
-chi = $(TH.chi)
+-- | Template Haskell generator for Chi transformation index triples.
+-- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
+-- @Vec (25*w) (Index (25*w), Index (25*w), Index (25*w))@.
+chi :: Int -> Q Exp
+chi l = do
+  let triples = Indices.chi l
+      b = 25 * (2 ^ l)
+
+      idxType = mkIndexType b
+      mkIndex = mkIndexLit idxType
+
+      mkTriple (i0, i1, i2) =
+        TupE [Just (mkIndex i0), Just (mkIndex i1), Just (mkIndex i2)]
+
+      tripleType = AppT (AppT (AppT (ConT ''(,,)) idxType) idxType) idxType
+
+  pure (mkVecLiteral b tripleType (map mkTriple triples))
 
 -- | Template Haskell generator for Pi transformation permutation.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns

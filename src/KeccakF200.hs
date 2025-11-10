@@ -35,7 +35,7 @@ chiF200 bv =
          in replaceBit idx bitOut acc
     )
     0
-    Constants.chi
+    $(Constants.chi 3)
 
 -- Pi transformation: bit permutation on BitVector
 piF200 :: BitVector 200 -> BitVector 200

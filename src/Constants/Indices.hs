@@ -2,6 +2,7 @@ module Constants.Indices
   ( theta,
     rho,
     pi,
+    chi,
   )
 where
 
@@ -121,3 +122,33 @@ pi l =
          in flatten (i', j', k')
 
    in map piPermute [0 .. b - 1]
+
+-- | Pure computation of chi transformation index triples.
+-- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
+-- a list of index triples for the chi transformation.
+chi :: Int -> [(Int, Int, Int)]
+chi l =
+  let w = 2 ^ l
+      b = 25 * w
+
+      erect idx =
+        let i = idx `div` (5 * w)
+            j = (idx `mod` (5 * w)) `div` w
+            k = idx `mod` w
+         in (i, j, k)
+
+      flatten (i, j, k) = i * (5 * w) + j * w + k
+
+      -- Generate chi triple for position idx
+      -- Returns (i0, i1, i2) where:
+      --   i0 = A[i,j,k]
+      --   i1 = A[i,j+1,k]
+      --   i2 = A[i,j+2,k]
+      chiTriple idx =
+        let (i, j, k) = erect idx
+            i0 = flatten (i, j, k)
+            i1 = flatten (i, (j + 1) `mod` 5, k)
+            i2 = flatten (i, (j + 2) `mod` 5, k)
+         in (i0, i1, i2)
+
+   in map chiTriple [0 .. b - 1]
