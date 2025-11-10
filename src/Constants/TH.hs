@@ -197,11 +197,11 @@ rho = do
 
   listToVecTH indexList
 
--- | Template Haskell generator for Theta transformation index lookup.
+-- | Pure computation of theta transformation indices.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
--- @Vec (25*w) (Vec 11 (Index (25*w)))@.
-theta :: Int -> Q Exp
-theta l = do
+-- a list of index lists for each position in the state.
+thetaIndices :: Int -> [[Int]]
+thetaIndices l =
   let w = 2 ^ l
       b = 25 * w
 
@@ -213,7 +213,7 @@ theta l = do
 
       flatten (i, j, k) = i * (5 * w) + j * w + k
 
-      thetaIndices idx =
+      thetaIndicesFor idx =
         let (i, j, k) = erect idx
             self = flatten (i, j, k)
             -- Theta computes column parities C[x] = ⊕_y A[x,y] where x corresponds to j (column)
@@ -223,8 +223,15 @@ theta l = do
             colNext = [flatten (row, (j + 1) `mod` 5, (k + w - 1) `mod` w) | row <- [0..4]]
         in self : colPrev ++ colNext
 
-      allIndices :: [[Int]]
-      allIndices = map thetaIndices [0 .. b - 1]
+  in map thetaIndicesFor [0 .. b - 1]
+
+-- | Template Haskell generator for Theta transformation index lookup.
+-- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
+-- @Vec (25*w) (Vec 11 (Index (25*w)))@.
+theta :: Int -> Q Exp
+theta l = do
+  let allIndices = thetaIndices l
+      b = 25 * (2 ^ l)
 
       idxType = AppT (ConT ''Index) (LitT (NumTyLit (fromIntegral b)))
       vec11Type = AppT (AppT (ConT ''Vec) (LitT (NumTyLit 11))) idxType
