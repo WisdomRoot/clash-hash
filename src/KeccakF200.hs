@@ -70,10 +70,18 @@ keccakF200Round :: Index 24 -> BitVector 200 -> BitVector 200
 keccakF200Round roundIdx =
   iotaF200 roundIdx . chiF200 . piF200 . rhoF200 . thetaF200
 
+-- | Full Keccak-f[200] permutation: 18 rounds (12 + 2*l where l=3)
+-- Applies all rounds in sequence using the round constants
+keccakF200 :: BitVector 200 -> BitVector 200
+keccakF200 initialState =
+  foldl applyRound initialState (indicesI @18)
+  where
+    applyRound state roundIdx = keccakF200Round (resize roundIdx) state
+
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF200_OneRound",
+      { t_name = "KeccakF200_AllRounds",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -91,4 +99,4 @@ topEntity ::
   Enable System ->
   Signal System State200 ->
   Signal System State200
-topEntity = exposeClockResetEnable $ fmap (keccakF200Round 0)
+topEntity = exposeClockResetEnable $ fmap keccakF200
