@@ -62,7 +62,7 @@ rhoF200 bv =
 iotaF200 :: Index 24 -> BitVector 200 -> BitVector 200
 iotaF200 roundIdx bv =
   let lane0 = slice d7 d0 bv -- Extract first 8 bits (lane 0)
-      lane0' = lane0 `xor` Constants.iota roundIdx -- XOR with selected round constant
+      lane0' = lane0 `xor` truncateB ($(Constants.iota) !! roundIdx) -- XOR with selected round constant
    in slice d199 d8 bv ++# lane0' -- Replace bits 0-7 with result
 
 -- Complete Keccak-f[200] round: Theta, Rho, Pi, Chi, Iota
