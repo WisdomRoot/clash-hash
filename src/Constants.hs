@@ -93,27 +93,13 @@ chi l = do
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
 -- @Vec (25*w) (Index (25*w))@.
 pi :: Int -> Q Exp
-pi l = do
-  let srcIndices = Indices.pi l
-      b = 25 * (2 ^ l)
-
-      idxType = mkIndexType b
-      mkIndex = mkIndexLit idxType
-
-  pure (mkVecLiteral b idxType (map mkIndex srcIndices))
+pi = mkPermutation Indices.pi
 
 -- | Template Haskell generator for Rho transformation permutation.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
 -- @Vec (25*w) (Index (25*w))@.
 rho :: Int -> Q Exp
-rho l = do
-  let srcIndices = Indices.rho l
-      b = 25 * (2 ^ l)
-
-      idxType = mkIndexType b
-      mkIndex = mkIndexLit idxType
-
-  pure (mkVecLiteral b idxType (map mkIndex srcIndices))
+rho = mkPermutation Indices.rho
 
 -- | Template Haskell generator for Theta transformation index lookup.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
@@ -121,18 +107,30 @@ rho l = do
 theta :: Int -> Q Exp
 theta l = do
   let allIndices = Indices.theta l
-      b = 25 * (2 ^ l)
+      b = stateSize l
 
       idxType = mkIndexType b
       vec11Type = mkVecType 11 idxType
 
       mkIndex = mkIndexLit idxType
       mkInner row = mkVecLiteral 11 idxType (map mkIndex row)
-      mkOuter rows = mkVecLiteral b vec11Type (map mkInner rows)
 
-  pure (mkOuter allIndices)
+  pure (mkVecLiteral b vec11Type (map mkInner allIndices))
 
 -- Helpers -----------------------------------------------------------------
+
+mkPermutation :: (Int -> [Int]) -> Int -> Q Exp
+mkPermutation gen l = do
+  let srcIndices = gen l
+      b = stateSize l
+
+      idxType = mkIndexType b
+      mkIndex = mkIndexLit idxType
+
+  pure (mkVecLiteral b idxType (map mkIndex srcIndices))
+
+stateSize :: Int -> Int
+stateSize l = 25 * (2 ^ l)
 
 mkIndexType :: Int -> Type
 mkIndexType = AppT (ConT ''Index) . natLit
