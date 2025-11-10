@@ -216,9 +216,12 @@ theta l = do
       thetaIndices idx =
         let (i, j, k) = erect idx
             self = flatten (i, j, k)
-            colMinus = [flatten (row, (j - 1) `mod` 5, k) | row <- [0..4]]
-            colPlus  = [flatten (row, (j + 1) `mod` 5, (k - 1) `mod` w) | row <- [0..4]]
-        in self : colMinus ++ colPlus
+            -- Theta computes column parities C[x] = ⊕_y A[x,y] where x corresponds to j (column)
+            -- D[x,z] = C[x-1,z] ⊕ rot(C[x+1,z],1)
+            -- For position (i,j,k), we need column j-1 and column j+1 parities
+            colPrev = [flatten (row, (j + 4) `mod` 5, k) | row <- [0..4]]
+            colNext = [flatten (row, (j + 1) `mod` 5, (k + w - 1) `mod` w) | row <- [0..4]]
+        in self : colPrev ++ colNext
 
       allIndices :: [[Int]]
       allIndices = map thetaIndices [0 .. b - 1]
