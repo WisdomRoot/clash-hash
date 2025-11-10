@@ -51,19 +51,21 @@ rho = $(TH.rho)
 --
 -- Given Keccak parameter l (lane size w = 2^l, state size b = 25w), produce the
 -- 11-source index vectors needed for each bit of the Theta step.
-theta ::
-  forall l w b.
-  (Parameter l w b) =>
-  Vec b (Vec 11 (Index b))
-theta
-  | Just Refl <- sameNat (SNat @l) (SNat @0) = $(TH.theta 0)
-  | Just Refl <- sameNat (SNat @l) (SNat @1) = $(TH.theta 1)
-  | Just Refl <- sameNat (SNat @l) (SNat @2) = $(TH.theta 2)
-  | Just Refl <- sameNat (SNat @l) (SNat @3) = $(TH.theta 3)
-  | Just Refl <- sameNat (SNat @l) (SNat @4) = $(TH.theta 4)
-  | Just Refl <- sameNat (SNat @l) (SNat @5) = $(TH.theta 5)
-  | Just Refl <- sameNat (SNat @l) (SNat @6) = $(TH.theta 6)
-  | otherwise = errorX "theta: unsupported lane parameter"
+theta :: Vec 200 (Vec 11 (Index 200))
+theta = $(TH.theta200)
+-- theta ::
+--   forall l w b.
+--   (Parameter l w b) =>
+--   Vec b (Vec 11 (Index b))
+-- theta
+--   | Just Refl <- sameNat (SNat @l) (SNat @0) = $(TH.theta 0)
+--   | Just Refl <- sameNat (SNat @l) (SNat @1) = $(TH.theta 1)
+--   | Just Refl <- sameNat (SNat @l) (SNat @2) = $(TH.theta 2)
+--   | Just Refl <- sameNat (SNat @l) (SNat @3) = $(TH.theta200)
+--   | Just Refl <- sameNat (SNat @l) (SNat @4) = $(TH.theta 4)
+--   | Just Refl <- sameNat (SNat @l) (SNat @5) = $(TH.theta 5)
+--   | Just Refl <- sameNat (SNat @l) (SNat @6) = $(TH.theta 6)
+--   | otherwise = errorX "theta: unsupported lane parameter"
 
 ----
 

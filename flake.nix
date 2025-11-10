@@ -75,7 +75,7 @@
               export CC=${pkgs.clang}/bin/clang
               export CXX=${pkgs.clang}/bin/clang++
               export MACOSX_DEPLOYMENT_TARGET=15.0
-              export NIX_LDFLAGS="-Wl,-platform_version,macos,15.0,15.0 $NIX_LDFLAGS"
+              export NIX_LDFLAGS="-w $NIX_LDFLAGS"
             '';
           };
         });
