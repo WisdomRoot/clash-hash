@@ -12,8 +12,7 @@ where
 
 import Clash.Prelude
 import qualified Constants
-
-type State200 = BitVector 200
+import Sponge (SpongeParameter, sponge)
 
 -- Theta transformation: XOR with column parities
 thetaF200 :: BitVector 200 -> BitVector 200
@@ -78,10 +77,24 @@ keccakF200 initialState =
   where
     applyRound state roundIdx = keccakF200Round (resize roundIdx) state
 
+-- | Keccak-f[200] sponge function with configurable rate/capacity.
+-- Instantiation: r=144, capacity=56, message=140 bits, output=128 bits
+-- n = (140 + 144 + 1) / 144 = 1 absorb block
+-- k = 128 / 144 = 0 squeeze blocks (128 < 144, so 1 total block suffices)
+keccakF200Sponge :: forall r n m k d. (SpongeParameter 200 r n m k d) => BitVector m -> BitVector d
+keccakF200Sponge = sponge @200 @r @n @m @k @d keccakF200
+
+-- Concrete parameters for synthesis
+type Rate = 144
+type MessageBits = 140
+type OutputBits = 128
+type NumAbsorbBlocks = 1
+type NumSqueezeBlocks = 0
+
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF200_AllRounds",
+      { t_name = "KeccakF200_Sponge",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -97,6 +110,9 @@ topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System State200 ->
-  Signal System State200
-topEntity = exposeClockResetEnable $ fmap keccakF200
+  Signal System (BitVector MessageBits) ->
+  Signal System (BitVector OutputBits)
+topEntity = exposeClockResetEnable $ fmap spongeStep
+  where
+    spongeStep :: BitVector MessageBits -> BitVector OutputBits
+    spongeStep = keccakF200Sponge @Rate @NumAbsorbBlocks @MessageBits @NumSqueezeBlocks @OutputBits
