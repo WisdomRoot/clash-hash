@@ -1,10 +1,11 @@
 module Constants.Indices
   ( theta,
     rho,
+    pi,
   )
 where
 
-import Prelude
+import Prelude hiding (pi)
 
 -- | Pure computation of theta transformation indices.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
@@ -93,3 +94,30 @@ rho l =
             k' = (k - offset) `mod` w
          in flatten (i, j, k')
    in map rhoPermute [0 .. b - 1]
+
+-- | Pure computation of pi transformation indices.
+-- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
+-- a list of source indices for the pi permutation.
+pi :: Int -> [Int]
+pi l =
+  let w = 2 ^ l
+      b = 25 * w
+
+      erect idx =
+        let i = idx `div` (5 * w)
+            j = (idx `mod` (5 * w)) `div` w
+            k = idx `mod` w
+         in (i, j, k)
+
+      flatten (i, j, k) = i * (5 * w) + j * w + k
+
+      -- Generate pi permutation for position idx
+      -- Pi transformation: (i, j, k) -> (j, 3*i + j, k)
+      piPermute idx =
+        let (i, j, k) = erect idx
+            i' = j
+            j' = (3 * i + j) `mod` 5
+            k' = k
+         in flatten (i', j', k')
+
+   in map piPermute [0 .. b - 1]

@@ -48,13 +48,18 @@ iota idx = truncateB ($(TH.iota) !! idx)
 chi :: Vec 200 (Index 200, Index 200, Index 200)
 chi = $(TH.chi)
 
--- | Pi transformation permutation table for Keccak-f[200].
---
--- Contains 200 source indices for the pi permutation.
--- Pi formula: (i, j, k) -> (j, 3*i + j, k)
--- Generated at compile time via Template Haskell.
-pi :: Vec 200 (Index 200)
-pi = $(TH.pi)
+-- | Template Haskell generator for Pi transformation permutation.
+-- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
+-- @Vec (25*w) (Index (25*w))@.
+pi :: Int -> Q Exp
+pi l = do
+  let srcIndices = Indices.pi l
+      b = 25 * (2 ^ l)
+
+      idxType = mkIndexType b
+      mkIndex = mkIndexLit idxType
+
+  pure (mkVecLiteral b idxType (map mkIndex srcIndices))
 
 -- | Template Haskell generator for Rho transformation permutation.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
@@ -64,19 +69,10 @@ rho l = do
   let srcIndices = Indices.rho l
       b = 25 * (2 ^ l)
 
-      idxType = AppT (ConT ''Index) (LitT (NumTyLit (fromIntegral b)))
+      idxType = mkIndexType b
+      mkIndex = mkIndexLit idxType
 
-      mkIndex n =
-        SigE (LitE (IntegerL (fromIntegral n))) idxType
-
-      mkVec :: Int -> Type -> [Exp] -> Exp
-      mkVec len elemType elems =
-        let cons x xs = InfixE (Just x) (ConE '(:>)) (Just xs)
-            body = foldr cons (ConE 'Nil) elems
-            vecType = AppT (AppT (ConT ''Vec) (LitT (NumTyLit (fromIntegral len)))) elemType
-         in SigE body vecType
-
-  pure (mkVec b idxType (map mkIndex srcIndices))
+  pure (mkVecLiteral b idxType (map mkIndex srcIndices))
 
 -- | Template Haskell generator for Theta transformation index lookup.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
@@ -86,20 +82,31 @@ theta l = do
   let allIndices = Indices.theta l
       b = 25 * (2 ^ l)
 
-      idxType = AppT (ConT ''Index) (LitT (NumTyLit (fromIntegral b)))
-      vec11Type = AppT (AppT (ConT ''Vec) (LitT (NumTyLit 11))) idxType
+      idxType = mkIndexType b
+      vec11Type = mkVecType 11 idxType
 
-      mkIndex n =
-        SigE (LitE (IntegerL (fromIntegral n))) idxType
-
-      mkVec :: Int -> Type -> [Exp] -> Exp
-      mkVec len elemType elems =
-        let cons x xs = InfixE (Just x) (ConE '(:>)) (Just xs)
-            body = foldr cons (ConE 'Nil) elems
-            vecType = AppT (AppT (ConT ''Vec) (LitT (NumTyLit (fromIntegral len)))) elemType
-         in SigE body vecType
-
-      mkInner row = mkVec 11 idxType (map mkIndex row)
-      mkOuter rows = mkVec b vec11Type (map mkInner rows)
+      mkIndex = mkIndexLit idxType
+      mkInner row = mkVecLiteral 11 idxType (map mkIndex row)
+      mkOuter rows = mkVecLiteral b vec11Type (map mkInner rows)
 
   pure (mkOuter allIndices)
+
+-- Helpers -----------------------------------------------------------------
+
+mkIndexType :: Int -> Type
+mkIndexType = AppT (ConT ''Index) . natLit
+
+mkVecType :: Int -> Type -> Type
+mkVecType len = AppT (AppT (ConT ''Vec) (natLit len))
+
+mkIndexLit :: Type -> Int -> Exp
+mkIndexLit idxType n = SigE (LitE (IntegerL (fromIntegral n))) idxType
+
+mkVecLiteral :: Int -> Type -> [Exp] -> Exp
+mkVecLiteral len elemType elems =
+  let cons x xs = InfixE (Just x) (ConE '(:>)) (Just xs)
+      body = foldr cons (ConE 'Nil) elems
+   in SigE body (mkVecType len elemType)
+
+natLit :: Int -> Type
+natLit = LitT . NumTyLit . fromIntegral

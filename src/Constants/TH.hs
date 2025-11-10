@@ -3,7 +3,6 @@
 module Constants.TH
   ( iota,
     chi,
-    pi,
   )
 where
 
@@ -88,44 +87,6 @@ chi = do
       indexTriples = map mkTriple triples
 
   listToVecTH indexTriples
-
--- | Template Haskell generator for Pi transformation permutation.
--- For Keccak-f[200]: generates Vec 200 (Index 200)
--- Pi formula: (i, j, k) -> (j, 3*i + j, k)
-pi :: Q Exp
-pi = do
-  let w = 8 :: Int -- lane width for Keccak-f[200]
-      b = 200 :: Int -- total state size
-
-      -- Convert flat index to (i,j,k) coordinates
-      -- i = row (0-4), j = column (0-4), k = bit in lane (0-7)
-      erect idx =
-        let i = idx `div` (5 * w)
-            j = (idx `mod` (5 * w)) `div` w
-            k = idx `mod` w
-         in (i, j, k)
-
-      -- Convert (i,j,k) back to flat index
-      flatten (i, j, k) = i * (5 * w) + j * w + k
-
-      -- Generate pi permutation for position idx
-      -- Pi transformation: (i, j, k) -> (j, 3*i + j, k)
-      piPermute idx =
-        let (i, j, k) = erect idx
-            i' = j
-            j' = (3 * i + j) `mod` 5
-            k' = k
-         in flatten (i', j', k')
-
-      -- Generate all 200 source indices as Int
-      srcIndices :: [Int]
-      srcIndices = map piPermute [0 .. b - 1]
-
-      -- Convert Int to Index 200
-      indexList :: [Index 200]
-      indexList = map fromIntegral srcIndices
-
-  listToVecTH indexList
 
 -- -- | Template Haskell generator for Theta transformation index lookup.
 -- -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns

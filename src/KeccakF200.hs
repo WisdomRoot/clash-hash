@@ -46,7 +46,7 @@ piF200 bv =
          in replaceBit idx bitOut acc
     )
     0
-    Constants.pi
+    $(Constants.pi 3)
 
 -- Rho transformation: bit permutation on BitVector (lane rotation)
 rhoF200 :: BitVector 200 -> BitVector 200
