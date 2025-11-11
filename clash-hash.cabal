@@ -96,6 +96,7 @@ library
     ChiF200TH,
     Constants,
     KeccakF200,
+    KeccakF1600,
     SHA2,
     SHA3,
     SHA3internal,
