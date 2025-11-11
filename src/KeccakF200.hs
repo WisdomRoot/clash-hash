@@ -97,8 +97,8 @@ keccakF200Sponge = sponge @200 @r @n @m @k @d keccakF200
 --------------------------------------------------------------------------------
 
 -- | Concrete parameters for SHA3-f[200] (pedagogical 200-bit variant)
-type Rate = 144          -- Rate: bits XORed per absorb/squeeze
-type Capacity = 56       -- Capacity: 200 - Rate = 56
+type Rate = 128          -- Rate: bits XORed per absorb/squeeze
+type Capacity = 72       -- Capacity: 200 - Rate = 72
 type DigestBits = 128    -- Output digest length
 type SHA3SuffixBits = 2  -- Domain separation suffix length
 
@@ -138,27 +138,28 @@ padSHA3 ::
     KnownNat (numBlocks * rate),
     KnownNat (msgLen + SHA3SuffixBits),
     KnownNat (msgLen + SHA3SuffixBits + 1),
-    KnownNat (msgLen + SHA3SuffixBits + 1 + (numBlocks * rate - (msgLen + SHA3SuffixBits + 2))),
+    KnownNat (numBlocks * rate - (msgLen + SHA3SuffixBits + 2)),
     (msgLen + SHA3SuffixBits + 2) <= numBlocks * rate
   ) =>
   BitVector msgLen ->
   Vec numBlocks (BitVector rate)
 padSHA3 msg =
-  let -- Append suffix after message
-      msgWithSuffix = msg ++# sha3Suffix :: BitVector (msgLen + SHA3SuffixBits)
+  let -- Build: msg ++ suffix ++ '1' ++ zeros ++ '1'
+      -- Must match Sponge.hs padding pattern (line 52)
+      -- ++# puts right operand in upper bits, so final '1' goes to MSB
+      -- unconcatBitVector# splits MSB-first, so message (in lower bits) becomes first block
 
-      -- Build: msg ++ suffix ++ '1' ++ zeros ++ '1'
-      -- Use ++# to build from LSB to MSB (same as Sponge.hs padding)
-      -- unconcatBitVector# splits MSB-first, so high bits become first block
-      msgWithPad1 = msgWithSuffix ++# (1 :: BitVector 1)
-                    :: BitVector (msgLen + SHA3SuffixBits + 1)
+      -- Helper function to build padded bitvector
+      buildPadded :: BitVector msgLen -> BitVector (numBlocks * rate)
+      buildPadded m =
+        m ++# sha3Suffix
+          ++# (1 :: BitVector 1)
+          ++# (0 :: BitVector (numBlocks * rate - (msgLen + SHA3SuffixBits + 2)))
+          ++# (1 :: BitVector 1)
 
-      -- Calculate zeros needed at runtime, then extend
-      totalBits = natToNum @(numBlocks * rate) :: Int
-
-      -- Use resize and replaceBit to avoid complex type-level arithmetic
-      extended = resize msgWithPad1 :: BitVector (numBlocks * rate)
-      paddedBits = replaceBit (totalBits - 1) high extended
+      -- Build padded bitvector: msg ++ suffix ++ '1' ++ zeros ++ '1'
+      -- Use leToPlusKN to prove to GHC that the sizes work out
+      paddedBits = leToPlusKN @(msgLen + SHA3SuffixBits + 2) @(numBlocks * rate) buildPadded msg
 
    in unconcatBitVector# @numBlocks @rate paddedBits
 
@@ -274,8 +275,8 @@ sha3f200Seq start blocks = mealy step initialState (bundle (start, blocks))
           stateAfterAbsorb
             | sha3Phase stateAfterLoad == Absorbing && not (sha3Active stateAfterLoad) =
                 let totalBlocks = natToNum @maxBlocks :: Int
-                    blocksLeft = fromIntegral (sha3BlocksRemaining stateAfterLoad) :: Int
-                    blockIdx = totalBlocks - blocksLeft - 1
+                    blocksRemaining = fromIntegral (sha3BlocksRemaining stateAfterLoad) :: Int
+                    blockIdx = totalBlocks - blocksRemaining - 1
                     block = sha3LatchedBlocks stateAfterLoad !! blockIdx -- Use latched blocks!
                  in stateAfterLoad
                       { sha3StateData = sha3StateData stateAfterLoad `xor` ((0 :: BitVector Capacity) ++# block),
@@ -303,8 +304,8 @@ sha3f200Seq start blocks = mealy step initialState (bundle (start, blocks))
           squeezedBits = sha3SqueezedBits stateAfterAbsorb
 
           -- Check if digest fits in current state (after this permutation completes)
-          -- For our parameters: DigestBits=128, Rate=144, so digest always fits in one block
-          digestFitsInOneBlock = natToNum @DigestBits <= natToNum @Rate
+          -- For our parameters: DigestBits=128, Rate=128, so digest always fits in one block
+          digestFitsInOneBlock = (natToNum @DigestBits :: Int) <= (natToNum @Rate :: Int)
 
           -- Phase transitions (use Unsigned arithmetic to avoid Index overflow)
           (nextPhase, nextActive, nextBlocksLeft, nextSqueezed) =
@@ -313,14 +314,14 @@ sha3f200Seq start blocks = mealy step initialState (bundle (start, blocks))
                 -- All blocks absorbed, we now have a complete permuted state
                 -- Check if digest fits in one rate block
                 if digestFitsInOneBlock
-                  then (Idle, False, 0, fromIntegral (natToNum @Rate)) -- Digest complete, go idle
-                  else (Squeezing, True, 0, fromIntegral (natToNum @Rate)) -- Need more squeezing, stay active
+                  then (Idle, False, 0, fromIntegral (natToNum @Rate :: Int)) -- Digest complete, go idle
+                  else (Squeezing, True, 0, fromIntegral (natToNum @Rate :: Int)) -- Need more squeezing, stay active
               (Absorbing, True) ->
                 (Absorbing, False, blocksLeft - 1, 0) -- More blocks to absorb
               (Squeezing, True) ->
                 -- Additional squeeze permutation completed
-                let newSqueezed = squeezedBits + fromIntegral (natToNum @Rate)
-                 in if newSqueezed >= fromIntegral (natToNum @DigestBits)
+                let newSqueezed = squeezedBits + fromIntegral (natToNum @Rate :: Int)
+                 in if newSqueezed >= fromIntegral (natToNum @DigestBits :: Int)
                       then (Idle, False, 0, 0) -- Digest complete
                       else (Squeezing, True, 0, newSqueezed) -- Need more squeeze, run another permutation
               (_, False) ->
@@ -391,11 +392,11 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System Bool ->
-  Signal System (BitVector 140) -> -- Fixed message size for now
+  Signal System (BitVector 128) -> -- Fixed message size for now (fits in 2 blocks with Rate=128)
   Signal System (Bool, BitVector DigestBits)
 topEntity clk rst en msgStart msgData =
   withClockResetEnable clk rst en $
-    sha3f200Seq @System @1 msgStart paddedBlocks
+    sha3f200Seq @System @2 msgStart paddedBlocks
   where
-    -- Pad each input message to 1 block
-    paddedBlocks = fmap (padSHA3 @Rate @140 @1) msgData
+    -- Pad each input message to 2 blocks (124 + 2 suffix + 2 padding = 128, needs 2 blocks)
+    paddedBlocks = fmap (padSHA3 @Rate @128 @2) msgData
