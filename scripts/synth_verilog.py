@@ -200,13 +200,31 @@ def build_yosys_commands(target: SynthTarget, conf: SynthConfig, netlist_path: P
     top = shlex.quote(target.top)
     netlist = shlex.quote(str(netlist_path))
 
-    base_commands = [
+    base_commands = []
+
+    # Read dependency modules first if we have a manifest
+    if target.manifest:
+        try:
+            manifest = json.loads(target.manifest.read_text(encoding="utf-8"))
+            deps = manifest.get("dependencies", {}).get("transitive", [])
+            for dep in deps:
+                # Convert dependency name to verilog path
+                dep_dir = VERILOG_ROOT / dep
+                if dep_dir.is_dir():
+                    dep_verilog = list(dep_dir.glob("*.v"))
+                    if dep_verilog:
+                        dep_v = shlex.quote(str(dep_verilog[0]))
+                        base_commands.append(f"read_verilog {dep_v}")
+        except Exception:
+            pass  # If we can't read dependencies, continue anyway
+
+    base_commands.extend([
         f"read_verilog {verilog}",
         f"hierarchy -check -top {top}",
         f"synth -top {top}",
         "opt -purge",
         f"dfflibmap -liberty {liberty}",
-    ]
+    ])
 
     if conf.abc_script:
         script = shlex.quote(str(conf.abc_script))
