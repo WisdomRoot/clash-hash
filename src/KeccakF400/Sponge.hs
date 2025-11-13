@@ -1,93 +1,24 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF400
-  ( -- * Round primitives
-    thetaF400,
-    rhoF400,
-    piF400,
-    chiF400,
-    iotaF400,
-    -- * Permutation
-    keccakF400Round,
-    keccakF400,
-    keccakF400Sponge,
-    -- * SHA3-f[400] specific
+module KeccakF400.Sponge
+  ( -- * SHA3-f[400] parameters
+    Rate,
+    Capacity,
+    DigestBits,
+    SHA3SuffixBits,
+    sha3Suffix,
+    -- * Padding
     padSHA3,
-    -- * Top entities
+    -- * FSM types
+    Phase (..),
+    SHA3State (..),
+    -- * Top entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import qualified Constants
-import Sponge (SpongeParameter, sponge)
-
---------------------------------------------------------------------------------
--- Round primitives
---------------------------------------------------------------------------------
-
-thetaF400 :: BitVector 400 -> BitVector 400
-thetaF400 bv =
-  ifoldl
-    ( \acc idx indices11 ->
-        let bitOut = fold xor (map (bv !) indices11)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.theta 4)
-
-chiF400 :: BitVector 400 -> BitVector 400
-chiF400 bv =
-  ifoldl
-    ( \acc idx (i0, i1, i2) ->
-        let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.chi 4)
-
-piF400 :: BitVector 400 -> BitVector 400
-piF400 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.pi 4)
-
-rhoF400 :: BitVector 400 -> BitVector 400
-rhoF400 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.rho 4)
-
-iotaF400 :: Index 24 -> BitVector 400 -> BitVector 400
-iotaF400 roundIdx bv =
-  let lane0 = slice d15 d0 bv
-      lane0' = lane0 `xor` truncateB ($(Constants.iota) !! roundIdx)
-   in slice d399 d16 bv ++# lane0'
-
---------------------------------------------------------------------------------
--- Permutation
---------------------------------------------------------------------------------
-
-keccakF400Round :: Index 24 -> BitVector 400 -> BitVector 400
-keccakF400Round roundIdx =
-  iotaF400 roundIdx . chiF400 . piF400 . rhoF400 . thetaF400
-
-keccakF400 :: BitVector 400 -> BitVector 400
-keccakF400 initialState =
-  foldl applyRound initialState (indicesI @20)
-  where
-    applyRound state roundIdx = keccakF400Round (resize roundIdx) state
-
-keccakF400Sponge :: forall r n m k d. (SpongeParameter 400 r n m k d) => BitVector m -> BitVector d
-keccakF400Sponge = sponge @400 @r @n @m @k @d keccakF400
+import qualified KeccakF400.Permutation as Perm
 
 --------------------------------------------------------------------------------
 -- SHA3-f[400] parameters
@@ -138,7 +69,8 @@ padSHA3 msg =
 --------------------------------------------------------------------------------
 
 data Phase = Absorbing | Squeezing | Idle
-  deriving (Generic, NFDataX, Eq, Show)
+  deriving stock (Generic, Eq, Show)
+  deriving anyclass (NFDataX)
 
 data SHA3State maxBlocks = SHA3State
   { sha3StateData :: BitVector 400,
@@ -149,7 +81,8 @@ data SHA3State maxBlocks = SHA3State
     sha3SqueezedBits :: Unsigned 16,
     sha3LatchedBlocks :: Vec maxBlocks (BitVector Rate)
   }
-  deriving (Generic, NFDataX)
+  deriving stock (Generic)
+  deriving anyclass (NFDataX)
 
 sha3f400Seq ::
   forall dom maxBlocks.
@@ -204,9 +137,11 @@ sha3f400Seq start blocks = mealy step initialState (bundle (start, blocks))
                       }
             | otherwise = stateAfterLoad
 
+          -- Execute round if active using the topEntity from Permutation module
+          -- Clash will instantiate KeccakF400_Round instead of inlining
           stateData' =
             if sha3Active stateAfterAbsorb
-              then keccakF400Round (resize (sha3RoundCounter stateAfterAbsorb)) (sha3StateData stateAfterAbsorb)
+              then Perm.topEntity (resize (sha3RoundCounter stateAfterAbsorb), sha3StateData stateAfterAbsorb)
               else sha3StateData stateAfterAbsorb
 
           nextRound
@@ -261,7 +196,7 @@ sha3f400Seq start blocks = mealy step initialState (bundle (start, blocks))
        in (nextState, (digestReady, digestOut))
 
 --------------------------------------------------------------------------------
--- Top entity (demo)
+-- Top entity
 --------------------------------------------------------------------------------
 
 {-# ANN
