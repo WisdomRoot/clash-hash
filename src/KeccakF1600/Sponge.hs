@@ -1,100 +1,24 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF1600
-  ( -- * Round primitives
-    thetaF1600,
-    rhoF1600,
-    piF1600,
-    chiF1600,
-    iotaF1600,
-    -- * Permutation
-    keccakF1600Round,
-    keccakF1600,
-    keccakF1600Sponge,
-    -- * SHA3-f[1600] specific
+module KeccakF1600.Sponge
+  ( -- * SHA3-f[1600] parameters
+    Rate,
+    Capacity,
+    DigestBits,
+    SHA3SuffixBits,
+    sha3Suffix,
+    -- * Padding
     padSHA3,
-    -- * Top entities
+    -- * FSM types
+    Phase (..),
+    SHA3State (..),
+    -- * Top entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import qualified Constants
-import Sponge (SpongeParameter, sponge)
-import SHA3internal (_iota_constants)
-
---------------------------------------------------------------------------------
--- Round primitives
---------------------------------------------------------------------------------
-
-thetaF1600 :: BitVector 1600 -> BitVector 1600
-thetaF1600 bv =
-  ifoldl
-    ( \acc idx indices11 ->
-        let bitOut = fold xor (map (bv !) indices11)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.theta 6)
-
-chiF1600 :: BitVector 1600 -> BitVector 1600
-chiF1600 bv =
-  ifoldl
-    ( \acc idx (i0, i1, i2) ->
-        let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.chi 6)
-
-piF1600 :: BitVector 1600 -> BitVector 1600
-piF1600 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.pi 6)
-
-rhoF1600 :: BitVector 1600 -> BitVector 1600
-rhoF1600 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.rho 6)
-
--- Precomputed 64-bit round constants
-{-# NOINLINE iotaConstants64 #-}
-iotaConstants64 :: Vec 24 (BitVector 64)
-iotaConstants64 = map bitCoerce _iota_constants
-
-iotaF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
-iotaF1600 roundIdx bv =
-  let (rest :: BitVector (1600 - 64), lane0 :: BitVector 64) = split bv
-      rc = iotaConstants64 !! roundIdx
-      lane0' = lane0 `xor` rc
-   in rest ++# lane0'
-
---------------------------------------------------------------------------------
--- Permutation
---------------------------------------------------------------------------------
-
-keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx =
-  iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600
-
-keccakF1600 :: BitVector 1600 -> BitVector 1600
-keccakF1600 initialState =
-  foldl applyRound initialState (indicesI @24)
-  where
-    applyRound state roundIdx = keccakF1600Round roundIdx state
-
-keccakF1600Sponge :: forall r n m k d. (SpongeParameter 1600 r n m k d) => BitVector m -> BitVector d
-keccakF1600Sponge = sponge @1600 @r @n @m @k @d keccakF1600
+import qualified KeccakF1600.Permutation as Perm
 
 --------------------------------------------------------------------------------
 -- SHA3-f[1600] parameters
@@ -141,18 +65,12 @@ padSHA3 msg =
    in unconcatBitVector# @numBlocks @rate paddedBits
 
 --------------------------------------------------------------------------------
--- Sequential sponge state
+-- Sequential multi-block FSM
 --------------------------------------------------------------------------------
 
 data Phase = Absorbing | Squeezing | Idle
-  deriving (Generic, NFDataX, Eq, Show)
-
-data SpongeState = SpongeState
-  { stateData :: BitVector 1600,
-    roundCounter :: Index 24,
-    active :: Bool
-  }
-  deriving (Generic, NFDataX)
+  deriving stock (Generic, Eq, Show)
+  deriving anyclass (NFDataX)
 
 data SHA3State maxBlocks = SHA3State
   { sha3StateData :: BitVector 1600,
@@ -163,7 +81,8 @@ data SHA3State maxBlocks = SHA3State
     sha3SqueezedBits :: Unsigned 16,
     sha3LatchedBlocks :: Vec maxBlocks (BitVector Rate)
   }
-  deriving (Generic, NFDataX)
+  deriving stock (Generic)
+  deriving anyclass (NFDataX)
 
 sha3f1600Seq ::
   forall dom maxBlocks.
@@ -218,9 +137,11 @@ sha3f1600Seq start blocks = mealy step initialState (bundle (start, blocks))
                       }
             | otherwise = stateAfterLoad
 
+          -- Execute round if active using the topEntity from Permutation module
+          -- Clash will instantiate KeccakF1600_Round instead of inlining
           stateData' =
             if sha3Active stateAfterAbsorb
-              then keccakF1600Round (sha3RoundCounter stateAfterAbsorb) (sha3StateData stateAfterAbsorb)
+              then Perm.topEntity (sha3RoundCounter stateAfterAbsorb, sha3StateData stateAfterAbsorb)
               else sha3StateData stateAfterAbsorb
 
           nextRound
@@ -275,7 +196,7 @@ sha3f1600Seq start blocks = mealy step initialState (bundle (start, blocks))
        in (nextState, (digestReady, digestOut))
 
 --------------------------------------------------------------------------------
--- Top entity (demo)
+-- Top entity
 --------------------------------------------------------------------------------
 
 {-# ANN
