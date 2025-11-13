@@ -203,8 +203,6 @@ def build_yosys_commands(target: SynthTarget, conf: SynthConfig, netlist_path: P
     base_commands = [
         f"read_verilog {verilog}",
         f"hierarchy -check -top {top}",
-        "proc",
-        "flatten",
         f"synth -top {top}",
         "opt -purge",
         f"dfflibmap -liberty {liberty}",

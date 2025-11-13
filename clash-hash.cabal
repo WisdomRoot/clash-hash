@@ -93,9 +93,10 @@ library
   import: common-options
   hs-source-dirs: src
   exposed-modules:
-    ChiF200TH,
     Constants,
     KeccakF200,
+    KeccakF400,
+    KeccakF800,
     KeccakF1600,
     SHA2,
     SHA3,
