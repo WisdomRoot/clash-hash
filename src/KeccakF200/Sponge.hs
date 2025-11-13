@@ -1,96 +1,24 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF200
-  ( -- * Round primitives
-    thetaF200,
-    rhoF200,
-    piF200,
-    chiF200,
-    iotaF200,
-    -- * Permutation
-    keccakF200Round,
-    keccakF200,
-    keccakF200Sponge,
-    -- * SHA3-f[200] specific
+module KeccakF200.Sponge
+  ( -- * SHA3-f[200] parameters
+    Rate,
+    Capacity,
+    DigestBits,
+    SHA3SuffixBits,
+    sha3Suffix,
+    -- * Padding
     padSHA3,
-    -- * Top entities
+    -- * FSM types
+    Phase (..),
+    SHA3State (..),
+    -- * Top entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import qualified Constants
-import Sponge (SpongeParameter, sponge)
-
--- Theta transformation: XOR with column parities
-thetaF200 :: BitVector 200 -> BitVector 200
-thetaF200 bv =
-  ifoldl
-    ( \acc idx indices11 ->
-        let bitOut = fold xor (map (bv !) indices11)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.theta 3)
-
--- Chi transformation expressed directly on BitVector
-chiF200 :: BitVector 200 -> BitVector 200
-chiF200 bv =
-  ifoldl
-    ( \acc idx (i0, i1, i2) ->
-        let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.chi 3)
-
--- Pi transformation: bit permutation on BitVector
-piF200 :: BitVector 200 -> BitVector 200
-piF200 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.pi 3)
-
--- Rho transformation: bit permutation on BitVector (lane rotation)
-rhoF200 :: BitVector 200 -> BitVector 200
-rhoF200 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.rho 3)
-
-iotaF200 :: Index 24 -> BitVector 200 -> BitVector 200
-iotaF200 roundIdx bv =
-  let lane0 = slice d7 d0 bv -- Extract first 8 bits (lane 0)
-      lane0' = lane0 `xor` truncateB ($(Constants.iota) !! roundIdx) -- XOR with selected round constant
-   in slice d199 d8 bv ++# lane0' -- Replace bits 0-7 with result
-
--- Complete Keccak-f[200] round: Theta, Rho, Pi, Chi, Iota
-keccakF200Round :: Index 24 -> BitVector 200 -> BitVector 200
-keccakF200Round roundIdx =
-  iotaF200 roundIdx . chiF200 . piF200 . rhoF200 . thetaF200
-
--- | Full Keccak-f[200] permutation: 18 rounds (12 + 2*l where l=3)
--- Applies all rounds in sequence using the round constants
-keccakF200 :: BitVector 200 -> BitVector 200
-keccakF200 initialState =
-  foldl applyRound initialState (indicesI @18)
-  where
-    applyRound state roundIdx = keccakF200Round (resize roundIdx) state
-
--- | Keccak-f[200] sponge function with configurable rate/capacity.
--- Instantiation: r=144, capacity=56, message=140 bits, output=128 bits
--- n = (140 + 144 + 1) / 144 = 1 absorb block
--- k = 128 / 144 = 0 squeeze blocks (128 < 144, so 1 total block suffices)
-keccakF200Sponge :: forall r n m k d. (SpongeParameter 200 r n m k d) => BitVector m -> BitVector d
-keccakF200Sponge = sponge @200 @r @n @m @k @d keccakF200
+import qualified KeccakF200.Permutation as Perm
 
 --------------------------------------------------------------------------------
 -- SHA3-f[200] Parameters
@@ -164,25 +92,13 @@ padSHA3 msg =
    in unconcatBitVector# @numBlocks @rate paddedBits
 
 --------------------------------------------------------------------------------
--- Sequential Multi-Block Sponge FSM
+-- SHA3 Multi-Block Sequential FSM
 --------------------------------------------------------------------------------
 
 -- | Sponge phase: Absorbing message blocks or Squeezing output
 data Phase = Absorbing | Squeezing | Idle
-  deriving (Generic, NFDataX, Eq, Show)
-
--- Sequential (pipelined) sponge implementation
--- State machine for sequential Keccak-f[200] sponge
-data SpongeState = SpongeState
-  { stateData :: BitVector 200,
-    roundCounter :: Index 18,
-    active :: Bool -- True when processing rounds, False when idle
-  }
-  deriving (Generic, NFDataX)
-
---------------------------------------------------------------------------------
--- SHA3 Multi-Block Sequential FSM
---------------------------------------------------------------------------------
+  deriving stock (Generic, Eq, Show)
+  deriving anyclass (NFDataX)
 
 -- | State for SHA3 multi-block absorb/squeeze FSM
 data SHA3State maxBlocks = SHA3State
@@ -194,7 +110,8 @@ data SHA3State maxBlocks = SHA3State
     sha3SqueezedBits :: Unsigned 8, -- Track squeezed output bits
     sha3LatchedBlocks :: Vec maxBlocks (BitVector Rate) -- Latch blocks on start pulse
   }
-  deriving (Generic, NFDataX)
+  deriving stock (Generic)
+  deriving anyclass (NFDataX)
 
 -- | SHA3-f[200] sequential sponge with multi-block absorb and squeeze.
 --
@@ -285,10 +202,11 @@ sha3f200Seq start blocks = mealy step initialState (bundle (start, blocks))
                       }
             | otherwise = stateAfterLoad
 
-          -- Execute round if active
+          -- Execute round if active using the topEntity from Permutation module
+          -- Clash will instantiate KeccakF200_Round instead of inlining
           stateData' =
             if sha3Active stateAfterAbsorb
-              then keccakF200Round (resize (sha3RoundCounter stateAfterAbsorb)) (sha3StateData stateAfterAbsorb)
+              then Perm.topEntity (resize (sha3RoundCounter stateAfterAbsorb), sha3StateData stateAfterAbsorb)
               else sha3StateData stateAfterAbsorb
 
           -- Advance round counter

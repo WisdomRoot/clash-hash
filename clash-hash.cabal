@@ -94,7 +94,8 @@ library
   hs-source-dirs: src
   exposed-modules:
     Constants,
-    KeccakF200,
+    KeccakF200.Permutation,
+    KeccakF200.Sponge,
     KeccakF400,
     KeccakF800,
     KeccakF1600,
