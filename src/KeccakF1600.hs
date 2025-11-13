@@ -1,23 +1,32 @@
 {-# LANGUAGE TypeApplications #-}
 
 module KeccakF1600
-  ( thetaF1600,
+  ( -- * Round primitives
+    thetaF1600,
     rhoF1600,
     piF1600,
     chiF1600,
     iotaF1600,
+    -- * Permutation
+    keccakF1600Round,
+    keccakF1600,
     keccakF1600Sponge,
-    keccakF1600SpongeSeq,
+    -- * SHA3-f[1600] specific
+    padSHA3,
+    -- * Top entities
     topEntity,
   )
 where
 
 import Clash.Prelude
 import qualified Constants
-import Data.Maybe (fromMaybe, isJust)
 import Sponge (SpongeParameter, sponge)
+import SHA3internal (_iota_constants)
 
--- Theta transformation: XOR with column parities
+--------------------------------------------------------------------------------
+-- Round primitives
+--------------------------------------------------------------------------------
+
 thetaF1600 :: BitVector 1600 -> BitVector 1600
 thetaF1600 bv =
   ifoldl
@@ -28,7 +37,6 @@ thetaF1600 bv =
     0
     $(Constants.theta 6)
 
--- Chi transformation expressed directly on BitVector
 chiF1600 :: BitVector 1600 -> BitVector 1600
 chiF1600 bv =
   ifoldl
@@ -39,7 +47,6 @@ chiF1600 bv =
     0
     $(Constants.chi 6)
 
--- Pi transformation: bit permutation on BitVector
 piF1600 :: BitVector 1600 -> BitVector 1600
 piF1600 bv =
   ifoldl
@@ -50,7 +57,6 @@ piF1600 bv =
     0
     $(Constants.pi 6)
 
--- Rho transformation: bit permutation on BitVector (lane rotation)
 rhoF1600 :: BitVector 1600 -> BitVector 1600
 rhoF1600 bv =
   ifoldl
@@ -61,186 +67,252 @@ rhoF1600 bv =
     0
     $(Constants.rho 6)
 
+-- Precomputed 64-bit round constants
+{-# NOINLINE iotaConstants64 #-}
+iotaConstants64 :: Vec 24 (BitVector 64)
+iotaConstants64 = map bitCoerce _iota_constants
+
 iotaF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
 iotaF1600 roundIdx bv =
-  let lane0 = slice d63 d0 bv -- Extract first 64 bits (lane 0)
-      lane0' = lane0 `xor` ($(Constants.iota) !! roundIdx) -- XOR with selected round constant (no truncation needed)
-      upperBits = bv `shiftR` 64 :: BitVector 1600 -- Get bits 64-1599
-   in (truncateB upperBits :: BitVector 1536) ++# lane0' -- Replace bits 0-63 with result
+  let (rest :: BitVector (1600 - 64), lane0 :: BitVector 64) = split bv
+      rc = iotaConstants64 !! roundIdx
+      lane0' = lane0 `xor` rc
+   in rest ++# lane0'
 
--- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
+--------------------------------------------------------------------------------
+-- Permutation
+--------------------------------------------------------------------------------
+
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx =
   iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600
 
--- | Full Keccak-f[1600] permutation: 24 rounds (12 + 2*l where l=6)
--- Applies all rounds in sequence using the round constants
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
   foldl applyRound initialState (indicesI @24)
   where
     applyRound state roundIdx = keccakF1600Round roundIdx state
 
--- | Keccak-f[1600] sponge function with configurable rate/capacity.
--- Instantiation: r=1088, capacity=512, for SHA3-256
 keccakF1600Sponge :: forall r n m k d. (SpongeParameter 1600 r n m k d) => BitVector m -> BitVector d
 keccakF1600Sponge = sponge @1600 @r @n @m @k @d keccakF1600
 
 --------------------------------------------------------------------------------
+-- SHA3-f[1600] parameters
+--------------------------------------------------------------------------------
 
--- Concrete parameters for synthesis
 type Rate = 1088
 
--- Sequential (pipelined) sponge implementation
--- State machine for sequential Keccak-f[1600] sponge
+type Capacity = 512
+
+type DigestBits = 256
+
+type SHA3SuffixBits = 2
+
+sha3Suffix :: BitVector SHA3SuffixBits
+sha3Suffix = 0b01
+
+--------------------------------------------------------------------------------
+-- Padding
+--------------------------------------------------------------------------------
+
+padSHA3 ::
+  forall rate msgLen numBlocks.
+  ( KnownNat rate,
+    KnownNat msgLen,
+    KnownNat numBlocks,
+    KnownNat (numBlocks * rate),
+    KnownNat (msgLen + SHA3SuffixBits),
+    KnownNat (msgLen + SHA3SuffixBits + 1),
+    KnownNat (numBlocks * rate - (msgLen + SHA3SuffixBits + 2)),
+    (msgLen + SHA3SuffixBits + 2) <= numBlocks * rate
+  ) =>
+  BitVector msgLen ->
+  Vec numBlocks (BitVector rate)
+padSHA3 msg =
+  let buildPadded :: BitVector msgLen -> BitVector (numBlocks * rate)
+      buildPadded m =
+        m
+          ++# sha3Suffix
+          ++# (1 :: BitVector 1)
+          ++# (0 :: BitVector (numBlocks * rate - (msgLen + SHA3SuffixBits + 2)))
+          ++# (1 :: BitVector 1)
+
+      paddedBits = leToPlusKN @(msgLen + SHA3SuffixBits + 2) @(numBlocks * rate) buildPadded msg
+   in unconcatBitVector# @numBlocks @rate paddedBits
+
+--------------------------------------------------------------------------------
+-- Sequential sponge state
+--------------------------------------------------------------------------------
+
+data Phase = Absorbing | Squeezing | Idle
+  deriving (Generic, NFDataX, Eq, Show)
+
 data SpongeState = SpongeState
   { stateData :: BitVector 1600,
     roundCounter :: Index 24,
-    active :: Bool -- True when processing rounds, False when idle
+    active :: Bool
   }
   deriving (Generic, NFDataX)
 
--- | Sequential Keccak-f[1600] sponge that pipelines rounds across cycles.
---
--- = Behavior
---
--- * Absorbs one rate block on one cycle, then applies one round per cycle for 24 cycles, then outputs.
--- * Input: @Signal dom (Maybe (BitVector r))@ - @Just block@ to absorb, @Nothing@ when idle
--- * Output: @Signal dom (Maybe (BitVector r))@ - @Just result@ on cycle 24 after absorb, @Nothing@ otherwise
---
--- = State Machine
---
--- * __Idle__ (@active = False@): Ready to accept new block. State holds constant, no rounds execute.
--- * __Absorbing__ (cycle when @Just block@ arrives while idle): XOR block into low @r@ bits, set @active = True@, reset @roundCounter = 0@. On this same cycle, round 0 executes.
--- * __Processing__ (@active = True@, cycles 2-24 after absorb): Execute one round per cycle (rounds 1-23), increment @roundCounter@.
--- * __Completing__ (@active = True@, cycle 24): Execute round 23, output @Just result@, set @active = False@ for next cycle.
---
--- = Properties
---
--- [No spurious outputs on reset] Output remains @Nothing@ until first real block completes 24 rounds.
---
--- [State frozen when idle] Permutation only executes when @active = True@; idle state holds last valid value.
---
--- [Gated absorb] New blocks only absorbed when @active = False@ (idle). Blocks arriving during processing are __silently dropped__.
---
--- [Deterministic results] Each accepted block receives exactly 24 rounds with no interruption or clobbering.
---
--- [No backpressure signal] Interface has no ready/valid handshake. Producer must ensure @Just block@ inputs are spaced ≥25 cycles apart.
---
--- = Example Timing
---
--- @
--- Cycle:  0   1   2   3  ...  24  25  26  27  28 ...  50  51
--- Input:  J   N   N   N  ...  N   N   J   N   N  ...  N   N
--- Active: T   T   T   T  ...  T   F   T   T   T  ...  T   F
--- Round:  0   1   2   3  ...  23  -   0   1   2  ...  23  -
--- Output: N   N   N   N  ...  N   J   N   N   N  ...  N   J
---
--- J = Just block/result, N = Nothing, T = True, F = False
--- Cycle 0: Absorb block, execute round 0
--- Cycle 1-23: Execute rounds 1-23
--- Cycle 24: Execute round 23, output result, deactivate
--- Cycle 25: Idle, ready for next block
--- @
-keccakF1600SpongeSeq ::
-  forall dom r.
-  (HiddenClockResetEnable dom, KnownNat r, r <= 1600) =>
-  Signal dom (Maybe (BitVector r)) ->
-  Signal dom (Maybe (BitVector r))
-keccakF1600SpongeSeq input = output
+data SHA3State maxBlocks = SHA3State
+  { sha3StateData :: BitVector 1600,
+    sha3RoundCounter :: Index 24,
+    sha3Phase :: Phase,
+    sha3Active :: Bool,
+    sha3BlocksRemaining :: Unsigned 16,
+    sha3SqueezedBits :: Unsigned 16,
+    sha3LatchedBlocks :: Vec maxBlocks (BitVector Rate)
+  }
+  deriving (Generic, NFDataX)
+
+sha3f1600Seq ::
+  forall dom maxBlocks.
+  ( HiddenClockResetEnable dom,
+    KnownNat maxBlocks,
+    1 <= maxBlocks
+  ) =>
+  Signal dom Bool ->
+  Signal dom (Vec maxBlocks (BitVector Rate)) ->
+  Signal dom (Bool, BitVector DigestBits)
+sha3f1600Seq start blocks = mealy step initialState (bundle (start, blocks))
   where
     initialState =
-      SpongeState
-        { stateData = 0,
-          roundCounter = 0,
-          active = False
+      SHA3State
+        { sha3StateData = 0,
+          sha3RoundCounter = 0,
+          sha3Phase = Idle,
+          sha3Active = False,
+          sha3BlocksRemaining = 0,
+          sha3SqueezedBits = 0,
+          sha3LatchedBlocks = repeat 0
         }
 
-    output = mealyB step initialState input
+    step st (startPulse, blockVec) =
+      let currentPhase = sha3Phase st
+          currentRound = sha3RoundCounter st
 
-    step :: SpongeState -> Maybe (BitVector r) -> (SpongeState, Maybe (BitVector r))
-    step st maybeBlock =
-      let -- Only absorb new block when idle (not active)
-          -- PROPERTY: Gated absorb prevents clobbering in-flight permutations
-          canAbsorb = not (active st)
+          stateAfterLoad
+            | currentPhase == Idle && startPulse =
+                let totalBlocks = natToNum @maxBlocks :: Int
+                 in st
+                      { sha3StateData = 0,
+                        sha3RoundCounter = 0,
+                        sha3Active = False,
+                        sha3Phase = Absorbing,
+                        sha3BlocksRemaining = fromIntegral (totalBlocks - 1),
+                        sha3SqueezedBits = 0,
+                        sha3LatchedBlocks = blockVec
+                      }
+            | otherwise = st
 
-          -- Absorb phase: XOR block into low r bits if provided and idle, activate processing
-          -- PROPERTY: Blocks arriving while active are silently dropped (no backpressure signal)
-          stateAfterAbsorb = case maybeBlock of
-            Just block
-              | canAbsorb ->
-                  st
-                    { stateData = stateData st `xor` ((0 :: BitVector (1600 - r)) ++# block),
-                      roundCounter = 0,
-                      active = True
-                    }
-            _ -> st
+          stateAfterAbsorb
+            | sha3Phase stateAfterLoad == Absorbing && not (sha3Active stateAfterLoad) =
+                let totalBlocks = natToNum @maxBlocks :: Int
+                    blocksRemaining = fromIntegral (sha3BlocksRemaining stateAfterLoad) :: Int
+                    blockIdx = totalBlocks - blocksRemaining - 1
+                    block = sha3LatchedBlocks stateAfterLoad !! blockIdx
+                 in stateAfterLoad
+                      { sha3StateData = sha3StateData stateAfterLoad `xor` ((0 :: BitVector Capacity) ++# block),
+                        sha3Active = True,
+                        sha3RoundCounter = 0
+                      }
+            | otherwise = stateAfterLoad
 
-          -- Only apply round and advance counter when active
-          -- PROPERTY: State frozen when idle - no spurious outputs, no wasted power
-          isActive = active stateAfterAbsorb
-          currentRound = roundCounter stateAfterAbsorb
+          stateData' =
+            if sha3Active stateAfterAbsorb
+              then keccakF1600Round (sha3RoundCounter stateAfterAbsorb) (sha3StateData stateAfterAbsorb)
+              else sha3StateData stateAfterAbsorb
 
-          stateAfterRound =
-            if isActive
-              then keccakF1600Round currentRound (stateData stateAfterAbsorb)
-              else stateData stateAfterAbsorb
-
-          nextRoundCounter
-            | isActive && currentRound == 23 = 0
-            | isActive = currentRound + 1
+          nextRound
+            | sha3Active stateAfterAbsorb && currentRound == maxBound = 0
+            | sha3Active stateAfterAbsorb = currentRound + 1
             | otherwise = currentRound
 
-          -- PROPERTY: Deterministic results - each block gets exactly 24 rounds
-          completedPermutation = isActive && currentRound == 23
+          permutationComplete = sha3Active stateAfterAbsorb && currentRound == maxBound
 
-          -- Extract output (low r bits) when permutation completes
-          outputMaybe =
-            if completedPermutation
-              then Just (leToPlusKN @r @1600 truncateB stateAfterRound)
-              else Nothing
+          blocksLeft = sha3BlocksRemaining stateAfterAbsorb
+          squeezedBits = sha3SqueezedBits stateAfterAbsorb
 
-          -- Deactivate after completing permutation
-          nextActive = (not completedPermutation && isActive)
+          digestFitsInOneBlock = (natToNum @DigestBits :: Int) <= (natToNum @Rate :: Int)
+
+          (nextPhase, nextActive, nextBlocksLeft, nextSqueezed) =
+            case (sha3Phase stateAfterAbsorb, permutationComplete) of
+              (Absorbing, True) | blocksLeft == 0 ->
+                if digestFitsInOneBlock
+                  then (Idle, False, 0, fromIntegral (natToNum @Rate :: Int))
+                  else (Squeezing, True, 0, fromIntegral (natToNum @Rate :: Int))
+              (Absorbing, True) ->
+                (Absorbing, False, blocksLeft - 1, 0)
+              (Squeezing, True) ->
+                let newSqueezed = squeezedBits + fromIntegral (natToNum @Rate :: Int)
+                 in if newSqueezed >= fromIntegral (natToNum @DigestBits :: Int)
+                      then (Idle, False, 0, 0)
+                      else (Squeezing, True, 0, newSqueezed)
+              (_, False) ->
+                (sha3Phase stateAfterAbsorb, sha3Active stateAfterAbsorb, blocksLeft, squeezedBits)
+              _ ->
+                (sha3Phase stateAfterAbsorb, sha3Active stateAfterAbsorb, blocksLeft, squeezedBits)
+
+          digestReady =
+            permutationComplete
+              && ( sha3Phase stateAfterAbsorb == Absorbing && blocksLeft == 0
+                   || sha3Phase stateAfterAbsorb == Squeezing
+                 )
+              && nextPhase == Idle
+
+          digestOut = leToPlusKN @DigestBits @Rate truncateB (truncateB @_ @Rate stateData')
 
           nextState =
-            SpongeState
-              { stateData = stateAfterRound,
-                roundCounter = nextRoundCounter,
-                active = nextActive
+            SHA3State
+              { sha3StateData = stateData',
+                sha3RoundCounter = nextRound,
+                sha3Phase = nextPhase,
+                sha3Active = nextActive,
+                sha3BlocksRemaining = nextBlocksLeft,
+                sha3SqueezedBits = nextSqueezed,
+                sha3LatchedBlocks = sha3LatchedBlocks stateAfterAbsorb
               }
-       in (nextState, outputMaybe)
+       in (nextState, (digestReady, digestOut))
 
--- | Sequential sponge top entity (one round per cycle, 24 cycles per block)
+--------------------------------------------------------------------------------
+-- Top entity (demo)
+--------------------------------------------------------------------------------
+
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF1600_SpongeSeq",
+      { t_name = "KeccakF1600_SHA3",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
-            PortName "DIN_VALID",
-            PortName "DIN"
+            PortName "MSG_START",
+            PortName "MSG_DATA"
           ],
         t_output =
           PortProduct
             ""
-            [ PortName "DOUT_VALID",
-              PortName "DOUT"
+            [ PortName "DIGEST_VALID",
+              PortName "DIGEST_DATA"
             ]
       }
   )
   #-}
 {-# OPAQUE topEntity #-}
+
+type MaxBlocks = 2
+
+type MessageBits = 2048
+
 topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System Bool ->
-  Signal System (BitVector Rate) ->
-  Signal System (Bool, BitVector Rate)
-topEntity clk rst en valid din = bundle (isJust <$> dout, fromMaybe 0 <$> dout)
+  Signal System (BitVector MessageBits) ->
+  Signal System (Bool, BitVector DigestBits)
+topEntity clk rst en msgStart msgData =
+  withClockResetEnable clk rst en $
+    sha3f1600Seq @System @MaxBlocks msgStart paddedBlocks
   where
-    inputMaybe = (\v d -> if v then Just d else Nothing) <$> valid <*> din
-    dout = withClockResetEnable clk rst en (keccakF1600SpongeSeq @System @Rate) inputMaybe
+    paddedBlocks = fmap (padSHA3 @Rate @MessageBits @MaxBlocks) msgData
