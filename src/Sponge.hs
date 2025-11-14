@@ -28,7 +28,9 @@ data SpongeState b rate digest rounds digestBlocks = SpongeState
     spongeSeenTLast :: Bool,
     spongeDigestPending :: Bool,
     spongeSqueezeBlocksRemaining :: Index digestBlocks,
-    spongeCurrentBlock :: BitVector rate
+    spongeCurrentBlock :: BitVector rate,
+    spongePadPending :: Bool,
+    spongePadBlock :: BitVector rate
   }
   deriving stock (Generic)
   deriving anyclass (NFDataX)
@@ -41,6 +43,7 @@ data SpongeState b rate digest rounds digestBlocks = SpongeState
 -- * @rate@ - Rate (bits absorbed/squeezed per permutation)
 -- * @digest@ - Output digest size in bits
 -- * @rounds@ - Number of permutation rounds
+-- * @suffixBits@ - Domain separation suffix bit width
 --
 -- = AXI4-Stream Interface
 --
@@ -49,7 +52,8 @@ data SpongeState b rate digest rounds digestBlocks = SpongeState
 --
 -- = Operation
 --
--- Expects pre-padded rate-bit blocks on input stream. TLAST marks final block.
+-- Accepts raw input blocks on AXI stream. TLAST marks final data block.
+-- Automatically appends pad10*1 suffix after TLAST.
 -- Outputs digest in rate-bit blocks with LSBs containing digest bits and MSBs zero-padded.
 -- Supports multi-cycle squeezing when digest > rate.
 spongeAxi ::
@@ -69,6 +73,7 @@ spongeAxi ::
     rate <= b,
     digest <= b
   ) =>
+  BitVector rate -> -- Pad block (pre-computed pad10*1 pattern with domain separation suffix)
   (Index rounds -> BitVector b -> BitVector b) -> -- Permutation round function
   Signal dom Bool -> -- s_axis_tvalid
   Signal dom (BitVector rate) -> -- s_axis_tdata
@@ -79,7 +84,7 @@ spongeAxi ::
     Signal dom (BitVector rate), -- m_axis_tdata
     Signal dom Bool -- m_axis_tlast
   )
-spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
+spongeAxi padBlock permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast)
   where
     (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast) =
@@ -94,7 +99,9 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
           spongeSeenTLast = False,
           spongeDigestPending = False,
           spongeSqueezeBlocksRemaining = 0,
-          spongeCurrentBlock = 0
+          spongeCurrentBlock = 0,
+          spongePadPending = False,
+          spongePadBlock = 0
         }
 
     maxRound = maxBound :: Index rounds
@@ -109,22 +116,32 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
       let currentPhase = spongePhase st
           currentRound = spongeRoundCounter st
           active = spongeActive st
-          seenTLast = spongeSeenTLast st
           digestPending = spongeDigestPending st
           squeezeBlocksRemaining = spongeSqueezeBlocksRemaining st
+          padPending = spongePadPending st
 
           -- AXI4-Stream handshake
-          inputTransfer = sAxisTValid_in && not active && currentPhase == Absorbing && not digestPending
+          inputTransfer = sAxisTValid_in && not active && currentPhase == Absorbing && not digestPending && not padPending
+          padTransfer = padPending && not active && currentPhase == Absorbing && not digestPending
           outputTransfer = digestPending && mAxisTReady_in
 
-          -- Absorb block on input transfer
+          -- Absorb block on input transfer or pad transfer
           stateAfterAbsorb
             | inputTransfer =
                 st
                   { spongeStateData = spongeStateData st `xor` ((0 :: BitVector (b - rate)) ++# sAxisTData_in),
                     spongeActive = True,
                     spongeRoundCounter = 0,
-                    spongeSeenTLast = seenTLast || sAxisTLast_in
+                    spongePadPending = sAxisTLast_in,
+                    spongePadBlock = if sAxisTLast_in then padBlock else spongePadBlock st
+                  }
+            | padTransfer =
+                st
+                  { spongeStateData = spongeStateData st `xor` ((0 :: BitVector (b - rate)) ++# spongePadBlock st),
+                    spongeActive = True,
+                    spongeRoundCounter = 0,
+                    spongePadPending = False,
+                    spongeSeenTLast = True
                   }
             | otherwise = st
 
@@ -171,13 +188,19 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
                 (spongePhase stateAfterAbsorb, spongeActive stateAfterAbsorb, spongeSeenTLast stateAfterAbsorb, digestPending, squeezeBlocksRemaining, spongeCurrentBlock stateAfterAbsorb)
 
           -- AXI4-Stream outputs
-          sAxisTReady_out = not active && currentPhase == Absorbing && not digestPending
+          sAxisTReady_out = not active && currentPhase == Absorbing && not digestPending && not padPending
           mAxisTValid_out = digestPending
           mAxisTData_out = if digestPending then spongeCurrentBlock stateAfterAbsorb else 0
           mAxisTLast_out = digestPending && squeezeBlocksRemaining == 0
 
           -- Reset state data when returning to absorbing
           nextStateData = if nextPhase == Absorbing && currentPhase == Squeezing then 0 else stateData'
+
+          -- Reset padding state when transitioning back to Absorbing
+          (nextPadPending, nextPadBlock) =
+            if nextPhase == Absorbing && currentPhase == Squeezing
+              then (False, 0)
+              else (spongePadPending stateAfterAbsorb, spongePadBlock stateAfterAbsorb)
 
           nextState =
             SpongeState
@@ -188,6 +211,8 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
                 spongeSeenTLast = nextSeenTLast,
                 spongeDigestPending = nextDigestPending,
                 spongeSqueezeBlocksRemaining = nextSqueezeBlocks,
-                spongeCurrentBlock = nextCurrentBlock
+                spongeCurrentBlock = nextCurrentBlock,
+                spongePadPending = nextPadPending,
+                spongePadBlock = nextPadBlock
               }
        in (nextState, (sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out))

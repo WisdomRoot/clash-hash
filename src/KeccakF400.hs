@@ -1,17 +1,17 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF200
+module KeccakF400
   ( -- * SHA3 Top Entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import KeccakF200.Permutation hiding (topEntity)
+import KeccakF400.Permutation hiding (topEntity)
 import qualified Sponge
 
 --------------------------------------------------------------------------------
--- SHA3-f[200] AXI4-Stream Top Entity
+-- SHA3-f[400] AXI4-Stream Top Entity
 --------------------------------------------------------------------------------
 
 type Rate = 64
@@ -21,7 +21,7 @@ type DigestBits = 128
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF200_SHA3",
+      { t_name = "KeccakF400_SHA3",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -58,9 +58,9 @@ topEntity ::
   )
 topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en
-    $ Sponge.spongeAxi @System @200 @Rate @DigestBits @18
+    $ Sponge.spongeAxi @System @400 @Rate @DigestBits @20
       padBlock
-      (keccakF200Round . resize)
+      (keccakF400Round . resize)
       sAxisTValid
       sAxisTData
       sAxisTLast
