@@ -255,23 +255,50 @@ def run_yosys(commands: Iterable[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
-def summarise_output(text: str) -> tuple[str | None, float | None]:
-    cell_summary = None
-    chip_area = None
-    for line in reversed(text.splitlines()):
-        if chip_area is None and "Chip area for module" in line:
-            parts = line.split(":")
-            if len(parts) == 2:
-                value = parts[1].strip()
-                try:
-                    chip_area = float(value)
-                except ValueError:
-                    chip_area = None
-        if cell_summary is None and line.strip().startswith("Number of cells:"):
-            cell_summary = line.strip()
-        if cell_summary and chip_area is not None:
+def summarise_output(text: str, top_module: str) -> tuple[str | None, float | None, str | None]:
+    lines = text.splitlines()
+    chip_area: float | None = None
+    cell_summary: str | None = None
+    sequential_summary: str | None = None
+    area_line_index: int | None = None
+
+    area_regex = re.compile(r"Chip area for module '\\?([^']+)':\s*([0-9.]+)")
+
+    # Prefer the entry for the requested top module.
+    for idx in range(len(lines) - 1, -1, -1):
+        match = area_regex.search(lines[idx])
+        if not match:
+            continue
+        module_name = match.group(1).lstrip("\\")
+        if module_name == top_module:
+            chip_area = float(match.group(2))
+            area_line_index = idx
             break
-    return cell_summary, chip_area
+
+    # Fallback: use the last-reported area if the top module wasn't found explicitly.
+    if chip_area is None:
+        for idx in range(len(lines) - 1, -1, -1):
+            match = area_regex.search(lines[idx])
+            if match:
+                chip_area = float(match.group(2))
+                area_line_index = idx
+                break
+
+    if area_line_index is not None:
+        for idx in range(area_line_index, -1, -1):
+            line = lines[idx].strip()
+            if line.startswith("Number of cells:"):
+                cell_summary = line
+            if cell_summary:
+                break
+
+        for idx in range(area_line_index + 1, len(lines)):
+            line = lines[idx].strip()
+            if line.startswith("of which used for sequential elements"):
+                sequential_summary = line
+                break
+
+    return cell_summary, chip_area, sequential_summary
 
 
 def synthesise_target(target: SynthTarget, conf: SynthConfig) -> None:
@@ -301,7 +328,7 @@ def synthesise_target(target: SynthTarget, conf: SynthConfig) -> None:
         print(output)
         sys.exit(f"error: yosys exited with code {result.returncode} for target {target.label}")
 
-    cell_line, area_value = summarise_output(output)
+    cell_line, area_value, seq_line = summarise_output(output, target.top)
     rel_netlist = netlist_path.relative_to(PROJECT_ROOT)
     rel_report = report_path.relative_to(PROJECT_ROOT)
 
@@ -309,6 +336,8 @@ def synthesise_target(target: SynthTarget, conf: SynthConfig) -> None:
     print(f"  ↳ report : {rel_report}")
     if cell_line:
         print(f"  {cell_line}")
+    if seq_line:
+        print(f"  {seq_line}")
     if area_value is not None:
         print(f"  Chip area : {area_value:.3f}")
     print()

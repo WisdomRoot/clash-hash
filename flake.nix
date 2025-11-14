@@ -30,7 +30,7 @@
           yosysPkg = pkgsUnstable.yosys;
           synthCli = pkgs.writeShellApplication {
             name = "synth";
-            runtimeInputs = [ pkgs.python3 ];
+            runtimeInputs = [ pkgs.python3 yosysPkg ];
             text = ''
               set -euo pipefail
               script_path="$PWD/scripts/synth_verilog.py"
