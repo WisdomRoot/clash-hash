@@ -108,6 +108,6 @@ keccakF800 initialState =
       }
   )
   #-}
-{-# OPAQUE topEntity #-}
 topEntity :: (Index 24, BitVector 800) -> BitVector 800
 topEntity (roundIdx, state) = keccakF800Round roundIdx state
+{-# NOINLINE topEntity #-}

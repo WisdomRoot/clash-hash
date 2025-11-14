@@ -7,10 +7,6 @@ module KeccakF200.Permutation
     piF200,
     chiF200,
     iotaF200,
-
-    -- * Permutation
-    keccakF200Round,
-
     -- * Top entity (round only)
     topEntity,
   )
@@ -100,6 +96,6 @@ keccakF200Round roundIdx =
       }
   )
   #-}
-{-# OPAQUE topEntity #-}
 topEntity :: (Index 24, BitVector 200) -> BitVector 200
 topEntity (roundIdx, state) = keccakF200Round roundIdx state
+{-# NOINLINE topEntity #-}

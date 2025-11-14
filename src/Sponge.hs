@@ -81,7 +81,7 @@ spongeAxi ::
     digest <= b
   ) =>
   BitVector 2 -> -- Domain separation suffix (0b01=SHA3, 0b11=SHAKE, 0b10=RawSHAKE)
-  (Index rounds -> BitVector b -> BitVector b) -> -- Permutation round function
+  (Signal dom (Index rounds, BitVector b) -> Signal dom (BitVector b)) -> -- Permutation component
   Signal dom Bool -> -- s_axis_tvalid
   Signal dom (BitVector rate) -> -- s_axis_tdata
   Signal dom Bool -> -- s_axis_tlast
@@ -91,11 +91,17 @@ spongeAxi ::
     Signal dom (BitVector rate), -- m_axis_tdata
     Signal dom Bool -- m_axis_tlast
   )
-spongeAxi suffix permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
+spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast)
   where
-    (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast) =
-      unbundle $ mealy step initialState (bundle (sAxisTValid, sAxisTData, sAxisTLast, mAxisTReady))
+    -- FSM with feedback loop through permutation component
+    (axiOutputs, permIn) = unbundle $ mealy step initialState (bundle (sAxisTValid, sAxisTData, sAxisTLast, mAxisTReady, stateDataAfterPerm))
+
+    -- Permutation component instantiation
+    stateDataAfterPerm = permutationComponent permIn
+
+    -- Unpack AXI outputs
+    (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast) = unbundle axiOutputs
 
     initialState =
       SpongeState
@@ -120,9 +126,9 @@ spongeAxi suffix permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
 
     step ::
       SpongeState b rate digest rounds digestBlocks ->
-      (Bool, BitVector rate, Bool, Bool) ->
-      (SpongeState b rate digest rounds digestBlocks, (Bool, Bool, BitVector rate, Bool))
-    step st (sAxisTValid_in, sAxisTData_in, sAxisTLast_in, mAxisTReady_in) =
+      (Bool, BitVector rate, Bool, Bool, BitVector b) ->
+      (SpongeState b rate digest rounds digestBlocks, ((Bool, Bool, BitVector rate, Bool), (Index rounds, BitVector b)))
+    step st (sAxisTValid_in, sAxisTData_in, sAxisTLast_in, mAxisTReady_in, stateDataAfterPerm_in) =
       let currentPhase = spongePhase st
           currentRound = spongeRoundCounter st
           active = spongeActive st
@@ -155,11 +161,14 @@ spongeAxi suffix permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
                   }
             | otherwise = st
 
-          -- Execute permutation round if active
+          -- Use permutation result from component (if active)
           stateData' =
             if spongeActive stateAfterAbsorb
-              then permRound (spongeRoundCounter stateAfterAbsorb) (spongeStateData stateAfterAbsorb)
+              then stateDataAfterPerm_in
               else spongeStateData stateAfterAbsorb
+
+          -- Prepare permutation input for next cycle
+          permutationInput = (spongeRoundCounter stateAfterAbsorb, spongeStateData stateAfterAbsorb)
 
           -- Advance round counter (reset when starting new permutation)
           nextRound
@@ -225,7 +234,7 @@ spongeAxi suffix permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
                 spongePadPending = nextPadPending,
                 spongePadBlock = nextPadBlock
               }
-       in (nextState, (sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out))
+       in (nextState, ((sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out), permutationInput))
 
     suffixPadBlock :: BitVector 2 -> BitVector rate
     suffixPadBlock suff =

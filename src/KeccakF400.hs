@@ -7,7 +7,7 @@ module KeccakF400
 where
 
 import Clash.Prelude
-import KeccakF400.Permutation hiding (topEntity)
+import qualified KeccakF400.Permutation as Perm
 import qualified Sponge
 
 --------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ type DigestBits = 64
       }
   )
   #-}
-{-# OPAQUE topEntity #-}
+{-# NOINLINE topEntity #-}
 topEntity ::
   Clock System ->
   Reset System ->
@@ -60,8 +60,19 @@ topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en
     $ Sponge.spongeAxi @System @400 @Rate @DigestBits @20
       (0b01 :: BitVector 2)
-      (keccakF400Round . resize)
+      permutationComponent
       sAxisTValid
       sAxisTData
       sAxisTLast
       mAxisTReady
+  where
+    -- Instantiate permutation as a component (not inlined)
+    -- The topEntity in Permutation.hs has {-# NOINLINE #-} which prevents inlining
+    permutationComponent :: Signal System (Index 20, BitVector 400) -> Signal System (BitVector 400)
+    permutationComponent input =
+      fmap Perm.topEntity resizedInput
+      where
+        (roundIdx, state) = unbundle input
+        -- Resize Index 20 to Index 24 for the permutation topEntity
+        roundIdx24 = fmap resize roundIdx
+        resizedInput = bundle (roundIdx24, state)

@@ -255,18 +255,23 @@ def run_yosys(commands: Iterable[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
-def summarise_output(text: str, top_module: str) -> tuple[str | None, float | None, str | None]:
+def summarise_output(
+    text: str, top_module: str
+) -> tuple[str | None, float | None, str | None, float | None]:
     lines = text.splitlines()
     chip_area: float | None = None
     cell_summary: str | None = None
     sequential_summary: str | None = None
     area_line_index: int | None = None
+    user_cpu: float | None = None
 
-    area_regex = re.compile(r"Chip area for module '\\?([^']+)':\s*([0-9.]+)")
+    # Prefer "Chip area for top module" over "Chip area for module"
+    top_area_regex = re.compile(r"Chip area for top module '\\?([^']+)':\s*([0-9.]+)")
+    module_area_regex = re.compile(r"Chip area for module '\\?([^']+)':\s*([0-9.]+)")
 
-    # Prefer the entry for the requested top module.
+    # First, try to find "Chip area for top module" - this includes all sub-modules
     for idx in range(len(lines) - 1, -1, -1):
-        match = area_regex.search(lines[idx])
+        match = top_area_regex.search(lines[idx])
         if not match:
             continue
         module_name = match.group(1).lstrip("\\")
@@ -275,10 +280,24 @@ def summarise_output(text: str, top_module: str) -> tuple[str | None, float | No
             area_line_index = idx
             break
 
-    # Fallback: use the last-reported area if the top module wasn't found explicitly.
+    # Fallback: try "Chip area for module" (without "top")
     if chip_area is None:
         for idx in range(len(lines) - 1, -1, -1):
-            match = area_regex.search(lines[idx])
+            match = module_area_regex.search(lines[idx])
+            if not match:
+                continue
+            module_name = match.group(1).lstrip("\\")
+            if module_name == top_module:
+                chip_area = float(match.group(2))
+                area_line_index = idx
+                break
+
+    # Final fallback: use the last-reported area
+    if chip_area is None:
+        for idx in range(len(lines) - 1, -1, -1):
+            match = top_area_regex.search(lines[idx])
+            if not match:
+                match = module_area_regex.search(lines[idx])
             if match:
                 chip_area = float(match.group(2))
                 area_line_index = idx
@@ -298,8 +317,15 @@ def summarise_output(text: str, top_module: str) -> tuple[str | None, float | No
                 sequential_summary = line
                 break
 
-    return cell_summary, chip_area, sequential_summary
+    cpu_regex = re.compile(r"CPU:\s+user\s+([0-9.]+)s")
+    for line in reversed(lines):
+        match = cpu_regex.search(line)
+        if match:
+            user_cpu = float(match.group(1))
+            break
 
+   
+    return cell_summary, chip_area, sequential_summary, user_cpu
 
 def synthesise_target(target: SynthTarget, conf: SynthConfig) -> None:
     workspace = target.output_root(conf.output_root)
@@ -328,7 +354,7 @@ def synthesise_target(target: SynthTarget, conf: SynthConfig) -> None:
         print(output)
         sys.exit(f"error: yosys exited with code {result.returncode} for target {target.label}")
 
-    cell_line, area_value, seq_line = summarise_output(output, target.top)
+    cell_line, area_value, seq_line, user_cpu = summarise_output(output, target.top)
     rel_netlist = netlist_path.relative_to(PROJECT_ROOT)
     rel_report = report_path.relative_to(PROJECT_ROOT)
 
@@ -340,6 +366,8 @@ def synthesise_target(target: SynthTarget, conf: SynthConfig) -> None:
         print(f"  {seq_line}")
     if area_value is not None:
         print(f"  Chip area : {area_value:.3f}")
+    if user_cpu is not None:
+        print(f"  CPU user  : {user_cpu:.2f}s")
     print()
 
 
