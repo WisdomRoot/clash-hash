@@ -16,7 +16,7 @@ import qualified Sponge
 
 type Rate = 64
 
-type DigestBits = 128
+type DigestBits = 64
 
 {-# ANN
   topEntity
@@ -59,14 +59,9 @@ topEntity ::
 topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en
     $ Sponge.spongeAxi @System @200 @Rate @DigestBits @18
-      padBlock
+      (0b01 :: BitVector 2)
       (keccakF200Round . resize)
       sAxisTValid
       sAxisTData
       sAxisTLast
       mAxisTReady
-  where
-    -- SHA3 pad10*1 block: 0b01 || 1 || 0...0 || 1
-    -- For Rate=64: LSB [01 1 00...00 1] MSB (64 bits total)
-    padBlock :: BitVector Rate
-    padBlock = (1 :: BitVector 1) ++# (0 :: BitVector 60) ++# (0b110 :: BitVector 3)

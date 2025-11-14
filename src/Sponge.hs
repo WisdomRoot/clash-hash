@@ -43,7 +43,6 @@ data SpongeState b rate digest rounds digestBlocks = SpongeState
 -- * @rate@ - Rate (bits absorbed/squeezed per permutation)
 -- * @digest@ - Output digest size in bits
 -- * @rounds@ - Number of permutation rounds
--- * @suffixBits@ - Domain separation suffix bit width
 --
 -- = AXI4-Stream Interface
 --
@@ -52,10 +51,18 @@ data SpongeState b rate digest rounds digestBlocks = SpongeState
 --
 -- = Operation
 --
--- Accepts raw input blocks on AXI stream. TLAST marks final data block.
--- Automatically appends pad10*1 suffix after TLAST.
--- Outputs digest in rate-bit blocks with LSBs containing digest bits and MSBs zero-padded.
--- Supports multi-cycle squeezing when digest > rate.
+-- Accepts raw input blocks on AXI stream. TLAST marks final full-width data block.
+-- Automatically constructs and injects pad10*1 block after TLAST.
+-- Outputs digest in rate-bit blocks. Supports multi-cycle squeezing when digest > rate.
+--
+-- = Domain Separation Suffix
+--
+-- The 2-bit suffix parameter specifies the domain separation:
+-- * @0b01@ - SHA3 hash functions
+-- * @0b11@ - SHAKE extendable-output functions
+-- * @0b10@ - RawSHAKE (raw Keccak)
+--
+-- The padding block format is: suffix || 1 || 0...0 || 1 (pad10*1 rule)
 spongeAxi ::
   forall dom b rate digest rounds digestBlocks.
   ( HiddenClockResetEnable dom,
@@ -66,14 +73,14 @@ spongeAxi ::
     KnownNat digestBlocks,
     digestBlocks ~ DivRU digest rate,
     1 <= b,
-    1 <= rate,
+    4 <= rate,
     1 <= digest,
     1 <= rounds,
     1 <= digestBlocks,
     rate <= b,
     digest <= b
   ) =>
-  BitVector rate -> -- Pad block (pre-computed pad10*1 pattern with domain separation suffix)
+  BitVector 2 -> -- Domain separation suffix (0b01=SHA3, 0b11=SHAKE, 0b10=RawSHAKE)
   (Index rounds -> BitVector b -> BitVector b) -> -- Permutation round function
   Signal dom Bool -> -- s_axis_tvalid
   Signal dom (BitVector rate) -> -- s_axis_tdata
@@ -84,7 +91,7 @@ spongeAxi ::
     Signal dom (BitVector rate), -- m_axis_tdata
     Signal dom Bool -- m_axis_tlast
   )
-spongeAxi padBlock permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
+spongeAxi suffix permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast)
   where
     (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast) =
@@ -107,6 +114,9 @@ spongeAxi padBlock permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
     maxRound = maxBound :: Index rounds
 
     totalDigestBlocks = natToNum @digestBlocks :: Index digestBlocks
+
+    padBlock :: BitVector rate
+    padBlock = suffixPadBlock suffix
 
     step ::
       SpongeState b rate digest rounds digestBlocks ->
@@ -216,3 +226,17 @@ spongeAxi padBlock permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
                 spongePadBlock = nextPadBlock
               }
        in (nextState, (sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out))
+
+    suffixPadBlock :: BitVector 2 -> BitVector rate
+    suffixPadBlock suff =
+      let suffixBits :: BitVector rate
+          suffixBits = setBitIf (testBit suff 0) 1 $ setBitIf (testBit suff 1) 0 (0 :: BitVector rate)
+          firstPadBit = setBit (0 :: BitVector rate) 2
+          finalPadBit = setBit (0 :: BitVector rate) (rateWidth - 1)
+       in suffixBits .|. firstPadBit .|. finalPadBit
+
+    rateWidth :: Int
+    rateWidth = natToNum @rate
+
+    setBitIf :: Bool -> Int -> BitVector rate -> BitVector rate
+    setBitIf cond idx bv = if cond then setBit bv idx else bv
