@@ -14,9 +14,9 @@ import qualified Sponge
 -- SHA3-f[200] AXI4-Stream Top Entity
 --------------------------------------------------------------------------------
 
-type Rate = 128
+type Rate = 64
 
-type DigestBits = 128
+type DigestBits = 64
 
 {-# ANN
   topEntity

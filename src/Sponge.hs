@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Sponge
   ( -- * AXI4-Stream sponge
@@ -19,14 +20,15 @@ data Phase = Absorbing | Squeezing
   deriving anyclass (NFDataX)
 
 -- | State for generic AXI4-Stream sponge FSM
-data SpongeState b rate digest rounds = SpongeState
+data SpongeState b rate digest rounds digestBlocks = SpongeState
   { spongeStateData :: BitVector b,
     spongeRoundCounter :: Index rounds,
     spongePhase :: Phase,
     spongeActive :: Bool,
     spongeSeenTLast :: Bool,
     spongeDigestPending :: Bool,
-    spongeDigestData :: BitVector digest
+    spongeSqueezeBlocksRemaining :: Index digestBlocks,
+    spongeCurrentBlock :: BitVector rate
   }
   deriving stock (Generic)
   deriving anyclass (NFDataX)
@@ -48,20 +50,23 @@ data SpongeState b rate digest rounds = SpongeState
 -- = Operation
 --
 -- Expects pre-padded rate-bit blocks on input stream. TLAST marks final block.
--- Outputs digest in LSBs of m_axis_tdata with MSBs zero-padded.
+-- Outputs digest in rate-bit blocks with LSBs containing digest bits and MSBs zero-padded.
+-- Supports multi-cycle squeezing when digest > rate.
 spongeAxi ::
-  forall dom b rate digest rounds.
+  forall dom b rate digest rounds digestBlocks.
   ( HiddenClockResetEnable dom,
     KnownNat b,
     KnownNat rate,
     KnownNat digest,
     KnownNat rounds,
+    KnownNat digestBlocks,
+    digestBlocks ~ DivRU digest rate,
     1 <= b,
     1 <= rate,
     1 <= digest,
     1 <= rounds,
+    1 <= digestBlocks,
     rate <= b,
-    digest <= rate,
     digest <= b
   ) =>
   (Index rounds -> BitVector b -> BitVector b) -> -- Permutation round function
@@ -88,21 +93,25 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
           spongeActive = False,
           spongeSeenTLast = False,
           spongeDigestPending = False,
-          spongeDigestData = 0
+          spongeSqueezeBlocksRemaining = 0,
+          spongeCurrentBlock = 0
         }
 
     maxRound = maxBound :: Index rounds
 
+    totalDigestBlocks = natToNum @digestBlocks :: Index digestBlocks
+
     step ::
-      SpongeState b rate digest rounds ->
+      SpongeState b rate digest rounds digestBlocks ->
       (Bool, BitVector rate, Bool, Bool) ->
-      (SpongeState b rate digest rounds, (Bool, Bool, BitVector rate, Bool))
+      (SpongeState b rate digest rounds digestBlocks, (Bool, Bool, BitVector rate, Bool))
     step st (sAxisTValid_in, sAxisTData_in, sAxisTLast_in, mAxisTReady_in) =
       let currentPhase = spongePhase st
           currentRound = spongeRoundCounter st
           active = spongeActive st
           seenTLast = spongeSeenTLast st
           digestPending = spongeDigestPending st
+          squeezeBlocksRemaining = spongeSqueezeBlocksRemaining st
 
           -- AXI4-Stream handshake
           inputTransfer = sAxisTValid_in && not active && currentPhase == Absorbing && not digestPending
@@ -125,43 +134,50 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
               then permRound (spongeRoundCounter stateAfterAbsorb) (spongeStateData stateAfterAbsorb)
               else spongeStateData stateAfterAbsorb
 
-          -- Advance round counter
+          -- Advance round counter (reset when starting new permutation)
           nextRound
             | spongeActive stateAfterAbsorb && currentRound == maxRound = 0
             | spongeActive stateAfterAbsorb = currentRound + 1
+            -- Reset when starting squeeze permutation after output
+            | currentPhase == Squeezing && outputTransfer && squeezeBlocksRemaining > 0 = 0
             | otherwise = currentRound
 
           permutationComplete = spongeActive stateAfterAbsorb && currentRound == maxRound
 
-          -- Phase transitions
-          (nextPhase, nextActive, nextSeenTLast, nextDigestPending, nextDigestData) =
+          -- Extract current rate-sized block from state LSBs
+          currentBlockFromState = resize stateData' :: BitVector rate
+
+          -- Phase transitions and squeeze block management
+          (nextPhase, nextActive, nextSeenTLast, nextDigestPending, nextSqueezeBlocks, nextCurrentBlock) =
             case (spongePhase stateAfterAbsorb, permutationComplete, spongeSeenTLast stateAfterAbsorb) of
-              -- Absorb complete with TLAST seen: latch digest from LSBs of state
+              -- Absorb complete with TLAST seen: enter squeezing, prepare first block
               (Absorbing, True, True) ->
-                let digest = resize stateData' :: BitVector digest
-                 in (Squeezing, False, False, True, digest)
+                (Squeezing, False, False, True, totalDigestBlocks - 1, currentBlockFromState)
               -- Absorb complete but no TLAST: keep absorbing
               (Absorbing, True, False) ->
-                (Absorbing, False, False, digestPending, spongeDigestData stateAfterAbsorb)
-              -- Digest output complete: reset and return to Absorbing
-              _
-                | outputTransfer ->
-                    (Absorbing, False, False, False, 0)
+                (Absorbing, False, False, digestPending, squeezeBlocksRemaining, spongeCurrentBlock stateAfterAbsorb)
+              -- Squeezing: output block accepted
+              _ | currentPhase == Squeezing && outputTransfer ->
+                if squeezeBlocksRemaining == 0
+                  then -- Last block sent, return to absorbing
+                    (Absorbing, False, False, False, 0, 0)
+                  else -- More blocks needed, start next permutation
+                    (Squeezing, True, False, False, squeezeBlocksRemaining - 1, 0)
+              -- Squeezing: permutation complete, latch next block
+              _ | currentPhase == Squeezing && permutationComplete ->
+                (Squeezing, False, False, True, squeezeBlocksRemaining, currentBlockFromState)
               -- No state change
               _ ->
-                (spongePhase stateAfterAbsorb, spongeActive stateAfterAbsorb, spongeSeenTLast stateAfterAbsorb, digestPending, spongeDigestData stateAfterAbsorb)
+                (spongePhase stateAfterAbsorb, spongeActive stateAfterAbsorb, spongeSeenTLast stateAfterAbsorb, digestPending, squeezeBlocksRemaining, spongeCurrentBlock stateAfterAbsorb)
 
           -- AXI4-Stream outputs
           sAxisTReady_out = not active && currentPhase == Absorbing && not digestPending
           mAxisTValid_out = digestPending
-          mAxisTData_out =
-            if digestPending
-              then (0 :: BitVector (rate - digest)) ++# spongeDigestData stateAfterAbsorb
-              else 0
-          mAxisTLast_out = digestPending
+          mAxisTData_out = if digestPending then spongeCurrentBlock stateAfterAbsorb else 0
+          mAxisTLast_out = digestPending && squeezeBlocksRemaining == 0
 
-          -- Reset state data when digest output completes
-          nextStateData = if outputTransfer then 0 else stateData'
+          -- Reset state data when returning to absorbing
+          nextStateData = if nextPhase == Absorbing && currentPhase == Squeezing then 0 else stateData'
 
           nextState =
             SpongeState
@@ -171,6 +187,7 @@ spongeAxi permRound sAxisTValid sAxisTData sAxisTLast mAxisTReady =
                 spongeActive = nextActive,
                 spongeSeenTLast = nextSeenTLast,
                 spongeDigestPending = nextDigestPending,
-                spongeDigestData = nextDigestData
+                spongeSqueezeBlocksRemaining = nextSqueezeBlocks,
+                spongeCurrentBlock = nextCurrentBlock
               }
        in (nextState, (sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out))
