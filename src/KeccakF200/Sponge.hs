@@ -5,10 +5,6 @@ module KeccakF200.Sponge
     Rate,
     Capacity,
     DigestBits,
-    SHA3SuffixBits,
-    sha3Suffix,
-    -- * Padding
-    padSHA3,
     -- * FSM types
     Phase (..),
     SHA3State (..),
@@ -28,68 +24,25 @@ import qualified KeccakF200.Permutation as Perm
 type Rate = 128          -- Rate: bits XORed per absorb/squeeze
 type Capacity = 72       -- Capacity: 200 - Rate = 72
 type DigestBits = 128    -- Output digest length
-type SHA3SuffixBits = 2  -- Domain separation suffix length
-
--- | SHA3 domain separation suffix: 0b01
-sha3Suffix :: BitVector SHA3SuffixBits
-sha3Suffix = 0b01
 
 --------------------------------------------------------------------------------
--- SHA3 Padding (pad10*1 + domain suffix)
+-- AXI4-Stream SHA3 Sponge
 --------------------------------------------------------------------------------
-
--- | Pad message with SHA3 suffix and pad10*1 rule to fill rate blocks.
 --
--- = Algorithm
+-- = Padding Expectations
 --
--- 1. Append SHA3 suffix bits (0b01) after message
--- 2. Append '1' bit (start of pad10*1)
--- 3. Append zeros to fill to rate boundary
--- 4. Set final bit to '1' (end of pad10*1)
+-- This module expects pre-padded Rate-bit blocks from upstream.
+-- Upstream logic must apply SHA3 pad10*1 with domain suffix (0b01):
 --
--- = Example (rate=144, msg=140 bits)
+-- 1. Append 0b01 suffix after message
+-- 2. Append '1' bit (pad start)
+-- 3. Append zeros to fill to Rate boundary
+-- 4. Set final bit to '1' (pad end)
 --
--- @
--- Message:     MMM...MMM (140 bits)
--- + Suffix:    MMM...MMM 01 (142 bits)
--- + Pad start: MMM...MMM 01 1 (143 bits)
--- + Pad end:   MMM...MMM 01 1 1 (144 bits = 1 block, no zeros needed)
--- @
+-- Example: 120-bit message, Rate=128
+--   Input block: [message(120) | 01 | 1 | 00000 | 1] = 128 bits
 --
--- The padding ensures total length is multiple of rate.
--- Caller must provide correct numBlocks via type application.
-padSHA3 ::
-  forall rate msgLen numBlocks.
-  ( KnownNat rate,
-    KnownNat msgLen,
-    KnownNat numBlocks,
-    KnownNat (numBlocks * rate),
-    KnownNat (msgLen + SHA3SuffixBits),
-    KnownNat (msgLen + SHA3SuffixBits + 1),
-    KnownNat (numBlocks * rate - (msgLen + SHA3SuffixBits + 2)),
-    (msgLen + SHA3SuffixBits + 2) <= numBlocks * rate
-  ) =>
-  BitVector msgLen ->
-  Vec numBlocks (BitVector rate)
-padSHA3 msg =
-  let -- Build: msg ++ suffix ++ '1' ++ zeros ++ '1'
-      -- Must match Sponge.hs padding pattern (line 52)
-      -- ++# puts right operand in upper bits, so final '1' goes to MSB
-      -- unconcatBitVector# splits MSB-first, so message (in lower bits) becomes first block
-
-      -- Helper function to build padded bitvector
-      buildPadded :: BitVector msgLen -> BitVector (numBlocks * rate)
-      buildPadded m =
-        m ++# sha3Suffix
-          ++# (1 :: BitVector 1)
-          ++# (0 :: BitVector (numBlocks * rate - (msgLen + SHA3SuffixBits + 2)))
-          ++# (1 :: BitVector 1)
-
-      -- Build padded bitvector: msg ++ suffix ++ '1' ++ zeros ++ '1'
-      -- Use leToPlusKN to prove to GHC that the sizes work out
-      paddedBits = leToPlusKN @(msgLen + SHA3SuffixBits + 2) @(numBlocks * rate) buildPadded msg
-
-   in unconcatBitVector# @numBlocks @rate paddedBits
+-- Mark the final padded block with s_axis_tlast=1.
 
 --------------------------------------------------------------------------------
 -- SHA3 Multi-Block Sequential FSM
@@ -100,110 +53,98 @@ data Phase = Absorbing | Squeezing | Idle
   deriving stock (Generic, Eq, Show)
   deriving anyclass (NFDataX)
 
--- | State for SHA3 multi-block absorb/squeeze FSM
-data SHA3State maxBlocks = SHA3State
+-- | State for AXI4-Stream SHA3 FSM
+data SHA3State = SHA3State
   { sha3StateData :: BitVector 200,
     sha3RoundCounter :: Index 18,
     sha3Phase :: Phase,
     sha3Active :: Bool,
-    sha3BlocksRemaining :: Unsigned 8, -- Use Unsigned to avoid Index overflow
-    sha3SqueezedBits :: Unsigned 8, -- Track squeezed output bits
-    sha3LatchedBlocks :: Vec maxBlocks (BitVector Rate) -- Latch blocks on start pulse
+    sha3SeenTLast :: Bool, -- Have we seen TLAST on input stream?
+    sha3DigestPending :: Bool, -- Digest ready, waiting for m_axis_tready
+    sha3DigestData :: BitVector DigestBits -- Latched digest output
   }
   deriving stock (Generic)
   deriving anyclass (NFDataX)
 
--- | SHA3-f[200] sequential sponge with multi-block absorb and squeeze.
+-- | SHA3-f[200] with AXI4-Stream interface.
 --
--- = Inputs
+-- = AXI4-Stream Protocol
 --
--- * @blocks@ - Vec of pre-padded rate blocks to absorb
--- * @start@ - Pulse to begin hashing (loads blocks, starts absorb)
+-- * Input (slave): s_axis_tvalid, s_axis_tdata (Rate bits), s_axis_tlast, s_axis_tready (output)
+-- * Output (master): m_axis_tvalid (output), m_axis_tdata (Rate bits), m_axis_tlast (output), m_axis_tready
 --
--- = Outputs
+-- = Operation
 --
--- * @digestValid@ - High when digest is ready
--- * @digest@ - DigestBits output
+-- 1. Absorb: Accept pre-padded Rate-bit blocks when s_axis_tvalid && s_axis_tready
+--    - XOR each block into state, run 18-round permutation
+--    - s_axis_tlast marks final block, triggers transition to squeezing
+--    - s_axis_tready deasserts during permutation (backpressure)
+--
+-- 2. Squeeze: Output DigestBits in Rate-bit chunks
+--    - Drive m_axis_tvalid with digest in m_axis_tdata LSBs (zero-pad MSBs)
+--    - m_axis_tlast asserted on final beat (always first beat for DigestBits <= Rate)
+--    - Hold data stable until m_axis_tready asserted, then return to Idle
 --
 -- = Timing
 --
--- * Load phase (1 cycle): Accept blocks vector, enter Absorbing
--- * Absorb phase (numBlocks × 19 cycles): For each block, absorb (1 cycle) + permute (18 rounds)
--- * Squeeze phase (⌈DigestBits/Rate⌉ × 19 cycles): Extract Rate bits per permutation until DigestBits collected
---
--- = Example (1 block, digest < rate)
---
--- @
--- Cycle 0: start=1, load blocks
--- Cycle 1: Absorb block 0, round 0
--- Cycles 2-18: Rounds 1-17
--- Cycle 19: Round 17 complete, enter Squeezing
--- Cycle 20: Extract digest (DigestBits < Rate, done in 1 cycle)
--- Cycle 21: digestValid=1, digest output
--- @
+-- * Per block: 1 cycle absorb + 18 cycles permutation = 19 cycles
+-- * Digest output: 1 cycle (held until m_axis_tready)
 sha3f200Seq ::
-  forall dom maxBlocks.
-  ( HiddenClockResetEnable dom,
-    KnownNat maxBlocks,
-    1 <= maxBlocks
-  ) =>
-  Signal dom Bool ->
-  Signal dom (Vec maxBlocks (BitVector Rate)) ->
-  Signal dom (Bool, BitVector DigestBits)
-sha3f200Seq start blocks = mealy step initialState (bundle (start, blocks))
+  forall dom.
+  HiddenClockResetEnable dom =>
+  Signal dom Bool -> -- s_axis_tvalid
+  Signal dom (BitVector Rate) -> -- s_axis_tdata
+  Signal dom Bool -> -- s_axis_tlast
+  Signal dom Bool -> -- m_axis_tready
+  ( Signal dom Bool, -- s_axis_tready
+    Signal dom Bool, -- m_axis_tvalid
+    Signal dom (BitVector Rate), -- m_axis_tdata
+    Signal dom Bool -- m_axis_tlast
+  )
+sha3f200Seq sAxisTValid sAxisTData sAxisTLast mAxisTReady =
+  (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast)
   where
+    (sAxisTReady, mAxisTValid, mAxisTData, mAxisTLast) =
+      unbundle $ mealy step initialState (bundle (sAxisTValid, sAxisTData, sAxisTLast, mAxisTReady))
+
     initialState =
       SHA3State
         { sha3StateData = 0,
           sha3RoundCounter = 0,
-          sha3Phase = Idle,
+          sha3Phase = Absorbing, -- Start in Absorbing to accept input immediately
           sha3Active = False,
-          sha3BlocksRemaining = 0,
-          sha3SqueezedBits = 0,
-          sha3LatchedBlocks = repeat 0
+          sha3SeenTLast = False,
+          sha3DigestPending = False,
+          sha3DigestData = 0
         }
 
     step ::
-      SHA3State maxBlocks ->
-      (Bool, Vec maxBlocks (BitVector Rate)) ->
-      (SHA3State maxBlocks, (Bool, BitVector DigestBits))
-    step st (startPulse, blockVec) =
+      SHA3State ->
+      (Bool, BitVector Rate, Bool, Bool) ->
+      (SHA3State, (Bool, Bool, BitVector Rate, Bool))
+    step st (sAxisTValid, sAxisTData, sAxisTLast, mAxisTReady) =
       let currentPhase = sha3Phase st
           currentRound = sha3RoundCounter st
+          active = sha3Active st
+          seenTLast = sha3SeenTLast st
+          digestPending = sha3DigestPending st
 
-          -- Load blocks when start pulse arrives in Idle phase
-          -- CRITICAL: Reset all state to zero for new message, latch input blocks
-          stateAfterLoad
-            | currentPhase == Idle && startPulse =
-                let totalBlocks = natToNum @maxBlocks :: Int
-                 in st
-                      { sha3StateData = 0, -- Reset state to all zeros for new hash
-                        sha3RoundCounter = 0, -- Reset round counter
-                        sha3Active = False, -- Start idle, will activate on first absorb
-                        sha3Phase = Absorbing,
-                        sha3BlocksRemaining = fromIntegral (totalBlocks - 1), -- Will absorb first block immediately
-                        sha3SqueezedBits = 0,
-                        sha3LatchedBlocks = blockVec -- Latch input blocks
-                      }
+          -- AXI4-Stream handshake: transfer occurs when both valid and ready
+          inputTransfer = sAxisTValid && not active && currentPhase == Absorbing && not digestPending
+          outputTransfer = digestPending && mAxisTReady
+
+          -- Absorb block on valid input transfer
+          stateAfterAbsorb
+            | inputTransfer =
+                st
+                  { sha3StateData = sha3StateData st `xor` ((0 :: BitVector Capacity) ++# sAxisTData),
+                    sha3Active = True,
+                    sha3RoundCounter = 0,
+                    sha3SeenTLast = seenTLast || sAxisTLast
+                  }
             | otherwise = st
 
-          -- Absorb next block if in Absorbing phase and idle
-          -- Use latched blocks, not live input bus
-          stateAfterAbsorb
-            | sha3Phase stateAfterLoad == Absorbing && not (sha3Active stateAfterLoad) =
-                let totalBlocks = natToNum @maxBlocks :: Int
-                    blocksRemaining = fromIntegral (sha3BlocksRemaining stateAfterLoad) :: Int
-                    blockIdx = totalBlocks - blocksRemaining - 1
-                    block = sha3LatchedBlocks stateAfterLoad !! blockIdx -- Use latched blocks!
-                 in stateAfterLoad
-                      { sha3StateData = sha3StateData stateAfterLoad `xor` ((0 :: BitVector Capacity) ++# block),
-                        sha3Active = True,
-                        sha3RoundCounter = 0
-                      }
-            | otherwise = stateAfterLoad
-
-          -- Execute round if active using the topEntity from Permutation module
-          -- Clash will instantiate KeccakF200_Round instead of inlining
+          -- Execute permutation round if active
           stateData' =
             if sha3Active stateAfterAbsorb
               then Perm.topEntity (resize (sha3RoundCounter stateAfterAbsorb), sha3StateData stateAfterAbsorb)
@@ -217,89 +158,101 @@ sha3f200Seq start blocks = mealy step initialState (bundle (start, blocks))
 
           permutationComplete = sha3Active stateAfterAbsorb && currentRound == 17
 
-          -- Use updated values from stateAfterAbsorb for phase transitions
-          blocksLeft = sha3BlocksRemaining stateAfterAbsorb
-          squeezedBits = sha3SqueezedBits stateAfterAbsorb
-
-          -- Check if digest fits in current state (after this permutation completes)
-          -- For our parameters: DigestBits=128, Rate=128, so digest always fits in one block
-          digestFitsInOneBlock = (natToNum @DigestBits :: Int) <= (natToNum @Rate :: Int)
-
-          -- Phase transitions (use Unsigned arithmetic to avoid Index overflow)
-          (nextPhase, nextActive, nextBlocksLeft, nextSqueezed) =
-            case (sha3Phase stateAfterAbsorb, permutationComplete) of
-              (Absorbing, True) | blocksLeft == 0 ->
-                -- All blocks absorbed, we now have a complete permuted state
-                -- Check if digest fits in one rate block
-                if digestFitsInOneBlock
-                  then (Idle, False, 0, fromIntegral (natToNum @Rate :: Int)) -- Digest complete, go idle
-                  else (Squeezing, True, 0, fromIntegral (natToNum @Rate :: Int)) -- Need more squeezing, stay active
-              (Absorbing, True) ->
-                (Absorbing, False, blocksLeft - 1, 0) -- More blocks to absorb
-              (Squeezing, True) ->
-                -- Additional squeeze permutation completed
-                let newSqueezed = squeezedBits + fromIntegral (natToNum @Rate :: Int)
-                 in if newSqueezed >= fromIntegral (natToNum @DigestBits :: Int)
-                      then (Idle, False, 0, 0) -- Digest complete
-                      else (Squeezing, True, 0, newSqueezed) -- Need more squeeze, run another permutation
-              (_, False) ->
-                (sha3Phase stateAfterAbsorb, sha3Active stateAfterAbsorb, blocksLeft, squeezedBits)
+          -- Phase transitions based on permutation completion
+          (nextPhase, nextActive, nextSeenTLast, nextDigestPending, nextDigestData) =
+            case (sha3Phase stateAfterAbsorb, permutationComplete, sha3SeenTLast stateAfterAbsorb) of
+              -- Absorb complete with TLAST seen: transition to squeezing, latch digest
+              (Absorbing, True, True) ->
+                let digest = leToPlusKN @DigestBits @Rate truncateB (truncateB @_ @Rate stateData')
+                 in (Squeezing, False, False, True, digest)
+              -- Absorb complete but no TLAST: keep absorbing
+              (Absorbing, True, False) ->
+                (Absorbing, False, False, digestPending, sha3DigestData stateAfterAbsorb)
+              -- Digest output handshake complete: reset state and return to Absorbing for next message
+              _ | outputTransfer ->
+                (Absorbing, False, False, False, 0)
+              -- No state change
               _ ->
-                (sha3Phase stateAfterAbsorb, sha3Active stateAfterAbsorb, blocksLeft, squeezedBits)
+                (sha3Phase stateAfterAbsorb, sha3Active stateAfterAbsorb, sha3SeenTLast stateAfterAbsorb, digestPending, sha3DigestData stateAfterAbsorb)
 
-          -- Extract digest when transitioning to Idle from Absorbing or Squeezing
-          digestReady = permutationComplete && (sha3Phase stateAfterAbsorb == Absorbing && blocksLeft == 0 || sha3Phase stateAfterAbsorb == Squeezing) && nextPhase == Idle
-          digestOut = leToPlusKN @DigestBits @Rate truncateB (truncateB @_ @Rate stateData')
+          -- AXI4-Stream output signals
+          sAxisTReady_out = not active && currentPhase == Absorbing && not digestPending
+          mAxisTValid_out = digestPending
+          mAxisTData_out =
+            if digestPending
+              then (0 :: BitVector (Rate - DigestBits)) ++# sha3DigestData stateAfterAbsorb
+              else 0
+          mAxisTLast_out = digestPending -- Always true when digest is ready (single beat)
+
+          -- Reset state data when digest output completes
+          nextStateData = if outputTransfer then 0 else stateData'
 
           nextState =
             SHA3State
-              { sha3StateData = stateData',
+              { sha3StateData = nextStateData,
                 sha3RoundCounter = nextRound,
                 sha3Phase = nextPhase,
                 sha3Active = nextActive,
-                sha3BlocksRemaining = nextBlocksLeft,
-                sha3SqueezedBits = nextSqueezed,
-                sha3LatchedBlocks = sha3LatchedBlocks stateAfterAbsorb -- Preserve latched blocks
+                sha3SeenTLast = nextSeenTLast,
+                sha3DigestPending = nextDigestPending,
+                sha3DigestData = nextDigestData
               }
-       in (nextState, (digestReady, digestOut))
+       in (nextState, (sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out))
 
--- | SHA3-f[200] top entity: hash arbitrary-length messages
+-- | SHA3-f[200] AXI4-Stream top entity
 --
 -- = Ports
 --
 -- * CLK, RST, EN - Clock, reset, enable
--- * MSG_START - Pulse to begin hashing
--- * MSG_DATA - Message input (currently fixed 140 bits, will be padded to 1 block)
--- * DIGEST_VALID - High when digest is ready
--- * DIGEST_DATA - 128-bit digest output
+-- * S_AXIS_TVALID - Input valid (source asserts when data ready)
+-- * S_AXIS_TDATA - Input data (Rate=128 bits, pre-padded blocks)
+-- * S_AXIS_TLAST - Input last (marks final block of message)
+-- * S_AXIS_TREADY - Input ready (sink asserts when ready to accept, output)
+-- * M_AXIS_TVALID - Output valid (asserted when digest ready, output)
+-- * M_AXIS_TDATA - Output data (Rate=128 bits, digest in LSBs, zero-padded)
+-- * M_AXIS_TLAST - Output last (always high for digest beat, output)
+-- * M_AXIS_TREADY - Output ready (downstream asserts when ready to accept)
 --
--- = Operation
+-- = AXI4-Stream Protocol
 --
--- 1. Assert MSG_START for 1 cycle with MSG_DATA containing the message
--- 2. Wait for DIGEST_VALID to go high (~20 cycles for 1-block message)
--- 3. Read DIGEST_DATA when DIGEST_VALID is asserted
+-- * Input: Source drives TVALID/TDATA/TLAST, sink drives TREADY
+--   - Transfer occurs when both TVALID and TREADY are high
+--   - Source must hold TVALID/TDATA/TLAST stable until TREADY asserted
+--   - TLAST marks the final pre-padded block
+--
+-- * Output: This module drives TVALID/TDATA/TLAST, downstream drives TREADY
+--   - Digest held stable until TREADY acknowledged
+--   - TLAST always high (single-beat digest output)
+--
+-- = Timing
+--
+-- * Per block: 1 cycle absorb + 18 cycles permutation = 19 cycles
+-- * Output: Digest held until downstream ready
 --
 -- = Notes
 --
+-- * Expects pre-padded Rate-bit blocks from upstream (pad10*1 + SHA3 suffix)
 -- * This is a pedagogical 200-bit SHA3 variant, not standard SHA3-256
--- * Current version accepts fixed 140-bit messages (1 block after padding)
--- * Latency: 1 (load) + numBlocks×19 (absorb) + ⌈DigestBits/Rate⌉×19 (squeeze) cycles
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF200_SHA3",
+      { t_name = "KeccakF200_SHA3_AXI",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
-            PortName "MSG_START",
-            PortName "MSG_DATA"
+            PortName "S_AXIS_TVALID",
+            PortName "S_AXIS_TDATA",
+            PortName "S_AXIS_TLAST",
+            PortName "M_AXIS_TREADY"
           ],
         t_output =
           PortProduct
             ""
-            [ PortName "DIGEST_VALID",
-              PortName "DIGEST_DATA"
+            [ PortName "S_AXIS_TREADY",
+              PortName "M_AXIS_TVALID",
+              PortName "M_AXIS_TDATA",
+              PortName "M_AXIS_TLAST"
             ]
       }
   )
@@ -309,12 +262,15 @@ topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool ->
-  Signal System (BitVector 128) -> -- Fixed message size for now (fits in 2 blocks with Rate=128)
-  Signal System (Bool, BitVector DigestBits)
-topEntity clk rst en msgStart msgData =
+  Signal System Bool -> -- S_AXIS_TVALID
+  Signal System (BitVector Rate) -> -- S_AXIS_TDATA
+  Signal System Bool -> -- S_AXIS_TLAST
+  Signal System Bool -> -- M_AXIS_TREADY
+  ( Signal System Bool, -- S_AXIS_TREADY
+    Signal System Bool, -- M_AXIS_TVALID
+    Signal System (BitVector Rate), -- M_AXIS_TDATA
+    Signal System Bool -- M_AXIS_TLAST
+  )
+topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en $
-    sha3f200Seq @System @2 msgStart paddedBlocks
-  where
-    -- Pad each input message to 2 blocks (124 + 2 suffix + 2 padding = 128, needs 2 blocks)
-    paddedBlocks = fmap (padSHA3 @Rate @128 @2) msgData
+    sha3f200Seq sAxisTValid sAxisTData sAxisTLast mAxisTReady
