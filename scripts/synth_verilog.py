@@ -246,8 +246,17 @@ def build_yosys_commands(target: SynthTarget, conf: SynthConfig, netlist_path: P
     base_commands.extend([
         f"read_verilog {verilog}",
         f"hierarchy -check -top {top}",
-        f"synth -top {top}",
-        "opt -purge",
+        f"select -module {top}",
+        "proc",
+        "opt",
+        "opt_clean",
+        "wreduce",
+        "share -aggressive",
+        "opt",
+        "opt_clean",
+        "techmap",
+        "opt",
+        "opt_clean",
         f"dfflibmap -liberty {liberty}",
     ])
 
