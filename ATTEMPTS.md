@@ -1,3 +1,34 @@
+## Progress
+
+Note: after `Pre-synth permutation`, results are shown as two values: first is for the pre-synth state (combinational permutation), second is for the whole design
+
+### F200
+
+| Version | Verilog Gen Time | Netlist Synth Time | Chip Area (µm²) (sequential percentage) |
+|---------|------------------|--------------------|-----------------------------------------|
+| **Baseline** | 2.254s | 28s | 6730.598 |
+| **AXI-stream** | 2.393s | 28s | 4815.132 (30.38%) |
+| **Separate modules** | 2.443s | 24.86s | 4719.638 (31.00%) |
+| **Pre-synth permutation** | 1.760s / 2.430s | 22.56s (22.17s / 0.39s) | 1917.062 (0%) / 4726.022 (30.96%) |
+
+### F400
+
+| Version | Verilog Gen Time | Netlist Synth Time | Chip Area (µm²) (sequential percentage) |
+|---------|------------------|--------------------|-----------------------------------------|
+| **Baseline** | 3.637s | 115s | 13371.288 |
+| **AXI-stream** | 3.886s | 129s | 8253.980 (30.62%) |
+| **Separate modules** | 4.140s | 112.05s | 8192.800 (30.84%) |
+| **Pre-synth permutation** | 3.198s / 3.980s | 95.45s (94.84s / 0.61s) | 3828.006 (0%) / 8268.876 (30.56%) |
+
+### F800
+
+| Version | Verilog Gen Time | Netlist Synth Time | Chip Area (µm²) (sequential percentage) |
+|---------|------------------|--------------------|-----------------------------------------|
+| **Baseline** | 6.722s | 739s | 24151.204 |
+| **AXI-stream** | 6.726s | 647s | 15364.958 (30.30%) |
+| **Separate modules** | 7.368s | 604.12s | 14909.034 (31.22%) |
+| **Pre-synth permutation** | 5.926s / 7.515s | 546.75s (545.63s / 1.12s) | 7486.038 (0%) / 14989.100 (31.06%) |
+
 ## Failed Experiments
 
 ### Pipelined Keccak-f[200] permutation (4-stage round)
@@ -67,43 +98,75 @@
 
 3. **Run top synthesis:** `nix develop -c python3 scripts/synth_verilog.py KeccakF200.topEntity`
 
-**Results:**
+**Results (F200):**
 
-| Metric | Baseline (No Macro) | With Pre-Mapped Macro | Improvement |
-|--------|--------------------|-----------------------|-------------|
-| **Yosys CPU Time** | 25.19s | **0.39s** | **-98.5%** ⚡ |
-| **opt_clean Time** | 15s (54%) | 0s (14%) | **~15s saved** |
-| **Cells** | 3,014 | 3,033 | +19 (+0.6%) |
-| **Sequential Elements** | 1,463 | 1,463 | 0 (same) |
+| Metric | Baseline (Separate modules) | Top Entity Only | First-Time Total |
+|--------|----------------------------|-----------------|------------------|
+| **Verilog Gen** | 2.443s | 2.430s | 1.760s + 2.430s = 4.190s (+71%) |
+| **Netlist Synth** | 24.86s | 0.39s | 22.17s + 0.39s = 22.56s (-9%) |
 | **Chip Area** | 4,719.638 µm² | 4,726.022 µm² | +6.38 µm² (+0.1%) |
 
 **Analysis:**
 
-✅ **Massive synthesis time reduction** - 64× faster! From 25.19s → 0.39s
+**Incremental build optimization** - Top entity synthesis drops from 24.86s → 0.39s (98.4% faster) when reusing cached permutation
 
-✅ **opt_clean eliminated as bottleneck** - Went from 54% (15s) to 14% (0s) because Yosys no longer optimizes the permutation internals
+**First-time build performance** - Modest improvement: 22.56s vs 24.86s baseline (9% faster netlist synthesis), but 71% slower Verilog generation due to separate module builds
 
-✅ **QoR preserved** - Area increased by only 0.1%, well within acceptable margin
+**QoR preserved** - Area increased by only 0.1%, well within acceptable margin
 
-✅ **Hierarchy maintained** - Design still shows `KeccakF200_SHA3 → KeccakF200_Round` in hierarchy
+**Hierarchy maintained** - Design still shows `KeccakF200_SHA3 → KeccakF200_Round` in hierarchy
 
-✅ **Scalable** - Every subsequent synthesis of the top entity saves ~25 seconds
+**How it works:**
 
-**Root Cause of Success:**
-
-The permutation block (KeccakF200_Round) contains complex combinational logic (1,306 cells) that took Yosys 15 seconds to optimize via repeated `opt_clean` passes. By pre-mapping it to liberty cells and marking it as `keep_hierarchy`, Yosys treats it as a black box and only optimizes the top-level FSM glue logic, which is much faster.
+The permutation block (KeccakF200_Round) contains complex combinational logic (1,306 cells) that takes Yosys ~22 seconds to optimize. By pre-mapping it to liberty cells and marking it `keep_hierarchy`, Yosys treats it as a black box and only optimizes the top-level FSM glue logic, which is much faster.
 
 **Conclusion:**
 
-**First successful optimization!** This approach works because:
-1. The permutation is large enough (1,306 cells) to be worth caching
-2. The permutation is reused without changes across synthesis runs
-3. The `keep_hierarchy` attribute prevents Yosys from flattening and re-optimizing
+This is an **incremental build optimization**, not a first-build speedup. Benefits:
+1. First-time synthesis: ~10% faster (mainly due to avoiding re-optimization)
+2. Incremental builds: ~98% faster when only FSM changes
+3. The permutation must be stable (not changing frequently)
 
-**Recommended for:**
-- ✅ All Keccak variants (F200, F400, F800, F1600)
-- ✅ Any design with large, stable sub-modules that don't change often
-- ✅ Iterative synthesis workflows (changing top-level FSM but not the permutation)
+**Use cases:**
+- Iterative development on FSM logic while permutation stays fixed
+- Large stable sub-modules that don't change often
+- Works for all Keccak variants (F200, F400, F800, F1600)
 
 **Files Modified:**
 - `scripts/synth_verilog.py` - Auto-detects and uses pre-mapped macros for "_SHA3" top entities
+
+---
+
+## TODO
+
+### Pre-synthesised permutation macro (reuse mapped netlist)
+
+TODO:
+- [ ] Auto-rebuild the permutation macro if the mapped netlist is missing or stale (mtime/hash check) before top synth.
+- [ ] Replicate macro reuse for F400/F800/F1600 (verify round names and paths).
+- [ ] Verify top logs: no "Area for cell type … unknown" for the round; capture CPU time delta.
+
+### Preserve round hierarchy (no flatten across permutation)
+
+- Keep current pass list but insert:
+  - `setattr -mod -name keep_hierarchy 1 KeccakF200_Round`
+  - Use `synth -top KeccakF200_SHA3 -noflatten` (or equivalent hand-rolled flow without flattening).
+- Hypothesis: Limits cross-boundary clean/expr work; reduces cumulative `opt_clean` time while keeping mapping quality.
+
+TODO:
+  - [ ] Use `-noflatten` for the top `synth` invocation and A/B measure CPU time/area.
+  - [ ] Extend `keep_hierarchy` insertion to F400/F800/F1600 round modules too.
+
+  ### Script integration (automatic macro reuse)
+
+- Enhance `scripts/synth_verilog.py` to:
+  - Detect and (re)build permutation mapped netlist if not present or stale.
+  - Automatically `read_verilog -lib` the permutation module before the top.
+  - Set `keep_hierarchy` on the permutation to preserve boundary.
+- Hypothesis: Consistent synth time reduction without changing the optimisation flow for the top.
+
+TODO:
+  - [ ] Robustly derive permutation label/path from a top label (F200/F400/F800/F1600).
+  - [ ] If the mapped netlist is missing or stale, synthesize permutation first.
+  - [ ] Prepend `read_verilog` of the mapped macro and `setattr keep_hierarchy` before reading the top.
+  - [ ] Verify logs (no "area unknown"), hierarchy lists exactly one round instance, and record CPU/time deltas in this doc.
