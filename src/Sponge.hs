@@ -190,7 +190,7 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                 | roundCnt == maxRound ->
                     if seenTLast
                       then
-                        ( stBV,
+                        ( permOut,  -- CRITICAL: Write back permutation result
                           round0,
                           SqIdle
                             { currentBlock = blockFromSt,
@@ -199,7 +199,7 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                             }
                         )
                       else
-                        ( stBV,
+                        ( permOut,  -- CRITICAL: Write back permutation result
                           round0,
                           AbsIdle
                             { padPending = padPending,
@@ -237,7 +237,7 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                 | otherwise -> (stBV, round0, ctrl)
               SqBusy {..}
                 | roundCnt == maxRound ->
-                    ( stBV,
+                    ( permOut,  -- CRITICAL: Write back permutation result
                       round0,
                       SqIdle
                         { currentBlock = blockFromSt,

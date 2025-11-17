@@ -13,7 +13,8 @@
     - The permutation macro KeccakF200_Round is never touched by optimization passes
     - Only the top module KeccakF200_SHA3 goes through the transformation pipeline
     - The final stat -top can traverse the full hierarchy to count all cells and calculate total area
-* Refactor FSM: minimize the boolean soup in the FSM
+* ADT-based FSM: cleanup the boolean soup in the FSM
+* Fix writeback: write the permutation output back
 
 Note: after `Pre-synth permutation`, results are shown as two values: first is for the pre-synth state (combinational permutation), second is for the whole design
 
@@ -26,8 +27,8 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Separate modules** | 2.443s | 24.86s | 4719.638 (31.00%) |
 | **Pre-synth permutation** | 1.760s / 2.430s | 22.56s (22.17s / 0.39s) | 1917.062 (0%) / 4726.022 (30.96%) |
 | **Explicit pass list** | 1.760s / 2.430s | 19.02s (14.35s / 4.67s) | 1950.046 (0%) / 4531.310 (32.40%) |
-| **Refactor FSM** | 1.760s / 2.446s | 19.40s (14.26s / 5.14s) | 1948.450 (0%) / 4832.156 (30.39%) |
 | **ADT-based FSM** | 1.289s / 2.340s | 19.31s (14.12s / 5.19s) | 1948.450 (0%) / 4811.940 (30.18%) |
+| **Fix writeback** | 1.289s / 2.360s | 19.49s (14.25s / 5.24s) | 1948.450 (0%) / 5318.138 (27.31%) |
 
 ### F400
 
@@ -38,8 +39,8 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Separate modules** | 4.140s | 112.05s | 8192.800 (30.84%) |
 | **Pre-synth permutation** | 3.198s / 3.980s | 95.45s (94.84s / 0.61s) | 3828.006 (0%) / 8268.876 (30.56%) |
 | **Explicit pass list** | 3.030s / 3.934s | 80.37s (61.19s / 19.18s) | 3884.132 (0%) / 8011.122 (31.61%) |
-| **Refactor FSM** | 3.187s / 4.079s | 74.36s (55.80s / 18.56s) | 3866.576 (0%) / 8399.482 (30.15%) |
 | **ADT-based FSM** | 2.471s / 3.810s | 73.12s (54.87s / 18.25s) | 3866.576 (0%) / 8211.686 (30.64%) |
+| **Fix writeback** | 2.478s / 3.842s | 73.27s (54.82s / 18.45s) | 3866.576 (0%) / 9387.938 (26.80%) |
 
 ### F800
 
@@ -50,8 +51,8 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Separate modules** | 7.368s | 604.12s | 14909.034 (31.22%) |
 | **Pre-synth permutation** | 5.926s / 7.515s | 546.75s (545.63s / 1.12s) | 7486.038 (0%) / 14989.100 (31.06%) |
 | **Explicit pass list** | 5.984s / 7.341s | 424.96s (328.92s / 96.04s) | 7746.452 (0%) / 14952.392 (31.17%) |
-| **Refactor FSM** | 6.186s / 7.557s | 360.33s (272.16s / 88.17s) | 7591.374 (0%) / 15409.646 (30.23%) |
 | **ADT-based FSM** | 5.107s / 7.069s | 358.25s (269.55s / 88.70s) | 7591.374 (0%) / 14934.304 (31.10%) |
+| **Fix writeback** | 5.244s / 7.256s | 362.24s (272.50s / 89.74s) | 7591.374 (0%) / 17293.192 (26.86%) |
 
 ## Failed Experiments
 
