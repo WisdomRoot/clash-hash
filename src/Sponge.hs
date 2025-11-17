@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Sponge
   ( -- * AXI4-Stream sponge
@@ -129,109 +130,130 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
       (Bool, BitVector rate, Bool, Bool, BitVector b) ->
       (SpongeState b rate digest rounds digestBlocks, ((Bool, Bool, BitVector rate, Bool), (Index rounds, BitVector b)))
     step st (sAxisTValid_in, sAxisTData_in, sAxisTLast_in, mAxisTReady_in, stateDataAfterPerm_in) =
-      let currentPhase = spongePhase st
-          currentRound = spongeRoundCounter st
-          active = spongeActive st
-          digestPending = spongeDigestPending st
-          squeezeBlocksRemaining = spongeSqueezeBlocksRemaining st
-          padPending = spongePadPending st
+      let -- Event detection - compute once, reuse everywhere
+          haveInput =
+            sAxisTValid_in
+              && spongePhase st
+              == Absorbing
+              && not (spongeActive st)
+              && not (spongeDigestPending st)
+              && not (spongePadPending st)
+          lastBeat = sAxisTLast_in
+          canOutput = spongeDigestPending st && mAxisTReady_in
+          permDone = spongeActive st && spongeRoundCounter st == maxRound
 
-          -- AXI4-Stream handshake
-          inputTransfer = sAxisTValid_in && not active && currentPhase == Absorbing && not digestPending && not padPending
-          padTransfer = padPending && not active && currentPhase == Absorbing && not digestPending
-          outputTransfer = digestPending && mAxisTReady_in
+          -- Explicit mode encoding
+          modeAbsorbIdle = spongePhase st == Absorbing && not (spongeActive st)
+          modeAbsorbBusy = spongePhase st == Absorbing && spongeActive st
+          modeSqueezeIdle = spongePhase st == Squeezing && not (spongeActive st)
+          modeSqueezeBusy = spongePhase st == Squeezing && spongeActive st
 
-          -- Absorb block on input transfer or pad transfer
-          stateAfterAbsorb
-            | inputTransfer =
-                st
-                  { spongeStateData = spongeStateData st `xor` ((0 :: BitVector (b - rate)) ++# sAxisTData_in),
-                    spongeActive = True,
-                    spongeRoundCounter = 0,
-                    spongePadPending = sAxisTLast_in,
-                    spongePadBlock = if sAxisTLast_in then padBlock else spongePadBlock st
-                  }
-            | padTransfer =
-                st
-                  { spongeStateData = spongeStateData st `xor` ((0 :: BitVector (b - rate)) ++# spongePadBlock st),
-                    spongeActive = True,
-                    spongeRoundCounter = 0,
-                    spongePadPending = False,
-                    spongeSeenTLast = True
-                  }
-            | otherwise = st
+          -- Single transition table
+          (nextPhase, nextActive, latchCurrentBlock, startPerm, setDigestPending, decSqueeze, setSeenTLast) =
+            case () of
+              _
+                | modeAbsorbIdle && haveInput ->
+                    (Absorbing, True, False, True, False, False, False)
+                | modeAbsorbIdle && spongePadPending st ->
+                    (Absorbing, True, False, True, False, False, True)
+                | modeAbsorbBusy && permDone && spongeSeenTLast st ->
+                    (Squeezing, False, True, False, True, False, False)
+                | modeAbsorbBusy && permDone ->
+                    (Absorbing, False, False, False, spongeDigestPending st, False, False)
+                | modeSqueezeIdle && canOutput && spongeSqueezeBlocksRemaining st == 0 ->
+                    (Absorbing, False, False, False, False, False, False)
+                | modeSqueezeIdle && canOutput ->
+                    (Squeezing, True, False, True, False, True, False)
+                | modeSqueezeBusy && permDone ->
+                    (Squeezing, False, True, False, True, False, False)
+                | otherwise ->
+                    (spongePhase st, spongeActive st, False, False, spongeDigestPending st, False, spongeSeenTLast st)
 
-          -- Use permutation result from component (if active)
-          stateData' =
-            if spongeActive stateAfterAbsorb
-              then stateDataAfterPerm_in
-              else spongeStateData stateAfterAbsorb
+          -- Use permutation result when active
+          stateData' = if spongeActive st then stateDataAfterPerm_in else spongeStateData st
+
+          -- Per-register enables and next values
+          -- Permutation state (BitVector b)
+          stateEn = modeAbsorbIdle && haveInput || spongePadPending st && modeAbsorbIdle
+          nextStateIn =
+            if spongePadPending st && modeAbsorbIdle
+              then spongeStateData st `xor` ((0 :: BitVector (b - rate)) ++# spongePadBlock st)
+              else spongeStateData st `xor` ((0 :: BitVector (b - rate)) ++# sAxisTData_in)
+          nextStateData =
+            if nextPhase == Absorbing && spongePhase st == Squeezing
+              then 0 -- Reset when returning to absorbing
+              else if stateEn then nextStateIn else stateData'
+
+          -- Round counter
+          roundEn = startPerm || spongeActive st && not permDone
+          nextRound =
+            if startPerm || modeSqueezeIdle && canOutput && spongeSqueezeBlocksRemaining st > 0
+              then 0
+              else spongeRoundCounter st + 1
+
+          -- Pad flags/block
+          padBlockEn = modeAbsorbIdle && haveInput && lastBeat
+          nextPadBlock =
+            if nextPhase == Absorbing && spongePhase st == Squeezing
+              then 0 -- Reset when returning to absorbing
+              else if padBlockEn then padBlock else spongePadBlock st
+
+          nextPadPend =
+            if nextPhase == Absorbing && spongePhase st == Squeezing
+              then False -- Reset when returning to absorbing
+              else (modeAbsorbIdle && haveInput) && lastBeat
+
+          -- Squeeze bookkeeping
+          squeezeEn = decSqueeze
+          nextSqueeze =
+            if squeezeEn
+              then spongeSqueezeBlocksRemaining st - 1
+              else
+                if setSeenTLast
+                  then totalDigestBlocks - 1 -- Initialize when entering squeeze
+                  else spongeSqueezeBlocksRemaining st
+
+          -- Current output block
+          currentBlockFromState = resize stateData' :: BitVector rate
+          latchBlockEn = latchCurrentBlock
+          nextBlock =
+            if latchBlockEn
+              then currentBlockFromState
+              else
+                if nextPhase == Absorbing && spongePhase st == Squeezing
+                  then 0 -- Reset when returning to absorbing
+                  else spongeCurrentBlock st
+
+          -- Digest pending flag (latch on set, clear on handshake)
+          nextDigest
+            | setDigestPending = True
+            | canOutput = False
+            | otherwise = spongeDigestPending st
 
           -- Prepare permutation input for next cycle
-          permutationInput = (spongeRoundCounter stateAfterAbsorb, spongeStateData stateAfterAbsorb)
+          -- CRITICAL: Must use updated state after absorption/padding, not old state
+          permutationInput =
+            ( if roundEn then nextRound else spongeRoundCounter st,
+              if stateEn then nextStateIn else spongeStateData st
+            )
 
-          -- Advance round counter (reset when starting new permutation)
-          nextRound
-            | spongeActive stateAfterAbsorb && currentRound == maxRound = 0
-            | spongeActive stateAfterAbsorb = currentRound + 1
-            -- Reset when starting squeeze permutation after output
-            | currentPhase == Squeezing && outputTransfer && squeezeBlocksRemaining > 0 = 0
-            | otherwise = currentRound
-
-          permutationComplete = spongeActive stateAfterAbsorb && currentRound == maxRound
-
-          -- Extract current rate-sized block from state LSBs
-          currentBlockFromState = resize stateData' :: BitVector rate
-
-          -- Phase transitions and squeeze block management
-          (nextPhase, nextActive, nextSeenTLast, nextDigestPending, nextSqueezeBlocks, nextCurrentBlock) =
-            case (spongePhase stateAfterAbsorb, permutationComplete, spongeSeenTLast stateAfterAbsorb) of
-              -- Absorb complete with TLAST seen: enter squeezing, prepare first block
-              (Absorbing, True, True) ->
-                (Squeezing, False, False, True, totalDigestBlocks - 1, currentBlockFromState)
-              -- Absorb complete but no TLAST: keep absorbing
-              (Absorbing, True, False) ->
-                (Absorbing, False, False, digestPending, squeezeBlocksRemaining, spongeCurrentBlock stateAfterAbsorb)
-              -- Squeezing: output block accepted
-              _ | currentPhase == Squeezing && outputTransfer ->
-                if squeezeBlocksRemaining == 0
-                  then -- Last block sent, return to absorbing
-                    (Absorbing, False, False, False, 0, 0)
-                  else -- More blocks needed, start next permutation
-                    (Squeezing, True, False, False, squeezeBlocksRemaining - 1, 0)
-              -- Squeezing: permutation complete, latch next block
-              _ | currentPhase == Squeezing && permutationComplete ->
-                (Squeezing, False, False, True, squeezeBlocksRemaining, currentBlockFromState)
-              -- No state change
-              _ ->
-                (spongePhase stateAfterAbsorb, spongeActive stateAfterAbsorb, spongeSeenTLast stateAfterAbsorb, digestPending, squeezeBlocksRemaining, spongeCurrentBlock stateAfterAbsorb)
-
-          -- AXI4-Stream outputs
-          sAxisTReady_out = not active && currentPhase == Absorbing && not digestPending && not padPending
-          mAxisTValid_out = digestPending
-          mAxisTData_out = if digestPending then spongeCurrentBlock stateAfterAbsorb else 0
-          mAxisTLast_out = digestPending && squeezeBlocksRemaining == 0
-
-          -- Reset state data when returning to absorbing
-          nextStateData = if nextPhase == Absorbing && currentPhase == Squeezing then 0 else stateData'
-
-          -- Reset padding state when transitioning back to Absorbing
-          (nextPadPending, nextPadBlock) =
-            if nextPhase == Absorbing && currentPhase == Squeezing
-              then (False, 0)
-              else (spongePadPending stateAfterAbsorb, spongePadBlock stateAfterAbsorb)
+          -- AXI4-Stream outputs (pure combinational from control state)
+          sAxisTReady_out = modeAbsorbIdle
+          mAxisTValid_out = spongeDigestPending st
+          mAxisTData_out = if spongeDigestPending st then spongeCurrentBlock st else 0
+          mAxisTLast_out = spongeDigestPending st && spongeSqueezeBlocksRemaining st == 0
 
           nextState =
             SpongeState
               { spongeStateData = nextStateData,
-                spongeRoundCounter = nextRound,
+                spongeRoundCounter = if roundEn then nextRound else spongeRoundCounter st,
                 spongePhase = nextPhase,
                 spongeActive = nextActive,
-                spongeSeenTLast = nextSeenTLast,
-                spongeDigestPending = nextDigestPending,
-                spongeSqueezeBlocksRemaining = nextSqueezeBlocks,
-                spongeCurrentBlock = nextCurrentBlock,
-                spongePadPending = nextPadPending,
+                spongeSeenTLast = setSeenTLast,
+                spongeDigestPending = nextDigest,
+                spongeSqueezeBlocksRemaining = nextSqueeze,
+                spongeCurrentBlock = nextBlock,
+                spongePadPending = nextPadPend,
                 spongePadBlock = nextPadBlock
               }
        in (nextState, ((sAxisTReady_out, mAxisTValid_out, mAxisTData_out, mAxisTLast_out), permutationInput))
