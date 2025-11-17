@@ -60,6 +60,12 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Rate-only XOR** | 5.545s / 6.976s | 370.93s (276.99s / 93.94s) | 7591.374 (0%) / 17293.192 (26.86%) |
 | **Rate-only XOR 2** | 5.928s / 7.143s | 346.96s (261.44s / 84.52s) | 7591.374 (0%) / 17293.192 (26.86%) |
 
+### F1600
+
+| Version | Verilog Gen Time | Netlist Synth Time | Chip Area (µm²) (sequential percentage) |
+|---------|------------------|--------------------|-----------------------------------------|
+| **Rate-only XOR 2** | 12.252s / 14.329s | 1909.02s (1367.14s / 541.88s) | 14943.614 (0%) / 32848.606 (27.10%) |
+
 ## Failed Experiments
 
 ### Pipelined Keccak-f[200] permutation (4-stage round)
