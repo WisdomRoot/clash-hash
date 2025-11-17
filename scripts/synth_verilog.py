@@ -202,12 +202,37 @@ def build_yosys_commands(target: SynthTarget, conf: SynthConfig, netlist_path: P
 
     base_commands = []
 
+    # Check for pre-mapped permutation macro (e.g., KeccakF200_SHA3 uses KeccakF200_Round)
+    # This allows reusing the mapped permutation netlist to avoid re-optimizing it
+    mapped_macro_used = False
+    round_module = None
+    if "_SHA3" in target.top:
+        # Derive round module name from top entity (e.g., KeccakF200_SHA3 -> KeccakF200_Round)
+        round_module = target.top.replace("_SHA3", "_Round")
+        # Try to find the corresponding permutation target
+        perm_target_name = target.label.replace(".topEntity", ".Permutation.topEntity")
+        mapped_macro_path = DEFAULT_OUTPUT_ROOT / perm_target_name / "netlist" / f"{round_module}.mapped.v"
+
+        if mapped_macro_path.exists():
+            # Read the liberty library first so Yosys knows about the cells
+            base_commands.append(f"read_liberty -lib {liberty}")
+            # Read the pre-mapped permutation macro
+            mapped_v = shlex.quote(str(mapped_macro_path))
+            base_commands.append(f"read_verilog {mapped_v}")
+            # Set keep_hierarchy to prevent Yosys from flattening/re-optimizing it
+            base_commands.append(f"setattr -set keep_hierarchy 1 -mod {round_module}")
+            mapped_macro_used = True
+
     # Read dependency modules first if we have a manifest
+    # Skip modules that were already loaded as pre-mapped macros
     if target.manifest:
         try:
             manifest = json.loads(target.manifest.read_text(encoding="utf-8"))
             deps = manifest.get("dependencies", {}).get("transitive", [])
             for dep in deps:
+                # Skip if this is the permutation module and we already loaded its mapped version
+                if mapped_macro_used and "Permutation" in dep:
+                    continue
                 # Convert dependency name to verilog path
                 dep_dir = VERILOG_ROOT / dep
                 if dep_dir.is_dir():
