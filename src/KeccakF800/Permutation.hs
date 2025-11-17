@@ -101,13 +101,21 @@ keccakF800 initialState =
   ( Synthesize
       { t_name = "KeccakF800_Round",
         t_inputs =
-          [ PortName "ROUND_IDX",
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "ROUND_IDX",
             PortName "STATE_IN"
           ],
         t_output = PortName "STATE_OUT"
       }
   )
   #-}
-topEntity :: (Index 24, BitVector 800) -> BitVector 800
-topEntity (roundIdx, state) = keccakF800Round roundIdx state
 {-# NOINLINE topEntity #-}
+topEntity ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (Index 24, BitVector 800) ->
+  Signal System (BitVector 800)
+topEntity _clk _rst _en input = fmap (uncurry keccakF800Round) input

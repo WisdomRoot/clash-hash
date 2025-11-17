@@ -161,7 +161,7 @@ This is an **incremental build optimization**, not a first-build speedup. Benefi
 TODO:
 - [ ] Auto-rebuild the permutation macro if the mapped netlist is missing or stale (mtime/hash check) before top synth.
 - [ ] Replicate macro reuse for F400/F800/F1600 (verify round names and paths).
-- [ ] Verify top logs: no "Area for cell type … unknown" for the round; capture CPU time delta.
+  - [ ] Verify top logs: no "Area for cell type … unknown" for the round; capture CPU time delta.
 
 ### Preserve round hierarchy (no flatten across permutation)
 
@@ -187,3 +187,25 @@ TODO:
   - [ ] If the mapped netlist is missing or stale, synthesize permutation first.
   - [ ] Prepend `read_verilog` of the mapped macro and `setattr keep_hierarchy` before reading the top.
   - [ ] Verify logs (no "area unknown"), hierarchy lists exactly one round instance, and record CPU/time deltas in this doc.
+
+### Clash-side RTL quality improvements (reduce Yosys cleanup work)
+
+- Lane-level permutation
+  - [ ] Refactor f[200] permutation to operate on `Vec 5 (Vec 5 (BitVector 8))` internally.
+  - [ ] Implement θ/ρ/π/χ/ι as lane transforms; pack/unpack only at topEntity boundary.
+  - [ ] Avoid per-bit `replaceBit`/`ifoldl` over 200 bits.
+
+- Avoid wide intermediates
+  - [ ] In absorb/squeeze, operate on `BitVector rate` (LSBs) or lane `BitVector 8` and only widen at the edge.
+  - [ ] Remove zero-extending to 200 bits when only low `rate` bits are touched.
+
+- Split FSM into explicit registers
+  - [ ] Replace single mealy state record with explicit `register`/`regEn` regs for: permutation state, round counter, phase/active, pad flags/block, current block and remaining count.
+  - [ ] Compute per-register enables; keep multiple small always blocks.
+
+- Reduce boolean soup
+  - [ ] Use compact sum type/case for phase logic; precompute guards; drive per-register enables to avoid large decoders.
+
+- Control inlining where helpful
+  - [ ] Consider `NOINLINE` on large lane helpers to keep nets named and avoid duplicating large expressions.
+  - [ ] Optionally explore `-fclash-inline-*` flags during development; keep a single blessed config in CI.

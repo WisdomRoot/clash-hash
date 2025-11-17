@@ -100,8 +100,6 @@ library
     KeccakF400.Permutation,
     KeccakF800,
     KeccakF800.Permutation,
-    KeccakF1600.Permutation,
-    KeccakF1600.Sponge,
     SHA2,
     SHA3,
     SHA3internal,
