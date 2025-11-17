@@ -156,13 +156,17 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
 
           -- Default values
           round0 = 0 :: Index rounds
-          blockFromSt = resize permOut :: BitVector rate
+          -- Split permOut once to get rate portion directly (avoid resize on 200-bit net)
+          (_capFromPerm, rateFromPerm) = split permOut :: (BitVector (b - rate), BitVector rate)
+          blockFromSt = rateFromPerm
 
           (stAfterAbsorb, roundCntNext, ctrlNext) =
             case ctrl of
               AbsIdle {..}
                 | haveInput ->
-                    let st' = stBV `xor` ((0 :: BitVector (b - rate)) ++# sData inp)
+                    let (cap, rateBits) = split stBV :: (BitVector (b - rate), BitVector rate)
+                        rate' = rateBits `xor` sData inp :: BitVector rate
+                        st' = cap ++# rate' :: BitVector b
                         padP = lastBeat
                         padB = if lastBeat then padBlockVal else padBlock
                      in ( st',
@@ -175,7 +179,9 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                             }
                         )
                 | padPending ->
-                    let st' = stBV `xor` ((0 :: BitVector (b - rate)) ++# padBlock)
+                    let (cap, rateBits) = split stBV :: (BitVector (b - rate), BitVector rate)
+                        rate' = rateBits `xor` padBlock :: BitVector rate
+                        st' = cap ++# rate' :: BitVector b
                      in ( st',
                           round0,
                           AbsBusy
