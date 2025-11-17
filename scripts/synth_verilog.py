@@ -270,7 +270,8 @@ def build_yosys_commands(target: SynthTarget, conf: SynthConfig, netlist_path: P
         [
             "clean",
             f"write_verilog -noattr {netlist}",
-            f"stat -liberty {liberty}",
+            "select -clear",
+            f"stat -top {top} -liberty {liberty}",
         ]
     )
 

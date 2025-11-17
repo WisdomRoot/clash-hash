@@ -1,4 +1,18 @@
-## Progress
+## Verions
+
+* Baseline: original monolithic design
+* AXI-stream: replace the IO with AXI4-Stream
+* Separate modules: top entity + permutation as separate modules
+* Pre-synth permutation: pre-synthesise the permutation module and reuse mapped netlist
+* Explicit pass list:
+    1. select -module KeccakF200_SHA3 - Select only top module
+    2. proc; opt; opt_clean; wreduce; share -aggressive; opt; opt_clean; techmap; opt; opt_clean; dfflibmap; abc; clean - All transforms run on selected module only
+    3. write_verilog - Write output (still with top-only selection)
+    4. select -clear - Clear selection to see all modules
+    5. stat -top KeccakF200_SHA3 - Generate statistics for full hierarchy
+    - The permutation macro KeccakF200_Round is never touched by optimization passes
+    - Only the top module KeccakF200_SHA3 goes through the transformation pipeline
+    - The final stat -top can traverse the full hierarchy to count all cells and calculate total area
 
 Note: after `Pre-synth permutation`, results are shown as two values: first is for the pre-synth state (combinational permutation), second is for the whole design
 
@@ -10,6 +24,7 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **AXI-stream** | 2.393s | 28s | 4815.132 (30.38%) |
 | **Separate modules** | 2.443s | 24.86s | 4719.638 (31.00%) |
 | **Pre-synth permutation** | 1.760s / 2.430s | 22.56s (22.17s / 0.39s) | 1917.062 (0%) / 4726.022 (30.96%) |
+| **Explicit pass list** | 1.760s / 2.430s | 19.02s (14.35s / 4.67s) | 1950.046 (0%) / 4531.310 (32.40%) |
 
 ### F400
 
@@ -19,6 +34,7 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **AXI-stream** | 3.886s | 129s | 8253.980 (30.62%) |
 | **Separate modules** | 4.140s | 112.05s | 8192.800 (30.84%) |
 | **Pre-synth permutation** | 3.198s / 3.980s | 95.45s (94.84s / 0.61s) | 3828.006 (0%) / 8268.876 (30.56%) |
+| **Explicit pass list** | 3.030s / 3.934s | 80.37s (61.19s / 19.18s) | 3884.132 (0%) / 8011.122 (31.61%) |
 
 ### F800
 
@@ -28,6 +44,7 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **AXI-stream** | 6.726s | 647s | 15364.958 (30.30%) |
 | **Separate modules** | 7.368s | 604.12s | 14909.034 (31.22%) |
 | **Pre-synth permutation** | 5.926s / 7.515s | 546.75s (545.63s / 1.12s) | 7486.038 (0%) / 14989.100 (31.06%) |
+| **Explicit pass list** | 5.984s / 7.341s | 424.96s (328.92s / 96.04s) | 7746.452 (0%) / 14952.392 (31.17%) |
 
 ## Failed Experiments
 
