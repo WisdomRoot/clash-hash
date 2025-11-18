@@ -11,12 +11,14 @@ import qualified KeccakF1600.Permutation as Perm
 import qualified Sponge
 
 --------------------------------------------------------------------------------
--- SHA3-f[1600] AXI4-Stream Top Entity
+-- SHA3-f[1600] AXI4-Stream Top Entity (SHA3-256)
 --------------------------------------------------------------------------------
 
-type Rate = 64
+type BusWidth = 64
 
-type DigestBits = 64
+type Rate = 1088
+
+type DigestBits = 256
 
 {-# ANN
   topEntity
@@ -48,17 +50,17 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System Bool -> -- S_AXIS_TVALID
-  Signal System (BitVector Rate) -> -- S_AXIS_TDATA
+  Signal System (BitVector BusWidth) -> -- S_AXIS_TDATA
   Signal System Bool -> -- S_AXIS_TLAST
   Signal System Bool -> -- M_AXIS_TREADY
   ( Signal System Bool, -- S_AXIS_TREADY
     Signal System Bool, -- M_AXIS_TVALID
-    Signal System (BitVector Rate), -- M_AXIS_TDATA
+    Signal System (BitVector BusWidth), -- M_AXIS_TDATA
     Signal System Bool -- M_AXIS_TLAST
   )
 topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en
-    $ Sponge.spongeAxi @System @1600 @Rate @DigestBits @24
+    $ Sponge.spongeAxi @System @1600 @BusWidth @Rate @DigestBits @24
       (0b01 :: BitVector 2)
       (permutationComponent clk rst en)
       sAxisTValid

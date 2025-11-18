@@ -15,8 +15,20 @@
     - The final stat -top can traverse the full hierarchy to count all cells and calculate total area
 * ADT-based FSM: cleanup the boolean soup in the FSM
 * Fix writeback: write the permutation output back
+* Rate-only XOR: only XOR the rate bits during absorb/squeeze
+* Gather/scatter: decouple I/O bus width from rate/capacity
 
 Note: after `Pre-synth permutation`, results are shown as two values: first is for the pre-synth state (combinational permutation), second is for the whole design
+
+How numbers are collected:
+  1. Verilog generation:
+    - stack exec -- clash KeccakF200.Permutation.topEntity --verilog
+    - stack exec -- clash KeccakF200.topEntity --verilog
+  2. Synthesis:
+    - nix develop --command synth -- KeccakF200.Permutation.topEntity
+    - nix develop --command synth -- KeccakF200.topEntity
+
+Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_synth>s) | <perm_area> (0%) / <total_area> (<seq_pct>%)
 
 ### F200
 
@@ -29,8 +41,8 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Explicit pass list** | 1.760s / 2.430s | 19.02s (14.35s / 4.67s) | 1950.046 (0%) / 4531.310 (32.40%) |
 | **ADT-based FSM** | 1.289s / 2.340s | 19.31s (14.12s / 5.19s) | 1948.450 (0%) / 4811.940 (30.18%) |
 | **Fix writeback** | 1.289s / 2.360s | 19.49s (14.25s / 5.24s) | 1948.450 (0%) / 5318.138 (27.31%) |
-| **Rate-only XOR** | 1.340s / 2.353s | 19.40s (14.25s / 5.15s) | 1948.450 (0%) / 5435.976 (26.72%) |
-| **Rate-only XOR 2** | 1.916s / 2.474s | 18.94s (13.85s / 5.09s) | 1948.450 (0%) / 5435.976 (26.72%) |
+| **Rate-only XOR** | 1.916s / 2.474s | 18.94s (13.85s / 5.09s) | 1948.450 (0%) / 5435.976 (26.72%) |
+| **Gather/scatter** | 2.678s / 1.672s | 19.36s (14.19s / 5.17s) | 1948.450 (0%) / 5435.976 (26.72%) |
 
 ### F400
 
@@ -43,8 +55,8 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Explicit pass list** | 3.030s / 3.934s | 80.37s (61.19s / 19.18s) | 3884.132 (0%) / 8011.122 (31.61%) |
 | **ADT-based FSM** | 2.471s / 3.810s | 73.12s (54.87s / 18.25s) | 3866.576 (0%) / 8211.686 (30.64%) |
 | **Fix writeback** | 2.478s / 3.842s | 73.27s (54.82s / 18.45s) | 3866.576 (0%) / 9387.938 (26.80%) |
-| **Rate-only XOR** | 2.439s / 3.194s | 78.97s (59.67s / 19.30s) | 3866.576 (0%) / 9553.656 (26.34%) |
-| **Rate-only XOR 2** | 3.319s / 3.997s | 71.47 (54.70s / 17.77s) | 3866.576 (0%) / 9553.656 (26.34%%) |
+| **Rate-only XOR** | 3.319s / 3.997s | 71.47s (54.70s / 17.77s) | 3866.576 (0%) / 9553.656 (26.34%) |
+| **Gather/scatter** | 2.616s / 0.981s | 155.81s (55.08s / 100.73s) | 3866.576 (0%) / 13435.660 (26.33%) |
 
 ### F800
 
@@ -57,14 +69,15 @@ Note: after `Pre-synth permutation`, results are shown as two values: first is f
 | **Explicit pass list** | 5.984s / 7.341s | 424.96s (328.92s / 96.04s) | 7746.452 (0%) / 14952.392 (31.17%) |
 | **ADT-based FSM** | 5.107s / 7.069s | 358.25s (269.55s / 88.70s) | 7591.374 (0%) / 14934.304 (31.10%) |
 | **Fix writeback** | 5.244s / 7.256s | 362.24s (272.50s / 89.74s) | 7591.374 (0%) / 17293.192 (26.86%) |
-| **Rate-only XOR** | 5.545s / 6.976s | 370.93s (276.99s / 93.94s) | 7591.374 (0%) / 17293.192 (26.86%) |
-| **Rate-only XOR 2** | 5.928s / 7.143s | 346.96s (261.44s / 84.52s) | 7591.374 (0%) / 17293.192 (26.86%) |
+| **Rate-only XOR** | 5.928s / 7.143s | 346.96s (261.44s / 84.52s) | 7591.374 (0%) / 17293.192 (26.86%) |
+| **Gather/scatter** | 5.279s / 1.590s | 499.68s (271.89s / 227.79s) | 7591.374 (0%) / 27149.822 (25.88%) |
 
 ### F1600
 
 | Version | Verilog Gen Time | Netlist Synth Time | Chip Area (µm²) (sequential percentage) |
 |---------|------------------|--------------------|-----------------------------------------|
-| **Rate-only XOR 2** | 12.252s / 14.329s | 1909.02s (1367.14s / 541.88s) | 14943.614 (0%) / 32848.606 (27.10%) |
+| **Rate-only XOR** | 12.252s / 14.329s | 1909.02s (1367.14s / 541.88s) | 14943.614 (0%) / 32848.606 (27.10%) |
+| **Gather/scatter** | 11.040s / 2.810s | 2497.90s (1373.44s / 1124.46s) | 14943.614 (0%) / 51010.022 (28.13%) |
 
 ## Failed Experiments
 

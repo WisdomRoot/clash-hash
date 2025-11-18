@@ -58,7 +58,7 @@ topEntity ::
   )
 topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en
-    $ Sponge.spongeAxi @System @200 @Rate @DigestBits @18
+    $ Sponge.spongeAxi @System @200 @Rate @Rate @DigestBits @18
       (0b01 :: BitVector 2)
       (permutationComponent clk rst en)
       sAxisTValid
