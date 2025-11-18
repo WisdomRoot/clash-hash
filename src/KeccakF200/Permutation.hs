@@ -18,14 +18,7 @@ import qualified Constants
 
 -- Theta transformation: XOR with column parities
 thetaF200 :: BitVector 200 -> BitVector 200
-thetaF200 bv =
-  ifoldl
-    ( \acc idx indices11 ->
-        let bitOut = fold xor (map (bv !) indices11)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.theta 3)
+thetaF200 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 3)
 
 -- Chi transformation expressed directly on BitVector
 chiF200 :: BitVector 200 -> BitVector 200

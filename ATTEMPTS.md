@@ -17,13 +17,14 @@
 * Fix writeback: write the permutation output back
 * Rate-only XOR: only XOR the rate bits during absorb/squeeze
 * Gather/scatter: decouple I/O bus width from rate/capacity
+* Reintroduce `Vec`: reintroduce the `Vec` type permutation
 
 Note: after `Pre-synth permutation`, results are shown as two values: first is for the pre-synth state (combinational permutation), second is for the whole design
 
 How numbers are collected:
   1. Verilog generation:
-    - stack exec -- clash KeccakF200.Permutation.topEntity --verilog
-    - stack exec -- clash KeccakF200.topEntity --verilog
+    - stack run clash -- KeccakF200.Permutation.topEntity --verilog
+    - stack run clash -- KeccakF200.topEntity --verilog
   2. Synthesis:
     - nix develop --command synth -- KeccakF200.Permutation.topEntity
     - nix develop --command synth -- KeccakF200.topEntity
@@ -43,6 +44,7 @@ Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_
 | **Fix writeback** | 1.289s / 2.360s | 19.49s (14.25s / 5.24s) | 1948.450 (0%) / 5318.138 (27.31%) |
 | **Rate-only XOR** | 1.916s / 2.474s | 18.94s (13.85s / 5.09s) | 1948.450 (0%) / 5435.976 (26.72%) |
 | **Gather/scatter** | 2.678s / 1.672s | 19.36s (14.19s / 5.17s) | 1948.450 (0%) / 5435.976 (26.72%) |
+| **Reintroduce Vec** | 0.983s / 0.651s | 2.42s (1.06s / 1.36s) | 1948.450 (0%) / 5270.790 (27.55%) |
 
 ### F400
 
