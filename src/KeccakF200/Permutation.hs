@@ -39,14 +39,12 @@ chiF200 bv =
 
 -- Pi transformation: bit permutation on BitVector
 piF200 :: BitVector 200 -> BitVector 200
-piF200 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.pi 3)
+piF200 bv = bitCoerce bitsOut
+  where
+    perm :: Vec 200 (Index 200)
+    perm = $(Constants.pi 3)
+    bitsOut :: Vec 200 Bit
+    bitsOut = map (\srcIdx -> bv ! srcIdx) perm
 
 -- Rho transformation: bit permutation on BitVector (lane rotation)
 rhoF200 :: BitVector 200 -> BitVector 200
