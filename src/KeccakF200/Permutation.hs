@@ -29,14 +29,7 @@ thetaF200 bv =
 
 -- Chi transformation expressed directly on BitVector
 chiF200 :: BitVector 200 -> BitVector 200
-chiF200 bv =
-  ifoldl
-    ( \acc idx (i0, i1, i2) ->
-        let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.chi 3)
+chiF200 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 3)
 
 -- Pi transformation: bit permutation on BitVector
 piF200 :: BitVector 200 -> BitVector 200
