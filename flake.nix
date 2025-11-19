@@ -41,8 +41,21 @@
               exec ${pkgs.python3}/bin/python "$script_path" "$@"
             '';
           };
+          benchCli = pkgs.writeShellApplication {
+            name = "bench";
+            runtimeInputs = [ pkgs.python3 pkgs.stack yosysPkg synthCli ];
+            text = ''
+              set -euo pipefail
+              script_path="$PWD/scripts/bench.py"
+              if [ ! -f "$script_path" ]; then
+                echo "error: scripts/bench.py not found; run from the repository root" >&2
+                exit 1
+              fi
+              exec ${pkgs.python3}/bin/python "$script_path" "$@"
+            '';
+          };
         in {
-          inherit yosysPkg synthCli;
+          inherit yosysPkg synthCli benchCli;
           default = yosysPkg;
         };
     in {
@@ -64,6 +77,7 @@
               pkgSet.yosysPkg
               pkgs.python3
               pkgSet.synthCli
+              pkgSet.benchCli
               pkgs.clang
               pkgs.stack
               pkgs.pkg-config
@@ -87,6 +101,10 @@
           synth = {
             type = "app";
             program = "${pkgSet.synthCli}/bin/synth";
+          };
+          bench = {
+            type = "app";
+            program = "${pkgSet.benchCli}/bin/bench";
           };
         });
     };
