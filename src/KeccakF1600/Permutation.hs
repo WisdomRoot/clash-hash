@@ -23,44 +23,16 @@ import qualified Constants
 --------------------------------------------------------------------------------
 
 thetaF1600 :: BitVector 1600 -> BitVector 1600
-thetaF1600 bv =
-  ifoldl
-    ( \acc idx indices11 ->
-        let bitOut = fold xor (map (bv !) indices11)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.theta 6)
+thetaF1600 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 6)
 
 chiF1600 :: BitVector 1600 -> BitVector 1600
-chiF1600 bv =
-  ifoldl
-    ( \acc idx (i0, i1, i2) ->
-        let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.chi 6)
+chiF1600 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 6)
 
 piF1600 :: BitVector 1600 -> BitVector 1600
-piF1600 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.pi 6)
+piF1600 bv = bitCoerce $ map (bv !) $(Constants.pi 6)
 
 rhoF1600 :: BitVector 1600 -> BitVector 1600
-rhoF1600 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.rho 6)
+rhoF1600 bv = bitCoerce $ map (bv !) $(Constants.rho 6)
 
 iotaF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
 iotaF1600 roundIdx bv =

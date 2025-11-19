@@ -23,44 +23,16 @@ import qualified Constants
 --------------------------------------------------------------------------------
 
 thetaF400 :: BitVector 400 -> BitVector 400
-thetaF400 bv =
-  ifoldl
-    ( \acc idx indices11 ->
-        let bitOut = fold xor (map (bv !) indices11)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.theta 4)
+thetaF400 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 4)
 
 chiF400 :: BitVector 400 -> BitVector 400
-chiF400 bv =
-  ifoldl
-    ( \acc idx (i0, i1, i2) ->
-        let bitOut = bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.chi 4)
+chiF400 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 4)
 
 piF400 :: BitVector 400 -> BitVector 400
-piF400 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.pi 4)
+piF400 bv = bitCoerce $ map (bv !) $(Constants.pi 4)
 
 rhoF400 :: BitVector 400 -> BitVector 400
-rhoF400 bv =
-  ifoldl
-    ( \acc idx srcIdx ->
-        let bitOut = bv ! srcIdx
-         in replaceBit idx bitOut acc
-    )
-    0
-    $(Constants.rho 4)
+rhoF400 bv = bitCoerce $ map (bv !) $(Constants.rho 4)
 
 iotaF400 :: Index 24 -> BitVector 400 -> BitVector 400
 iotaF400 roundIdx bv =

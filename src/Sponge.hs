@@ -108,6 +108,7 @@ spongeAxi ::
     KnownNat beatsPerBlock,
     digestBlocks ~ DivRU digest rate,
     beatsPerBlock ~ Div rate bus,
+    (beatsPerBlock * bus) ~ rate,
     1 <= b,
     1 <= bus,
     4 <= rate,
@@ -183,48 +184,30 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
           blockFromSt = rateFromPerm
 
           -- Helper: write a bus-sized slice into the rate portion at the given beat index
+          -- XORs sliceData with the current chunk at beatIdx
           writeSlice :: BitVector rate -> Index beatsPerBlock -> BitVector bus -> BitVector rate
           writeSlice rateBits beatIdx sliceData =
-            let busWidth = natToNum @bus :: Int
-                sliceOffset = fromIntegral beatIdx * busWidth
-                sliceVec = bv2v sliceData :: Vec bus Bit
-                -- Use bit-level manipulation for general case
-             in ifoldl
-                  ( \acc bitIdx bitVal ->
-                      let globalIdx = sliceOffset + fromIntegral bitIdx
-                       in if globalIdx < natToNum @rate
-                            then replaceBit globalIdx bitVal acc
-                            else acc
-                  )
-                  rateBits
-                  sliceVec
+            let chunks :: Vec beatsPerBlock (BitVector bus)
+                chunks = bitCoerce rateBits
+                oldChunk = chunks !! beatIdx
+                newChunk = oldChunk `xor` sliceData
+                chunks' = replace beatIdx newChunk chunks
+             in bitCoerce chunks'
 
           -- Helper: read a bus-sized slice from the rate portion at the given beat index
           readSlice :: BitVector rate -> Index beatsPerBlock -> BitVector bus
           readSlice rateBits beatIdx =
-            let busWidth = natToNum @bus :: Int
-                sliceOffset = fromIntegral beatIdx * busWidth
-                bitVec :: Vec bus Bit
-                bitVec =
-                  fmap
-                    ( \bitIdx ->
-                        let globalIdx = sliceOffset + fromIntegral bitIdx
-                         in if globalIdx < natToNum @rate
-                              then if testBit rateBits globalIdx then high else low
-                              else low
-                    )
-                    (indicesI @bus)
-             in v2bv bitVec
+            let chunks :: Vec beatsPerBlock (BitVector bus)
+                chunks = bitCoerce rateBits
+             in chunks !! beatIdx
 
           (stAfterAbsorb, roundCntNext, ctrlNext) =
             case ctrl of
               AbsIdle padPending_idle padBlock_idle beatCount_idle
                 | haveInput ->
                     let (cap, rateBits) = split stBV :: (BitVector (b - rate), BitVector rate)
-                        -- XOR incoming data into current slice
-                        currentSlice = readSlice rateBits beatCount_idle
-                        sliceXored = currentSlice `xor` sData inp
-                        rateBits' = writeSlice rateBits beatCount_idle sliceXored
+                        -- writeSlice now XORs incoming data internally
+                        rateBits' = writeSlice rateBits beatCount_idle (sData inp)
                         st' = cap ++# rateBits' :: BitVector b
                         -- Check if this is the last beat BEFORE incrementing (since Index wraps)
                         blockComplete = beatCount_idle == maxBeatCount
@@ -254,11 +237,9 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                             )
                 | padPending_idle ->
                     let (cap, rateBits) = split stBV :: (BitVector (b - rate), BitVector rate)
-                        -- XOR padding block slice into current beat
-                        currentSlice = readSlice rateBits beatCount_idle
+                        -- writeSlice now XORs padding slice internally
                         padSlice = readSlice padBlock_idle beatCount_idle
-                        sliceXored = currentSlice `xor` padSlice
-                        rateBits' = writeSlice rateBits beatCount_idle sliceXored
+                        rateBits' = writeSlice rateBits beatCount_idle padSlice
                         st' = cap ++# rateBits' :: BitVector b
                         -- Check if this is the last beat BEFORE incrementing (since Index wraps)
                         blockComplete = beatCount_idle == maxBeatCount
