@@ -102,6 +102,7 @@ library
     KeccakF800.Permutation,
     KeccakF1600,
     KeccakF1600.Permutation,
+    KeccakF1600Testbench,
     SHA2,
     SHA3,
     SHA3internal,
