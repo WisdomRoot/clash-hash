@@ -1,21 +1,21 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF1600Testbench (testBench) where
+module KeccakF1600Testbench (testBench, expectedDigest) where
 
 import Clash.Explicit.Testbench
 import Clash.Prelude
 import KeccakF1600 (topEntity)
-import SHA3internal (BitString, v2bs)
+import SHA3internal (BitString, toBitString, v2bs)
 import qualified SHA3
 
--- | For now, test a single message: empty string
-emptyMsg :: Vec 0 (Unsigned 8)
+-- | Empty message as a BitString (0 bits)
+emptyMsg :: BitString 0
 emptyMsg = Nil
 
 -- | Golden digest for empty string using SHA3 reference
 -- SHA3-256("") = a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a
 expectedDigest :: BitVector 256
-expectedDigest = v2bv (SHA3.sha3_256 @0 (v2bs emptyMsg :: BitString 0))
+expectedDigest = v2bv (SHA3.sha3_256 emptyMsg)
 
 {-# ANN testBench (TestBench 'topEntity) #-}
 {-# NOINLINE testBench #-}
