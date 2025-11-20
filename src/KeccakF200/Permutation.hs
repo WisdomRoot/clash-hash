@@ -17,31 +17,35 @@ import Clash.Prelude
 import qualified Constants
 
 -- Theta transformation: XOR with column parities
-thetaF200 :: BitVector 200 -> BitVector 200
+thetaF200 :: Vec 200 Bit -> Vec 200 Bit
 thetaF200 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 3)
 
 -- Chi transformation expressed directly on BitVector
-chiF200 :: BitVector 200 -> BitVector 200
+chiF200 :: Vec 200 Bit -> Vec 200 Bit
 chiF200 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 3)
 
 -- Pi transformation: bit permutation on BitVector
-piF200 :: BitVector 200 -> BitVector 200
-piF200 bv = bitCoerce $ map (bv !) $(Constants.pi 3)
+piF200 :: Vec 200 Bit -> Vec 200 Bit
+piF200 bv = map (bv !) $(Constants.pi 3)
 
 -- Rho transformation: bit permutation on BitVector (lane rotation)
-rhoF200 :: BitVector 200 -> BitVector 200
+rhoF200 :: Vec 200 Bit -> Vec 200 Bit
 rhoF200 bv = bitCoerce $ map (bv !) $(Constants.rho 3)
 
-iotaF200 :: Index 24 -> BitVector 200 -> BitVector 200
-iotaF200 roundIdx bv =
-  let lane0 = slice d7 d0 bv -- Extract first 8 bits (lane 0)
-      lane0' = lane0 `xor` truncateB ($(Constants.iota) !! roundIdx) -- XOR with selected round constant
-   in slice d199 d8 bv ++# lane0' -- Replace bits 0-7 with result
+-- Iota transformation: XOR lane 0 with round constant
+iotaF200 :: Index 24 -> Vec 200 Bit -> Vec 200 Bit
+iotaF200 roundIdx v =
+  let lane0   :: Vec 8 Bit
+      lane0   = take d8 v
+      rc      :: Vec 8 Bit
+      rc      = bitCoerce (truncateB ($(Constants.iota) !! roundIdx) :: BitVector 8)
+      lane0'  = zipWith xor lane0 rc
+   in lane0' ++ drop d8 v
 
 -- Complete Keccak-f[200] round: Theta, Rho, Pi, Chi, Iota
 keccakF200Round :: Index 24 -> BitVector 200 -> BitVector 200
 keccakF200Round roundIdx =
-  iotaF200 roundIdx . chiF200 . piF200 . rhoF200 . thetaF200
+  pack . iotaF200 roundIdx . chiF200 . piF200 . rhoF200 . thetaF200 . unpack
 
 --------------------------------------------------------------------------------
 -- Top entity for hardware synthesis
@@ -79,4 +83,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 200) ->
   Signal System (BitVector 200)
-topEntity _clk _rst _en input = fmap (uncurry keccakF200Round) input
+topEntity _clk _rst _en = fmap (uncurry keccakF200Round)

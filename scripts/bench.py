@@ -29,6 +29,11 @@ def run_command(cmd, description, timeout=3600):
             capture_output=True,
             timeout=timeout,
         )
+        if result.returncode != 0:
+            print(f"[bench] ERROR: {description} failed with exit code {result.returncode}", file=sys.stderr)
+            print(f"[bench] Run this command to see the error:", file=sys.stderr)
+            print(f"  {' '.join(cmd)}", file=sys.stderr)
+            sys.exit(1)
         return result.stdout + result.stderr
     except subprocess.TimeoutExpired:
         print(f"[bench] ERROR: {description} timed out after {timeout}s", file=sys.stderr)
@@ -77,6 +82,12 @@ def benchmark_variant(variant_key):
     variant = VARIANTS[variant_key]
     name = variant["name"]
     src = variant["src"]
+
+    # 0. Clean stale builds
+    run_command(
+        ["stack", "clean"],
+        "Cleaning stale builds",
+    )
 
     # 1. Verilog generation for Permutation
     perm_verilog_output = run_command(

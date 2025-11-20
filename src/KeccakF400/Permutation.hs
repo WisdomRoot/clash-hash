@@ -22,31 +22,40 @@ import qualified Constants
 -- Round primitives
 --------------------------------------------------------------------------------
 
-thetaF400 :: BitVector 400 -> BitVector 400
+-- Theta transformation: XOR with column parities
+thetaF400 :: Vec 400 Bit -> Vec 400 Bit
 thetaF400 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 4)
 
-chiF400 :: BitVector 400 -> BitVector 400
+-- Chi transformation
+chiF400 :: Vec 400 Bit -> Vec 400 Bit
 chiF400 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 4)
 
-piF400 :: BitVector 400 -> BitVector 400
-piF400 bv = bitCoerce $ map (bv !) $(Constants.pi 4)
+-- Pi transformation: bit permutation
+piF400 :: Vec 400 Bit -> Vec 400 Bit
+piF400 bv = map (bv !) $(Constants.pi 4)
 
-rhoF400 :: BitVector 400 -> BitVector 400
+-- Rho transformation: bit permutation (lane rotation)
+rhoF400 :: Vec 400 Bit -> Vec 400 Bit
 rhoF400 bv = bitCoerce $ map (bv !) $(Constants.rho 4)
 
-iotaF400 :: Index 24 -> BitVector 400 -> BitVector 400
-iotaF400 roundIdx bv =
-  let lane0 = slice d15 d0 bv
-      lane0' = lane0 `xor` truncateB ($(Constants.iota) !! roundIdx)
-   in slice d399 d16 bv ++# lane0'
+-- Iota transformation: XOR lane 0 with round constant
+iotaF400 :: Index 24 -> Vec 400 Bit -> Vec 400 Bit
+iotaF400 roundIdx v =
+  let lane0   :: Vec 16 Bit
+      lane0   = take d16 v
+      rc      :: Vec 16 Bit
+      rc      = bitCoerce (truncateB ($(Constants.iota) !! roundIdx) :: BitVector 16)
+      lane0'  = zipWith xor lane0 rc
+   in lane0' ++ drop d16 v
 
 --------------------------------------------------------------------------------
 -- Permutation
 --------------------------------------------------------------------------------
 
+-- Complete Keccak-f[400] round: Theta, Rho, Pi, Chi, Iota
 keccakF400Round :: Index 24 -> BitVector 400 -> BitVector 400
 keccakF400Round roundIdx =
-  iotaF400 roundIdx . chiF400 . piF400 . rhoF400 . thetaF400
+  pack . iotaF400 roundIdx . chiF400 . piF400 . rhoF400 . thetaF400 . unpack
 
 keccakF400 :: BitVector 400 -> BitVector 400
 keccakF400 initialState =
@@ -90,4 +99,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 400) ->
   Signal System (BitVector 400)
-topEntity _clk _rst _en input = fmap (uncurry keccakF400Round) input
+topEntity _clk _rst _en = fmap (uncurry keccakF400Round)

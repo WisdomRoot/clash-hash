@@ -46,6 +46,7 @@ Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_
 | **Gather/scatter** | 2.678s / 1.672s | 19.36s (14.19s / 5.17s) | 1948.450 (0%) / 5435.976 (26.72%) |
 | **Reintroduce Vec** | 1.065s / 0.648s | 1.66s (1.15s / 0.51s) | 1948.45 (0%) / 5337.556 (27.21%) |
 
+
 ### F400
 
 | Version | Verilog Gen Time | Netlist Synth Time | Chip Area (µm²) (sequential percentage) |
@@ -59,7 +60,7 @@ Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_
 | **Fix writeback** | 2.478s / 3.842s | 73.27s (54.82s / 18.45s) | 3866.576 (0%) / 9387.938 (26.80%) |
 | **Rate-only XOR** | 3.319s / 3.997s | 71.47s (54.70s / 17.77s) | 3866.576 (0%) / 9553.656 (26.34%) |
 | **Gather/scatter** | 2.616s / 0.981s | 155.81s (55.08s / 100.73s) | 3866.576 (0%) / 13435.660 (26.33%) |
-| **Reintroduce Vec** | 2.162s / 0.922s | 4.07s (2.64s / 1.43s) | 3893.974 (0%) / 13845.832 (25.55%) |
+| **Reintroduce Vec** | 3.05s / 0.819s | 3.88s (2.45s / 1.43s) | 3917.116 (0%) / 13868.974 (25.51%) |
 
 ### F800
 
@@ -74,7 +75,7 @@ Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_
 | **Fix writeback** | 5.244s / 7.256s | 362.24s (272.50s / 89.74s) | 7591.374 (0%) / 17293.192 (26.86%) |
 | **Rate-only XOR** | 5.928s / 7.143s | 346.96s (261.44s / 84.52s) | 7591.374 (0%) / 17293.192 (26.86%) |
 | **Gather/scatter** | 5.279s / 1.590s | 499.68s (271.89s / 227.79s) | 7591.374 (0%) / 27149.822 (25.88%) |
-| **Reintroduce Vec** | 5.03s / 1.604s | 10.29s (7.0s / 3.29s) | 7789.278 (0%) / 26021.716 (27.01%) |
+| **Reintroduce Vec** | 6.582s / 1.464s | 9.22s (5.92s / 3.3s) | 7799.918 (0%) / 26032.356 (27.0%) |
 
 ### F1600
 
@@ -82,7 +83,7 @@ Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_
 |---------|------------------|--------------------|-----------------------------------------|
 | **Rate-only XOR** | 12.252s / 14.329s | 1909.02s (1367.14s / 541.88s) | 14943.614 (0%) / 32848.606 (27.10%) |
 | **Gather/scatter** | 11.040s / 2.810s | 2497.90s (1373.44s / 1124.46s) | 14943.614 (0%) / 51010.022 (28.13%) |
-| **Reintroduce Vec** | 9.429s / 2.843s | 26.20s (16.18s / 10.02s) | 15214.136 (0%) / 49111.58 (29.22%) |
+| **Reintroduce Vec** | 13.224s / 2.719s | 24.02s (13.94s / 10.08s) | 15246.854 (0%) / 49144.298 (29.2%) |
 
 ## Failed Experiments
 
@@ -127,123 +128,3 @@ Table format: <perm_vlog>s / <top_vlog>s | <total_synth>s (<perm_synth>s / <top_
   | opt_clean Time      | 54% (15s)           | 54% (15s)           | 0 (same)        |
 
 - **Conclusion**: Clash merged the tuple back into a single register, so we gained no hierarchy benefit and even paid extra area/logic for the tuple unpacking. `opt_clean` time stayed flat. This approach doesn't help our synthesis-time goal; keep the original monolithic state (or find another lever).
-
----
-
-## Successful Experiment: Pre-Mapped Permutation Macro ✅
-
-**Goal:** Eliminate redundant optimization of the permutation block by pre-synthesizing it once and reusing the mapped netlist.
-
-**Hypothesis:** The 15-second `opt_clean` bottleneck is spent optimizing KeccakF200_Round's combinational logic. Pre-mapping it to liberty cells and marking it `keep_hierarchy` should let Yosys skip re-optimizing those internals.
-
-**Implementation:**
-
-1. **Pre-synthesize permutation:** `nix develop -c python3 scripts/synth_verilog.py KeccakF200.Permutation.topEntity`
-   - Generates `build/synth/KeccakF200.Permutation.topEntity/netlist/KeccakF200_Round.mapped.v`
-   - Contains 1,306 liberty cells (XNOR2_X1, XOR2_X1, NAND2_X1, etc.)
-
-2. **Modified `scripts/synth_verilog.py`:**
-   - Detects when synthesizing top entities containing "_SHA3" (e.g., KeccakF200_SHA3)
-   - Derives permutation module name (KeccakF200_Round) and checks for pre-mapped netlist
-   - If found:
-     - `read_liberty -lib` (so Yosys knows about NanGate45 cells)
-     - `read_verilog <mapped_round.v>` (load pre-mapped macro)
-     - `setattr -set keep_hierarchy 1 -mod KeccakF200_Round` (prevent re-optimization)
-     - Skip reading raw permutation Verilog from dependencies
-
-3. **Run top synthesis:** `nix develop -c python3 scripts/synth_verilog.py KeccakF200.topEntity`
-
-**Results (F200):**
-
-| Metric | Baseline (Separate modules) | Top Entity Only | First-Time Total |
-|--------|----------------------------|-----------------|------------------|
-| **Verilog Gen** | 2.443s | 2.430s | 1.760s + 2.430s = 4.190s (+71%) |
-| **Netlist Synth** | 24.86s | 0.39s | 22.17s + 0.39s = 22.56s (-9%) |
-| **Chip Area** | 4,719.638 µm² | 4,726.022 µm² | +6.38 µm² (+0.1%) |
-
-**Analysis:**
-
-**Incremental build optimization** - Top entity synthesis drops from 24.86s → 0.39s (98.4% faster) when reusing cached permutation
-
-**First-time build performance** - Modest improvement: 22.56s vs 24.86s baseline (9% faster netlist synthesis), but 71% slower Verilog generation due to separate module builds
-
-**QoR preserved** - Area increased by only 0.1%, well within acceptable margin
-
-**Hierarchy maintained** - Design still shows `KeccakF200_SHA3 → KeccakF200_Round` in hierarchy
-
-**How it works:**
-
-The permutation block (KeccakF200_Round) contains complex combinational logic (1,306 cells) that takes Yosys ~22 seconds to optimize. By pre-mapping it to liberty cells and marking it `keep_hierarchy`, Yosys treats it as a black box and only optimizes the top-level FSM glue logic, which is much faster.
-
-**Conclusion:**
-
-This is an **incremental build optimization**, not a first-build speedup. Benefits:
-1. First-time synthesis: ~10% faster (mainly due to avoiding re-optimization)
-2. Incremental builds: ~98% faster when only FSM changes
-3. The permutation must be stable (not changing frequently)
-
-**Use cases:**
-- Iterative development on FSM logic while permutation stays fixed
-- Large stable sub-modules that don't change often
-- Works for all Keccak variants (F200, F400, F800, F1600)
-
-**Files Modified:**
-- `scripts/synth_verilog.py` - Auto-detects and uses pre-mapped macros for "_SHA3" top entities
-
----
-
-## TODO
-
-### Pre-synthesised permutation macro (reuse mapped netlist)
-
-TODO:
-- [ ] Auto-rebuild the permutation macro if the mapped netlist is missing or stale (mtime/hash check) before top synth.
-- [ ] Replicate macro reuse for F400/F800/F1600 (verify round names and paths).
-  - [ ] Verify top logs: no "Area for cell type … unknown" for the round; capture CPU time delta.
-
-### Preserve round hierarchy (no flatten across permutation)
-
-- Keep current pass list but insert:
-  - `setattr -mod -name keep_hierarchy 1 KeccakF200_Round`
-  - Use `synth -top KeccakF200_SHA3 -noflatten` (or equivalent hand-rolled flow without flattening).
-- Hypothesis: Limits cross-boundary clean/expr work; reduces cumulative `opt_clean` time while keeping mapping quality.
-
-TODO:
-  - [ ] Use `-noflatten` for the top `synth` invocation and A/B measure CPU time/area.
-  - [ ] Extend `keep_hierarchy` insertion to F400/F800/F1600 round modules too.
-
-  ### Script integration (automatic macro reuse)
-
-- Enhance `scripts/synth_verilog.py` to:
-  - Detect and (re)build permutation mapped netlist if not present or stale.
-  - Automatically `read_verilog -lib` the permutation module before the top.
-  - Set `keep_hierarchy` on the permutation to preserve boundary.
-- Hypothesis: Consistent synth time reduction without changing the optimisation flow for the top.
-
-TODO:
-  - [ ] Robustly derive permutation label/path from a top label (F200/F400/F800/F1600).
-  - [ ] If the mapped netlist is missing or stale, synthesize permutation first.
-  - [ ] Prepend `read_verilog` of the mapped macro and `setattr keep_hierarchy` before reading the top.
-  - [ ] Verify logs (no "area unknown"), hierarchy lists exactly one round instance, and record CPU/time deltas in this doc.
-
-### Clash-side RTL quality improvements (reduce Yosys cleanup work)
-
-- Lane-level permutation
-  - [ ] Refactor f[200] permutation to operate on `Vec 5 (Vec 5 (BitVector 8))` internally.
-  - [ ] Implement θ/ρ/π/χ/ι as lane transforms; pack/unpack only at topEntity boundary.
-  - [ ] Avoid per-bit `replaceBit`/`ifoldl` over 200 bits.
-
-- Avoid wide intermediates
-  - [ ] In absorb/squeeze, operate on `BitVector rate` (LSBs) or lane `BitVector 8` and only widen at the edge.
-  - [ ] Remove zero-extending to 200 bits when only low `rate` bits are touched.
-
-- Split FSM into explicit registers
-  - [ ] Replace single mealy state record with explicit `register`/`regEn` regs for: permutation state, round counter, phase/active, pad flags/block, current block and remaining count.
-  - [ ] Compute per-register enables; keep multiple small always blocks.
-
-- Reduce boolean soup
-  - [ ] Use compact sum type/case for phase logic; precompute guards; drive per-register enables to avoid large decoders.
-
-- Control inlining where helpful
-  - [ ] Consider `NOINLINE` on large lane helpers to keep nets named and avoid duplicating large expressions.
-  - [ ] Optionally explore `-fclash-inline-*` flags during development; keep a single blessed config in CI.

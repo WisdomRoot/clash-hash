@@ -22,32 +22,40 @@ import qualified Constants
 -- Round primitives
 --------------------------------------------------------------------------------
 
-thetaF1600 :: BitVector 1600 -> BitVector 1600
+-- Theta transformation: XOR with column parities
+thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
 thetaF1600 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 6)
 
-chiF1600 :: BitVector 1600 -> BitVector 1600
+-- Chi transformation
+chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
 chiF1600 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 6)
 
-piF1600 :: BitVector 1600 -> BitVector 1600
-piF1600 bv = bitCoerce $ map (bv !) $(Constants.pi 6)
+-- Pi transformation: bit permutation
+piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+piF1600 bv = map (bv !) $(Constants.pi 6)
 
-rhoF1600 :: BitVector 1600 -> BitVector 1600
+-- Rho transformation: bit permutation (lane rotation)
+rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
 rhoF1600 bv = bitCoerce $ map (bv !) $(Constants.rho 6)
 
-iotaF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
-iotaF1600 roundIdx bv =
-  let lane0 = slice d63 d0 bv
-      lane0' = lane0 `xor` ($(Constants.iota) !! roundIdx)
-      (upper, _) = split bv :: (BitVector 1536, BitVector 64)
-   in upper ++# lane0'
+-- Iota transformation: XOR lane 0 with round constant
+iotaF1600 :: Index 24 -> Vec 1600 Bit -> Vec 1600 Bit
+iotaF1600 roundIdx v =
+  let lane0   :: Vec 64 Bit
+      lane0   = take d64 v
+      rc      :: Vec 64 Bit
+      rc      = bitCoerce (($(Constants.iota) !! roundIdx) :: BitVector 64)
+      lane0'  = zipWith xor lane0 rc
+   in lane0' ++ drop d64 v
 
 --------------------------------------------------------------------------------
 -- Permutation
 --------------------------------------------------------------------------------
 
+-- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx =
-  iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600
+  pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
@@ -91,4 +99,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en input = fmap (uncurry keccakF1600Round) input
+topEntity _clk _rst _en = fmap (uncurry keccakF1600Round)

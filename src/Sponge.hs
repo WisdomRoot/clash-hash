@@ -108,7 +108,7 @@ spongeAxi ::
     KnownNat beatsPerBlock,
     digestBlocks ~ DivRU digest rate,
     beatsPerBlock ~ Div rate bus,
-    (beatsPerBlock * bus) ~ rate,
+    beatsPerBlock * bus ~ rate,
     1 <= b,
     1 <= bus,
     4 <= rate,
@@ -299,7 +299,7 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                           beatCount = beatCount_busy
                         }
                     )
-              SqIdle currentBlock_sq digestPending_sq squeezeRem_sq beatCount_sq
+              SqIdle currentBlock_sq _ squeezeRem_sq beatCount_sq
                 | canOutput ->
                     let -- Check if this is the last beat BEFORE incrementing (since Index wraps)
                         blockDone = beatCount_sq == maxBeatCount
