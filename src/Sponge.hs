@@ -292,7 +292,7 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                             }
                         )
                 | otherwise ->
-                    ( stBV,
+                    ( permOut,  -- advance state from previous permutation result
                       roundCnt_busy + 1,
                       AbsBusy
                         { roundCnt = roundCnt_busy + 1,
@@ -385,8 +385,16 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                     }
             SqBusy {} -> Out {sReady = False, mValid = False, mData = 0, mLast = False}
 
-          -- Permutation input uses updated state after absorption
-          permutationInput = (roundCntNext, stAfterAbsorb)
+          -- Permutation input uses the registered state (stBV) to avoid
+          -- combinational loops; the state is updated with permOut separately.
+          -- Use the current round counter for the permutation; state is the
+          -- registered state (stBV). This avoids combinational loops and
+          -- ensures each cycle computes the correct round.
+          currRound = case ctrl of
+            AbsBusy rc _ _ _ _ -> rc
+            SqBusy rc _ _ _    -> rc
+            _                  -> roundCntNext
+          permutationInput = (currRound, stBV)
        in ((stAfterAbsorb, ctrlNext), (out, permutationInput))
 
     suffixPadBlock :: BitVector 2 -> BitVector rate

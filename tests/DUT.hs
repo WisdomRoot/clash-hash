@@ -1,4 +1,4 @@
-module DUT (topEntity, driveMessage) where
+module DUT (topEntity, driveMessage, driveMessageDebug) where
 
 import Clash.Explicit.Testbench
 import Clash.Prelude
@@ -37,7 +37,34 @@ driveMessage ::
   )
   -> BitVector 64
   -> (Signal System (BitVector 256), Signal System Bool)
-driveMessage dut inputMsg = (actualDigest, allBeatsCollected)
+driveMessage dut inputMsg =
+  let (digestSig, doneSig, _, _, _, _, _) = driveMessageDebug dut inputMsg
+   in (digestSig, doneSig)
+
+-- | Debug-friendly harness that exposes handshake and beat counter signals.
+--   Useful for probing simulation step-by-step without altering the core tests.
+driveMessageDebug ::
+  ( Clock System -> Reset System -> Enable System ->
+    Signal System Bool ->
+    Signal System (BitVector 64) ->
+    Signal System Bool ->
+    Signal System Bool ->
+    ( Signal System Bool
+    , Signal System Bool
+    , Signal System (BitVector 64)
+    , Signal System Bool
+    )
+  )
+  -> BitVector 64
+  -> ( Signal System (BitVector 256)  -- Concatenated digest
+     , Signal System Bool             -- Done collecting all beats
+     , Signal System Bool             -- s_axis_tready
+     , Signal System Bool             -- m_axis_tvalid
+     , Signal System (BitVector 64)   -- m_axis_tdata
+     , Signal System Bool             -- m_axis_tlast
+     , Signal System (Unsigned 3)     -- beat counter
+     )
+driveMessageDebug dut inputMsg = (actualDigest, allBeatsCollected, sReady, mValid, mData, mLast, beatNum)
   where
     clk = tbSystemClockGen (not <$> allBeatsCollected)
     rst = systemResetGen
@@ -49,7 +76,7 @@ driveMessage dut inputMsg = (actualDigest, allBeatsCollected)
     sLast  = stimuliGenerator clk rst (True :> False :> Nil)
     mReady = pure True
 
-    (_sReady, mValid, mData, _mLast) =
+    (sReady, mValid, mData, mLast) =
       dut clk rst en sValid sData sLast mReady
 
     -- Collect 4 output beats into individual registers
