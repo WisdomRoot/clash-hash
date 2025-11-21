@@ -102,7 +102,6 @@ library
     KeccakF800.Permutation,
     KeccakF1600,
     KeccakF1600.Permutation,
-    KeccakF1600Testbench,
     SHA2,
     SHA3,
     SHA3internal,
@@ -134,6 +133,9 @@ test-suite clash-hash-test
   type: exitcode-stdio-1.0
   ghc-options: -threaded
   main-is: Main.hs
+  other-modules:
+    DUT,
+    KeccakF1600Spec
   build-depends:
     base,
     clash-prelude,
