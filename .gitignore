@@ -45,3 +45,4 @@ cabal.config
 /build
 
 .vscode
+/trace

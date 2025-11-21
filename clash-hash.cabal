@@ -126,6 +126,22 @@ executable clashi
     ghc-options: -dynamic
   build-depends: base, clash-ghc, clash-hash
 
+-- Builds the VCD trace generator
+executable trace
+  import: common-options
+  main-is: Trace.hs
+  hs-source-dirs: app, tests
+  default-language: Haskell2010
+  build-depends:
+    base,
+    clash-prelude,
+    clash-hash,
+    text,
+    directory
+  other-modules:
+    DUT
+  ghc-options: -threaded
+
 test-suite clash-hash-test
   import: common-options
   default-language: Haskell2010
