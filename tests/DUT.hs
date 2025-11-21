@@ -20,8 +20,7 @@ topEntity ::
   , Signal System (BitVector 64)    -- M_AXIS_TDATA
   , Signal System Bool              -- M_AXIS_TLAST
   )
-topEntity clk rst en sValid sData sLast mReady =
-  Core.topEntity clk rst en sValid sData sLast mReady
+topEntity = Core.topEntity
 
 -- | Test harness: Drive the DUT with a 64-bit message and collect the digest
 driveMessage ::

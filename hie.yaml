@@ -5,16 +5,11 @@ cradle:
         cradle:
           stack:
             component: "clash-hash:lib"
-    - path: "./tests/doctests.hs"
-      config:
-        cradle:
-          stack:
-            component: "clash-hash:test:doctests"
     - path: "./tests"
       config:
         cradle:
           stack:
-            component: "clash-hash:test:test-library"
+            component: "clash-hash:test:clash-hash-test"
     - path: "./bin/Clashi.hs"
       config:
         cradle:

@@ -155,7 +155,10 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
 
     maxRound = maxBound :: Index rounds
 
-    totalDigestBlocks = natToNum @digestBlocks :: Index digestBlocks
+    -- Number of remaining digest blocks after the current one.
+    -- For Index k the maximum value is k-1, which is exactly the count of
+    -- extra blocks we still need to emit.
+    totalDigestBlocks = maxBound :: Index digestBlocks
 
     maxBeatCount = maxBound :: Index beatsPerBlock
 
@@ -275,7 +278,7 @@ spongeAxi suffix permutationComponent sAxisTValid sAxisTData sAxisTLast mAxisTRe
                           SqIdle
                             { currentBlock = blockFromSt,
                               digestPending = True,
-                              squeezeRem = totalDigestBlocks - 1,
+                              squeezeRem = totalDigestBlocks,
                               beatCount = 0
                             }
                         )
