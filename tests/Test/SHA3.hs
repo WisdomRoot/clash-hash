@@ -1,18 +1,17 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF1600Spec (spec) where
+module Test.SHA3 (complete, debug) where
 
 import Clash.Prelude
-import DUT (topEntity, driveMessage, driveMessageDebug)
-import SHA3internal (BitString)
+import qualified Data.List as List
+import qualified Driver
+import qualified KeccakF1600
 import qualified SHA3
 import Test.Hspec
 import qualified Prelude as P
-import Clash.XException (isX)
-import qualified Data.List as L
 
-spec :: Spec
-spec = describe "KeccakF1600 SHA3-256 Hardware" $ do
+complete :: Spec
+complete = describe "SHA3-256 complete" $ do
   it "all zeros (0x0000000000000000)" $ do
     testInput 0x0000000000000000
 
@@ -28,26 +27,28 @@ spec = describe "KeccakF1600 SHA3-256 Hardware" $ do
   it "single bit set (0x8000000000000000)" $ do
     testInput 0x8000000000000000
 
+debug :: Spec
+debug = describe "SHA3-256 debug" $ do
   -- Keep a lightweight liveness probe to catch regressions to hanging behaviour.
   it "debug: sees first valid output beat within 200 cycles (all zeros input)" $ do
     let inputMsg = 0x0000000000000000
-        (_digestSig, _doneSig, _sReadySig, mValid, mData, _mLast, _beatNum) =
-          driveMessageDebug topEntity inputMsg
+        (_digestSig, _doneSig, _sReadySig, mValid, mData, _mLast, _beatNum, _sValid, _sData, _sLast, _mReady) =
+          Driver.debug KeccakF1600.topEntity inputMsg
         mValidSamples = sampleN @System @Bool 200 mValid
-        mDataSamples  = sampleN @System @(BitVector 64) 200 mData
-        firstValid = L.find (\(v, _) -> v) (P.zip mValidSamples mDataSamples)
+        mDataSamples = sampleN @System @(BitVector 64) 200 mData
+        firstValid = List.find fst (P.zip mValidSamples mDataSamples)
     case firstValid of
       Nothing -> expectationFailure "No valid output beat observed within 200 cycles"
       Just (_v, d) ->
         case isX d of
           Left msg -> expectationFailure ("Output beat undefined: " <> msg)
-          Right _  -> pure ()
+          Right _ -> pure ()
 
 -- | Test a single 64-bit input message against the DUT
 testInput :: BitVector 64 -> Expectation
 testInput inputMsg = do
-  let expectedDigest = v2bv (SHA3.sha3_256 (bv2v inputMsg :: BitString 64))
-  let (actualDigest, done) = driveMessage topEntity inputMsg
+  let expectedDigest = v2bv (SHA3.sha3_256 (bv2v inputMsg :: Vec 64 Bit))
+  let (actualDigest, done) = Driver.run KeccakF1600.topEntity inputMsg
   let digestSamples = sampleN @System 400 actualDigest :: [BitVector 256]
   let doneSamples = sampleN @System 400 done :: [Bool]
 

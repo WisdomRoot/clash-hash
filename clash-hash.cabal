@@ -139,7 +139,7 @@ executable trace
     text,
     directory
   other-modules:
-    DUT
+    Driver
   ghc-options: -threaded
 
 test-suite clash-hash-test
@@ -150,8 +150,8 @@ test-suite clash-hash-test
   ghc-options: -threaded
   main-is: Main.hs
   other-modules:
-    DUT,
-    KeccakF1600Spec
+    Driver,
+    Test.SHA3
   build-depends:
     base,
     clash-prelude,

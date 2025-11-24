@@ -1,11 +1,11 @@
 module Main (main) where
 
 import Prelude (IO)
-import KeccakF1600Spec (spec)
+import qualified Test.SHA3
 import Test.Tasty
 import Test.Tasty.Hspec
 
 main :: IO ()
 main = do
-  hspecTests <- testSpec "KeccakF1600" spec
+  hspecTests <- testSpec "SHA3-256" Test.SHA3.debug
   defaultMain hspecTests
