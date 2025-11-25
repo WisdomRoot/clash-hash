@@ -14,6 +14,7 @@ module SHA3internal
     chi,
     iota,
     _iota_constants,
+    keccakf1Round
   )
 where
 
@@ -175,3 +176,18 @@ iota c i = concat . f . unconcatI @25
   where
     f s = (zipWith xor rc $ head s) :> tail s
     rc = leToPlusKN @w @64 takeI $ iota_constants c !! i
+
+
+-- | Single round of Keccak-f permutation
+keccakf1Round ::
+  forall l w b.
+  (KeccakParameter l w b) =>
+  Index (12 + 2 * l) ->
+  State b ->
+  State b
+keccakf1Round roundIdx =
+  iota sha3_constants roundIdx
+    . chi sha3_constants
+    . pi sha3_constants
+    . rho sha3_constants
+    . theta sha3_constants

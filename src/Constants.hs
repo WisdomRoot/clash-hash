@@ -26,7 +26,7 @@ module Constants
   )
 where
 
-import Clash.Prelude (Bit, BitVector, Bits (..), Index, Vec (Nil, (:>)), head, ifoldl, iterateI, last, listToVecTH, repeat, replace, toList, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
+import Clash.Prelude (Bit, Bits (..), Index, Vec (Nil, (:>)), head, ifoldl, last, repeat, replace, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
 import qualified Constants.Indices as Indices
 import Language.Haskell.TH
 import Prelude hiding (head, last, pi, repeat, zipWith, (!!))
@@ -56,7 +56,7 @@ iota = [| iotaConstants |]
 
         -- g t j b = replace @_ @(Unsigned 7) (2 P.^ j - 1) b t
         g :: Vec 64 Bit -> Index 7 -> Bit -> Vec 64 Bit
-        g t j b = replace ((2 ^ (fromIntegral j :: Integer)) - 1) b t
+        g t j b = replace (((2 :: Integer) ^ (fromIntegral j :: Integer)) - 1) b t
 
 -- iota :: Index 24 -> BitVector 8
 -- iota idx = truncateB ($(TH.iota) !! idx)

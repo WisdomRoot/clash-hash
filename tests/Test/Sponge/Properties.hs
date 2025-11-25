@@ -1,6 +1,6 @@
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.Sponge.Properties (spec) where
 
@@ -9,7 +9,6 @@ import qualified KeccakF1600.Permutation as Perm
 import qualified SHA3
 import qualified Sponge.Pure as Pure
 import Test.Hspec
-import qualified Prelude as P
 
 spec :: Spec
 spec = describe "Pure Sponge (Phase 1)" $ do
@@ -39,10 +38,11 @@ testSHA3_256_64 msg = do
   let expectedDigest = v2bv (SHA3.sha3_256 (bv2v msg :: Vec 64 Bit))
 
   -- Hardware: pure sponge with keccakF1600
-  let actualDigest = Pure.pureSponge @1600 @1088 @256
-                       (0b01 :: BitVector 2)
-                       Perm.keccakF1600
-                       msg
+  let actualDigest =
+        Pure.pureSponge @1600 @1088 @256
+          (0b01 :: BitVector 2)
+          Perm.keccakF1600
+          msg
 
   -- Compare
   actualDigest `shouldBe` expectedDigest
