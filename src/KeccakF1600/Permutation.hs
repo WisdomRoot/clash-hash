@@ -44,7 +44,7 @@ iotaF1600 roundIdx v =
   let lane0   :: Vec 64 Bit
       lane0   = take d64 v
       rc      :: Vec 64 Bit
-      rc      = bitCoerce (($(Constants.iota) !! roundIdx) :: BitVector 64)
+      rc      = reverse (bitCoerce (($(Constants.iota) !! roundIdx) :: BitVector 64))
       lane0'  = zipWith xor lane0 rc
    in lane0' ++ drop d64 v
 

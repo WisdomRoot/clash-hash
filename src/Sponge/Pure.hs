@@ -11,6 +11,10 @@ module Sponge.Pure
 
 import Clash.Prelude
 
+-- | Reverse all bits in a BitVector
+reverseBits :: forall n. KnownNat n => BitVector n -> BitVector n
+reverseBits bv = bitCoerce (reverse (bitCoerce bv :: Vec n Bit))
+
 -- | Number of rate-blocks needed for message + padding
 -- msgBits message + 2 suffix bits + 1 pad start + at least 1 pad end = msgBits + 4 minimum
 type PaddedBlocks rate msgBits = DivRU (msgBits + 4) rate
