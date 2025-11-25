@@ -38,7 +38,7 @@ iotaF200 roundIdx v =
   let lane0   :: Vec 8 Bit
       lane0   = take d8 v
       rc      :: Vec 8 Bit
-      rc      = bitCoerce (truncateB ($(Constants.iota) !! roundIdx) :: BitVector 8)
+      rc      = takeI ($(Constants.iota) !! roundIdx)  -- Take lower 8 bits from 64-bit constant
       lane0'  = zipWith xor lane0 rc
    in lane0' ++ drop d8 v
 

@@ -39,14 +39,15 @@ rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
 rhoF1600 bv = bitCoerce $ map (bv !) $(Constants.rho 6)
 
 -- Iota transformation: XOR lane 0 with round constant
+-- Matches SHA3internal.iota implementation exactly
 iotaF1600 :: Index 24 -> Vec 1600 Bit -> Vec 1600 Bit
 iotaF1600 roundIdx v =
-  let lane0   :: Vec 64 Bit
-      lane0   = take d64 v
-      rc      :: Vec 64 Bit
-      rc      = reverse (bitCoerce (($(Constants.iota) !! roundIdx) :: BitVector 64))
-      lane0'  = zipWith xor lane0 rc
-   in lane0' ++ drop d64 v
+  let lanes :: Vec 25 (Vec 64 Bit)
+      lanes = unconcatI v
+      rc :: Vec 64 Bit
+      rc = $(Constants.iota) !! roundIdx
+      lane0' = zipWith xor (head lanes) rc
+   in concat (lane0' :> tail lanes)
 
 --------------------------------------------------------------------------------
 -- Permutation

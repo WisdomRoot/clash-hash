@@ -26,47 +26,37 @@ module Constants
   )
 where
 
-import Clash.Prelude (BitVector, Bits (..), Index, Vec (Nil, (:>)), listToVecTH, toList, unfoldrI)
+import Clash.Prelude (Bit, BitVector, Bits (..), Index, Vec (Nil, (:>)), head, ifoldl, iterateI, last, listToVecTH, repeat, replace, toList, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
 import qualified Constants.Indices as Indices
 import Language.Haskell.TH
-import Prelude hiding (pi, (!!))
+import Prelude hiding (head, last, pi, repeat, zipWith, (!!))
 
 -- | All 24 round constants for Keccak-f, 64 bits each.
 --
--- The constants are generated at compile time via Template Haskell so that
--- synthesized hardware sees a literal Vec instead of rebuilding the LFSR.
+-- The constants are generated at compile time via Template Haskell.
+-- This exactly matches SHA3internal._iota_constants logic.
 iota :: Q Exp
-iota = do
-  let seed :: BitVector 8
-      seed = 0b10000000
+iota = [| iotaConstants |]
+  where
+    iotaConstants :: Vec 24 (Vec 64 Bit)
+    iotaConstants = fmap (ifoldl g (repeat 0)) lfsr
+      where
+        -- This matches: lfsr = unconcatI . unfoldrI f $ bv2v $(bLit "10000000") :: Vec 24 (Vec 7 Bit)
+        lfsr :: Vec 24 (Vec 7 Bit)
+        lfsr = unconcatI (unfoldrI f (1 :> 0 :> 0 :> 0 :> 0 :> 0 :> 0 :> 0 :> Nil))
 
-      bitPositions :: [Int]
-      bitPositions = [0, 1, 3, 7, 15, 31, 63]
+        -- f t = (head t, zipWith xor (0 +>> t) . fmap (last t .&.) $ bv2v $(bLit "10001110"))
+        f :: Vec 8 Bit -> (Bit, Vec 8 Bit)
+        f t =
+          let shifted = 0 +>> t
+              mask = 1 :> 0 :> 0 :> 0 :> 1 :> 1 :> 1 :> 0 :> Nil  -- bv2v $(bLit "10001110") LSB first
+              feedback = last t
+              next = zipWith (\a m -> a `xor` (feedback .&. m)) shifted mask
+          in (head t, next)
 
-      expandLFSR :: BitVector 8 -> BitVector 64
-      expandLFSR s =
-        foldl setBitAt 0 (zip [0 .. 6] bitPositions)
-        where
-          setBitAt acc (j, pos) =
-            let tap = 7 - j
-             in if testBit s tap
-                  then setBit acc pos
-                  else acc
-
-      lfsrStep :: BitVector 8 -> BitVector 8
-      lfsrStep s =
-        let fb = testBit s 0
-            s' = s `rotateR` 1
-            mask = 0b10001110 :: BitVector 8
-         in if fb then s' `xor` mask else s'
-
-      generateRoundConstant :: BitVector 8 -> (BitVector 64, BitVector 8)
-      generateRoundConstant lfsr = (expandLFSR lfsr, lfsrStep lfsr)
-
-      constants :: Vec 24 (BitVector 64)
-      constants = unfoldrI generateRoundConstant seed
-
-  listToVecTH (toList constants)
+        -- g t j b = replace @_ @(Unsigned 7) (2 P.^ j - 1) b t
+        g :: Vec 64 Bit -> Index 7 -> Bit -> Vec 64 Bit
+        g t j b = replace ((2 ^ (fromIntegral j :: Integer)) - 1) b t
 
 -- iota :: Index 24 -> BitVector 8
 -- iota idx = truncateB ($(TH.iota) !! idx)

@@ -153,6 +153,7 @@ test-suite clash-hash-test
   other-modules:
     Driver,
     Test.SHA3,
+    Test.Constants,
     Test.Sponge.Properties,
     Test.Sponge.Ordering
   build-depends:
