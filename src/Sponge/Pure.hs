@@ -11,10 +11,6 @@ module Sponge.Pure
 
 import Clash.Prelude
 
--- | Reverse all bits in a BitVector
-reverseBits :: forall n. KnownNat n => BitVector n -> BitVector n
-reverseBits bv = bitCoerce (reverse (bitCoerce bv :: Vec n Bit))
-
 -- | Number of rate-blocks needed for message + padding
 -- msgBits message + 2 suffix bits + 1 pad start + at least 1 pad end = msgBits + 4 minimum
 type PaddedBlocks rate msgBits = DivRU (msgBits + 4) rate
@@ -46,7 +42,7 @@ pureSponge ::
   (BitVector b -> BitVector b) -> -- ^ Permutation function (all rounds)
   BitVector msgBits ->            -- ^ Raw message
   BitVector digest                -- ^ Digest output
-pureSponge suffix permute msg =
+pureSponge suffix perm msg =
   let paddedBlocks = padToRateBlocks @rate suffix msg
       zeroState = 0 :: BitVector b
       absorbState = foldl absorbBlock zeroState paddedBlocks
@@ -58,7 +54,7 @@ pureSponge suffix permute msg =
       -- XOR block into rate portion (low bits), then permute
       let blockExtended = resize block :: BitVector b
           st' = st `xor` blockExtended
-       in permute st'
+       in perm st'
 
 -- | Pad message to multiple of rate blocks using pad10*1 rule
 --

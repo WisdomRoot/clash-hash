@@ -28,7 +28,7 @@ rev i = 1599 - i
 
 -- Theta transformation: XOR with column parities
 thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-thetaF1600 bv = bitCoerce $ map (fold xor . map ((bv !) . rev)) $(Constants.theta 6)
+thetaF1600 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 6)
 
 -- Chi transformation
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
@@ -60,7 +60,7 @@ iotaF1600 roundIdx v =
 -- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx =
-  pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . unpack
+  pack . thetaF1600 . unpack
   -- pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
