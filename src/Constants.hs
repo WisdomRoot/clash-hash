@@ -93,7 +93,7 @@ rho = mkPermutation Indices.rho
 
 -- | Template Haskell generator for Theta transformation index lookup.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
--- @Vec (25*w) (Vec 11 (Index (25*w)))@.
+-- @Vec (25*w) (Vec 11 (Index (25*w)))@ where each index i is reversed to (b-1-i).
 theta :: Int -> Q Exp
 theta l = do
   let allIndices = Indices.theta l
@@ -102,7 +102,9 @@ theta l = do
       idxType = mkIndexType b
       vec11Type = mkVecType 11 idxType
 
-      mkIndex = mkIndexLit idxType
+      -- Reverse each index: i -> (b - 1 - i)
+      reverseIdx i = b - 1 - i
+      mkIndex i = mkIndexLit idxType (reverseIdx i)
       mkInner row = mkVecLiteral 11 idxType (map mkIndex row)
 
   pure (mkVecLiteral b vec11Type (map mkInner allIndices))

@@ -39,6 +39,29 @@ spec = describe "Permutation bit-ordering verification" $ do
       then putStrLn "\n✓ 1 round permutation matches!"
       else expectationFailure "1 round permutation mismatch"
 
+  fit "verify thetaF1600 matches SHA3internal.theta" $ do
+    putStrLn "\n=== Verifying thetaF1600 Implementation ===\n"
+
+    let testInput = 0x123456789ABCDEF :: BitVector 1600
+    let inputVec = unpack testInput :: Vec 1600 Bit
+
+    -- Apply reference theta
+    let sha3Consts = SHA3internal.sha3_constants @6 @64 @1600
+    let refOutput = SHA3internal.theta sha3Consts inputVec
+    let refBV = pack refOutput :: BitVector 1600
+
+    let hwOutput = Perm.thetaF1600 inputVec
+    let hwBV = pack hwOutput :: BitVector 1600
+
+    putStrLn $ "Test input:     " P.<> P.show testInput
+    putStrLn $ "Reference out:  " P.<> P.show refBV
+    putStrLn $ "Hardware out:   " P.<> P.show hwBV
+    putStrLn $ "Match: " P.<> P.show (refBV == hwBV)
+
+    if refBV == hwBV
+      then putStrLn "\n✓ thetaF1600 matches reference!"
+      else expectationFailure "thetaF1600 output mismatch"
+
   -- it "debug theta index transformation" $ do
   --   putStrLn "\n=== Debugging Theta Index Transformation ===\n"
 
