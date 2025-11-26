@@ -174,7 +174,7 @@ iota ::
   State b
 iota c i = concat . f . unconcatI @25
   where
-    f s = (zipWith xor rc $ head s) :> tail s
+    f s = zipWith xor rc (head s) :> tail s
     rc = leToPlusKN @w @64 takeI $ iota_constants c !! i
 
 
@@ -190,4 +190,4 @@ keccakf1Round roundIdx =
     . chi sha3_constants
     . pi sha3_constants
     . rho sha3_constants
-    . theta sha3_constants
+    -- . theta sha3_constants
