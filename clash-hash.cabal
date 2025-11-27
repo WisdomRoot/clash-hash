@@ -152,10 +152,9 @@ test-suite clash-hash-test
   main-is: Main.hs
   other-modules:
     Driver,
-    Test.SHA3,
     Test.Constants,
     Test.Sponge.Properties,
-    Test.Sponge.Ordering
+    Test.Permutation
   build-depends:
     base,
     clash-prelude,

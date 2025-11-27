@@ -35,7 +35,8 @@ theta l =
          in self : colPrev ++ colNext
    in map indicesFor [0 .. b - 1]
 
--- | Pure computation of rho transformation indices.
+-- | Pure computation of rho transformation indices (version 2).
+-- Mirrors the exact logic of _rho_constants from SHA3internal.hs
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
 -- a list of source indices for the rho permutation.
 rho :: Int -> [Int]
@@ -51,49 +52,58 @@ rho l =
 
       flatten (i, j, k) = i * (5 * w) + j * w + k
 
-      -- Generate the 5×5 rotation offsets matrix per Keccak specification
-      -- r[0][0] = 0, and for (x,y) starting at (1,0), traversing via (x,y) ← (y, 2x+3y):
-      -- r[x][y] = ((t+1)(t+2)/2) mod w for t = 0..23
-      rotationOffsets :: [[Int]]
-      rotationOffsets =
-        let -- Start with r[0][0] = 0
-            initial = replicate 5 (replicate 5 0)
+      -- Generate 24 traversal states using the _rho_constants formula
+      -- Starting state: (t=0, i=0, j=1, k=1)
+      -- Next state: (t', i', j', k') = (t+1, 3*i + 2*j, i, k * (t+3) div (t+1))
+      generateStates :: [(Integer, Integer, Integer, Integer)]
+      generateStates =
+        take 24 $ iterate step (0, 0, 1, 1)
+        where
+          step (t, i, j, k) =
+            let t' = t + 1
+                i' = (3 * i + 2 * j) `mod` 5
+                j' = i
+                k' = k * (t + 3) `div` (t + 1)
+             in (t', i', j', k')
 
-            -- Generate states (t, x, y) for t = 0..23, starting with (x, y) = (1, 0)
-            -- Coordinate update: (x, y) ← (y, (2x + 3y) mod 5)
-            states = take 24 $ iterate step (0, 1, 0)
-              where
-                step (t, x, y) =
-                  let t' = t + 1
-                      x' = y
-                      y' = (2 * x + 3 * y) `mod` 5
-                   in (t', x', y')
+      -- Create (position_index, rotation_offset) pairs
+      -- position_index = 5*i + j
+      positionRotationPairs =
+        map (\(_, i, j, k) -> (5 * i + j, k)) generateStates
 
-            -- Compute rotation amount r = ((t+1)(t+2)/2) mod w for each state
-            statesWithRotation =
-              map
-                ( \(t, x, y) ->
-                    (x, y, ((t + 1) * (t + 2) `div` 2) `mod` w)
-                )
-                states
+      -- Sort by position index
+      sortedPairs = sortBy (\(p1, _) (p2, _) -> compare p1 p2) positionRotationPairs
+        where
+          sortBy cmp xs = foldr insert [] xs
+            where
+              insert x [] = [x]
+              insert x (y:ys)
+                | cmp x y == GT = y : insert x ys
+                | otherwise = x : y : ys
 
-            -- Fill in the rotation amounts
-            fillOffset matrix (x, y, r) =
-              let row = matrix !! x
-                  row' = take y row ++ [r] ++ drop (y + 1) row
-               in take x matrix ++ [row'] ++ drop (x + 1) matrix
-         in foldl fillOffset initial statesWithRotation
+      -- Extract rotation offsets
+      rotationOffsets = map snd sortedPairs
+
+      -- Build 5×5 rotation matrix: r[0][0] = 0, rest from rotationOffsets
+      -- Total 25 positions, position (0,0) = index 0 gets 0, rest get values from rotationOffsets
+      rotationMatrix =
+        let allOffsets = 0 : rotationOffsets  -- Prepend 0 for position (0,0)
+            rows = chunkBy 5 allOffsets
+         in rows
+        where
+          chunkBy _ [] = []
+          chunkBy n xs = take n xs : chunkBy n (drop n xs)
 
       -- Get rotation offset for position (i, j)
-      getOffset i j = (rotationOffsets !! i) !! j
+      getOffset i j = (rotationMatrix !! i) !! j
 
-      -- Generate rho permutation for position idx
-      -- Rho transformation: (i, j, k) -> (i, j, k - offset[i][j])
+      -- Apply rho transformation: (i, j, k) -> source index at (i, j, k - offset[i][j])
       rhoPermute idx =
         let (i, j, k) = erect idx
-            offset = getOffset i j
+            offset = fromInteger (getOffset i j) :: Int
             k' = (k - offset) `mod` w
          in flatten (i, j, k')
+
    in map rhoPermute [0 .. b - 1]
 
 -- | Pure computation of pi transformation indices.

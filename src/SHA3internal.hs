@@ -189,5 +189,5 @@ keccakf1Round roundIdx =
   -- iota sha3_constants roundIdx
   --   . chi sha3_constants
   --   . pi sha3_constants
-  --   . rho sha3_constants
-    theta sha3_constants
+    rho sha3_constants
+    . theta sha3_constants

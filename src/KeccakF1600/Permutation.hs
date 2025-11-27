@@ -28,11 +28,11 @@ rev i = 1599 - i
 
 -- Theta transformation: XOR with column parities
 thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-thetaF1600 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 6)
+thetaF1600 bv = map (fold xor . map (bv !)) $(Constants.theta 6)
 
 -- Chi transformation
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-chiF1600 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chi 6)
+chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chi 6)
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
@@ -40,7 +40,11 @@ piF1600 bv = map ((bv !) . rev) $(Constants.pi 6)
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = bitCoerce $ map ((bv !) . rev) $(Constants.rho 6)
+rhoF1600 bv = map ((bv !) . rev) $(Constants.rho 6)
+
+-- -- Rho transformation: bit permutation (lane rotation)
+-- rhoF1600BV :: BitVector 1600 -> BitVector 1600
+-- rhoF1600BV bv = bitCoerce $ map (bv !) $(Constants.rho 6)
 
 -- Iota transformation: XOR lane 0 with round constant
 -- Matches SHA3internal.iota implementation exactly
@@ -60,7 +64,7 @@ iotaF1600 roundIdx v =
 -- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx =
-  pack . thetaF1600 . unpack
+  pack . rhoF1600 . thetaF1600 . unpack
   -- pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600

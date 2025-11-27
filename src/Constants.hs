@@ -89,7 +89,12 @@ pi = mkPermutation Indices.pi
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
 -- @Vec (25*w) (Index (25*w))@.
 rho :: Int -> Q Exp
-rho = mkPermutation Indices.rho
+rho l = do
+  let allIndices = Indices.rho l
+      b = stateSize l
+      idxType = mkIndexType b
+
+  pure (mkVecLiteral b idxType (map (mkIndexLit idxType) allIndices))
 
 -- | Template Haskell generator for Theta transformation index lookup.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
