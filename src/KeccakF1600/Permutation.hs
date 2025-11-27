@@ -63,9 +63,7 @@ iotaF1600 roundIdx v =
 
 -- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx =
-  pack . rhoF1600 . thetaF1600 . unpack
-  -- pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
+keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
