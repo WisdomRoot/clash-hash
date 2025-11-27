@@ -1,0 +1,105 @@
+name: clash-hash
+version: 0.1
+license: MIT
+author: Chen-Mou Cheng <chenmou.cheng@gmail.com>
+maintainer: Chen-Mou Cheng <chenmou.cheng@gmail.com>
+
+default-extensions:
+  - NoImplicitPrelude
+  - TemplateHaskell
+  - QuasiQuotes
+
+ghc-options:
+  - -Wall
+  - -Wcompat
+  - -haddock
+  - -fplugin GHC.TypeLits.Extra.Solver
+  - -fplugin GHC.TypeLits.Normalise
+  - -fplugin GHC.TypeLits.KnownNat.Solver
+  - -fconstraint-solver-iterations=0
+  - -fexpose-all-unfoldings
+  - -fno-worker-wrapper
+  - -fno-unbox-small-strict-fields
+  - -fno-unbox-strict-fields
+
+dependencies:
+  - base
+
+library:
+  language: GHC2021
+  source-dirs: src
+  exposed-modules:
+    - Constants
+    - KeccakF200
+    - KeccakF200.Permutation
+    - KeccakF400
+    - KeccakF400.Permutation
+    - KeccakF800
+    - KeccakF800.Permutation
+    - KeccakF1600
+    - KeccakF1600.Permutation
+    - SHA2
+    - SHA3
+    - SHA3internal
+    - Sponge
+    - Sponge.Pure
+  other-modules:
+    - Constants.Indices
+  language: Haskell2010
+  dependencies:
+    - Cabal
+    - modular-arithmetic
+    - template-haskell
+    - clash-prelude >= 1.8.1 && < 1.10
+    - ghc-typelits-natnormalise
+    - ghc-typelits-extra
+    - ghc-typelits-knownnat
+    - clash-multicycle-moore
+
+executables:
+  clash:
+    main: bin/Clash.hs
+    language: GHC2021
+    dependencies:
+      - clash-ghc
+      - clash-hash
+  clashi:
+    main: bin/Clashi.hs
+    language: GHC2021
+    dependencies:
+      - clash-ghc
+      - clash-hash
+  trace:
+    main: Trace.hs
+    source-dirs:
+      - app
+      - tests
+    language: GHC2021
+    ghc-options:
+      - -threaded
+    other-modules:
+      - Driver
+    dependencies:
+      - text
+      - directory
+      - clash-prelude
+      - clash-hash
+
+tests:
+  clash-hash-test:
+    main: Main.hs
+    source-dirs: tests
+    language: GHC2021
+    ghc-options:
+      - -threaded
+    other-modules:
+      - Driver
+      - Test.Constants
+      - Test.Sponge.Properties
+      - Test.Permutation
+    dependencies:
+      - clash-prelude
+      - clash-hash
+      - tasty >= 1.2 && < 1.5
+      - tasty-hspec
+      - hspec

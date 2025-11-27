@@ -6,6 +6,7 @@ module Test.Permutation (spec) where
 
 import Clash.Prelude
 import qualified KeccakF1600.Permutation as Perm
+import qualified SHA3
 import qualified SHA3internal
 import Test.Hspec
 
@@ -45,4 +46,9 @@ spec = describe "Permutation" $ do
     let roundIdx = 0 :: Index 24
     let expected = pack $ SHA3internal.keccakf1Round roundIdx input
     let actual = pack $ Perm.keccakF1600Round roundIdx inputBitVector
+    actual `shouldBe` expected
+
+  it "keccakF1600 (24 rounds)" $ do
+    let expected = pack $ SHA3.keccakf @6 @64 @1600 input
+    let actual = Perm.keccakF1600 inputBitVector
     actual `shouldBe` expected
