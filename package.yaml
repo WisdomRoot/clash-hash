@@ -6,8 +6,14 @@ maintainer: Chen-Mou Cheng <chenmou.cheng@gmail.com>
 
 default-extensions:
   - NoImplicitPrelude
+  - DataKinds
+  - NoStarIsType
+  - AllowAmbiguousTypes
+  - DeriveAnyClass
+  - DerivingStrategies
   - TemplateHaskell
   - QuasiQuotes
+  - MagicHash
 
 ghc-options:
   - -Wall
@@ -45,7 +51,6 @@ library:
     - Sponge.Pure
   other-modules:
     - Constants.Indices
-  language: Haskell2010
   dependencies:
     - Cabal
     - modular-arithmetic
@@ -63,12 +68,18 @@ executables:
     dependencies:
       - clash-ghc
       - clash-hash
+      - ghc-typelits-extra
+      - ghc-typelits-natnormalise
+      - ghc-typelits-knownnat
   clashi:
     main: bin/Clashi.hs
     language: GHC2021
     dependencies:
       - clash-ghc
       - clash-hash
+      - ghc-typelits-extra
+      - ghc-typelits-natnormalise
+      - ghc-typelits-knownnat
   trace:
     main: Trace.hs
     source-dirs:
@@ -84,6 +95,9 @@ executables:
       - directory
       - clash-prelude
       - clash-hash
+      - ghc-typelits-extra
+      - ghc-typelits-natnormalise
+      - ghc-typelits-knownnat
 
 tests:
   clash-hash-test:
@@ -95,11 +109,13 @@ tests:
     other-modules:
       - Driver
       - Test.Constants
-      - Test.Sponge.Properties
       - Test.Permutation
     dependencies:
       - clash-prelude
       - clash-hash
+      - ghc-typelits-extra
+      - ghc-typelits-natnormalise
+      - ghc-typelits-knownnat
       - tasty >= 1.2 && < 1.5
       - tasty-hspec
       - hspec

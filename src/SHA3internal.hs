@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
+{-# HLINT ignore "Use map" #-}
 module SHA3internal
   ( BitString,
     bs2v,
@@ -33,10 +36,10 @@ bs2v :: (KnownNat n, BitPack a) => BitString (n * BitSize a) -> Vec n a
 bs2v = map (unpack . v2bv . reverse) . unconcatI
 
 v2bs :: (KnownNat n, BitPack a) => Vec n a -> BitString (n * BitSize a)
-v2bs = concat . map (reverse . bv2v . pack)
+v2bs = concatMap (reverse . bv2v . pack)
 
 hexdump :: (KnownNat n) => String -> BitString (8 * n) -> String
-hexdump fmt = foldl (P.++) "" . map (printf fmt) . bs2v @_ @(Unsigned 8)
+hexdump fmt = P.concat . map (printf fmt) . bs2v @_ @(Unsigned 8)
 
 toBitString :: forall n. (KnownNat n) => Vec n Char -> BitString (8 * n)
 toBitString = v2bs @_ @(Unsigned 8) . map (fromIntegral . fromEnum)
@@ -61,7 +64,7 @@ type KeccakParameter l w b =
 
 type State b = BitString b
 
-type Index3 w b = ((Index (2 * b)) / 5, (Index (2 * b)) / 5, (Index (2 * b)) / w)
+type Index3 w b = (Index (2 * b) / 5, Index (2 * b) / 5, Index (2 * b) / w)
 
 flatten :: forall l w b. (KeccakParameter l w b) => Index3 w b -> Index b
 flatten (i, j, k) = resize $ unMod i * (5 * w) + unMod j * w + unMod k
@@ -111,7 +114,7 @@ _rho_constants = fmap (resize . flatten . f . erect) indicesI
   where
     f (i, j, k) = (i, j, k - unconcatI @5 @5 r !! unMod i !! unMod j)
     r = 0 :> (fmap fromInteger . snd . unzip . sort $ unfoldrI g (0, 0 :: Integer / 5, 1, 1))
-    g (t, i, j, k) = ((5 * (unMod i) + unMod j, k), (t + 1, 3 * i + 2 * j, i, k * (t + 3) `div` (t + 1)))
+    g (t, i, j, k) = ((5 * unMod i + unMod j, k), (t + 1, 3 * i + 2 * j, i, k * (t + 3) `div` (t + 1)))
     sort = vfold $ const insert
     insert y xs = let (y', xs') = mapAccumL compareSwap y xs in xs' :< y'
     compareSwap a b = if fst a > fst b then (a, b) else (b, a)
@@ -152,16 +155,16 @@ _iota_constants = fmap (ifoldl g $ repeat 0) lfsr
 -- >>> hexdump "%02X " t4
 -- "07 00 00 00 00 08 00 00 00 00 00 00 00 60 00 00 00 20 03 00 00 08 00 00 06 00 00 00 00 00 00 00 00 20 03 00 00 60 00 00 00 00 00 00 00 00 00 00 00 00 C8 00 00 C0 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 C0 00 00 00 00 C8 00 00 00 00 20 0C 00 00 00 00 00 00 00 C0 0C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 8C 0C 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 18 00 64 00 00 00 00 00 80 00 00 00 00 00 00 00 18 00 00 00 00 00 00 00 80 00 64 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 06 00 40 00 00 00 00 00 00 40 00 18 00 00 00 40 06 00 00 00 00 00 00 00 00 00 40 18 00 00 00 00 00 40 00 "
 theta :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
-theta c s = fmap (fold xor . fmap (s !!)) $ theta_constants c
+theta c s = fold xor . fmap (s !!) P.<$> theta_constants c
 
 rho :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
-rho c s = fmap (s !!) $ rho_constants c
+rho c s = (s !!) P.<$> rho_constants c
 
 pi :: (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
-pi c s = fmap (s !!) $ pi_constants c
+pi c s = (s !!) P.<$> pi_constants c
 
 chi :: forall l w b. (KeccakParameter l w b) => SHA3Constants l w b -> State b -> State b
-chi c s = fmap f $ chi_constants c
+chi c s = f P.<$> chi_constants c
   where
     f (i0, i1, i2) = s !! i0 `xor` (complement (s !! i1) .&. s !! i2)
 
@@ -172,9 +175,10 @@ iota ::
   Index (12 + 2 * l) ->
   State b ->
   State b
-iota c i = concat . f . unconcatI @25
+iota c i s = concat (f (unconcatI @25 s))
   where
-    f s = zipWith xor rc (head s) :> tail s
+    f s' = zipWith xor rc (head s') :> tail s'
+    rc :: Vec w Bit
     rc = leToPlusKN @w @64 takeI $ iota_constants c !! i
 
 
