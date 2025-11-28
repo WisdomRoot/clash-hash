@@ -1,9 +1,10 @@
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 module Main (main) where
 
 import Prelude
 import qualified Test.Constants
 import qualified Test.Permutation
--- import qualified Test.Sponge
+import qualified Test.Sponge
 import Test.Tasty
 import Test.Tasty.Hspec
 
@@ -11,12 +12,12 @@ main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationTests <- testSpec "Permutation" Test.Permutation.spec
-  -- spongeTests <- testSpec "Sponge" Test.Sponge.spec
+  spongeTests <- testSpec "Sponge" Test.Sponge.spec
 
   defaultMain $ testGroup "All Tests"
     [
-      constantsTests
-    , permutationTests
-    -- ,
-    -- spongeTests
+    --   constantsTests
+    -- , permutationTests
+    -- -- ,
+    spongeTests
     ]
