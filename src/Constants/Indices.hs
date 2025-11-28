@@ -74,7 +74,7 @@ rho l =
       -- Sort by position index
       sortedPairs = sortBy (\(p1, _) (p2, _) -> compare p1 p2) positionRotationPairs
         where
-          sortBy cmp xs = foldr insert [] xs
+          sortBy cmp = foldr insert []
             where
               insert x [] = [x]
               insert x (y:ys)

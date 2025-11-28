@@ -7,16 +7,18 @@ module KeccakF1600.Permutation
     piF1600,
     chiF1600,
     iotaF1600,
+
     -- * Permutation
     keccakF1600Round,
     keccakF1600,
+
     -- * Top entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import qualified Constants
+import Constants qualified
 
 --------------------------------------------------------------------------------
 -- Round primitives
@@ -40,7 +42,7 @@ piF1600 bv = map ((bv !) . rev) $(Constants.pi 6)
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map ((bv !) . rev) $(Constants.rho 6)
+rhoF1600 bv = map ((bv !) . rev) Constants.rho6
 
 -- -- Rho transformation: bit permutation (lane rotation)
 -- rhoF1600BV :: BitVector 1600 -> BitVector 1600

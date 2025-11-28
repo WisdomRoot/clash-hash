@@ -2,19 +2,20 @@
 
 module Test.Constants (spec) where
 
-import Clash.Prelude
-import qualified Prelude as P
+import Clash.Prelude (Bit, Vec)
+import Constants qualified
+import SHA3internal qualified
 import Test.Hspec
-import qualified SHA3internal
-import qualified Constants
+import Prelude
 
 spec :: Spec
 spec = describe "Constants" $ do
   it "iota round constants match reference" $ do
-    let hwConstants = $(Constants.iota) :: Vec 24 (Vec 64 Bit)
-    let refConstants = SHA3internal._iota_constants :: Vec 24 (Vec 64 Bit)
+    let expected = SHA3internal._iota_constants :: Vec 24 (Vec 64 Bit)
+    let actual = $(Constants.iota) :: Vec 24 (Vec 64 Bit)
+    actual `shouldBe` expected
 
-    let allMatch = P.all (\(idx :: Int) -> hwConstants !! idx P.== refConstants !! idx) [0..23]
-    if allMatch
-      then P.putStrLn "\n✓ All 24 round constants match!"
-      else expectationFailure "Round constants mismatch"
+  it "rho 6" $ do
+    let expected = Constants.rho6
+    let actual = $(Constants.rho 6)
+    actual `shouldBe` expected
