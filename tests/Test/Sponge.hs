@@ -98,6 +98,19 @@ incrementalTests = fdescribe "Incremental Sponge (Bottom-Up)" $ do
 
       ourResult `shouldBe` refResult
 
+  describe "Step 2: sponge1 . pad" $ do
+    it "sponge2 matches refSponge2 for 'abc'" $ do
+      let msg = toBitString $(listToVecTH "abc")
+      let msgWithSuffix = msg ++ unpack sha3Suffix
+
+      -- REFERENCE: refSponge1 . pad
+      let refResult = Ref.refSponge2 msgWithSuffix
+
+      -- NEW: sponge1 . pad
+      let ourResult = Inc.sponge2 msgWithSuffix
+
+      ourResult `shouldBe` refResult
+
 -- ============================================================================
 -- Old pureSponge Tests (Debugging Documentation)
 -- ============================================================================

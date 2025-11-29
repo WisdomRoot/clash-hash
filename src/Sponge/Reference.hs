@@ -26,6 +26,20 @@ refSponge1 block =
       xorState = block ++ repeat @512 0 :: BitString 1600
    in SHA3.keccakf xorState
 
+-- | Step 2: refSponge1 . pad (BUILT ON refSponge1)
+--
+-- refSponge2 = refSponge1 . pad
+refSponge2 ::
+  BitString 26 ->   -- Message with suffix (for "abc")
+  BitString 1600    -- State after pad, xor, SHA3.keccakf
+refSponge2 msgWithSuffix =
+  let -- pad
+      padStart = singleton 1 :: Vec 1 Bit
+      padEnd = singleton 1 :: Vec 1 Bit
+      padZeros = repeat @(1088 - 26 - 2) 0 :: Vec (1088 - 26 - 2) Bit
+      firstBlock = msgWithSuffix ++ padStart ++ padZeros ++ padEnd :: Vec 1088 Bit
+   in refSponge1 firstBlock
+
 -- | Absorption function extracted from SHA3.sponge
 --
 -- Reference: absorb = foldl g $ repeat 0 where g s = f . zipWith xor s . flip (++) (repeat @(b - r) 0)

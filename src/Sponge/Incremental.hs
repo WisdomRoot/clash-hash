@@ -34,3 +34,19 @@ sponge1 block =
       stateAsBitVector = pack xorState :: BitVector 1600
       permuted = KeccakF1600.Permutation.keccakF1600 stateAsBitVector
    in unpack permuted
+
+-- ============================================================================
+-- Step 2: sponge1 . pad (BUILT ON sponge1)
+-- ============================================================================
+
+-- | sponge2 = sponge1 . pad
+sponge2 ::
+  BitString 26 ->   -- Message with suffix (for "abc")
+  BitString 1600    -- State after pad, xor, keccakF1600
+sponge2 msgWithSuffix =
+  let -- pad
+      padStart = singleton 1 :: Vec 1 Bit
+      padEnd = singleton 1 :: Vec 1 Bit
+      padZeros = repeat @(1088 - 26 - 2) 0 :: Vec (1088 - 26 - 2) Bit
+      firstBlock = msgWithSuffix ++ padStart ++ padZeros ++ padEnd :: Vec 1088 Bit
+   in sponge1 firstBlock
