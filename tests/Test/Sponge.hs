@@ -60,12 +60,50 @@ import Clash.Prelude
 import qualified Prelude as P
 import qualified KeccakF1600.Permutation as Perm
 import qualified Sponge.Pure
+import qualified Sponge.Incremental as Inc
+import qualified Sponge.Reference as Ref
 import Test.Hspec
 import qualified SHA3
 import SHA3internal (toBitString)
 
 spec :: Spec
-spec = fdescribe "Sponge (Pure)" $ do
+spec = describe "Sponge Tests" $ do
+  incrementalTests
+  oldPureSpongeTests
+
+-- ============================================================================
+-- Incremental Bottom-Up Tests (New Approach)
+-- ============================================================================
+
+incrementalTests :: Spec
+incrementalTests = fdescribe "Incremental Sponge (Bottom-Up)" $ do
+  let sha3Suffix = 0b01 :: BitVector 2
+
+  describe "Step 1: keccakf . xor" $ do
+    it "keccakF1600 . xor matches SHA3.keccakf . xor for 'abc' first block" $ do
+      let msg = toBitString $(listToVecTH "abc")
+      let msgWithSuffix = msg ++ unpack sha3Suffix
+
+      -- Manually pad to get first block
+      let padStart = singleton 1 :: Vec 1 Bit
+      let padEnd = singleton 1 :: Vec 1 Bit
+      let padZeros = repeat @(1088 - 26 - 2) 0 :: Vec (1088 - 26 - 2) Bit
+      let firstBlock = msgWithSuffix ++ padStart ++ padZeros ++ padEnd :: Vec 1088 Bit
+
+      -- REFERENCE: SHA3.keccakf . xor
+      let refResult = Ref.refSponge1 firstBlock
+
+      -- NEW: keccakF1600 . xor
+      let ourResult = Inc.sponge1 firstBlock
+
+      ourResult `shouldBe` refResult
+
+-- ============================================================================
+-- Old pureSponge Tests (Debugging Documentation)
+-- ============================================================================
+
+oldPureSpongeTests :: Spec
+oldPureSpongeTests = describe "Sponge (Pure)" $ do
   let sha3Suffix = 0b01 :: BitVector 2
 
   it "Check ++# behavior" $ do

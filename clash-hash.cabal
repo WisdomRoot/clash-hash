@@ -28,6 +28,8 @@ library
       SHA3internal
       Sponge
       Sponge.Pure
+      Sponge.Incremental
+      Sponge.Reference
   other-modules:
       Constants.Indices
   hs-source-dirs:
