@@ -30,8 +30,29 @@ refSponge1 msg =
    in unconcatI @n @1088 $
         msgWithSuffix ++ singleton 1 ++ repeat @(n * 1088 - (msgBits + 4)) 0 ++ singleton 1
 
--- Step 2 and 3 will be redone later
--- (currently broken - old implementation)
+-- ============================================================================
+-- Step 2: absorb . pad (message → absorbed state)
+-- ============================================================================
+
+-- | refSponge2 = absorb . refSponge1
+-- Absorb padded blocks into state using SHA3.keccakf
+refSponge2 ::
+  forall msgBits n.
+  ( KnownNat msgBits, KnownNat n
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  BitString msgBits ->   -- Message (without suffix)
+  BitString 1600         -- Absorbed state
+refSponge2 msg =
+  let blocks = refSponge1 @msgBits @n msg  -- Step 1: pad
+      -- absorb: foldl (SHA3.keccakf . xor) (repeat 0) blocks
+      absorb :: Vec n (BitString 1088) -> BitString 1600
+      absorb = foldl g (repeat 0)
+        where
+          g :: BitString 1600 -> BitString 1088 -> BitString 1600
+          g s block = SHA3.keccakf (zipWith xor s (block ++ repeat @512 0))
+   in absorb blocks
 
 -- | Absorption function extracted from SHA3.sponge
 --

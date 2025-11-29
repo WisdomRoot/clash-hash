@@ -38,5 +38,31 @@ sponge1 msg =
    in unconcatI @n @1088 $
         msgWithSuffix ++ singleton 1 ++ repeat @(n * 1088 - (msgBits + 4)) 0 ++ singleton 1
 
--- Step 2 and 3 will be redone later
--- (currently broken - old implementation)
+-- ============================================================================
+-- Step 2: absorb . pad (message → absorbed state)
+-- ============================================================================
+
+-- | sponge2 = absorb . sponge1
+-- Absorb padded blocks into state using keccakF1600
+sponge2 ::
+  forall msgBits n.
+  ( KnownNat msgBits, KnownNat n
+  , n ~ PaddedBlocks 1088 msgBits
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  BitString msgBits ->   -- Message (without suffix)
+  BitString 1600         -- Absorbed state
+sponge2 msg =
+  let blocks = sponge1 msg  -- Step 1: pad
+      -- absorb: foldl (keccakF1600 . xor) (repeat 0) blocks
+      absorb :: Vec n (BitString 1088) -> BitString 1600
+      absorb = foldl g (repeat 0)
+        where
+          g :: BitString 1600 -> BitString 1088 -> BitString 1600
+          g s block =
+            let xorState = zipWith xor s (block ++ repeat @512 0)
+                stateAsBitVector = pack xorState :: BitVector 1600
+                permuted = KeccakF1600.Permutation.keccakF1600 stateAsBitVector
+             in unpack permuted
+   in absorb blocks

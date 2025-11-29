@@ -91,7 +91,17 @@ incrementalTests = fdescribe "Incremental Sponge (Bottom-Up)" $ do
 
       ourResult `shouldBe` refResult
 
-  -- Step 2 and 3 tests will be added after reimplementation
+  describe "Step 2: absorb . pad" $ do
+    it "sponge2 = refSponge2 = absorb . pad for 'abc'" $ do
+      let msg = toBitString $(listToVecTH "abc")
+
+      -- REFERENCE: absorb . pad using SHA3.keccakf
+      let refResult = Ref.refSponge2 @24 @1 msg
+
+      -- NEW: absorb . pad using keccakF1600
+      let ourResult = Inc.sponge2 @24 msg
+
+      ourResult `shouldBe` refResult
 
 -- ============================================================================
 -- Old pureSponge Tests (Debugging Documentation)
