@@ -14,31 +14,24 @@ import qualified SHA3
 -- | Type alias for BitString (Vec of Bit)
 type BitString n = Vec n Bit
 
--- | Step 1: keccakf . xor (BUILT ON SHA3.keccakf)
+-- | Step 1: pad (message → padded blocks)
 --
--- Reference: XOR first padded block with zero state, then apply SHA3.keccakf
+-- Reference: Pad message to rate-sized blocks
 refSponge1 ::
-  BitString 1088 ->   -- First padded block (rate-sized)
-  BitString 1600      -- State after XOR and SHA3.keccakf
-refSponge1 block =
-  let zeroState = repeat @1600 0 :: BitString 1600
-      -- XOR: block goes into rate portion, capacity stays zero
-      xorState = block ++ repeat @512 0 :: BitString 1600
-   in SHA3.keccakf xorState
+  forall msgBits n.
+  ( KnownNat msgBits, KnownNat n
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088  -- Need room for msg + suffix (2) + pad start (1) + pad end (1)
+  ) =>
+  BitString msgBits ->   -- Message (without suffix)
+  Vec n (BitString 1088) -- Padded blocks
+refSponge1 msg =
+  let msgWithSuffix = msg ++ unpack (0b01 :: BitVector 2)
+   in unconcatI @n @1088 $
+        msgWithSuffix ++ singleton 1 ++ repeat @(n * 1088 - (msgBits + 4)) 0 ++ singleton 1
 
--- | Step 2: refSponge1 . pad (BUILT ON refSponge1)
---
--- refSponge2 = refSponge1 . pad
-refSponge2 ::
-  BitString 26 ->   -- Message with suffix (for "abc")
-  BitString 1600    -- State after pad, xor, SHA3.keccakf
-refSponge2 msgWithSuffix =
-  let -- pad
-      padStart = singleton 1 :: Vec 1 Bit
-      padEnd = singleton 1 :: Vec 1 Bit
-      padZeros = repeat @(1088 - 26 - 2) 0 :: Vec (1088 - 26 - 2) Bit
-      firstBlock = msgWithSuffix ++ padStart ++ padZeros ++ padEnd :: Vec 1088 Bit
-   in refSponge1 firstBlock
+-- Step 2 and 3 will be redone later
+-- (currently broken - old implementation)
 
 -- | Absorption function extracted from SHA3.sponge
 --

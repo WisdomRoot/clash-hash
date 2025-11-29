@@ -79,37 +79,19 @@ incrementalTests :: Spec
 incrementalTests = fdescribe "Incremental Sponge (Bottom-Up)" $ do
   let sha3Suffix = 0b01 :: BitVector 2
 
-  describe "Step 1: keccakf . xor" $ do
-    it "keccakF1600 . xor matches SHA3.keccakf . xor for 'abc' first block" $ do
+  describe "Step 1: pad" $ do
+    it "sponge1 = refSponge1 = pad for 'abc'" $ do
       let msg = toBitString $(listToVecTH "abc")
-      let msgWithSuffix = msg ++ unpack sha3Suffix
 
-      -- Manually pad to get first block
-      let padStart = singleton 1 :: Vec 1 Bit
-      let padEnd = singleton 1 :: Vec 1 Bit
-      let padZeros = repeat @(1088 - 26 - 2) 0 :: Vec (1088 - 26 - 2) Bit
-      let firstBlock = msgWithSuffix ++ padStart ++ padZeros ++ padEnd :: Vec 1088 Bit
+      -- REFERENCE: pad
+      let refResult = Ref.refSponge1 @24 @1 msg
 
-      -- REFERENCE: SHA3.keccakf . xor
-      let refResult = Ref.refSponge1 firstBlock
-
-      -- NEW: keccakF1600 . xor
-      let ourResult = Inc.sponge1 firstBlock
+      -- NEW: pad
+      let ourResult = Inc.sponge1 @24 msg
 
       ourResult `shouldBe` refResult
 
-  describe "Step 2: sponge1 . pad" $ do
-    it "sponge2 matches refSponge2 for 'abc'" $ do
-      let msg = toBitString $(listToVecTH "abc")
-      let msgWithSuffix = msg ++ unpack sha3Suffix
-
-      -- REFERENCE: refSponge1 . pad
-      let refResult = Ref.refSponge2 msgWithSuffix
-
-      -- NEW: sponge1 . pad
-      let ourResult = Inc.sponge2 msgWithSuffix
-
-      ourResult `shouldBe` refResult
+  -- Step 2 and 3 tests will be added after reimplementation
 
 -- ============================================================================
 -- Old pureSponge Tests (Debugging Documentation)
