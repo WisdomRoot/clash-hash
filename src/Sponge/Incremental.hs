@@ -93,3 +93,24 @@ sponge3 msg =
       let stateAsBitVector = pack s :: BitVector 1600
           permuted = KeccakF1600.Permutation.keccakF1600 stateAsBitVector
        in unpack permuted
+
+-- ============================================================================
+-- Step 4: trunc . squeeze . absorb . pad (message → digest)
+-- ============================================================================
+
+-- | sponge4 = trunc . sponge3
+-- Take the first digest bits from the squeezed rate block (single block case).
+sponge4 ::
+  forall digest msgBits n.
+  ( KnownNat digest, KnownNat msgBits, KnownNat n
+  , digest <= 1088
+  , n ~ PaddedBlocks 1088 msgBits
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  BitString msgBits ->     -- Message (without suffix)
+  BitString digest         -- Digest (e.g., 256 bits for SHA3-256)
+sponge4 msg =
+  let squeezedBlocks = sponge3 @msgBits @n msg  -- Step 3
+      firstBlock = head squeezedBlocks              -- Only need the first 1088-bit block
+   in leToPlusKN @digest @1088 takeI firstBlock     -- Truncate to digest width
