@@ -66,3 +66,30 @@ sponge2 msg =
                 permuted = KeccakF1600.Permutation.keccakF1600 stateAsBitVector
              in unpack permuted
    in absorb blocks
+
+-- ============================================================================
+-- Step 3: squeeze . absorb . pad (message → squeezed blocks)
+-- ============================================================================
+
+-- | sponge3 = squeeze . sponge2
+-- Squeeze output blocks from absorbed state using keccakF1600
+sponge3 ::
+  forall msgBits n.
+  ( KnownNat msgBits, KnownNat n
+  , n ~ PaddedBlocks 1088 msgBits
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  BitString msgBits ->         -- Message (without suffix)
+  Vec 1 (BitString 1088)       -- Squeezed blocks (1 block for SHA3-256)
+sponge3 msg =
+  let state = sponge2 msg  -- Step 2: absorb . pad
+      -- squeeze: map takeI . iterateI keccakF1600
+      -- For SHA3-256: need 1 block (256 bits fits in 1088-bit rate)
+   in map (leToPlusKN @1088 @1600 takeI) $ iterateI keccakF1600Wrapper state
+  where
+    keccakF1600Wrapper :: BitString 1600 -> BitString 1600
+    keccakF1600Wrapper s =
+      let stateAsBitVector = pack s :: BitVector 1600
+          permuted = KeccakF1600.Permutation.keccakF1600 stateAsBitVector
+       in unpack permuted

@@ -54,6 +54,25 @@ refSponge2 msg =
           g s block = SHA3.keccakf (zipWith xor s (block ++ repeat @512 0))
    in absorb blocks
 
+-- ============================================================================
+-- Step 3: squeeze . absorb . pad (message → squeezed blocks)
+-- ============================================================================
+
+-- | refSponge3 = squeeze . refSponge2
+-- Squeeze output blocks from absorbed state using SHA3.keccakf
+refSponge3 ::
+  forall msgBits n.
+  ( KnownNat msgBits, KnownNat n
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  BitString msgBits ->         -- Message (without suffix)
+  Vec 1 (BitString 1088)       -- Squeezed blocks (1 block for SHA3-256)
+refSponge3 msg =
+  let state = refSponge2 @msgBits @n msg  -- Step 2: absorb . pad
+      -- squeeze: map takeI . iterateI SHA3.keccakf
+   in map (leToPlusKN @1088 @1600 takeI) $ iterateI SHA3.keccakf state
+
 -- | Absorption function extracted from SHA3.sponge
 --
 -- Reference: absorb = foldl g $ repeat 0 where g s = f . zipWith xor s . flip (++) (repeat @(b - r) 0)
