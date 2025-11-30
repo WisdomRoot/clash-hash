@@ -115,6 +115,18 @@ incrementalTests = fdescribe "Incremental Sponge (Bottom-Up)" $ do
 
       ourResult `shouldBe` refResult
 
+  describe "Step 4: trunc . squeeze . absorb . pad" $ do
+    it "refSponge4 @256 matches SHA3.sha3_256 for 'abc'" $ do
+      let msg = toBitString $(listToVecTH "abc")
+
+      -- REFERENCE: full SHA3 sha3_256 digest
+      let expected = SHA3.sha3_256 msg
+
+      -- NEW: refSponge4 = trunc . squeeze . absorb . pad
+      let refResult = Ref.refSponge4 @256 @24 @1 msg
+
+      refResult `shouldBe` expected
+
 -- ============================================================================
 -- Old pureSponge Tests (Debugging Documentation)
 -- ============================================================================

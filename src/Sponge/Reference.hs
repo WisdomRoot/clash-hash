@@ -73,6 +73,26 @@ refSponge3 msg =
       -- squeeze: map takeI . iterateI SHA3.keccakf
    in map (leToPlusKN @1088 @1600 takeI) $ iterateI SHA3.keccakf state
 
+-- ============================================================================
+-- Step 4: trunc . squeeze . absorb . pad (message → digest)
+-- ============================================================================
+
+-- | refSponge4 = trunc . refSponge3
+-- Take the first digest bits from the squeezed rate block (single block case).
+refSponge4 ::
+  forall digest msgBits n.
+  ( KnownNat digest, KnownNat msgBits, KnownNat n
+  , digest <= 1088
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  BitString msgBits ->     -- Message (without suffix)
+  BitString digest         -- Digest (e.g., 256 bits for SHA3-256)
+refSponge4 msg =
+  let squeezedBlocks = refSponge3 @msgBits @n msg  -- Step 3
+      firstBlock = head squeezedBlocks              -- Only need the first 1088-bit block
+   in leToPlusKN @digest @1088 takeI firstBlock     -- Truncate to digest width
+
 -- | Absorption function extracted from SHA3.sponge
 --
 -- Reference: absorb = foldl g $ repeat 0 where g s = f . zipWith xor s . flip (++) (repeat @(b - r) 0)
