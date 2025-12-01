@@ -9,12 +9,33 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-# Map subcommand to variant details
+# Map subcommand to variant details (module names for Clash invocation)
 VARIANTS = {
-    "F200": {"name": "KeccakF200", "src": "KeccakF200"},
-    "F400": {"name": "KeccakF400", "src": "KeccakF400"},
-    "F800": {"name": "KeccakF800", "src": "KeccakF800"},
-    "SHA3": {"name": "KeccakF1600", "src": "KeccakF1600"},
+    "F200": {
+        "name": "KeccakF200",
+        "perm_module": "Permutation.KeccakF200",
+        "top_module": "Hash.KeccakF200",
+    },
+    "F400": {
+        "name": "KeccakF400",
+        "perm_module": "Permutation.KeccakF400",
+        "top_module": "Hash.KeccakF400",
+    },
+    "F800": {
+        "name": "KeccakF800",
+        "perm_module": "Permutation.KeccakF800",
+        "top_module": "Hash.KeccakF800",
+    },
+    "SHA3": {
+        "name": "KeccakF1600",
+        "perm_module": "Permutation.KeccakF1600",
+        "top_module": "Hash.KeccakF1600",
+    },
+    "S4": {
+        "name": "Stateful4",
+        "perm_module": "Permutation.KeccakF1600",  # reuse 1600 perm
+        "top_module": "Sponge.Stateful4",
+    },
 }
 
 
@@ -81,7 +102,6 @@ def benchmark_variant(variant_key):
     """Run benchmark for a variant and collect all 6 metrics."""
     variant = VARIANTS[variant_key]
     name = variant["name"]
-    src = variant["src"]
 
     # 0. Clean stale builds
     run_command(
@@ -91,29 +111,29 @@ def benchmark_variant(variant_key):
 
     # 1. Verilog generation for Permutation
     perm_verilog_output = run_command(
-        ["stack", "exec", "clash", "--", "--verilog", f"src/{src}/Permutation.hs"],
-        f"Verilog gen for {name}.Permutation.topEntity",
+        ["stack", "exec", "clash", "--", "--verilog", f"{variant['perm_module']}"] ,
+        f"Verilog gen for {variant['perm_module']}.topEntity",
     )
-    perm_vlog_time = parse_verilog_gen_time(perm_verilog_output, f"{name}.Permutation.topEntity")
+    perm_vlog_time = parse_verilog_gen_time(perm_verilog_output, f"{variant['perm_module']}.topEntity")
 
     # 2. Verilog generation for Top
     top_verilog_output = run_command(
-        ["stack", "exec", "clash", "--", "--verilog", f"src/{src}.hs"],
-        f"Verilog gen for {name}.topEntity",
+        ["stack", "exec", "clash", "--", "--verilog", f"{variant['top_module']}"] ,
+        f"Verilog gen for {variant['top_module']}.topEntity",
     )
-    top_vlog_time = parse_verilog_gen_time(top_verilog_output, f"{name}.topEntity")
+    top_vlog_time = parse_verilog_gen_time(top_verilog_output, f"{variant['top_module']}.topEntity")
 
     # 3. Synthesis for Permutation
     perm_synth_output = run_command(
-        ["nix", "develop", "--command", "synth", f"{name}.Permutation.topEntity"],
-        f"Synthesis for {name}.Permutation.topEntity",
+        ["nix", "develop", "--command", "synth", f"{variant['perm_module']}.topEntity"],
+        f"Synthesis for {variant['perm_module']}.topEntity",
     )
     perm_cpu, perm_area, _ = parse_synth_output(perm_synth_output)
 
     # 4. Synthesis for Top
     top_synth_output = run_command(
-        ["nix", "develop", "--command", "synth", f"{name}.topEntity"],
-        f"Synthesis for {name}.topEntity",
+        ["nix", "develop", "--command", "synth", f"{variant['top_module']}.topEntity"],
+        f"Synthesis for {variant['top_module']}.topEntity",
     )
     top_cpu, top_area, seq_pct = parse_synth_output(top_synth_output)
 
