@@ -6,7 +6,7 @@
 
 -- | Incremental stateful SHA3-256 implementation
 -- Starting from Hash.Combinational and making it stateful step by step
-module Hash.Stateful (stateful0, stateful1, stateful2, stateful3) where
+module Hash.Stateful (stateful0, stateful1, stateful2, stateful3, stateful4) where
 
 import Clash.Prelude
 import qualified Hash.Combinational
@@ -117,6 +117,53 @@ stateful3 = mealy step (0, repeat 0)
            in ((cnt', finalState), repeat 0)  -- Not done yet
         else
           -- Done: extract digest (squeeze first 1088 bits, then truncate to digest)
+          let rateBlock = leToPlusKN @1088 @1600 takeI state :: Vec 1088 Bit
+              digest = leToPlusKN @digest @1088 takeI rateBlock :: Vec digest Bit
+           in ((0, repeat 0), digest)  -- Reset for next message
+
+-- ============================================================================
+-- Step 4: Replace with single-round permutation (24 iterations)
+-- ============================================================================
+
+-- | Step 4: State machine with 24 single-round iterations
+-- Uses keccakF1600Round instead of full keccakF1600
+type State4 = (Index 26, Vec 1600 Bit)  -- (roundCount, currentState)
+-- roundCount: 0 = initial, 1-24 = permutation rounds, 25 = done
+
+stateful4 ::
+  forall dom digest msgBits n.
+  ( HiddenClockResetEnable dom
+  , KnownNat digest, KnownNat msgBits, KnownNat n
+  , digest <= 1088
+  , n ~ PaddedBlocks 1088 msgBits
+  , msgBits + 2 <= n * 1088
+  , msgBits + 4 <= n * 1088
+  ) =>
+  Signal dom (Vec msgBits Bit) ->
+  Signal dom (Vec digest Bit)
+stateful4 = mealy step (0, repeat 0)
+  where
+    step :: State4 -> Vec msgBits Bit -> (State4, Vec digest Bit)
+    step (cnt, state) msg
+      | cnt == 0 =
+          -- Absorb message (no permutation yet)
+          let blocks = Hash.Combinational.padded @msgBits @n msg
+              -- Use foldl to absorb blocks, but XOR only (no permutation in absorption)
+              absorb :: Vec n (Vec 1088 Bit) -> Vec 1600 Bit
+              absorb = foldl absorbBlock (repeat 0)
+              absorbBlock :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
+              absorbBlock s block = zipWith xor s (block ++ repeat @512 0)
+              xorState = absorb blocks
+           in ((1, xorState), repeat 0)  -- Move to round 1
+      | cnt >= 1 && cnt <= 24 =
+          -- Run one round of permutation
+          let roundIdx :: Index 24
+              roundIdx = resize (cnt - 1)  -- Round indices are 0-23, resize from Index 25 to Index 24
+              stateAsBitVector = pack state :: BitVector 1600
+              permuted = Permutation.KeccakF1600.keccakF1600Round roundIdx stateAsBitVector
+           in ((cnt + 1, unpack permuted), repeat 0)  -- Continue to next round
+      | otherwise =
+          -- Done (cnt == 25): extract digest and reset
           let rateBlock = leToPlusKN @1088 @1600 takeI state :: Vec 1088 Bit
               digest = leToPlusKN @digest @1088 takeI rateBlock :: Vec digest Bit
            in ((0, repeat 0), digest)  -- Reset for next message

@@ -17,6 +17,7 @@ spec = describe "Stateful SHA3-256 Tests" $ do
   step1Tests
   step2Tests
   step3Tests
+  step4Tests
 
 -- ============================================================================
 -- Step 0: Baseline - Verify Hash.Combinational.truncated works
@@ -97,5 +98,31 @@ step3Tests = describe "Step 3: State machine (1 iteration with full permutation)
     -- Digest appears at sample 2 (index 2)
     let samples = sampleN @System 3 digestSig
     let actual = samples P.!! 2  -- Take 3rd sample (index 2)
+
+    actual `shouldBe` expected
+
+-- ============================================================================
+-- Step 4: Single-round permutation with 24 iterations
+-- ============================================================================
+
+step4Tests :: Spec
+step4Tests = describe "Step 4: Single-round permutation (24 iterations)" $ do
+  it "stateful4 (24 single-round iterations) = SHA3.sha3_256 for 'abc'" $ do
+    let msg = SHA3internal.toBitString $(listToVecTH "abc")
+    let expected = SHA3.sha3_256 msg
+
+    -- State machine timing:
+    -- Sample 0: initial (cnt=0)
+    -- Sample 1: absorb, output zeros, next=(1, xorState)
+    -- Samples 2-25: rounds 1-24 (cnt 1-24), output zeros, next=(cnt+1, permuted)
+    -- Sample 26: done (cnt=25), output digest, next=(0, zeros)
+    -- Total: 27 samples (0-26), digest appears at sample 26
+    let msgSig = pure msg :: Signal System (Vec 24 Bit)
+    let digestSig = withClockResetEnable clockGen resetGen enableGen $
+                      Stateful.stateful4 @System @256 @24 msgSig
+
+    -- Need 27 samples: initial + absorb (1) + 24 rounds + output (1)
+    let samples = sampleN @System 27 digestSig
+    let actual = samples P.!! 26  -- Take 27th sample (index 26)
 
     actual `shouldBe` expected
