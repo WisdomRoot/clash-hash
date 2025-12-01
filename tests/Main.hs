@@ -6,6 +6,7 @@ import Test.Combinational qualified
 import Test.Complete qualified
 import Test.Constants qualified
 import Test.Permutation qualified
+import Test.Stateful qualified
 import Test.Tasty
 import Test.Tasty.Hspec
 import Prelude
@@ -15,6 +16,7 @@ main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationTests <- testSpec "Permutation" Test.Permutation.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
+  statefulTests <- testSpec "Stateful" Test.Stateful.spec
   completeTests <- testSpec "Complete" Test.Complete.spec
 
   defaultMain $
@@ -23,5 +25,6 @@ main = do
       [ constantsTests,
         permutationTests,
         combinationalTests,
+        statefulTests,
         completeTests
       ]
