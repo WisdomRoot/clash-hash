@@ -6,10 +6,10 @@
 
 -- | Reference sponge implementation with exposed intermediate steps
 -- Extracted from SHA3.hs for testing
-module Sponge.Reference where
+module Reference.Combinational where
 
 import Clash.Prelude
-import qualified SHA3
+import qualified Reference.SHA3 as SHA3
 
 -- | Type alias for BitString (Vec of Bit)
 type BitString n = Vec n Bit
@@ -17,7 +17,7 @@ type BitString n = Vec n Bit
 -- | Step 1: pad (message → padded blocks)
 --
 -- Reference: Pad message to rate-sized blocks
-refSponge1 ::
+padded ::
   forall msgBits n.
   ( KnownNat msgBits, KnownNat n
   , msgBits + 2 <= n * 1088
@@ -25,7 +25,7 @@ refSponge1 ::
   ) =>
   BitString msgBits ->   -- Message (without suffix)
   Vec n (BitString 1088) -- Padded blocks
-refSponge1 msg =
+padded msg =
   let msgWithSuffix = msg ++ unpack (0b01 :: BitVector 2)
    in unconcatI @n @1088 $
         msgWithSuffix ++ singleton 1 ++ repeat @(n * 1088 - (msgBits + 4)) 0 ++ singleton 1
@@ -34,9 +34,9 @@ refSponge1 msg =
 -- Step 2: absorb . pad (message → absorbed state)
 -- ============================================================================
 
--- | refSponge2 = absorb . refSponge1
+-- | absorbed = absorb . padded
 -- Absorb padded blocks into state using SHA3.keccakf
-refSponge2 ::
+absorbed ::
   forall msgBits n.
   ( KnownNat msgBits, KnownNat n
   , msgBits + 2 <= n * 1088
@@ -44,8 +44,8 @@ refSponge2 ::
   ) =>
   BitString msgBits ->   -- Message (without suffix)
   BitString 1600         -- Absorbed state
-refSponge2 msg =
-  let blocks = refSponge1 @msgBits @n msg  -- Step 1: pad
+absorbed msg =
+  let blocks = padded @msgBits @n msg  -- Step 1: pad
       -- absorb: foldl (SHA3.keccakf . xor) (repeat 0) blocks
       absorb :: Vec n (BitString 1088) -> BitString 1600
       absorb = foldl g (repeat 0)
@@ -58,9 +58,9 @@ refSponge2 msg =
 -- Step 3: squeeze . absorb . pad (message → squeezed blocks)
 -- ============================================================================
 
--- | refSponge3 = squeeze . refSponge2
+-- | squeezed = squeeze . absorbed
 -- Squeeze output blocks from absorbed state using SHA3.keccakf
-refSponge3 ::
+squeezed ::
   forall msgBits n.
   ( KnownNat msgBits, KnownNat n
   , msgBits + 2 <= n * 1088
@@ -68,8 +68,8 @@ refSponge3 ::
   ) =>
   BitString msgBits ->         -- Message (without suffix)
   Vec 1 (BitString 1088)       -- Squeezed blocks (1 block for SHA3-256)
-refSponge3 msg =
-  let state = refSponge2 @msgBits @n msg  -- Step 2: absorb . pad
+squeezed msg =
+  let state = absorbed @msgBits @n msg  -- Step 2: absorb . pad
       -- squeeze: map takeI . iterateI SHA3.keccakf
    in map (leToPlusKN @1088 @1600 takeI) $ iterateI SHA3.keccakf state
 
@@ -77,9 +77,9 @@ refSponge3 msg =
 -- Step 4: trunc . squeeze . absorb . pad (message → digest)
 -- ============================================================================
 
--- | refSponge4 = trunc . refSponge3
+-- | truncated = trunc . squeezed
 -- Take the first digest bits from the squeezed rate block (single block case).
-refSponge4 ::
+truncated ::
   forall digest msgBits n.
   ( KnownNat digest, KnownNat msgBits, KnownNat n
   , digest <= 1088
@@ -88,8 +88,8 @@ refSponge4 ::
   ) =>
   BitString msgBits ->     -- Message (without suffix)
   BitString digest         -- Digest (e.g., 256 bits for SHA3-256)
-refSponge4 msg =
-  let squeezedBlocks = refSponge3 @msgBits @n msg  -- Step 3
+truncated msg =
+  let squeezedBlocks = squeezed @msgBits @n msg  -- Step 3
       firstBlock = head squeezedBlocks              -- Only need the first 1088-bit block
    in leToPlusKN @digest @1088 takeI firstBlock     -- Truncate to digest width
 

@@ -1,4 +1,4 @@
-module SHA2
+module Reference.SHA2
   ( sha256
   , sha256'
   , topEntity

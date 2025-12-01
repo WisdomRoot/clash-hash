@@ -1,13 +1,13 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF200
+module Hash.KeccakF200
   ( -- * SHA3 Top Entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import qualified KeccakF200.Permutation as Perm
+import qualified Permutation.KeccakF200 as Perm
 import qualified Sponge
 
 --------------------------------------------------------------------------------

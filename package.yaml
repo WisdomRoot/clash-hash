@@ -34,25 +34,6 @@ dependencies:
 library:
   language: GHC2021
   source-dirs: src
-  exposed-modules:
-    - Constants
-    - KeccakF200
-    - KeccakF200.Permutation
-    - KeccakF400
-    - KeccakF400.Permutation
-    - KeccakF800
-    - KeccakF800.Permutation
-    - KeccakF1600
-    - KeccakF1600.Permutation
-    - SHA2
-    - SHA3
-    - SHA3internal
-    - Sponge
-    - Sponge.Incremental
-    - Sponge.Combinational
-    - Sponge.Reference
-  other-modules:
-    - Constants.Indices
   dependencies:
     - Cabal
     - modular-arithmetic
@@ -104,14 +85,11 @@ executables:
 tests:
   clash-hash-test:
     main: Main.hs
-    source-dirs: tests
+    source-dirs:
+      - tests
     language: GHC2021
     ghc-options:
       - -threaded
-    other-modules:
-      - Driver
-      - Test.Constants
-      - Test.Permutation
     dependencies:
       - clash-prelude
       - clash-hash

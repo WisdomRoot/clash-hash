@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.38.0.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -14,24 +14,24 @@ build-type:     Simple
 
 library
   exposed-modules:
-      Constants
-      KeccakF200
-      KeccakF200.Permutation
-      KeccakF400
-      KeccakF400.Permutation
-      KeccakF800
-      KeccakF800.Permutation
-      KeccakF1600
-      KeccakF1600.Permutation
-      SHA2
-      SHA3
-      SHA3internal
+      Hash.Combinational
+      Hash.KeccakF1600
+      Hash.KeccakF200
+      Hash.KeccakF400
+      Hash.KeccakF800
+      Permutation.Constants
+      Permutation.Indices
+      Permutation.KeccakF1600
+      Permutation.KeccakF200
+      Permutation.KeccakF400
+      Permutation.KeccakF800
+      Reference.Combinational
+      Reference.SHA2
+      Reference.SHA3
+      Reference.SHA3internal
       Sponge
-      Sponge.Incremental
-      Sponge.Combinational
-      Sponge.Reference
   other-modules:
-      Constants.Indices
+      Paths_clash_hash
   hs-source-dirs:
       src
   default-extensions:
@@ -139,8 +139,10 @@ test-suite clash-hash-test
   main-is: Main.hs
   other-modules:
       Driver
+      Test.Combinational
       Test.Constants
       Test.Permutation
+      Paths_clash_hash
   hs-source-dirs:
       tests
   default-extensions:

@@ -5,9 +5,9 @@
 module Test.Permutation (spec) where
 
 import Clash.Prelude
-import qualified KeccakF1600.Permutation as Perm
-import qualified SHA3
-import qualified SHA3internal
+import qualified Permutation.KeccakF1600 as Perm
+import qualified Reference.SHA3 as SHA3
+import qualified Reference.SHA3internal as SHA3internal
 import Test.Hspec
 
 spec :: Spec

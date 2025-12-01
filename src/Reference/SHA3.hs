@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-simplifiable-class-constraints #-}
 
-module SHA3
+module Reference.SHA3
   ( keccakf
   , keccak
   , sha3_224
@@ -14,13 +14,13 @@ module SHA3
   ) where
 
 import Clash.Prelude hiding (pi)
-import SHA3internal
+import Reference.SHA3internal
 
 -- $
 
 -- $setup
 -- >>> import Clash.Prelude
--- >>> import SHA3internal (State, hexdump, toBitString, v2bs)
+-- >>> import Reference.SHA3internal (State, hexdump, toBitString, v2bs)
 
 -- | Keccak-f[1600]
 -- >>> s = bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: State 1600

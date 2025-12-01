@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF200.Permutation
+module Permutation.KeccakF200
   ( -- * Round primitives
     thetaF200,
     rhoF200,
@@ -14,7 +14,7 @@ module KeccakF200.Permutation
 where
 
 import Clash.Prelude
-import qualified Constants
+import qualified Permutation.Constants as Constants
 
 -- Theta transformation: XOR with column parities
 thetaF200 :: Vec 200 Bit -> Vec 200 Bit

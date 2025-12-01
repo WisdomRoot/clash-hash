@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF800.Permutation
+module Permutation.KeccakF800
   ( -- * Round primitives
     thetaF800,
     rhoF800,
@@ -16,7 +16,7 @@ module KeccakF800.Permutation
 where
 
 import Clash.Prelude
-import qualified Constants
+import qualified Permutation.Constants as Constants
 
 --------------------------------------------------------------------------------
 -- Round primitives

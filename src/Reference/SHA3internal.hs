@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use camelCase" #-}
 {-# HLINT ignore "Use map" #-}
-module SHA3internal
+module Reference.SHA3internal
   ( BitString,
     bs2v,
     v2bs,

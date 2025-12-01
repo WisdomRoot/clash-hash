@@ -1,4 +1,4 @@
-module Constants.Indices
+module Permutation.Indices
   ( theta,
     rho,
     pi,

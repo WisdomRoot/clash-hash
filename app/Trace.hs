@@ -5,7 +5,7 @@ module Main where
 
 import Clash.Prelude
 import qualified Driver
-import qualified KeccakF1600
+import qualified Hash.KeccakF1600
 import System.Directory (createDirectoryIfMissing)
 import qualified Prelude as P
 
@@ -16,7 +16,7 @@ msg = 0x0000000000000000
 main :: IO ()
 main = do
   let (_digest, done, sReady, mValid, mData, mLast, beat, sValid, sData, sLast, mReady) =
-        Driver.debug KeccakF1600.topEntity msg
+        Driver.debug Hash.KeccakF1600.topEntity msg
       signals = bundle (done, sReady, mValid, mData, mLast, beat, sValid, sData, sLast, mReady)
       samples = sampleN @System 200 signals
       vcdText = renderVCD samples

@@ -1,29 +1,29 @@
 {-# LANGUAGE TypeApplications #-}
 
-module KeccakF1600
+module Hash.KeccakF800
   ( -- * SHA3 Top Entity
     topEntity,
   )
 where
 
 import Clash.Prelude
-import qualified KeccakF1600.Permutation as Perm
+import qualified Permutation.KeccakF800 as Perm
 import qualified Sponge
 
 --------------------------------------------------------------------------------
--- SHA3-f[1600] AXI4-Stream Top Entity (SHA3-256)
+-- SHA3-f[800] AXI4-Stream Top Entity
 --------------------------------------------------------------------------------
 
 type BusWidth = 64
 
-type Rate = 1088
+type Rate = 512
 
 type DigestBits = 256
 
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF1600_SHA3",
+      { t_name = "KeccakF800_SHA3",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -60,7 +60,7 @@ topEntity ::
   )
 topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
   withClockResetEnable clk rst en
-    $ Sponge.spongeAxi @System @1600 @BusWidth @Rate @DigestBits @24
+    $ Sponge.spongeAxi @System @800 @BusWidth @Rate @DigestBits @22
       (0b01 :: BitVector 2)
       (permutationComponent clk rst en)
       sAxisTValid
@@ -68,17 +68,16 @@ topEntity clk rst en sAxisTValid sAxisTData sAxisTLast mAxisTReady =
       sAxisTLast
       mAxisTReady
   where
-    -- Instantiate permutation as a proper HDL component using exposeClockResetEnable
+    -- Instantiate permutation as a proper HDL component using explicit clk/rst/en
     -- This ensures a stable module instance instead of inline expansion
     permutationComponent ::
       Clock System ->
       Reset System ->
       Enable System ->
-      Signal System (Index 24, BitVector 1600) ->
-      Signal System (BitVector 1600)
+      Signal System (Index 22, BitVector 800) ->
+      Signal System (BitVector 800)
     permutationComponent clk' rst' en' input =
-      Perm.topEntity clk' rst' en' transformed
+      Perm.topEntity clk' rst' en' resizedInput24
       where
-        -- Force Clash to create a separate component by transforming the signal
-        -- Even though Index 24 needs no resize, we transform to prevent inlining
-        transformed = fmap (\(roundIdx, state) -> (roundIdx, state)) input
+        -- Resize Index 22 to Index 24 for the permutation topEntity
+        resizedInput24 = fmap (\(roundIdx, state) -> (resize roundIdx :: Index 24, state)) input

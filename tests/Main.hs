@@ -1,23 +1,24 @@
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+
 module Main (main) where
 
-import Prelude
-import qualified Test.Constants
-import qualified Test.Permutation
-import qualified Test.Sponge
+import Test.Combinational qualified
+import Test.Constants qualified
+import Test.Permutation qualified
 import Test.Tasty
 import Test.Tasty.Hspec
+import Prelude
 
 main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationTests <- testSpec "Permutation" Test.Permutation.spec
-  spongeTests <- testSpec "Sponge" Test.Sponge.spec
+  combinationalTests <- testSpec "Combinational" Test.Combinational.spec
 
-  defaultMain $ testGroup "All Tests"
-    [
-    --   constantsTests
-    -- , permutationTests
-    -- -- ,
-    spongeTests
-    ]
+  defaultMain $
+    testGroup
+      "All Tests"
+      [ constantsTests,
+        permutationTests,
+        combinationalTests
+      ]
