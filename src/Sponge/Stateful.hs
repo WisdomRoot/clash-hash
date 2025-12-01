@@ -139,13 +139,19 @@ stateful4 ::
   , msgBits + 2 <= n * 1088
   , msgBits + 4 <= n * 1088
   ) =>
-  (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
+  (Signal dom (Index 24, BitVector 1600) -> Signal dom (BitVector 1600)) -> -- Permutation component
   Signal dom (Vec msgBits Bit) ->
   Signal dom (Vec digest Bit)
-stateful4 permutationFn = mealy step (0, repeat 0)
+stateful4 permutationComponent msgSig = digestSig
   where
-    step :: State4 -> Vec msgBits Bit -> (State4, Vec digest Bit)
-    step (cnt, state) msg
+    -- FSM with feedback loop through permutation component
+    (digestSig, permIn) = unbundle $ mealy step (0, repeat 0) (bundle (msgSig, stateAfterPerm))
+
+    -- Permutation component instantiation
+    stateAfterPerm = permutationComponent permIn
+
+    step :: State4 -> (Vec msgBits Bit, BitVector 1600) -> (State4, (Vec digest Bit, (Index 24, BitVector 1600)))
+    step (cnt, state) (msg, permResult)
       | cnt == 0 =
           -- Absorb message (no permutation yet)
           let blocks = Hash.Combinational.padded @msgBits @n msg
@@ -155,16 +161,16 @@ stateful4 permutationFn = mealy step (0, repeat 0)
               absorbBlock :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
               absorbBlock s block = zipWith xor s (block ++ repeat @512 0)
               xorState = absorb blocks
-           in ((1, xorState), repeat 0)  -- Move to round 1
+              xorStateAsBV = pack xorState
+           in ((1, xorState), (repeat 0, (0, xorStateAsBV)))  -- Move to round 1
       | cnt >= 1 && cnt <= 24 =
           -- Run one round of permutation
           let roundIdx :: Index 24
               roundIdx = resize (cnt - 1)  -- Round indices are 0-23, resize from Index 26 to Index 24
               stateAsBitVector = pack state :: BitVector 1600
-              permuted = permutationFn roundIdx stateAsBitVector  -- Use the parameter
-           in ((cnt + 1, unpack permuted), repeat 0)  -- Continue to next round
+           in ((cnt + 1, unpack permResult), (repeat 0, (roundIdx, stateAsBitVector)))  -- Continue to next round
       | otherwise =
           -- Done (cnt == 25): extract digest and reset
           let rateBlock = leToPlusKN @1088 @1600 takeI state :: Vec 1088 Bit
               digest = leToPlusKN @digest @1088 takeI rateBlock :: Vec digest Bit
-           in ((0, repeat 0), digest)  -- Reset for next message
+           in ((0, repeat 0), (digest, (0, 0)))  -- Reset for next message

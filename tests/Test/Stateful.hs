@@ -119,8 +119,9 @@ step4Tests = describe "Step 4: Single-round permutation (24 iterations)" $ do
     -- Sample 26: done (cnt=25), output digest, next=(0, zeros)
     -- Total: 27 samples (0-26), digest appears at sample 26
     let msgSig = pure msg :: Signal System (Vec 24 Bit)
+    let permutationComponent input = fmap (uncurry Permutation.KeccakF1600.keccakF1600Round) input
     let digestSig = withClockResetEnable clockGen resetGen enableGen $
-                      Stateful.stateful4 @System @256 @24 Permutation.KeccakF1600.keccakF1600Round msgSig
+                      Stateful.stateful4 @System @256 @24 permutationComponent msgSig
 
     -- Need 27 samples: initial + absorb (1) + 24 rounds + output (1)
     let samples = sampleN @System 27 digestSig

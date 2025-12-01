@@ -34,7 +34,7 @@ VARIANTS = {
     "S4": {
         "name": "Stateful4",
         "perm_module": "Permutation.KeccakF1600",  # reuse 1600 perm
-        "top_module": "Sponge.Stateful4",
+        "top_module": "Hash.Stateful4",
     },
 }
 
