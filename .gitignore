@@ -46,3 +46,4 @@ cabal.config
 
 .vscode
 /trace
+*.cabal
