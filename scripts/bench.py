@@ -137,10 +137,18 @@ def benchmark_variant(variant_key):
     )
     top_cpu, top_area, seq_pct = parse_synth_output(top_synth_output)
 
-    # Calculate total synthesis time
+    # Calculate totals
     total_cpu = None
     if perm_cpu is not None and top_cpu is not None:
         total_cpu = perm_cpu + top_cpu
+    elif top_cpu is not None:
+        total_cpu = top_cpu
+
+    combined_area = None
+    if perm_area is not None and top_area is not None:
+        combined_area = perm_area + top_area
+    elif top_area is not None:
+        combined_area = top_area
 
     # Print results
     print(f"\n[bench] Results for {name}:", file=sys.stderr)
@@ -149,13 +157,18 @@ def benchmark_variant(variant_key):
     print(f"Perm synth time:   {perm_cpu}s", file=sys.stderr)
     print(f"Top synth time:    {top_cpu}s", file=sys.stderr)
     print(f"Total synth time:  {total_cpu}s", file=sys.stderr)
-    print(f"Perm area:         {perm_area} µm²", file=sys.stderr)
-    print(f"Total area:        {top_area} µm² ({seq_pct}% sequential)", file=sys.stderr)
+    if perm_area is not None:
+        print(f"Perm area:         {perm_area} µm²", file=sys.stderr)
+    print(f"Top area:          {top_area} µm² ({seq_pct}% sequential)", file=sys.stderr)
+    if combined_area is not None and perm_area is not None:
+        print(f"Combined area:     {combined_area} µm² (perm + top)", file=sys.stderr)
 
     # Format for ATTEMPTS.md table
     vlog_str = f"{perm_vlog_time}s / {top_vlog_time}s"
     synth_str = f"{total_cpu:.2f}s ({perm_cpu}s / {top_cpu}s)"
-    area_str = f"{perm_area} (0%) / {top_area} ({seq_pct}%)"
+    area_str = f"{perm_area} / {top_area} ({seq_pct}%)"
+    if combined_area is not None and perm_area is not None:
+        area_str += f" (combined {combined_area})"
 
     table_row = f"| **Reintroduce Vec** | {vlog_str} | {synth_str} | {area_str} |"
 
