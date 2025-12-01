@@ -48,8 +48,8 @@ library:
     - SHA3
     - SHA3internal
     - Sponge
-    - Sponge.Pure
     - Sponge.Incremental
+    - Sponge.Combinational
     - Sponge.Reference
   other-modules:
     - Constants.Indices
