@@ -6,7 +6,7 @@
 
 -- | Incremental stateful SHA3-256 implementation
 -- Starting from Hash.Combinational and making it stateful step by step
-module Hash.Stateful (stateful0, stateful1, stateful2, stateful3, stateful4) where
+module Sponge.Stateful (stateful0, stateful1, stateful2, stateful3, stateful4) where
 
 import Clash.Prelude
 import qualified Hash.Combinational
@@ -139,9 +139,10 @@ stateful4 ::
   , msgBits + 2 <= n * 1088
   , msgBits + 4 <= n * 1088
   ) =>
+  (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (Vec msgBits Bit) ->
   Signal dom (Vec digest Bit)
-stateful4 = mealy step (0, repeat 0)
+stateful4 permutationFn = mealy step (0, repeat 0)
   where
     step :: State4 -> Vec msgBits Bit -> (State4, Vec digest Bit)
     step (cnt, state) msg
@@ -158,9 +159,9 @@ stateful4 = mealy step (0, repeat 0)
       | cnt >= 1 && cnt <= 24 =
           -- Run one round of permutation
           let roundIdx :: Index 24
-              roundIdx = resize (cnt - 1)  -- Round indices are 0-23, resize from Index 25 to Index 24
+              roundIdx = resize (cnt - 1)  -- Round indices are 0-23, resize from Index 26 to Index 24
               stateAsBitVector = pack state :: BitVector 1600
-              permuted = Permutation.KeccakF1600.keccakF1600Round roundIdx stateAsBitVector
+              permuted = permutationFn roundIdx stateAsBitVector  -- Use the parameter
            in ((cnt + 1, unpack permuted), repeat 0)  -- Continue to next round
       | otherwise =
           -- Done (cnt == 25): extract digest and reset

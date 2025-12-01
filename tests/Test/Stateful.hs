@@ -6,7 +6,8 @@ module Test.Stateful (spec) where
 
 import Clash.Prelude
 import qualified Prelude as P
-import qualified Hash.Stateful as Stateful
+import qualified Sponge.Stateful as Stateful
+import qualified Permutation.KeccakF1600
 import qualified Reference.SHA3 as SHA3
 import qualified Reference.SHA3internal as SHA3internal
 import Test.Hspec
@@ -119,7 +120,7 @@ step4Tests = describe "Step 4: Single-round permutation (24 iterations)" $ do
     -- Total: 27 samples (0-26), digest appears at sample 26
     let msgSig = pure msg :: Signal System (Vec 24 Bit)
     let digestSig = withClockResetEnable clockGen resetGen enableGen $
-                      Stateful.stateful4 @System @256 @24 msgSig
+                      Stateful.stateful4 @System @256 @24 Permutation.KeccakF1600.keccakF1600Round msgSig
 
     -- Need 27 samples: initial + absorb (1) + 24 rounds + output (1)
     let samples = sampleN @System 27 digestSig
