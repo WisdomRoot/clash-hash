@@ -3,7 +3,6 @@
 module Main (main) where
 
 import Test.Combinational qualified
-import Test.Complete qualified
 import Test.Constants qualified
 import Test.Permutation qualified
 import Test.Stateful qualified
