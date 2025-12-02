@@ -33,9 +33,9 @@
             runtimeInputs = [ pkgs.python3 yosysPkg ];
             text = ''
               set -euo pipefail
-              script_path="$PWD/scripts/synth_verilog.py"
+              script_path="$PWD/scripts/synth.py"
               if [ ! -f "$script_path" ]; then
-                echo "error: scripts/synth_verilog.py not found; run from the repository root" >&2
+                echo "error: scripts/synth.py not found; run from the repository root" >&2
                 exit 1
               fi
               exec ${pkgs.python3}/bin/python "$script_path" "$@"

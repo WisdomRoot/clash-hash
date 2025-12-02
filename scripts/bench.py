@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
-"""Benchmark script to collect synthesis metrics for Keccak variants."""
+"""
+Manifest-driven bench script (single target only).
+
+Given a target name (directory under ./verilog), it will:
+  - Read verilog/<target>/clash-manifest.json
+  - Synthesise the target using scripts/synth.py
+  - Parse the target's yosys.log to report total and per-module area/seq%
+
+No dependency synthesis is performed. Run inside `nix develop` so yosys is on PATH.
+"""
+
+from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+VERILOG_ROOT = PROJECT_ROOT / "verilog"
 
 
 def fmt2(value):
@@ -16,226 +29,223 @@ def fmt2(value):
         return "N/A"
     return f"{value:.2f}"
 
-# Map subcommand to variant details (module names for Clash invocation)
-VARIANTS = {
-    "F200": {
-        "name": "KeccakF200",
-        "perm_module": "Permutation.KeccakF200",
-        "top_module": "Hash.KeccakF200",
-    },
-    "F400": {
-        "name": "KeccakF400",
-        "perm_module": "Permutation.KeccakF400",
-        "top_module": "Hash.KeccakF400",
-    },
-    "F800": {
-        "name": "KeccakF800",
-        "perm_module": "Permutation.KeccakF800",
-        "top_module": "Hash.KeccakF800",
-    },
-    "SHA3": {
-        "name": "KeccakF1600",
-        "perm_module": "Permutation.KeccakF1600",
-        "top_module": "Hash.KeccakF1600",
-    },
-    "S4": {
-        "name": "Stateful4",
-        "perm_module": "Permutation.KeccakF1600",  # reuse 1600 perm
-        "top_module": "Hash.Stateful4",
-    },
-}
+
+def fmt_area(value):
+    """Format area with three decimals; return 'N/A' for None."""
+    if value is None:
+        return "N/A"
+    return f"{value:.3f}"
 
 
-def run_command(cmd, description, timeout=3600):
-    """Run a command and return stdout."""
-    print(f"[bench] {description}...", file=sys.stderr)
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=PROJECT_ROOT,
-            text=True,
-            capture_output=True,
-            timeout=timeout,
-        )
-        if result.returncode != 0:
-            print(f"[bench] ERROR: {description} failed with exit code {result.returncode}", file=sys.stderr)
-            print(f"[bench] Run this command to see the error:", file=sys.stderr)
-            print(f"  {' '.join(cmd)}", file=sys.stderr)
-            sys.exit(1)
-        return result.stdout + result.stderr
-    except subprocess.TimeoutExpired:
-        print(f"[bench] ERROR: {description} timed out after {timeout}s", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"[bench] ERROR: {description} failed: {e}", file=sys.stderr)
-        sys.exit(1)
+def fmt_mem(value):
+    """Format memory in MB with two decimals; return 'N/A' for None."""
+    if value is None:
+        return "N/A"
+    return f"{value:.2f}"
 
 
-def parse_verilog_gen_time(output, entity_name):
-    """Parse Clash output for 'Compiling <entity> took X.XXXs'."""
-    pattern = rf"Compiling {re.escape(entity_name)} took ([0-9.]+)s"
-    match = re.search(pattern, output)
-    if match:
-        return float(match.group(1))
-    print(f"[bench] WARNING: Could not find Verilog gen time for {entity_name}", file=sys.stderr)
-    return None
+def run_cmd(cmd, label, timeout=3600):
+    print(f"[bench] {label}...", file=sys.stderr)
+    result = subprocess.run(
+        cmd,
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+        timeout=timeout,
+    )
+    if result.returncode != 0:
+        print(result.stdout + result.stderr, file=sys.stderr)
+        sys.exit(f"[bench] ERROR: {label} failed (exit {result.returncode})")
+    return result.stdout + result.stderr
 
 
-def parse_synth_output(output):
-    """Parse synth output for CPU time, chip area, and sequential utilization."""
-    cpu_time = None
-    chip_area = None
+def parse_report(label: str) -> str | None:
+    report = PROJECT_ROOT / "build" / "synth" / label / "reports" / "yosys.log"
+    if not report.is_file():
+        return None
+    return report.read_text(encoding="utf-8")
+
+
+def parse_synth_output(text: str):
+    """Extract cpu time, chip area, sequential area/%, and per-module area+seq."""
+    cpu = None
+    mem = None
+    area = None
     seq_area = None
     seq_pct = None
+    module_info: dict[str, tuple[float | None, float | None, float | None]] = {}
 
-    # CPU user  : 1.06s
-    cpu_match = re.search(r"CPU user\s*:\s*([0-9.]+)s", output)
-    if cpu_match:
-        cpu_time = float(cpu_match.group(1))
+    # CPU: user 12.53s system 0.63s (take the last one)
+    m_all = list(re.finditer(r"CPU:\s*user\s*([0-9.]+)s", text))
+    if m_all:
+        cpu = float(m_all[-1].group(1))
 
-    # Chip area : 1948.450
-    area_match = re.search(r"Chip area\s*:\s*([0-9.]+)", output)
-    if area_match:
-        chip_area = float(area_match.group(1))
+    # MEM: 3293.16 MB peak (take the last one)
+    m_all = list(re.finditer(r"MEM:\s*([0-9.]+) MB", text))
+    if m_all:
+        mem = float(m_all[-1].group(1))
 
-    # of which used for sequential elements: 1452.360000 (27.55%)
-    seq_match = re.search(r"of which used for sequential elements:\s*([0-9.]+)\s*\(([0-9.]+)%\)", output)
-    if seq_match:
-        seq_area = float(seq_match.group(1))
-        seq_pct = float(seq_match.group(2))
+    # Stream through lines to associate area + seq with modules
+    current_mod: str | None = None
+    for raw in text.splitlines():
+        line = raw.strip()
+        m_top = re.match(r"Chip area for top module '\\?([^']+)':\s*([0-9.]+)", line)
+        m_mod = re.match(r"Chip area for module '\\?([^']+)':\s*([0-9.]+)", line)
+        if m_top:
+            name, val = m_top.group(1), float(m_top.group(2))
+            area = val
+            module_info[name] = (val, None, None)
+            current_mod = name
+            continue
+        if m_mod:
+            name, val = m_mod.group(1), float(m_mod.group(2))
+            module_info[name] = (val, None, None)
+            current_mod = name
+            continue
 
-    return cpu_time, chip_area, seq_area, seq_pct
+        m_seq = re.match(
+            r"of which used for sequential elements:\s*([0-9.]+)\s*\(([0-9.]+)%\)",
+            line,
+        )
+        if m_seq and current_mod:
+            sa, sp = float(m_seq.group(1)), float(m_seq.group(2))
+            area_val, _, _ = module_info.get(current_mod, (None, None, None))
+            module_info[current_mod] = (area_val, sa, sp)
+            # If this is the top module, also populate top seq
+            if current_mod and area is not None and current_mod in module_info:
+                seq_area = sa
+                seq_pct = sp
+
+    # Fallback: if top area not found but any area exists, use last generic chip area
+    if area is None:
+        m_all = list(re.finditer(r"Chip area[^:]*:\s*([0-9.]+)", text))
+        if m_all:
+            area = float(m_all[-1].group(1))
+
+    # If seq missing, try last seq line globally
+    if seq_area is None or seq_pct is None:
+        m_all = list(
+            re.finditer(r"of which used for sequential elements:\s*([0-9.]+)\s*\(([0-9.]+)%\)", text)
+        )
+        if m_all:
+            seq_area = float(m_all[-1].group(1))
+            seq_pct = float(m_all[-1].group(2))
+
+    return cpu, mem, area, seq_area, seq_pct, module_info
 
 
-def benchmark_variant(variant_key):
-    """Run benchmark for a variant and collect all 6 metrics."""
-    variant = VARIANTS[variant_key]
-    name = variant["name"]
+def parse_clash_timings(text: str):
+    """Extract GHC+Clash load time and per-top compile time from Clash output."""
+    load = None
+    top_compile = None
 
-    # 0. Clean stale builds
-    run_command(
-        ["stack", "clean"],
-        "Cleaning stale builds",
+    m = re.search(r"GHC\+Clash: Loading modules cumulatively took ([0-9.]+)s", text)
+    if m:
+        load = float(m.group(1))
+
+    # Prefer the last "Clash: Compiling <...> took Xs" line
+    m_all = list(re.finditer(r"Clash: Compiling .* took ([0-9.]+)s", text))
+    if m_all:
+        top_compile = float(m_all[-1].group(1))
+
+    return load, top_compile
+
+
+def load_manifest(label: str) -> dict:
+    path = VERILOG_ROOT / label / "clash-manifest.json"
+    if not path.is_file():
+        sys.exit(f"[bench] ERROR: manifest not found at {path}")
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        sys.exit(f"[bench] ERROR: could not read manifest {path}: {exc}")
+
+
+def module_from_label(label: str) -> str:
+    """Infer Clash module name from verilog directory label.
+
+    Convention: <Module>.topEntity → <Module>
+    """
+    suffix = ".topEntity"
+    return label[: -len(suffix)] if label.endswith(suffix) else label
+
+
+def synth_label(label: str) -> str:
+    return " ".join(
+        [
+            "nix",
+            "develop",
+            "--command",
+            "python3",
+            "scripts/synth.py",
+            label,
+        ]
     )
 
-    # 1. Verilog generation for Permutation
-    perm_verilog_output = run_command(
-        ["stack", "exec", "clash", "--", "--verilog", f"{variant['perm_module']}"] ,
-        f"Verilog gen for {variant['perm_module']}.topEntity",
+
+def run_synth(label: str):
+    run_cmd(
+        [
+            "nix",
+            "develop",
+            "--command",
+            "python3",
+            "scripts/synth.py",
+            label,
+        ],
+        f"Synth {label}",
     )
-    perm_vlog_time = parse_verilog_gen_time(perm_verilog_output, f"{variant['perm_module']}.topEntity")
+    report_text = parse_report(label)
+    if report_text is None:
+        sys.exit(f"[bench] ERROR: missing report for {label}")
+    return parse_synth_output(report_text)
 
-    # 2. Verilog generation for Top
-    top_verilog_output = run_command(
-        ["stack", "exec", "clash", "--", "--verilog", f"{variant['top_module']}"] ,
-        f"Verilog gen for {variant['top_module']}.topEntity",
+
+def bench(target_label: str):
+    module_name = module_from_label(target_label)
+
+    # (Re)generate Verilog for the target and capture Clash timings
+    clash_output = run_cmd(
+        [
+            "stack",
+            "exec",
+            "clash",
+            "--",
+            "--verilog",
+            module_name,
+        ],
+        f"Verilog gen for {module_name}",
     )
-    top_vlog_time = parse_verilog_gen_time(top_verilog_output, f"{variant['top_module']}.topEntity")
 
-    # 3. Synthesis for Permutation
-    perm_synth_output = run_command(
-        ["nix", "develop", "--command", "synth", f"{variant['perm_module']}.topEntity"],
-        f"Synthesis for {variant['perm_module']}.topEntity",
+    load_time, compile_time = parse_clash_timings(clash_output)
+
+    manifest = load_manifest(target_label)
+    cpu, mem, area, seq_area, seq_pct, modules = run_synth(target_label)
+
+    if modules:
+        print("\n[bench] Module areas (from stat):")
+        header = f"{'module':<45} {'area (µm²)':>14} {'seq area (µm²)':>16} {'seq %':>8}"
+        print("  " + header)
+        print("  " + "-" * len(header))
+        for mod, (a, sa, sp) in sorted(modules.items()):
+            row = f"{mod:<45} {fmt_area(a):>14} {fmt_area(sa):>16} {fmt2(sp):>8}%"
+            print("  " + row)
+
+    print(
+        "\n[bench] Time/Mem: load {0}s | compile {1}s | synth {2}s | mem {3} MB".format(
+            fmt2(load_time), fmt2(compile_time), fmt2(cpu), fmt_mem(mem)
+        )
     )
-    perm_cpu, perm_area, perm_seq_area, perm_seq_pct = parse_synth_output(perm_synth_output)
 
-    # 4. Synthesis for Top
-    top_synth_output = run_command(
-        ["nix", "develop", "--command", "synth", f"{variant['top_module']}.topEntity"],
-        f"Synthesis for {variant['top_module']}.topEntity",
-    )
-    top_cpu, top_area, top_seq_area, top_seq_pct = parse_synth_output(top_synth_output)
-
-    # Calculate totals
-    total_cpu = None
-    if perm_cpu is not None and top_cpu is not None:
-        total_cpu = perm_cpu + top_cpu
-    elif top_cpu is not None:
-        total_cpu = top_cpu
-
-    combined_area = None
-    combined_seq_area = None
-    combined_seq_pct = None
-    if perm_area is not None and top_area is not None:
-        combined_area = perm_area + top_area
-        if perm_seq_area is not None and top_seq_area is not None:
-            combined_seq_area = perm_seq_area + top_seq_area
-            if combined_area:
-                combined_seq_pct = (combined_seq_area / combined_area) * 100
-    elif top_area is not None:
-        combined_area = top_area
-        combined_seq_area = top_seq_area
-        combined_seq_pct = top_seq_pct
-
-    # Print results
-    print(f"\n[bench] Results for {name}:", file=sys.stderr)
-    print(f"Perm Verilog gen:  {fmt2(perm_vlog_time)}s", file=sys.stderr)
-    print(f"Top Verilog gen:   {fmt2(top_vlog_time)}s", file=sys.stderr)
-    print(f"Perm synth time:   {fmt2(perm_cpu)}s", file=sys.stderr)
-    print(f"Top synth time:    {fmt2(top_cpu)}s", file=sys.stderr)
-    print(f"Total synth time:  {fmt2(total_cpu)}s", file=sys.stderr)
-    if perm_area is not None:
-        if perm_seq_area is not None:
-            print(
-                f"Perm area:         {perm_area} µm² (seq {perm_seq_area} µm², {perm_seq_pct:.2f}% seq)",
-                file=sys.stderr,
-            )
-        else:
-            print(f"Perm area:         {perm_area} µm²", file=sys.stderr)
-    if top_area is not None:
-        if top_seq_area is not None:
-            print(
-                f"Top area:          {top_area} µm² (seq {top_seq_area} µm², {top_seq_pct:.2f}% seq)",
-                file=sys.stderr,
-            )
-        else:
-            print(f"Top area:          {top_area} µm²", file=sys.stderr)
-    if combined_area is not None:
-        if combined_seq_area is not None:
-            print(
-                f"Combined area:     {combined_area} µm² (seq {combined_seq_area} µm², {combined_seq_pct:.2f}% seq)",
-                file=sys.stderr,
-            )
-        else:
-            print(f"Combined area:     {combined_area} µm²", file=sys.stderr)
-
-    # Format for ATTEMPTS.md table
-    vlog_str = f"{fmt2(perm_vlog_time)}s / {fmt2(top_vlog_time)}s"
-    synth_str = f"{fmt2(total_cpu)}s ({fmt2(perm_cpu)}s / {fmt2(top_cpu)}s)"
-    if perm_area is not None and perm_seq_area is not None:
-        perm_area_str = f"{perm_area} (seq {perm_seq_area}, {perm_seq_pct:.2f}%)"
-    else:
-        perm_area_str = str(perm_area)
-
-    if top_area is not None and top_seq_area is not None:
-        top_area_str = f"{top_area} (seq {top_seq_area}, {top_seq_pct:.2f}%)"
-    else:
-        top_area_str = str(top_area)
-
-    area_str = f"{perm_area_str} / {top_area_str}"
-
-    if combined_area is not None:
-        if combined_seq_area is not None:
-            area_str += f" (combined {combined_area}, seq {combined_seq_area}, {combined_seq_pct:.2f}%)"
-        else:
-            area_str += f" (combined {combined_area})"
-
-    table_row = f"| **Reintroduce Vec** | {vlog_str} | {synth_str} | {area_str} |"
-
-    print(f"\n[bench] ATTEMPTS.md table row:", file=sys.stderr)
-    print(table_row)
+    # Final chip summary intentionally omitted; top module appears in the table.
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark Keccak variants")
-    parser.add_argument(
-        "variant",
-        choices=list(VARIANTS.keys()),
-        help="Variant to benchmark (F200, F400, F800, SHA3)",
-    )
+    parser = argparse.ArgumentParser(description="Manifest-driven synthesis benchmark")
+    parser.add_argument("target", help="Directory name under ./verilog (e.g., Hash.Stateful4.topEntity)")
     args = parser.parse_args()
 
-    benchmark_variant(args.variant)
+    bench(args.target)
 
 
 if __name__ == "__main__":
