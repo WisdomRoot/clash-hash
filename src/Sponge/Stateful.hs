@@ -6,7 +6,7 @@
 
 -- | Incremental stateful SHA3-256 implementation
 -- Starting from Hash.Combinational and making it stateful step by step
-module Sponge.Stateful (stateful0, stateful1, stateful2, stateful3, stateful4) where
+module Sponge.Stateful (stateful0, stateful1, stateful2, stateful3, stateful4, PaddedBlocks) where
 
 import Clash.Prelude
 import qualified Hash.Combinational
@@ -16,7 +16,7 @@ import qualified Permutation.KeccakF1600
 type PaddedBlocks rate msgBits = DivRU (msgBits + 2) rate
 
 -- ============================================================================
--- Step 0: Baseline - Copy Hash.Combinational.truncated
+-- Step 0: Baseline - Copy Hash.Combinational.truncate
 -- ============================================================================
 
 -- | Step 0: Direct copy of truncated function
@@ -31,7 +31,7 @@ stateful0 ::
   ) =>
   Vec msgBits Bit ->     -- Message (without suffix)
   Vec digest Bit         -- Digest (e.g., 256 bits for SHA3-256)
-stateful0 = Hash.Combinational.truncated @digest @msgBits @n
+stateful0 = Hash.Combinational.truncate @digest @msgBits @n
 
 -- ============================================================================
 -- Step 1: Make it Registered (Add register, keep pure function)
@@ -52,7 +52,7 @@ stateful1 ::
   Signal dom (Vec digest Bit)
 stateful1 msgSig = register (repeat 0) digestSig
   where
-    digestSig = fmap (Hash.Combinational.truncated @digest @msgBits @n) msgSig
+    digestSig = fmap (Hash.Combinational.truncate @digest @msgBits @n) msgSig
 
 -- ============================================================================
 -- Step 2: Convert to Mealy Machine (with trivial empty state)
@@ -74,7 +74,7 @@ stateful2 ::
 stateful2 = mealy step ()
   where
     step :: () -> Vec msgBits Bit -> ((), Vec digest Bit)
-    step () msg = ((), Hash.Combinational.truncated @digest @msgBits @n msg)
+    step () msg = ((), Hash.Combinational.truncate @digest @msgBits @n msg)
 
 -- ============================================================================
 -- Step 3: Add state machine that iterates permutation (setup structure)
@@ -102,7 +102,7 @@ stateful3 = mealy step (0, repeat 0)
       if cnt == 0
         then
           -- First iteration: absorb message and run permutation
-          let blocks = Hash.Combinational.padded @msgBits @n msg
+          let blocks = Hash.Combinational.pad @msgBits @n msg
               -- Use foldl to absorb blocks (for "abc" there's 1 block)
               absorb :: Vec n (Vec 1088 Bit) -> Vec 1600 Bit
               absorb = foldl absorbBlock (repeat 0)
@@ -154,7 +154,7 @@ stateful4 permutationComponent msgSig = digestSig
     step (cnt, state) (msg, permResult)
       | cnt == 0 =
           -- Absorb message (no permutation yet)
-          let blocks = Hash.Combinational.padded @msgBits @n msg
+          let blocks = Hash.Combinational.pad @msgBits @n msg
               -- Use foldl to absorb blocks, but XOR only (no permutation in absorption)
               absorb :: Vec n (Vec 1088 Bit) -> Vec 1600 Bit
               absorb = foldl absorbBlock (repeat 0)

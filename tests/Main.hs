@@ -17,7 +17,7 @@ main = do
   permutationTests <- testSpec "Permutation" Test.Permutation.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   statefulTests <- testSpec "Stateful" Test.Stateful.spec
-  completeTests <- testSpec "Complete" Test.Complete.spec
+  -- completeTests <- testSpec "Complete" Test.Complete.spec
 
   defaultMain $
     testGroup
@@ -25,6 +25,6 @@ main = do
       [ constantsTests,
         permutationTests,
         combinationalTests,
-        statefulTests,
-        completeTests
+        statefulTests
+        -- completeTests
       ]

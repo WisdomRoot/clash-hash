@@ -1,14 +1,14 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 -- | Combinational SHA3-256 implementation
-module Hash.Combinational (padded, absorbed, squeezed, truncated, hash, topEntity) where
+module Hash.Combinational (pad, absorb, squeeze, truncate, hash, topEntity) where
 
-import Clash.Prelude
-import qualified Permutation.KeccakF1600
+import Clash.Prelude hiding (truncate)
+import Permutation.KeccakF1600 qualified
 
 -- | Number of rate-blocks needed for padded message
 -- The message already has suffix (2 bits), so we need room for:
@@ -20,68 +20,70 @@ type PaddedBlocks rate msgBits = DivRU (msgBits + 2) rate
 -- ============================================================================
 
 -- | Pad message to rate-sized blocks
-padded ::
+pad ::
   forall msgBits n.
-  ( KnownNat msgBits, KnownNat n
-  , n ~ PaddedBlocks 1088 msgBits
-  , msgBits + 2 <= n * 1088
-  , msgBits + 4 <= n * 1088  -- Need room for msg + suffix (2) + pad start (1) + pad end (1)
+  ( KnownNat msgBits,
+    KnownNat n,
+    n ~ PaddedBlocks 1088 msgBits,
+    msgBits + 2 <= n * 1088,
+    msgBits + 4 <= n * 1088 -- Need room for msg + suffix (2) + pad start (1) + pad end (1)
   ) =>
-  Vec msgBits Bit ->   -- Message (without suffix)
+  Vec msgBits Bit -> -- Message (without suffix)
   Vec n (Vec 1088 Bit) -- Padded blocks
-padded msg =
+pad msg =
   let msgWithSuffix = msg ++ unpack (0b01 :: BitVector 2)
-   in unconcatI @n @1088 $
-        msgWithSuffix ++ singleton 1 ++ repeat @(n * 1088 - (msgBits + 4)) 0 ++ singleton 1
+   in unconcatI @n @1088
+        $ msgWithSuffix
+        ++ singleton 1
+        ++ repeat @(n * 1088 - (msgBits + 4)) 0
+        ++ singleton 1
 
 -- ============================================================================
 -- Step 2: absorb . pad (message → absorbed state)
 -- ============================================================================
 
--- | absorbed = absorb . padded
--- Absorb padded blocks into state using keccakF1600
-absorbed ::
+-- | Absorb padded blocks into state using keccakF1600
+absorb ::
   forall msgBits n.
-  ( KnownNat msgBits, KnownNat n
-  , n ~ PaddedBlocks 1088 msgBits
-  , msgBits + 2 <= n * 1088
-  , msgBits + 4 <= n * 1088
+  ( KnownNat msgBits,
+    KnownNat n,
+    n ~ PaddedBlocks 1088 msgBits,
+    msgBits + 2 <= n * 1088,
+    msgBits + 4 <= n * 1088
   ) =>
-  Vec msgBits Bit ->   -- Message (without suffix)
-  Vec 1600 Bit         -- Absorbed state
-absorbed msg =
-  let blocks = padded msg  -- Step 1: pad
-      -- absorb: foldl (keccakF1600 . xor) (repeat 0) blocks
-      absorb :: Vec n (Vec 1088 Bit) -> Vec 1600 Bit
-      absorb = foldl g (repeat 0)
-        where
-          g :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
-          g s block =
-            let xorState = zipWith xor s (block ++ repeat @512 0)
-                stateAsBitVector = pack xorState :: BitVector 1600
-                permuted = Permutation.KeccakF1600.keccakF1600 stateAsBitVector
-             in unpack permuted
-   in absorb blocks
+  Vec msgBits Bit -> -- Message (without suffix)
+  Vec 1600 Bit -- Absorbed state
+absorb msg =
+  let blocks = pad msg -- Step 1: pad
+   in foldl g (repeat 0) blocks
+  where
+    -- absorb: foldl (keccakF1600 . xor) (repeat 0) blocks
+    g :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
+    g s block =
+      let xorState = zipWith xor s (block ++ repeat @512 0)
+          stateAsBitVector = pack xorState :: BitVector 1600
+          permuted = Permutation.KeccakF1600.keccakF1600 stateAsBitVector
+       in unpack permuted
 
 -- ============================================================================
 -- Step 3: squeeze . absorb . pad (message → squeezed blocks)
 -- ============================================================================
 
--- | squeezed = squeeze . absorbed
--- Squeeze output blocks from absorbed state using keccakF1600
-squeezed ::
+-- | Squeeze output blocks from absorbed state using keccakF1600
+squeeze ::
   forall msgBits n.
-  ( KnownNat msgBits, KnownNat n
-  , n ~ PaddedBlocks 1088 msgBits
-  , msgBits + 2 <= n * 1088
-  , msgBits + 4 <= n * 1088
+  ( KnownNat msgBits,
+    KnownNat n,
+    n ~ PaddedBlocks 1088 msgBits,
+    msgBits + 2 <= n * 1088,
+    msgBits + 4 <= n * 1088
   ) =>
-  Vec msgBits Bit ->         -- Message (without suffix)
-  Vec 1 (Vec 1088 Bit)       -- Squeezed blocks (1 block for SHA3-256)
-squeezed msg =
-  let state = absorbed msg  -- Step 2: absorb . pad
-      -- squeeze: map takeI . iterateI keccakF1600
-      -- For SHA3-256: need 1 block (256 bits fits in 1088-bit rate)
+  Vec msgBits Bit -> -- Message (without suffix)
+  Vec 1 (Vec 1088 Bit) -- Squeezed blocks (1 block for SHA3-256)
+squeeze msg =
+  let state = absorb msg -- Step 2: absorb . pad
+  -- squeeze: map takeI . iterateI keccakF1600
+  -- For SHA3-256: need 1 block (256 bits fits in 1088-bit rate)
    in map (leToPlusKN @1088 @1600 takeI) $ iterateI keccakF1600Wrapper state
   where
     keccakF1600Wrapper :: Vec 1600 Bit -> Vec 1600 Bit
@@ -94,23 +96,23 @@ squeezed msg =
 -- Step 4: trunc . squeeze . absorb . pad (message → digest)
 -- ============================================================================
 
--- | truncated = trunc . squeezed
--- Take the first digest bits from the squeezed rate block (single block case).
-truncated ::
+-- | Take the first digest bits from the squeezed rate block (single block case).
+truncate ::
   forall digest msgBits n.
-  ( KnownNat digest, KnownNat msgBits, KnownNat n
-  , digest <= 1088
-  , n ~ PaddedBlocks 1088 msgBits
-  , msgBits + 2 <= n * 1088
-  , msgBits + 4 <= n * 1088
+  ( KnownNat digest,
+    KnownNat msgBits,
+    KnownNat n,
+    digest <= 1088,
+    n ~ PaddedBlocks 1088 msgBits,
+    msgBits + 2 <= n * 1088,
+    msgBits + 4 <= n * 1088
   ) =>
-  Vec msgBits Bit ->     -- Message (without suffix)
-  Vec digest Bit         -- Digest (e.g., 256 bits for SHA3-256)
-truncated msg =
-  let squeezedBlocks = squeezed @msgBits @n msg  -- Step 3
-      firstBlock = head squeezedBlocks              -- Only need the first 1088-bit block
-   in leToPlusKN @digest @1088 takeI firstBlock     -- Truncate to digest width
-
+  Vec msgBits Bit -> -- Message (without suffix)
+  Vec digest Bit -- Digest (e.g., 256 bits for SHA3-256)
+truncate msg =
+  let squeezedBlocks = squeeze @msgBits @n msg -- Step 3
+      firstBlock = head squeezedBlocks -- Only need the first 1088-bit block
+   in leToPlusKN @digest @1088 takeI firstBlock -- Truncate to digest width
 
 -- | Fixed-width digest: SHA3-256 over a 64-bit message (no suffix needed).
 -- You can change 'MsgBits' to specialize for other fixed-width messages.
@@ -120,17 +122,18 @@ type MsgBits = 64
 hash :: BitVector MsgBits -> BitVector 256
 hash msgBV =
   let msgBits = unpack msgBV :: Vec MsgBits Bit
-      digestBits = truncated @256 @MsgBits msgBits
+      digestBits = truncate @256 @MsgBits msgBits
    in pack digestBits
 
 -- | Clash topEntity for synthesis/simulation.
 topEntity :: BitVector MsgBits -> BitVector 256
 topEntity = hash
-
-{-# ANN topEntity
-  (Synthesize
-    { t_name   = "combinational"
-    , t_inputs = [PortName "msg"]
-    , t_output = PortName "digest"
-    })
+{-# ANN
+  topEntity
+  ( Synthesize
+      { t_name = "combinational",
+        t_inputs = [PortName "msg"],
+        t_output = PortName "digest"
+      }
+  )
   #-}
