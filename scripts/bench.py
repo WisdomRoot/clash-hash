@@ -9,6 +9,13 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+
+def fmt2(value):
+    """Format float to two decimals; return 'N/A' for None."""
+    if value is None:
+        return "N/A"
+    return f"{value:.2f}"
+
 # Map subcommand to variant details (module names for Clash invocation)
 VARIANTS = {
     "F200": {
@@ -75,9 +82,10 @@ def parse_verilog_gen_time(output, entity_name):
 
 
 def parse_synth_output(output):
-    """Parse synth output for CPU time, chip area, and sequential percentage."""
+    """Parse synth output for CPU time, chip area, and sequential utilization."""
     cpu_time = None
     chip_area = None
+    seq_area = None
     seq_pct = None
 
     # CPU user  : 1.06s
@@ -91,11 +99,12 @@ def parse_synth_output(output):
         chip_area = float(area_match.group(1))
 
     # of which used for sequential elements: 1452.360000 (27.55%)
-    seq_match = re.search(r"of which used for sequential elements:.*\(([0-9.]+)%\)", output)
+    seq_match = re.search(r"of which used for sequential elements:\s*([0-9.]+)\s*\(([0-9.]+)%\)", output)
     if seq_match:
-        seq_pct = float(seq_match.group(1))
+        seq_area = float(seq_match.group(1))
+        seq_pct = float(seq_match.group(2))
 
-    return cpu_time, chip_area, seq_pct
+    return cpu_time, chip_area, seq_area, seq_pct
 
 
 def benchmark_variant(variant_key):
@@ -128,14 +137,14 @@ def benchmark_variant(variant_key):
         ["nix", "develop", "--command", "synth", f"{variant['perm_module']}.topEntity"],
         f"Synthesis for {variant['perm_module']}.topEntity",
     )
-    perm_cpu, perm_area, _ = parse_synth_output(perm_synth_output)
+    perm_cpu, perm_area, perm_seq_area, perm_seq_pct = parse_synth_output(perm_synth_output)
 
     # 4. Synthesis for Top
     top_synth_output = run_command(
         ["nix", "develop", "--command", "synth", f"{variant['top_module']}.topEntity"],
         f"Synthesis for {variant['top_module']}.topEntity",
     )
-    top_cpu, top_area, seq_pct = parse_synth_output(top_synth_output)
+    top_cpu, top_area, top_seq_area, top_seq_pct = parse_synth_output(top_synth_output)
 
     # Calculate totals
     total_cpu = None
@@ -145,30 +154,71 @@ def benchmark_variant(variant_key):
         total_cpu = top_cpu
 
     combined_area = None
+    combined_seq_area = None
+    combined_seq_pct = None
     if perm_area is not None and top_area is not None:
         combined_area = perm_area + top_area
+        if perm_seq_area is not None and top_seq_area is not None:
+            combined_seq_area = perm_seq_area + top_seq_area
+            if combined_area:
+                combined_seq_pct = (combined_seq_area / combined_area) * 100
     elif top_area is not None:
         combined_area = top_area
+        combined_seq_area = top_seq_area
+        combined_seq_pct = top_seq_pct
 
     # Print results
     print(f"\n[bench] Results for {name}:", file=sys.stderr)
-    print(f"Perm Verilog gen:  {perm_vlog_time}s", file=sys.stderr)
-    print(f"Top Verilog gen:   {top_vlog_time}s", file=sys.stderr)
-    print(f"Perm synth time:   {perm_cpu}s", file=sys.stderr)
-    print(f"Top synth time:    {top_cpu}s", file=sys.stderr)
-    print(f"Total synth time:  {total_cpu}s", file=sys.stderr)
+    print(f"Perm Verilog gen:  {fmt2(perm_vlog_time)}s", file=sys.stderr)
+    print(f"Top Verilog gen:   {fmt2(top_vlog_time)}s", file=sys.stderr)
+    print(f"Perm synth time:   {fmt2(perm_cpu)}s", file=sys.stderr)
+    print(f"Top synth time:    {fmt2(top_cpu)}s", file=sys.stderr)
+    print(f"Total synth time:  {fmt2(total_cpu)}s", file=sys.stderr)
     if perm_area is not None:
-        print(f"Perm area:         {perm_area} µm²", file=sys.stderr)
-    print(f"Top area:          {top_area} µm² ({seq_pct}% sequential)", file=sys.stderr)
-    if combined_area is not None and perm_area is not None:
-        print(f"Combined area:     {combined_area} µm² (perm + top)", file=sys.stderr)
+        if perm_seq_area is not None:
+            print(
+                f"Perm area:         {perm_area} µm² (seq {perm_seq_area} µm², {perm_seq_pct:.2f}% seq)",
+                file=sys.stderr,
+            )
+        else:
+            print(f"Perm area:         {perm_area} µm²", file=sys.stderr)
+    if top_area is not None:
+        if top_seq_area is not None:
+            print(
+                f"Top area:          {top_area} µm² (seq {top_seq_area} µm², {top_seq_pct:.2f}% seq)",
+                file=sys.stderr,
+            )
+        else:
+            print(f"Top area:          {top_area} µm²", file=sys.stderr)
+    if combined_area is not None:
+        if combined_seq_area is not None:
+            print(
+                f"Combined area:     {combined_area} µm² (seq {combined_seq_area} µm², {combined_seq_pct:.2f}% seq)",
+                file=sys.stderr,
+            )
+        else:
+            print(f"Combined area:     {combined_area} µm²", file=sys.stderr)
 
     # Format for ATTEMPTS.md table
-    vlog_str = f"{perm_vlog_time}s / {top_vlog_time}s"
-    synth_str = f"{total_cpu:.2f}s ({perm_cpu}s / {top_cpu}s)"
-    area_str = f"{perm_area} / {top_area} ({seq_pct}%)"
-    if combined_area is not None and perm_area is not None:
-        area_str += f" (combined {combined_area})"
+    vlog_str = f"{fmt2(perm_vlog_time)}s / {fmt2(top_vlog_time)}s"
+    synth_str = f"{fmt2(total_cpu)}s ({fmt2(perm_cpu)}s / {fmt2(top_cpu)}s)"
+    if perm_area is not None and perm_seq_area is not None:
+        perm_area_str = f"{perm_area} (seq {perm_seq_area}, {perm_seq_pct:.2f}%)"
+    else:
+        perm_area_str = str(perm_area)
+
+    if top_area is not None and top_seq_area is not None:
+        top_area_str = f"{top_area} (seq {top_seq_area}, {top_seq_pct:.2f}%)"
+    else:
+        top_area_str = str(top_area)
+
+    area_str = f"{perm_area_str} / {top_area_str}"
+
+    if combined_area is not None:
+        if combined_seq_area is not None:
+            area_str += f" (combined {combined_area}, seq {combined_seq_area}, {combined_seq_pct:.2f}%)"
+        else:
+            area_str += f" (combined {combined_area})"
 
     table_row = f"| **Reintroduce Vec** | {vlog_str} | {synth_str} | {area_str} |"
 
