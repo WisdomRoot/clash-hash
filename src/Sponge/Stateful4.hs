@@ -37,40 +37,32 @@ stateful4 ::
     msgBits + 2 <= n * 1088,
     msgBits + 4 <= n * 1088
   ) =>
-  (Signal dom (Index 24, BitVector 1600) -> Signal dom (BitVector 1600)) -> -- Permutation component
+  (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (BitVector msgBits) ->
   Signal dom (BitVector digest)
-stateful4 permutationComponent msgSig = digestSig
+stateful4 permutationFn msgSig = fmap fst $ mealy step (0, 0) msgSig
   where
-    -- FSM with feedback loop through permutation component
-    (digestSig, permIn) = unbundle $ mealy step (0, 0) (bundle (fmap pack msgSig, stateAfterPerm))
-
-    -- Permutation component instantiation
-    stateAfterPerm = permutationComponent permIn
-
-    step :: State4 -> (BitVector msgBits, BitVector 1600) -> (State4, (BitVector digest, (Index 24, BitVector 1600)))
-    step (cnt, state) (msg, permResult)
+    step :: State4 -> BitVector msgBits -> (State4, (BitVector digest, ()))
+    step (cnt, state) msg
       | cnt == 0 =
           -- Absorb message (no permutation yet)
-          let -- Use foldl to absorb blocks, but XOR only (no permutation in absorption)
-              absorb :: Vec n (Vec 1088 Bit) -> Vec 1600 Bit
+          let absorb :: Vec n (Vec 1088 Bit) -> Vec 1600 Bit
               absorb = foldl absorbBlock (repeat 0)
               absorbBlock :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
               absorbBlock s block = zipWith xor s (block ++ repeat @512 0)
-
               blocks = pack (absorb (Hash.Combinational.pad @msgBits @n (unpack msg)))
-           in ((1, blocks), (0, (0, blocks))) -- Move to round 1
+           in ((1, blocks), (0, ()))
       | cnt >= 1 && cnt <= 24 =
-          -- Run one round of permutation
+          -- Run one round of permutation INSIDE step
           let roundIdx :: Index 24
-              roundIdx = resize (cnt - 1) -- Round indices are 0-23, resize from Index 26 to Index 24
-              stateAsBitVector = pack state :: BitVector 1600
-           in ((cnt + 1, unpack permResult), (0, (roundIdx, stateAsBitVector))) -- Continue to next round
+              roundIdx = resize (cnt - 1)
+              permuted = permutationFn roundIdx state
+           in ((cnt + 1, permuted), (0, ()))
       | otherwise =
           -- Done (cnt == 25): extract digest and reset
           let rateBlock = leToPlusKN @1088 @1600 takeI (unpack state) :: Vec 1088 Bit
               digest = leToPlusKN @digest @1088 takeI rateBlock :: Vec digest Bit
-           in ((0, 0), (pack digest, (0, 0))) -- Reset for next message
+           in ((0, 0), (pack digest, ()))
 
 --------------------------------------------------------------------------------
 -- Stateful4 Sponge: Single-round permutation with 24 iterations
@@ -89,7 +81,7 @@ stateful4Sponge ::
     msgBits + 2 <= n * 1088,
     msgBits + 4 <= n * 1088
   ) =>
-  (Signal dom (Index 24, BitVector 1600) -> Signal dom (BitVector 1600)) -> -- Permutation component
+  (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (BitVector msgBits) -> -- Input message
   Signal dom (BitVector digest) -- Output digest
 stateful4Sponge = stateful4 @dom @digest @msgBits

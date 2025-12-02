@@ -64,6 +64,11 @@ iotaF1600 roundIdx v =
 --------------------------------------------------------------------------------
 
 -- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
+-- OPAQUE ensures Clash treats this as a black box:
+--   - No inlining or specialization (keeps single definition)
+--   - Emits separate component once, wired to all callers
+--   - Enforces module boundary for potential blackbox override
+{-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
 
