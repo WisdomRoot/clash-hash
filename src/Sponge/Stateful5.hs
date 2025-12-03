@@ -7,12 +7,11 @@ module Sponge.Stateful5
 where
 
 import Clash.Prelude hiding (permute)
-import Hash.Combinational qualified
 
 type MsgBits = 64
 
 data State
-  = Absorb (Index 17)
+  = Absorb (Index 17) (BitVector 1600)
   | Permute (Index 24) (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
 
@@ -33,7 +32,6 @@ partialXOR state block startIdx =
                     offset64 = resize offset
                  in b `xor` (blockVec !! offset64)
             | otherwise = b
-
    in pack stateVec'
 
 -- | Stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output
@@ -51,21 +49,23 @@ sponge ::
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (BitVector MsgBits) -> -- Input message
   Signal dom (BitVector digest) -- Output digest
-sponge permute = mealy step (Absorb 0)
+sponge permute = mealy step (Absorb 0 0)
   where
     step :: State -> BitVector MsgBits -> (State, BitVector digest)
-    step (Absorb counter) msg
+    step (Absorb counter state) msg
       | counter < 16 =
-          --
-          let absorb :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
-              absorb s block = zipWith xor s (block ++ repeat @512 0)
-              blocks = pack (foldl absorb (repeat 0) (Hash.Combinational.pad @MsgBits @n (unpack msg)))
-           in (Permute 0 blocks, 0)
+          let state' = partialXOR state msg (resize (counter * 64))
+           in (Absorb (counter + 1) state', 0)
       | otherwise =
-          let absorb :: Vec 1600 Bit -> Vec 1088 Bit -> Vec 1600 Bit
-              absorb s block = zipWith xor s (block ++ repeat @512 0)
-              blocks = pack (foldl absorb (repeat 0) (Hash.Combinational.pad @MsgBits @n (unpack msg)))
-           in (Permute 0 blocks, 0)
+          -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024
+          let msg60 :: BitVector 60
+              _unused :: BitVector 4
+              (msg60, _unused) = split msg
+              -- SHA3 padding: suffix 0b01 + pad start + pad end = 1,0,1,1
+              padding = (0b1011 :: BitVector 4)
+              paddedBlock = msg60 ++# padding
+              state' = partialXOR state paddedBlock 1024
+           in (Permute 0 state', 0)
     step (Permute roundCount state) _msg =
       -- Run one round of permutation INSIDE step
       let permuted = permute roundCount state
