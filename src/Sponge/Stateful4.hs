@@ -70,6 +70,7 @@ stateful4 permutationFn msgSig = fmap fst $ mealy step (0, 0) msgSig
 
 -- | Stateful4 sponge construction - parameterized by permutation component
 -- Similar to Sponge.spongeAxi, but for the simpler stateful4 interface
+{-# OPAQUE stateful4Sponge #-}
 stateful4Sponge ::
   forall dom digest msgBits n.
   ( HiddenClockResetEnable dom,

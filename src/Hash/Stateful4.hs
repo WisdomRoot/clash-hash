@@ -18,13 +18,38 @@ import qualified Sponge.Stateful4
 type MsgBits = 1088
 type DigestBits = 256
 
--- Both OPAQUE pragmas work together:
--- 1. keccakF1600Round OPAQUE creates a reusable permutation module
--- 2. permutationFn OPAQUE forces module boundary at call site
---    (without it, keccakF1600Round gets inlined when passed as parameter)
-{-# OPAQUE permutationFn #-}
-permutationFn :: Index 24 -> BitVector 1600 -> BitVector 1600
-permutationFn = Perm.keccakF1600Round
+--------------------------------------------------------------------------------
+-- Module Naming Strategy (Lessons Learned)
+--------------------------------------------------------------------------------
+-- Problem: Clash derives generated module names from the calling context.
+-- When passing a function as a parameter, Clash names the module after that parameter.
+--
+-- Attempted Solutions:
+--   1. ❌ Adding {-# OPAQUE stateful4Sponge #-} in Sponge.Stateful4
+--      - Creates module boundary but doesn't fix naming
+--      - Module still named after parameter in calling context
+--
+--   2. ❌ Marking topEntity with {-# OPAQUE topEntity #-}
+--      - Merges FSM + permutation into single huge module (714K)
+--      - Loses module separation entirely
+--
+--   3. ✓ Creating wrapper function with descriptive name
+--      - Wrapper function name becomes the module name
+--      - Clean 3-module separation:
+--        * Stateful4_SHA3.v (576B) - top wrapper
+--        * Hash_Stateful4_topEntity_spongeFSM.v (9.2K) - FSM logic
+--        * Hash_Stateful4_topEntity_keccakF1600Round.v (699K) - permutation
+--
+-- Note: The wrapper name should reflect what the MODULE contains, not what
+-- the function does. Hence "spongeFSM" describes the FSM module, even though
+-- the function just delegates to keccakF1600Round.
+--------------------------------------------------------------------------------
+
+-- Wrapper function for module naming control
+-- OPAQUE ensures module boundary; function name determines module name
+{-# OPAQUE spongeFSM #-}
+spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
+spongeFSM = Perm.keccakF1600Round
 
 {-# ANN
   topEntity
@@ -49,4 +74,4 @@ topEntity ::
   Signal System (BitVector DigestBits) -- Output digest (256 bits for SHA3-256)
 topEntity clk rst en msgSig =
   withClockResetEnable clk rst en $
-    Sponge.Stateful4.stateful4Sponge @System @DigestBits @MsgBits permutationFn msgSig
+    Sponge.Stateful4.stateful4Sponge @System @DigestBits @MsgBits spongeFSM msgSig
