@@ -73,4 +73,4 @@ topEntity ::
   Signal System (BitVector DigestBits) -- Output digest (256 bits for SHA3-256)
 topEntity clk rst en msgSig =
   withClockResetEnable clk rst en $
-    Sponge.Stateful4.stateful4Sponge @System @DigestBits @MsgBits spongeFSM msgSig
+    Sponge.Stateful4.sponge @System @DigestBits @MsgBits spongeFSM msgSig

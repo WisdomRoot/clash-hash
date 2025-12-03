@@ -148,9 +148,9 @@ step4Tests = describe "Hash.Stateful4.topEntity" $ do
     -- Call topEntity
     let digestSig = Hash.Stateful4.topEntity clockGen resetGen enableGen msgSig
 
-    -- Need 27 samples: initial + absorb (1) + 24 rounds + output (1)
-    let samples = sampleN @System 27 digestSig
-    let actualBV = samples P.!! 26  -- Take 27th sample (index 26)
+    -- Need 26 samples: initial + absorb (1) + 24 rounds
+    let samples = sampleN @System 26 digestSig
+    let actualBV = samples P.!! 25
     let actual = unpack actualBV :: Vec 256 Bit
 
     actual `shouldBe` expected

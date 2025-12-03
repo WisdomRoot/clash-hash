@@ -7,10 +7,10 @@
   module                                            area (µm²)   seq area (µm²)    seq %
   --------------------------------------------------------------------------------------
   Hash_Stateful4_topEntity_keccakF1600Round          15558.340            0.000     0.00%
-  Hash_Stateful4_topEntity_spongeFSM                 15469.496         8538.600    55.20%
-  Stateful4_SHA3                                     31027.836         8538.600    27.52%
+  Hash_Stateful4_topEntity_spongeFSM                 14317.450         8543.920    59.67%
+  Stateful4_SHA3                                     29875.790         8543.920    28.60%
 
-[bench] Time/Mem: load 4.10s | compile 9.09s | synth 13.40s | mem 3182.75 MB
+[bench] Time/Mem: load 4.12s | compile 9.46s | synth 13.39s | mem 3295.20 MB
 ```
 
 
