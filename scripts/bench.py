@@ -170,6 +170,12 @@ def module_from_label(label: str) -> str:
     return label[: -len(suffix)] if label.endswith(suffix) else label
 
 
+# Friendly aliases for targets
+ALIASES = {
+    "S4": "Hash.Stateful4.topEntity",
+}
+
+
 def synth_label(label: str) -> str:
     return " ".join(
         [
@@ -202,6 +208,7 @@ def run_synth(label: str):
 
 
 def bench(target_label: str):
+    target_label = ALIASES.get(target_label, target_label)
     module_name = module_from_label(target_label)
 
     # Rebuild only this package so Clash sees fresh sources without a full stack build
