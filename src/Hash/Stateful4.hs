@@ -15,7 +15,7 @@ import qualified Sponge.Stateful4
 --------------------------------------------------------------------------------
 
 -- For "abc" test: 24-bit message, 256-bit digest (SHA3-256)
-type MsgBits = 24
+type MsgBits = 1088
 type DigestBits = 256
 
 -- Both OPAQUE pragmas work together:

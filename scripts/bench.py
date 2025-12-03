@@ -204,6 +204,9 @@ def run_synth(label: str):
 def bench(target_label: str):
     module_name = module_from_label(target_label)
 
+    # Rebuild only this package so Clash sees fresh sources without a full stack build
+    run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
+
     # (Re)generate Verilog for the target and capture Clash timings
     clash_output = run_cmd(
         [
