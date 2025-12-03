@@ -14,8 +14,7 @@ import qualified Sponge.Stateful4
 -- Stateful4 SHA3-256 Top Entity (24 single-round iterations)
 --------------------------------------------------------------------------------
 
--- For "abc" test: 24-bit message, 256-bit digest (SHA3-256)
-type MsgBits = 1088
+type MsgBits = 1084
 type DigestBits = 256
 
 --------------------------------------------------------------------------------

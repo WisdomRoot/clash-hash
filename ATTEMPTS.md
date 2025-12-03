@@ -1,15 +1,18 @@
 ## New Versions
 
-* Baseline: stateful sponge, no streaming interface, fixed 1088-bit input / 256-bit output
+* Baseline: stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output
 
+```
 [bench] Module areas (from stat):
   module                                            area (µm²)   seq area (µm²)    seq %
   --------------------------------------------------------------------------------------
   Hash_Stateful4_topEntity_keccakF1600Round          15558.340            0.000     0.00%
-  Hash_Stateful4_topEntity_permutationFn             15475.614         8538.600    55.17%
-  Stateful4_SHA3                                     31033.954         8538.600    27.51%
+  Hash_Stateful4_topEntity_spongeFSM                 15469.496         8538.600    55.20%
+  Stateful4_SHA3                                     31027.836         8538.600    27.52%
 
-[bench] Time/Mem: load 4.12s | compile 9.20s | synth 13.89s | mem 3307.84 MB
+[bench] Time/Mem: load 4.10s | compile 9.09s | synth 13.40s | mem 3182.75 MB
+```
+
 
 ## Versions
 

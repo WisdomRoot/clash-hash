@@ -132,13 +132,18 @@ step3Tests = describe "Step 3: State machine (1 iteration with full permutation)
 
 step4Tests :: Spec
 step4Tests = describe "Hash.Stateful4.topEntity" $ do
-  it "Hash.Stateful4.topEntity = SHA3.sha3_256 for 'abc'" $ do
-    let msg = SHA3internal.toBitString $(listToVecTH "abc")
+  it "Hash.Stateful4.topEntity = SHA3.sha3_256 for 1084-bit message (single block)" $ do
+    -- NOTE: stateful4 only works correctly for single-block messages
+    -- For single block: msgBits + 4 (padding) = 1088, so msgBits = 1084 (exact fit)
+    -- Using 1084 bits = 135.5 bytes = 135 full bytes + 4 bits
+    -- Pattern: "abcdefgh" (8 bytes) × 16 = 128 bytes, + "abcdefg" = 135 bytes = 1080 bits, + 0x4 = 1084 bits
+    let msg = SHA3internal.toBitString $(listToVecTH "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefg")
+          ++ (0 :> 1 :> 0 :> 0 :> Nil)  -- Add 4 bits to make 1084 bits total
     let expected = SHA3.sha3_256 msg
 
-    -- Convert message to BitVector
-    let msgBV = pack msg :: BitVector 24
-    let msgSig = pure msgBV :: Signal System (BitVector 24)
+    -- Convert to BitVector for hardware input
+    let msgBV = pack msg :: BitVector 1084
+    let msgSig = pure msgBV :: Signal System (BitVector 1084)
 
     -- Call topEntity
     let digestSig = Hash.Stateful4.topEntity clockGen resetGen enableGen msgSig
