@@ -14,7 +14,7 @@ import qualified Sponge.Stateful5
 -- Stateful5 SHA3-256 Top Entity (24 single-round iterations)
 --------------------------------------------------------------------------------
 
-type MsgBits = 1084
+type MsgBits = 64
 type DigestBits = 256
 
 --------------------------------------------------------------------------------
@@ -73,4 +73,4 @@ topEntity ::
   Signal System (BitVector DigestBits) -- Output digest (256 bits for SHA3-256)
 topEntity clk rst en msgSig =
   withClockResetEnable clk rst en $
-    Sponge.Stateful5.sponge @System @DigestBits @MsgBits spongeFSM msgSig
+    Sponge.Stateful5.sponge @System @DigestBits spongeFSM msgSig
