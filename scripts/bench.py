@@ -173,6 +173,7 @@ def module_from_label(label: str) -> str:
 # Friendly aliases for targets
 ALIASES = {
     "S4": "Hash.Stateful4.topEntity",
+    "S5": "Hash.Stateful5.topEntity",
 }
 
 

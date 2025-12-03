@@ -8,6 +8,7 @@ import Clash.Prelude
 import qualified Prelude as P
 import qualified Sponge.Stateful as Stateful
 import qualified Hash.Stateful4
+import qualified Hash.Stateful5
 import qualified Reference.SHA3 as SHA3
 import qualified Reference.SHA3internal as SHA3internal
 import Test.Hspec
@@ -19,6 +20,7 @@ spec = describe "Stateful SHA3-256 Tests" $ do
   step2Tests
   step3Tests
   step4Tests
+  step5Tests
 
 -- ============================================================================
 -- Step 0: Baseline - Verify Hash.Combinational.truncate works
@@ -147,6 +149,32 @@ step4Tests = describe "Hash.Stateful4.topEntity" $ do
 
     -- Call topEntity
     let digestSig = Hash.Stateful4.topEntity clockGen resetGen enableGen msgSig
+
+    -- Need 26 samples: initial + absorb (1) + 24 rounds
+    let samples = sampleN @System 26 digestSig
+    let actualBV = samples P.!! 25
+    let actual = unpack actualBV :: Vec 256 Bit
+
+    actual `shouldBe` expected
+
+-- ============================================================================
+-- Step 5: Duplicate of step4 under Hash.Stateful5
+-- ============================================================================
+
+step5Tests :: Spec
+step5Tests = describe "Hash.Stateful5.topEntity" $ do
+  it "Hash.Stateful5.topEntity = SHA3.sha3_256 for 1084-bit message (single block)" $ do
+    -- Exact duplicate of step4 logic, targeting the S5 alias/module.
+    let msg = SHA3internal.toBitString $(listToVecTH "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefg")
+          ++ (0 :> 1 :> 0 :> 0 :> Nil)  -- Add 4 bits to make 1084 bits total
+    let expected = SHA3.sha3_256 msg
+
+    -- Convert to BitVector for hardware input
+    let msgBV = pack msg :: BitVector 1084
+    let msgSig = pure msgBV :: Signal System (BitVector 1084)
+
+    -- Call topEntity
+    let digestSig = Hash.Stateful5.topEntity clockGen resetGen enableGen msgSig
 
     -- Need 26 samples: initial + absorb (1) + 24 rounds
     let samples = sampleN @System 26 digestSig
