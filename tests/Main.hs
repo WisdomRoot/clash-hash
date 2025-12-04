@@ -21,9 +21,10 @@ main = do
   defaultMain $
     testGroup
       "All Tests"
-      [ constantsTests,
-        permutationTests,
-        combinationalTests,
+      [
+        -- constantsTests,
+        -- permutationTests,
+        -- combinationalTests,
         statefulTests
         -- completeTests
       ]

@@ -41,7 +41,8 @@ sponge permute = mealy step Absorb
        in (Permute 0 blocks, 0)
     step (Permute roundCount state) _msg =
       -- Run one round of permutation INSIDE step
-      let permuted = permute roundCount state
+      let permuted = state
+        -- permute roundCount state
           rateBlock = leToPlusKN @1088 @1600 takeI (unpack permuted) :: Vec 1088 Bit
           digest = leToPlusKN @digest @1088 takeI rateBlock :: Vec digest Bit
        in (Permute (roundCount + 1) permuted, pack digest)

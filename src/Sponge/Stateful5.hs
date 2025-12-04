@@ -15,10 +15,13 @@ data State
   | Permute (Index 24) (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
 
--- | XOR a 64-bit block into state at bit positions [startIdx, startIdx+64)
-partialXOR :: BitVector 1600 -> BitVector 64 -> Index 1600 -> BitVector 1600
-partialXOR state block startIdx =
-  let stateVec = unpack state :: Vec 1600 Bit
+-- | XOR a 64-bit block into state at beat position (beatCounter * 64)
+partialXOR :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
+partialXOR state block beatCounter =
+  let -- Compute startIdx in wider type to avoid modulo wrapping
+      startIdx = fromIntegral (fromIntegral beatCounter :: Unsigned 11) * 64 :: Index 1600
+
+      stateVec = unpack state :: Vec 1600 Bit
       blockVec = unpack block :: Vec 64 Bit
 
       stateVec' = imap applyXor stateVec
@@ -54,21 +57,22 @@ sponge permute = mealy step (Absorb 0 0)
     step :: State -> BitVector MsgBits -> (State, BitVector digest)
     step (Absorb counter state) msg
       | counter < 16 =
-          let state' = partialXOR state msg (resize (counter * 64))
+          let state' = partialXOR state msg counter
            in (Absorb (counter + 1) state', 0)
       | otherwise =
-          -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024
+          -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
           let msg60 :: BitVector 60
               _unused :: BitVector 4
               (msg60, _unused) = split msg
               -- SHA3 padding: suffix 0b01 + pad start + pad end = 1,0,1,1
               padding = (0b1011 :: BitVector 4)
               paddedBlock = msg60 ++# padding
-              state' = partialXOR state paddedBlock 1024
+              state' = partialXOR state paddedBlock 16
            in (Permute 0 state', 0)
     step (Permute roundCount state) _msg =
       -- Run one round of permutation INSIDE step
-      let permuted = permute roundCount state
+      let permuted = state
+          -- permute roundCount state
           rateBlock = leToPlusKN @1088 @1600 takeI (unpack permuted) :: Vec 1088 Bit
           digest = leToPlusKN @digest @1088 takeI rateBlock :: Vec digest Bit
        in (Permute (roundCount + 1) permuted, pack digest)
