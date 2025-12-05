@@ -13,6 +13,19 @@
 [bench] Time/Mem: load 4.12s | compile 9.46s | synth 13.39s | mem 3295.20 MB
 ```
 
+* S5: stateful sponge, 17 beats of 64-bit input / 256-bit output
+
+```
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_Stateful5_topEntity_keccakF1600Round          15559.138            0.000     0.00%
+  Hash_Stateful5_topEntity_spongeFSM                 17579.940         8543.920    48.60%
+  Stateful5_SHA3                                     33139.078         8543.920    25.78%
+
+[bench] Time/Mem: load 4.23s | compile 9.23s | synth 208.09s | mem 8912.86 MB
+```
+
 
 ## Versions
 
