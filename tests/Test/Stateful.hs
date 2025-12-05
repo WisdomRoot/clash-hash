@@ -5,6 +5,7 @@
 
 module Test.Stateful (spec) where
 
+import Clash.Explicit.Testbench
 import Clash.Prelude
 import Hash.Stateful4 qualified
 import Hash.Stateful5 qualified
@@ -16,10 +17,10 @@ import Prelude qualified as P
 
 spec :: Spec
 spec = describe "Stateful SHA3-256 Tests" $ do
-  -- step0Tests
-  -- step1Tests
-  -- step2Tests
-  -- step3Tests
+  step0Tests
+  step1Tests
+  step2Tests
+  step3Tests
   step4Tests
   step5Tests
 
@@ -106,29 +107,6 @@ step3Tests = describe "Step 3: State machine (1 iteration with full permutation)
     let actual = samples P.!! 2 -- Take 3rd sample (index 2)
     actual `shouldBe` expected
 
--- step4Tests :: Spec
--- step4Tests = describe "Step 4: Single-round permutation (24 iterations)" $ do
---   it "stateful4 (24 single-round iterations) = SHA3.sha3_256 for 'abc'" $ do
---     let msg = SHA3internal.toBitString $(listToVecTH "abc")
---     let expected = SHA3.sha3_256 msg
-
---     -- State machine timing:
---     -- Sample 0: initial (cnt=0)
---     -- Sample 1: absorb, output zeros, next=(1, xorState)
---     -- Samples 2-25: rounds 1-24 (cnt 1-24), output zeros, next=(cnt+1, permuted)
---     -- Sample 26: done (cnt=25), output digest, next=(0, zeros)
---     -- Total: 27 samples (0-26), digest appears at sample 26
---     let msgSig = pure msg :: Signal System (Vec 24 Bit)
---     let permutationComponent input = fmap (uncurry Permutation.KeccakF1600.keccakF1600Round) input
---     let digestSig = withClockResetEnable clockGen resetGen enableGen $
---                       Stateful.stateful4 @System @256 @24 permutationComponent msgSig
-
---     -- Need 27 samples: initial + absorb (1) + 24 rounds + output (1)
---     let samples = sampleN @System 27 digestSig
---     let actual = samples P.!! 26  -- Take 27th sample (index 26)
-
---     actual `shouldBe` expected
-
 -- ============================================================================
 -- Step 4: Single-round permutation with 24 iterations
 -- ============================================================================
@@ -141,7 +119,7 @@ step4Tests = describe "Hash.Stateful4.topEntity" $ do
     -- Using 1084 bits = 135.5 bytes = 135 full bytes + 4 bits
     -- Pattern: "abcdefgh" (8 bytes) × 16 = 128 bytes, + "abcdefg" = 135 bytes = 1080 bits, + 0x4 = 1084 bits
     let msg =
-          SHA3internal.toBitString $(listToVecTH "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefg")
+          SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
             ++ (0 :> 1 :> 0 :> 0 :> Nil) -- Add 4 bits to make 1084 bits total
     let expected = SHA3.sha3_256 msg
 
@@ -157,10 +135,6 @@ step4Tests = describe "Hash.Stateful4.topEntity" $ do
     let actualBV = samples P.!! 25
     let actual = unpack actualBV :: Vec 256 Bit
 
-    putStrLn "===== 4 =======\n\n\n\n"
-    mapM_ print (P.take 24 $ P.drop 2 samples)
-    putStrLn "===== 4 ======="
-
     actual `shouldBe` expected
 
 -- ============================================================================
@@ -169,33 +143,27 @@ step4Tests = describe "Hash.Stateful4.topEntity" $ do
 
 step5Tests :: Spec
 step5Tests = describe "Hash.Stateful5.topEntity" $ do
-  it "Hash.Stateful5.topEntity = SHA3.sha3_256 for 1084-bit message (single block)" $ do
-    -- Exact duplicate of step4 logic, targeting the S5 alias/module.
+  it "Hash.Stateful5.topEntity = SHA3.sha3_256 for 1084-bit message (multi-beat absorption)" $ do
     let msg =
-          SHA3internal.toBitString $(listToVecTH "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefg")
-            ++ (0 :> 1 :> 0 :> 0 :> Nil) -- Add 4 bits to make 1084 bits total
-    let expected = SHA3.sha3_256 msg
+          SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
+            ++ (0 :> 1 :> 0 :> 0 :> Nil)
+    let expected = pack (SHA3.sha3_256 msg) :: BitVector 256
 
-    -- Split into 17 beats (IMPORTANT: Don't pad before splitting!)
+    -- Split into 17 beats
     let msgBV = pack msg :: BitVector 1084
     let msg1024 :: BitVector 1024
         msg60 :: BitVector 60
         (msg1024, msg60) = split msgBV
     let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
-    let beat16 = zeroExtend msg60 :: BitVector 64 -- Zero-extend to 64 bits
+    let beat16 = msg60 ++# 0 :: BitVector 64
+    let inputBeats = beats0_15 :< beat16
 
-    -- Create signal with 17 sequential beats
-    let beatSignals = fromList $ toList beats0_15 <> [beat16] <> P.repeat 0
+    -- Create testbench using stimuliGenerator
+    let testInput = stimuliGenerator clockGen resetGen inputBeats
+    let output = Hash.Stateful5.topEntity clockGen resetGen enableGen testInput
 
-    -- Call topEntity
-    let digestSig = Hash.Stateful5.topEntity clockGen resetGen enableGen beatSignals
+    -- Sample outputs and check manually
+    let samples = sampleN @System 50 output
+    let actual = unpack (samples P.!! 41)
 
-    let samples = sampleN @System 50 digestSig
-    -- let actualBV = samples P.!! 39
-    -- let actual = unpack actualBV :: Vec 256 Bit
-
-    putStrLn "===== 5 =======\n\n\n\n"
-    mapM_ print (P.take 25 $ P.drop 17 samples)
-    putStrLn "===== 5 ======="
-
-    print (pack expected)
+    actual `shouldBe` expected
