@@ -61,6 +61,21 @@ shiftAndMask state block beatCounter =
    in -- XOR the block into state at the correct position
       state `xor` blockMask
 
+-- | Case-based XOR using Vec indexing and replace
+-- This approach should generate case statements in Verilog
+-- Expected pattern: extract via case, XOR 64 bits, write back via case
+-- module                                            area (µm²)   seq area (µm²)    seq %
+-- --------------------------------------------------------------------------------------
+-- Hash_Stateful5_topEntity_keccakF1600Round          15558.340            0.000     0.00%
+-- Hash_Stateful5_topEntity_spongeFSM                 17841.950         8543.920    47.89%
+-- Stateful5_SHA3                                     33400.290         8543.920    25.58%
+caseBasedXOR :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
+caseBasedXOR state block beatCounter =
+  let stateVec = bitCoerce state :: Vec 25 (BitVector 64)
+      xored = stateVec !! beatCounter `xor` block
+      stateVec' = replace beatCounter xored stateVec
+   in bitCoerce stateVec'
+
 -- | Chunk-based XOR using slice operations
 -- This approach extracts, modifies, and reassembles specific bit ranges
 --   module                                            area (µm²)   seq area (µm²)    seq %
@@ -104,7 +119,7 @@ sponge permute = mealy step (Absorb 0 0)
     step :: State -> BitVector MsgBits -> (State, BitVector digest)
     step (Absorb counter state) msg
       | counter < 16 =
-          let state' = shiftAndMask state msg counter
+          let state' = caseBasedXOR state msg counter
            in (Absorb (counter + 1) state', 0)
       | otherwise =
           -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
@@ -113,7 +128,7 @@ sponge permute = mealy step (Absorb 0 0)
               -- SHA3 padding bits (msb..lsb) = 0,1,1,1 live in the least-significant nibble
               padding = (0b0111 :: BitVector 4)
               paddedBlock = pack msg60 ++# padding
-              state' = shiftAndMask state paddedBlock 16
+              state' = caseBasedXOR state paddedBlock 16
            in (Permute 0 state', 0)
     step (Permute roundCount state) _msg =
       -- Run one round of permutation INSIDE step
