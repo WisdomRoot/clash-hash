@@ -76,6 +76,35 @@ caseBasedXOR state block beatCounter =
       stateVec' = replace beatCounter xored stateVec
    in bitCoerce stateVec'
 
+-- | Static case-based XOR using only BitVector slices.
+-- Generates a 64-bit slice XOR and a case tree for writing back.
+-- module                                            area (µm²)   seq area (µm²)    seq %
+-- --------------------------------------------------------------------------------------
+-- Hash_Stateful5_topEntity_keccakF1600Round          15047.886            0.000     0.00%
+-- Hash_Stateful5_topEntity_spongeFSM                 16291.436         8543.920    52.44%
+-- Stateful5_SHA3                                     31339.322         8543.920    27.26%
+staticXOR :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
+staticXOR state block beatCounter =
+  case beatCounter of
+    0 -> setSlice d63 d0 (slice d63 d0 state `xor` block) state
+    1 -> setSlice d127 d64 (slice d127 d64 state `xor` block) state
+    2 -> setSlice d191 d128 (slice d191 d128 state `xor` block) state
+    3 -> setSlice d255 d192 (slice d255 d192 state `xor` block) state
+    4 -> setSlice d319 d256 (slice d319 d256 state `xor` block) state
+    5 -> setSlice d383 d320 (slice d383 d320 state `xor` block) state
+    6 -> setSlice d447 d384 (slice d447 d384 state `xor` block) state
+    7 -> setSlice d511 d448 (slice d511 d448 state `xor` block) state
+    8 -> setSlice d575 d512 (slice d575 d512 state `xor` block) state
+    9 -> setSlice d639 d576 (slice d639 d576 state `xor` block) state
+    10 -> setSlice d703 d640 (slice d703 d640 state `xor` block) state
+    11 -> setSlice d767 d704 (slice d767 d704 state `xor` block) state
+    12 -> setSlice d831 d768 (slice d831 d768 state `xor` block) state
+    13 -> setSlice d895 d832 (slice d895 d832 state `xor` block) state
+    14 -> setSlice d959 d896 (slice d959 d896 state `xor` block) state
+    15 -> setSlice d1023 d960 (slice d1023 d960 state `xor` block) state
+    16 -> setSlice (SNat @1087) d1024 (slice (SNat @1087) d1024 state `xor` block) state
+    _ -> state
+
 -- | Chunk-based XOR using slice operations
 -- This approach extracts, modifies, and reassembles specific bit ranges
 --   module                                            area (µm²)   seq area (µm²)    seq %
@@ -119,7 +148,7 @@ sponge permute = mealy step (Absorb 0 0)
     step :: State -> BitVector MsgBits -> (State, BitVector digest)
     step (Absorb counter state) msg
       | counter < 16 =
-          let state' = caseBasedXOR state msg counter
+          let state' = staticXOR state msg counter
            in (Absorb (counter + 1) state', 0)
       | otherwise =
           -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
@@ -128,7 +157,7 @@ sponge permute = mealy step (Absorb 0 0)
               -- SHA3 padding bits (msb..lsb) = 0,1,1,1 live in the least-significant nibble
               padding = (0b0111 :: BitVector 4)
               paddedBlock = pack msg60 ++# padding
-              state' = caseBasedXOR state paddedBlock 16
+              state' = staticXOR state paddedBlock 16
            in (Permute 0 state', 0)
     step (Permute roundCount state) _msg =
       -- Run one round of permutation INSIDE step
