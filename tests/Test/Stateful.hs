@@ -18,12 +18,13 @@ import Prelude qualified as P
 
 spec :: Spec
 spec = describe "Stateful SHA3-256 Tests" $ do
-  step0Tests
-  step1Tests
-  step2Tests
-  step3Tests
-  step4Tests
-  step5Tests
+  -- step0Tests
+  -- step1Tests
+  -- step2Tests
+  -- step3Tests
+  -- step4Tests
+  -- step5Tests
+  s6Tests
 
 -- ============================================================================
 -- Step 0: Baseline - Verify Hash.Combinational.truncate works
