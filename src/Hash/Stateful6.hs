@@ -15,7 +15,7 @@ import qualified Sponge.Stateful6
 --------------------------------------------------------------------------------
 
 type MsgBits = 64
-type DigestBits = 256
+type DigestBits = 64
 
 -- Wrapper function for module naming control
 -- OPAQUE ensures module boundary; function name determines module name

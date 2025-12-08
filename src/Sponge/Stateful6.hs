@@ -11,14 +11,14 @@ import Sponge.Stateful5 qualified as S5
 
 type MsgBits = 64
 
-type DigestBits = 256
+type DigestBits = 64
 
 data State
   = Absorb (Index 17) (BitVector 1600)
   | Permute (Index 24) (BitVector 1600)
+  | Squeeze (Index 4) (BitVector 1600)
   deriving
-    ( -- | Squeeze (Index 4)
-      Show,
+    ( Show,
       Eq,
       Generic,
       NFDataX
@@ -53,6 +53,9 @@ sponge permute = mealy step (Absorb 0 0)
               paddedBlock = pack msg60 ++# padding
               state' = S5.staticXOR state paddedBlock 16
            in (Permute 0 state', 0)
-    step (Permute roundCount state) _msg =
-      let permuted = permute roundCount state
-       in (Permute (roundCount + 1) permuted, slice (SNat @1599) (SNat @1344) permuted)
+    step (Permute 23 state) _msg = (Squeeze 0 (permute 23 state), 0)
+    step (Permute count state) _msg = (Permute (count + 1) (permute count state), 0)
+    step (Squeeze 0 state) _msg = (Squeeze 1 state, slice (SNat @1599) (SNat @1536) state)
+    step (Squeeze 1 state) _msg = (Squeeze 2 state, slice (SNat @1535) (SNat @1472) state)
+    step (Squeeze 2 state) _msg = (Squeeze 3 state, slice (SNat @1471) (SNat @1408) state)
+    step (Squeeze _ state) _msg = (Absorb 0 state, slice (SNat @1407) (SNat @1344) state)
