@@ -190,7 +190,8 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
 
     -- Create testbench using stimuliGenerator
     let testInput = stimuliGenerator clockGen resetGen inputBeats
-    let output = Hash.Stateful6.topEntity clockGen resetGen enableGen testInput
+    let treadyAlwaysHigh = pure True -- No backpressure
+    let output = Hash.Stateful6.topEntity clockGen resetGen enableGen treadyAlwaysHigh testInput
 
     -- Sample outputs and check manually
     let samples = sampleN @System 50 output

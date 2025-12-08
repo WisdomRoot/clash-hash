@@ -32,6 +32,7 @@ spongeFSM = Perm.keccakF1600Round
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
+            PortName "TREADY",
             PortName "MSG"
           ],
         t_output =
@@ -50,8 +51,9 @@ topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
+  Signal System Bool -> -- tready input (backpressure)
   Signal System (BitVector MsgBits) -> -- Input message
   Signal System (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
-topEntity clk rst en msgSig =
+topEntity clk rst en treadySig msgSig =
   withClockResetEnable clk rst en $
-    Sponge.Stateful6.sponge @System spongeFSM msgSig
+    Sponge.Stateful6.sponge @System spongeFSM treadySig msgSig
