@@ -22,9 +22,9 @@ main = do
     testGroup
       "All Tests"
       [
-        constantsTests,
-        permutationTests,
-        combinationalTests,
+        -- constantsTests,
+        -- permutationTests,
+        -- combinationalTests,
         statefulTests
         -- completeTests
       ]

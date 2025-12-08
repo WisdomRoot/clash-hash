@@ -53,7 +53,7 @@ data AXI4Stream (n :: Nat) = AXI4Stream
     tvalid :: Bool, -- ^ Valid signal (master output)
     tlast :: Bool -- ^ Last beat indicator (master output)
   }
-  deriving stock (Generic)
+  deriving stock (Generic, Show)
   deriving anyclass (NFDataX)
 
 --------------------------------------------------------------------------------
