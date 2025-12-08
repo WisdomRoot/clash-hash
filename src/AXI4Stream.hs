@@ -11,7 +11,6 @@ module AXI4Stream
     -- * Utilities
     idleAXI4Stream,
     validBeat,
-    readyAXI4Stream,
     handshake,
   )
 where
@@ -22,37 +21,37 @@ import Clash.Prelude hiding (tlast)
 -- AXI4-Stream Interface
 --------------------------------------------------------------------------------
 
--- | AXI4-Stream interface datatype
+-- | AXI4-Stream master output signals
 --
 -- = Overview
 --
--- Minimal AXI4-Stream interface with 4 signals:
+-- This type represents the OUTPUT signals from an AXI4-Stream master:
 --
 -- * @tdata@  - Data payload (parameterized width)
--- * @tvalid@ - Valid signal (asserted by master)
--- * @tready@ - Ready signal (asserted by slave)
+-- * @tvalid@ - Valid signal (asserted by master when data is available)
 -- * @tlast@  - Last beat of packet/transaction
+--
+-- Note: The @tready@ input signal (from slave to master) is handled
+-- separately as a @Signal dom Bool@ parameter, not part of this record.
 --
 -- = AXI4-Stream Handshake
 --
--- A data transfer occurs when both @tvalid@ and @tready@ are high.
--- The master asserts @tvalid@ when data is available.
--- The slave asserts @tready@ when it can accept data.
+-- A data transfer occurs when both @tvalid@ (from this record) and
+-- @tready@ (separate input) are high.
 --
 -- = Usage
 --
 -- @
--- -- Define a 64-bit AXI4-Stream signal
+-- -- Define a 64-bit AXI4-Stream output signal
 -- type MyStream = AXI4Stream 64
 --
--- -- Or use predefined aliases
--- type MyStream = AXI4Stream64
+-- -- Function that produces AXI4-Stream output and accepts tready input
+-- myFunction :: Signal dom Bool -> Signal dom (AXI4Stream 64)
 -- @
 data AXI4Stream (n :: Nat) = AXI4Stream
-  { tdata :: BitVector n, -- ^ Data payload
-    tvalid :: Bool, -- ^ Valid signal (master)
-    tready :: Bool, -- ^ Ready signal (slave)
-    tlast :: Bool -- ^ Last beat indicator
+  { tdata :: BitVector n, -- ^ Data payload (master output)
+    tvalid :: Bool, -- ^ Valid signal (master output)
+    tlast :: Bool -- ^ Last beat indicator (master output)
   }
   deriving stock (Generic)
   deriving anyclass (NFDataX)
@@ -74,13 +73,12 @@ type AXI4Stream128 = AXI4Stream 128
 -- Utilities
 --------------------------------------------------------------------------------
 
--- | Create an idle AXI4-Stream value (all signals deasserted)
+-- | Create an idle AXI4-Stream value (all output signals deasserted)
 idleAXI4Stream :: (KnownNat n) => AXI4Stream n
 idleAXI4Stream =
   AXI4Stream
     { tdata = 0,
       tvalid = False,
-      tready = False,
       tlast = False
     }
 
@@ -90,20 +88,10 @@ validBeat dat isLast =
   AXI4Stream
     { tdata = dat,
       tvalid = True,
-      tready = False, -- Ready is controlled by slave
       tlast = isLast
     }
 
--- | Create a ready AXI4-Stream value (slave ready to receive)
-readyAXI4Stream :: (KnownNat n) => AXI4Stream n
-readyAXI4Stream =
-  AXI4Stream
-    { tdata = 0,
-      tvalid = False,
-      tready = True,
-      tlast = False
-    }
-
 -- | Check if a valid AXI4-Stream handshake occurred
-handshake :: AXI4Stream n -> Bool
-handshake axi = tvalid axi && tready axi
+--   Takes tready as a separate parameter since it's an input signal
+handshake :: Bool -> AXI4Stream n -> Bool
+handshake tready axi = tvalid axi && tready

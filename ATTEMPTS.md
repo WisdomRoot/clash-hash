@@ -31,12 +31,11 @@
 [bench] Module areas (from stat):
   module                                            area (µm²)   seq area (µm²)    seq %
   --------------------------------------------------------------------------------------
-  Hash_Stateful6_topEntity_keccakF1600Round          15574.566            0.000     0.00%
-  Hash_Stateful6_topEntity_spongeFSM                 17150.084         8549.240    49.85%
-  Stateful6_SHA3                                     32724.650         8549.240    26.12%
+  Hash_Stateful6_topEntity_keccakF1600Round          15558.340            0.000     0.00%
+  Hash_Stateful6_topEntity_spongeFSM                 17058.846         8549.240    50.12%
+  Stateful6_SHA3                                     32617.186         8549.240    26.21%
 
-[bench] Time/Mem: load 4.35s | compile 9.51s | synth 16.05s | mem 3368.20 MB
-
+[bench] Time/Mem: load 4.49s | compile 9.46s | synth 16.97s | mem 3419.91 MB
 
 ## Versions
 

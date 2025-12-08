@@ -40,7 +40,6 @@ spongeFSM = Perm.keccakF1600Round
             ""
             [ PortName "DIGEST_TDATA",
               PortName "DIGEST_TVALID",
-              PortName "DIGEST_TREADY",
               PortName "DIGEST_TLAST"
             ]
       }
