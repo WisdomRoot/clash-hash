@@ -9,6 +9,7 @@ import Clash.Explicit.Testbench
 import Clash.Prelude
 import Hash.Stateful4 qualified
 import Hash.Stateful5 qualified
+import Hash.Stateful6 qualified
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Sponge.Stateful qualified as Stateful
@@ -143,7 +144,7 @@ step4Tests = describe "Hash.Stateful4.topEntity" $ do
 
 step5Tests :: Spec
 step5Tests = describe "Hash.Stateful5.topEntity" $ do
-  it "Hash.Stateful5.topEntity = SHA3.sha3_256 for 1084-bit message (multi-beat absorption)" $ do
+  it "Hash.Stateful5.topEntity = SHA3.sha3_256 for 1084-bit multi-beat absorption" $ do
     let msg =
           SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
             ++ (0 :> 1 :> 0 :> 0 :> Nil)
@@ -161,6 +162,33 @@ step5Tests = describe "Hash.Stateful5.topEntity" $ do
     -- Create testbench using stimuliGenerator
     let testInput = stimuliGenerator clockGen resetGen inputBeats
     let output = Hash.Stateful5.topEntity clockGen resetGen enableGen testInput
+
+    -- Sample outputs and check manually
+    let samples = sampleN @System 50 output
+    let actual = unpack (samples P.!! 41)
+
+    actual `shouldBe` expected
+
+s6Tests :: Spec
+s6Tests = describe "Hash.Stateful6.topEntity" $ do
+  it "Hash.Stateful6.topEntity = SHA3.sha3_256 for 1084-bit multi-beat absorption + multi-beat scatter" $ do
+    let msg =
+          SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
+            ++ (0 :> 1 :> 0 :> 0 :> Nil)
+    let expected = pack (SHA3.sha3_256 msg) :: BitVector 256
+
+    -- Split into 17 beats
+    let msgBV = pack msg :: BitVector 1084
+    let msg1024 :: BitVector 1024
+        msg60 :: BitVector 60
+        (msg1024, msg60) = split msgBV
+    let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
+    let beat16 = msg60 ++# 0 :: BitVector 64
+    let inputBeats = beats0_15 :< beat16
+
+    -- Create testbench using stimuliGenerator
+    let testInput = stimuliGenerator clockGen resetGen inputBeats
+    let output = Hash.Stateful6.topEntity clockGen resetGen enableGen testInput
 
     -- Sample outputs and check manually
     let samples = sampleN @System 50 output

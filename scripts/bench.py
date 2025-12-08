@@ -174,6 +174,7 @@ def module_from_label(label: str) -> str:
 ALIASES = {
     "S4": "Hash.Stateful4.topEntity",
     "S5": "Hash.Stateful5.topEntity",
+    "S6": "Hash.Stateful6.topEntity",
 }
 
 
