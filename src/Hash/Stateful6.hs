@@ -6,6 +6,7 @@ module Hash.Stateful6
   )
 where
 
+import AXI4Stream (AXI4Stream)
 import Clash.Prelude
 import qualified Permutation.KeccakF1600 as Perm
 import qualified Sponge.Stateful6
@@ -33,7 +34,14 @@ spongeFSM = Perm.keccakF1600Round
             PortName "EN",
             PortName "MSG"
           ],
-        t_output = PortName "DIGEST"
+        t_output =
+          PortProduct
+            ""
+            [ PortName "DIGEST_TDATA",
+              PortName "DIGEST_TVALID",
+              PortName "DIGEST_TREADY",
+              PortName "DIGEST_TLAST"
+            ]
       }
   )
   #-}
@@ -43,7 +51,7 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System (BitVector MsgBits) -> -- Input message
-  Signal System (BitVector DigestBits) -- Output digest (256 bits for SHA3-256)
+  Signal System (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
 topEntity clk rst en msgSig =
   withClockResetEnable clk rst en $
     Sponge.Stateful6.sponge @System spongeFSM msgSig

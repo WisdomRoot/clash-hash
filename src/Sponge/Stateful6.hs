@@ -6,7 +6,8 @@ module Sponge.Stateful6
   )
 where
 
-import Clash.Prelude hiding (permute)
+import AXI4Stream (AXI4Stream (..))
+import Clash.Prelude hiding (permute, tlast)
 import Sponge.Stateful5 qualified as S5
 
 type MsgBits = 64
@@ -48,14 +49,15 @@ sponge ::
   ) =>
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (BitVector MsgBits) -> -- Input message
-  Signal dom (BitVector DigestBits) -- Output digest
+  Signal dom (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
 sponge permute = mealy step (State (Absorb 0) 0)
   where
-    step :: State -> BitVector MsgBits -> (State, BitVector DigestBits)
+    step :: State -> BitVector MsgBits -> (State, AXI4Stream DigestBits)
     step (State (Absorb counter) state) msg
       | counter < 16 =
           let state' = S5.staticXOR state msg counter
-           in (State (Absorb (counter + 1)) state', 0)
+              idleStream = AXI4Stream {tdata = 0, tvalid = False, tready = False, tlast = False}
+           in (State (Absorb (counter + 1)) state', idleStream)
       | otherwise =
           -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
           let msg60 :: Vec 60 Bit
@@ -64,10 +66,23 @@ sponge permute = mealy step (State (Absorb 0) 0)
               padding = (0b0111 :: BitVector 4)
               paddedBlock = pack msg60 ++# padding
               state' = S5.staticXOR state paddedBlock 16
-           in (State (Permute 0) state', 0)
-    step (State (Permute 23) state) _msg = (State (Squeeze 0) (permute 23 state), 0)
-    step (State (Permute count) state) _msg = (State (Permute (count + 1)) (permute count state), 0)
-    step (State (Squeeze 0) state) _msg = (State (Squeeze 1) state, slice (SNat @1599) (SNat @1536) state)
-    step (State (Squeeze 1) state) _msg = (State (Squeeze 2) state, slice (SNat @1535) (SNat @1472) state)
-    step (State (Squeeze 2) state) _msg = (State (Squeeze 3) state, slice (SNat @1471) (SNat @1408) state)
-    step (State (Squeeze _) state) _msg = (State (Absorb 0) state, slice (SNat @1407) (SNat @1344) state)
+              idleStream = AXI4Stream {tdata = 0, tvalid = False, tready = False, tlast = False}
+           in (State (Permute 0) state', idleStream)
+    step (State (Permute 23) state) _msg =
+      let idleStream = AXI4Stream {tdata = 0, tvalid = False, tready = False, tlast = False}
+       in (State (Squeeze 0) (permute 23 state), idleStream)
+    step (State (Permute count) state) _msg =
+      let idleStream = AXI4Stream {tdata = 0, tvalid = False, tready = False, tlast = False}
+       in (State (Permute (count + 1)) (permute count state), idleStream)
+    step (State (Squeeze 0) state) _msg =
+      let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state, tvalid = True, tready = False, tlast = False}
+       in (State (Squeeze 1) state, outStream)
+    step (State (Squeeze 1) state) _msg =
+      let outStream = AXI4Stream {tdata = slice (SNat @1535) (SNat @1472) state, tvalid = True, tready = False, tlast = False}
+       in (State (Squeeze 2) state, outStream)
+    step (State (Squeeze 2) state) _msg =
+      let outStream = AXI4Stream {tdata = slice (SNat @1471) (SNat @1408) state, tvalid = True, tready = False, tlast = False}
+       in (State (Squeeze 3) state, outStream)
+    step (State (Squeeze _) state) _msg =
+      let outStream = AXI4Stream {tdata = slice (SNat @1407) (SNat @1344) state, tvalid = True, tready = False, tlast = True}
+       in (State (Absorb 0) state, outStream)

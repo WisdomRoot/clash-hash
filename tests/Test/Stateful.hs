@@ -5,6 +5,7 @@
 
 module Test.Stateful (spec) where
 
+import AXI4Stream qualified
 import Clash.Explicit.Testbench
 import Clash.Prelude
 import Hash.Stateful4 qualified
@@ -192,7 +193,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let output = Hash.Stateful6.topEntity clockGen resetGen enableGen testInput
 
     -- Sample outputs and check manually
-    let samples = sampleN @System 50 output :: [BitVector 64]
-    let actual = (samples P.!! 42) ++# (samples P.!! 43) ++# (samples P.!! 44) ++# (samples P.!! 45)
+    let samples = sampleN @System 50 output
+    let actual = (AXI4Stream.tdata (samples P.!! 42)) ++# (AXI4Stream.tdata (samples P.!! 43)) ++# (AXI4Stream.tdata (samples P.!! 44)) ++# (AXI4Stream.tdata (samples P.!! 45))
 
     actual `shouldBe` expected
