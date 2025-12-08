@@ -31,6 +31,12 @@ ghc-options:
 dependencies:
   - base
 
+flags:
+  executables:
+    description: Build executables (clash, clashi, trace) - disable for faster tests
+    manual: true
+    default: false
+
 library:
   language: GHC2021
   source-dirs: src
@@ -48,6 +54,12 @@ executables:
   clash:
     main: bin/Clash.hs
     language: GHC2021
+    when:
+      - condition: flag(executables)
+        then:
+          buildable: true
+        else:
+          buildable: false
     dependencies:
       - clash-ghc
       - clash-hash
@@ -57,6 +69,12 @@ executables:
   clashi:
     main: bin/Clashi.hs
     language: GHC2021
+    when:
+      - condition: flag(executables)
+        then:
+          buildable: true
+        else:
+          buildable: false
     dependencies:
       - clash-ghc
       - clash-hash
@@ -71,6 +89,12 @@ executables:
     language: GHC2021
     ghc-options:
       - -threaded
+    when:
+      - condition: flag(executables)
+        then:
+          buildable: true
+        else:
+          buildable: false
     other-modules:
       - Driver
     dependencies:
