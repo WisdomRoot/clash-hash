@@ -13,10 +13,22 @@ type MsgBits = 64
 
 type DigestBits = 64
 
+-- | Phases of the sponge operation
+data Phase
+  = Absorb (Index 17)
+  | Permute (Index 24)
+  | Squeeze (Index 4)
+  deriving
+    ( Show,
+      Eq,
+      Generic,
+      NFDataX
+    )
+
+-- | Internal state of the sponge
+--   Note: separating `Phase` from the BitVector state would significantly reduce the size of the multiplexers
 data State
-  = Absorb (Index 17) (BitVector 1600)
-  | Permute (Index 24) (BitVector 1600)
-  | Squeeze (Index 4) (BitVector 1600)
+  = State Phase (BitVector 1600)
   deriving
     ( Show,
       Eq,
@@ -37,13 +49,13 @@ sponge ::
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (BitVector MsgBits) -> -- Input message
   Signal dom (BitVector DigestBits) -- Output digest
-sponge permute = mealy step (Absorb 0 0)
+sponge permute = mealy step (State (Absorb 0) 0)
   where
     step :: State -> BitVector MsgBits -> (State, BitVector DigestBits)
-    step (Absorb counter state) msg
+    step (State (Absorb counter) state) msg
       | counter < 16 =
           let state' = S5.staticXOR state msg counter
-           in (Absorb (counter + 1) state', 0)
+           in (State (Absorb (counter + 1)) state', 0)
       | otherwise =
           -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
           let msg60 :: Vec 60 Bit
@@ -52,10 +64,10 @@ sponge permute = mealy step (Absorb 0 0)
               padding = (0b0111 :: BitVector 4)
               paddedBlock = pack msg60 ++# padding
               state' = S5.staticXOR state paddedBlock 16
-           in (Permute 0 state', 0)
-    step (Permute 23 state) _msg = (Squeeze 0 (permute 23 state), 0)
-    step (Permute count state) _msg = (Permute (count + 1) (permute count state), 0)
-    step (Squeeze 0 state) _msg = (Squeeze 1 state, slice (SNat @1599) (SNat @1536) state)
-    step (Squeeze 1 state) _msg = (Squeeze 2 state, slice (SNat @1535) (SNat @1472) state)
-    step (Squeeze 2 state) _msg = (Squeeze 3 state, slice (SNat @1471) (SNat @1408) state)
-    step (Squeeze _ state) _msg = (Absorb 0 state, slice (SNat @1407) (SNat @1344) state)
+           in (State (Permute 0) state', 0)
+    step (State (Permute 23) state) _msg = (State (Squeeze 0) (permute 23 state), 0)
+    step (State (Permute count) state) _msg = (State (Permute (count + 1)) (permute count state), 0)
+    step (State (Squeeze 0) state) _msg = (State (Squeeze 1) state, slice (SNat @1599) (SNat @1536) state)
+    step (State (Squeeze 1) state) _msg = (State (Squeeze 2) state, slice (SNat @1535) (SNat @1472) state)
+    step (State (Squeeze 2) state) _msg = (State (Squeeze 3) state, slice (SNat @1471) (SNat @1408) state)
+    step (State (Squeeze _) state) _msg = (State (Absorb 0) state, slice (SNat @1407) (SNat @1344) state)
