@@ -49,19 +49,19 @@ sponge ::
   ) =>
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom Bool -> -- tready input (backpressure)
-  Signal dom (AXI4Stream MsgBits) -> -- Input message
+  Signal dom (BitVector MsgBits) -> -- Input message
   Signal dom (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
 sponge permute treadySig msgSig = mealy step (State (Absorb 0) 0) (bundle (treadySig, msgSig))
   where
-    step :: State -> (Bool, AXI4Stream MsgBits) -> (State, AXI4Stream DigestBits)
+    step :: State -> (Bool, BitVector MsgBits) -> (State, AXI4Stream DigestBits)
     step (State (Absorb counter) state) (_tready, msg)
       | counter < 16 =
-          let state' = S5.staticXOR state (tdata msg) counter
+          let state' = S5.staticXOR state msg counter
            in (State (Absorb (counter + 1)) state', idleStream)
       | otherwise =
           -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
           let msg60 :: Vec 60 Bit
-              msg60 = take d60 (unpack (tdata msg)) -- low 60 bits carry the remaining message
+              msg60 = take d60 (unpack msg) -- low 60 bits carry the remaining message
               -- SHA3 padding bits (msb..lsb) = 0,1,1,1 live in the least-significant nibble
               padding = (0b0111 :: BitVector 4)
               paddedBlock = pack msg60 ++# padding

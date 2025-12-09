@@ -27,7 +27,7 @@ spongeFSM = Perm.keccakF1600Round
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "Stateful6_SHA3",
+      { t_name = "Stateful7_SHA3",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -51,7 +51,7 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System Bool -> -- tready input (backpressure)
-  Signal System (AXI4Stream MsgBits) -> -- Input message
+  Signal System (BitVector MsgBits) -> -- Input message
   Signal System (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
 topEntity clk rst en treadySig msgSig =
   withClockResetEnable clk rst en $

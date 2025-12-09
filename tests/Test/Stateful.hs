@@ -10,7 +10,7 @@ module Test.Stateful (spec) where
 
 import AXI4Stream (AXI4Stream(..))
 import Clash.Explicit.Testbench
-import Clash.Prelude
+import Clash.Prelude hiding (tlast)
 import Hash.Stateful4 qualified
 import Hash.Stateful5 qualified
 import Hash.Stateful6 qualified
@@ -243,7 +243,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
 
     -- Sample outputs and check manually
     let samples = sampleN @System 50 output
-    let actual = AXI4Stream.tdata (samples P.!! 42) ++# AXI4Stream.tdata (samples P.!! 43) ++# AXI4Stream.tdata (samples P.!! 44) ++# AXI4Stream.tdata (samples P.!! 45)
+    let actual = tdata (samples P.!! 42) ++# tdata (samples P.!! 43) ++# tdata (samples P.!! 44) ++# tdata (samples P.!! 45)
 
     actual `shouldBe` expected
 
@@ -275,13 +275,13 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
 
     -- Verify state enters Squeeze 0 at cycle 42 (17 absorb + 24 permute + 1)
     let squeeze0Start = samples P.!! 42
-    AXI4Stream.tvalid squeeze0Start `shouldBe` True
-    AXI4Stream.tlast squeeze0Start `shouldBe` False
+    tvalid squeeze0Start `shouldBe` True
+    tlast squeeze0Start `shouldBe` False
 
     -- Verify it stays stalled in Squeeze 0 (same tdata for many cycles)
-    let squeeze0Data = AXI4Stream.tdata squeeze0Start
+    let squeeze0Data = tdata squeeze0Start
     let laterCycles = [samples P.!! i | i <- [43 .. 60]]
-    P.all (\s -> AXI4Stream.tdata s == squeeze0Data && AXI4Stream.tvalid s && P.not (AXI4Stream.tlast s)) laterCycles `shouldBe` True
+    P.all (\s -> tdata s == squeeze0Data && tvalid s && P.not (tlast s)) laterCycles `shouldBe` True
 
     -- Verify first beat matches expected (bits [1599:1536] = first 64 bits of digest)
     let expectedBeat0 = slice (SNat @255) (SNat @192) expected :: BitVector 64
@@ -293,7 +293,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let actual = P.take 5 $ P.drop 42 samples
 
     -- Verify outputs with stall on second beat
-    fmap AXI4Stream.tdata actual
+    fmap tdata actual
       `shouldBe` [ expected !! (0 :: Integer),
                    expected !! (1 :: Integer),
                    expected !! (1 :: Integer), -- stall
@@ -302,7 +302,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
                  ]
 
     -- Verify tvalid correctness
-    fmap AXI4Stream.tvalid actual
+    fmap tvalid actual
       `shouldBe` [ True,
                    True,
                    True, -- still valid during stall
@@ -317,7 +317,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let actual = P.take 5 $ P.drop 42 samples
 
     -- Verify outputs with stall on first beat
-    fmap AXI4Stream.tdata actual
+    fmap tdata actual
       `shouldBe` [ expected !! (0 :: Integer),
                    expected !! (0 :: Integer), -- stall
                    expected !! (1 :: Integer),
@@ -326,10 +326,10 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
                  ]
 
     -- Verify tvalid stays True
-    fmap AXI4Stream.tvalid actual `shouldBe` [True, True, True, True, True]
+    fmap tvalid actual `shouldBe` [True, True, True, True, True]
 
     -- Verify tlast only on the actual last beat (index 4)
-    fmap AXI4Stream.tlast actual `shouldBe` [False, False, False, False, True]
+    fmap tlast actual `shouldBe` [False, False, False, False, True]
 
   it "Stall on the third output" $ do
     -- Stall on third output: False at index 43 (to stall output at cycle 44)
@@ -338,7 +338,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let actual = P.take 5 $ P.drop 42 samples
 
     -- Verify outputs with stall on third beat
-    fmap AXI4Stream.tdata actual
+    fmap tdata actual
       `shouldBe` [ expected !! (0 :: Integer),
                    expected !! (1 :: Integer),
                    expected !! (2 :: Integer),
@@ -346,8 +346,8 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
                    expected !! (3 :: Integer)
                  ]
 
-    fmap AXI4Stream.tvalid actual `shouldBe` [True, True, True, True, True]
-    fmap AXI4Stream.tlast actual `shouldBe` [False, False, False, False, True]
+    fmap tvalid actual `shouldBe` [True, True, True, True, True]
+    fmap tlast actual `shouldBe` [False, False, False, False, True]
 
   it "Stall on the fourth (last) output" $ do
     -- Stall on fourth output for multiple cycles: extend stall period
@@ -356,15 +356,15 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let actual = P.take 6 $ P.drop 42 samples
 
     -- Verify outputs - note: after last squeeze completes, transitions to idle (tdata=0, tvalid=False)
-    fmap AXI4Stream.tdata (P.take 4 actual)
+    fmap tdata (P.take 4 actual)
       `shouldBe` [ expected !! (0 :: Integer),
                    expected !! (1 :: Integer),
                    expected !! (2 :: Integer),
                    expected !! (3 :: Integer)
                  ]
 
-    fmap AXI4Stream.tvalid (P.take 4 actual) `shouldBe` [True, True, True, True]
-    fmap AXI4Stream.tlast (P.take 4 actual) `shouldBe` [False, False, False, True]
+    fmap tvalid (P.take 4 actual) `shouldBe` [True, True, True, True]
+    fmap tlast (P.take 4 actual) `shouldBe` [False, False, False, True]
 
   it "Multiple stalls - stall on first and third outputs" $ do
     -- Stall on first and third: False at indices 41 (for cycle 42) and 44 (for cycle 44), plus one more False to keep in Squeeze 3
@@ -373,7 +373,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let actual = P.take 7 $ P.drop 42 samples
 
     -- Verify outputs with two stalls
-    fmap AXI4Stream.tdata actual
+    fmap tdata actual
       `shouldBe` [ expected !! (0 :: Integer),
                    expected !! (0 :: Integer), -- first stall
                    expected !! (1 :: Integer),
@@ -383,7 +383,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
                    expected !! (3 :: Integer)  -- stays at last after completion
                  ]
 
-    fmap AXI4Stream.tvalid actual `shouldBe` [True, True, True, True, True, True, True]
+    fmap tvalid actual `shouldBe` [True, True, True, True, True, True, True]
 
   it "Long stall - stall first output for 3 cycles" $ do
     -- Stall for 3 cycles on first output: False at indices 41, 42, 43
@@ -392,7 +392,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     let actual = P.take 7 $ P.drop 42 samples
 
     -- Verify outputs with 3-cycle stall on first beat
-    fmap AXI4Stream.tdata actual
+    fmap tdata actual
       `shouldBe` [ expected !! (0 :: Integer),
                    expected !! (0 :: Integer), -- stall cycle 1
                    expected !! (0 :: Integer), -- stall cycle 2
@@ -402,8 +402,8 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
                    expected !! (3 :: Integer)
                  ]
 
-    fmap AXI4Stream.tvalid actual `shouldBe` [True, True, True, True, True, True, True]
-    fmap AXI4Stream.tlast actual `shouldBe` [False, False, False, False, False, False, True]
+    fmap tvalid actual `shouldBe` [True, True, True, True, True, True, True]
+    fmap tlast actual `shouldBe` [False, False, False, False, False, False, True]
 
 
 s7Tests :: Spec
@@ -425,7 +425,7 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
         (msg1024, msg60) = split msgBV
     let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
     let beat16 = msg60 ++# 0 :: BitVector 64
-    let inputBeats = fmap (\d -> AXI4Stream d True False) beats0_15 :< AXI4Stream beat16 True True
+    let inputBeats = beats0_15 :< beat16
 
     -- Create testbench using stimuliGenerator
     let testInput = stimuliGenerator clockGen resetGen inputBeats
@@ -434,6 +434,6 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
 
     -- Sample outputs and check manually
     let samples = sampleN @System 50 output
-    let actual = AXI4Stream.tdata (samples P.!! 42) ++# AXI4Stream.tdata (samples P.!! 43) ++# AXI4Stream.tdata (samples P.!! 44) ++# AXI4Stream.tdata (samples P.!! 45)
+    let actual = tdata (samples P.!! 42) ++# tdata (samples P.!! 43) ++# tdata (samples P.!! 44) ++# tdata (samples P.!! 45)
 
     actual `shouldBe` expected
