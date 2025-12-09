@@ -8,12 +8,13 @@
 
 module Test.Stateful (spec) where
 
-import AXI4Stream qualified
+import AXI4Stream (AXI4Stream(..))
 import Clash.Explicit.Testbench
 import Clash.Prelude
 import Hash.Stateful4 qualified
 import Hash.Stateful5 qualified
 import Hash.Stateful6 qualified
+import Hash.Stateful7 qualified
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Sponge.Stateful qualified as Stateful
@@ -28,7 +29,7 @@ spec = describe "Stateful SHA3-256 Tests" $ do
   -- step3Tests
   -- step4Tests
   -- step5Tests
-  s6Tests
+  s7Tests
 
 -- ============================================================================
 -- Step 0: Baseline - Verify Hash.Combinational.truncate works
@@ -183,7 +184,7 @@ runS6WithBackpressure ::
   (KnownNat n) =>
   Vec n Bool -> -- tready signal pattern
   Int -> -- number of samples to take
-  (Vec 4 (BitVector 64), [AXI4Stream.AXI4Stream 64])
+  (Vec 4 (BitVector 64), [AXI4Stream 64])
 runS6WithBackpressure treadySignals numSamples =
   let msg =
         SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
@@ -404,96 +405,35 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     fmap AXI4Stream.tvalid actual `shouldBe` [True, True, True, True, True, True, True]
     fmap AXI4Stream.tlast actual `shouldBe` [False, False, False, False, False, False, True]
 
--- it "partial backpressure - stall only Squeeze 1 for multiple cycles" $ do
---   let msg =
---         SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
---           ++ 0 :> 1 :> 0 :> 0 :> Nil
---   let expected = pack (SHA3.sha3_256 msg) :: BitVector 256
 
---   -- Setup input
---   let msgBV = pack msg :: BitVector 1084
---   let msg1024 :: BitVector 1024
---       msg60 :: BitVector 60
---       (msg1024, msg60) = split msgBV
---   let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
---   let beat16 = msg60 ++# 0 :: BitVector 64
---   let inputBeats = beats0_15 :< beat16
+s7Tests :: Spec
+s7Tests = describe "Hash.Stateful7.topEntity" $ do
+  it "Hash.Stateful7.topEntity = SHA3.sha3_256" $ do
+    let msg =
+          SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
+            ++ 0
+            :> 1
+            :> 0
+            :> 0
+            :> Nil
+    let expected = pack (SHA3.sha3_256 msg) :: BitVector 256
 
---   let testInput = stimuliGenerator clockGen resetGen inputBeats
---   -- tready pattern: High for 43 cycles, then False for 3 cycles (stall Squeeze 1), then High for rest
---   let treadyVec = replicate d43 True ++ False :> False :> False :> Nil ++ replicate d50 True :: Vec 96 Bool
---   let treadyPattern = stimuliGenerator clockGen resetGen treadyVec
---   let output = Hash.Stateful6.topEntity clockGen resetGen enableGen treadyPattern testInput
+    -- Split into 17 beats
+    let msgBV = pack msg :: BitVector 1084
+    let msg1024 :: BitVector 1024
+        msg60 :: BitVector 60
+        (msg1024, msg60) = split msgBV
+    let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
+    let beat16 = msg60 ++# 0 :: BitVector 64
+    let inputBeats = fmap (\d -> AXI4Stream d True False) beats0_15 :< AXI4Stream beat16 True True
 
---   let samples = sampleN @System 100 output
+    -- Create testbench using stimuliGenerator
+    let testInput = stimuliGenerator clockGen resetGen inputBeats
+    let treadyAlwaysHigh = pure True -- No backpressure
+    let output = Hash.Stateful7.topEntity clockGen resetGen enableGen treadyAlwaysHigh testInput
 
---   -- Squeeze 0: cycle 42 (tready=True, advances)
---   -- Squeeze 1: cycles 43, 44, 45 (tready=False, stalls), 46 (tready=True, advances)
---   -- Squeeze 2: cycle 47 (tready=True, advances)
---   -- Squeeze 3: cycle 48 (tready=True, advances)
+    -- Sample outputs and check manually
+    let samples = sampleN @System 50 output
+    let actual = AXI4Stream.tdata (samples P.!! 42) ++# AXI4Stream.tdata (samples P.!! 43) ++# AXI4Stream.tdata (samples P.!! 44) ++# AXI4Stream.tdata (samples P.!! 45)
 
---   let beat0 = samples P.!! 42
---   let beat1_stall1 = samples P.!! 43
---   let beat1_stall2 = samples P.!! 44
---   let beat1_stall3 = samples P.!! 45
---   let beat1_advance = samples P.!! 46
---   let beat2 = samples P.!! 47
---   let beat3 = samples P.!! 48
-
---   -- Verify Squeeze 1 stalls with same data
---   AXI4Stream.tdata beat1_stall1 `shouldBe` AXI4Stream.tdata beat1_stall2
---   AXI4Stream.tdata beat1_stall2 `shouldBe` AXI4Stream.tdata beat1_stall3
---   AXI4Stream.tdata beat1_stall3 `shouldBe` AXI4Stream.tdata beat1_advance
-
---   -- Verify tvalid stays True during stalls
---   AXI4Stream.tvalid beat1_stall1 `shouldBe` True
---   AXI4Stream.tvalid beat1_stall2 `shouldBe` True
---   AXI4Stream.tvalid beat1_stall3 `shouldBe` True
---   AXI4Stream.tvalid beat1_advance `shouldBe` True
-
---   -- Verify tlast correctness
---   AXI4Stream.tlast beat0 `shouldBe` False
---   AXI4Stream.tlast beat1_stall1 `shouldBe` False
---   AXI4Stream.tlast beat1_stall2 `shouldBe` False
---   AXI4Stream.tlast beat1_stall3 `shouldBe` False
---   AXI4Stream.tlast beat1_advance `shouldBe` False
---   AXI4Stream.tlast beat2 `shouldBe` False
---   AXI4Stream.tlast beat3 `shouldBe` True
-
---   -- Verify final digest is correct
---   let actual = AXI4Stream.tdata beat0 ++# AXI4Stream.tdata beat1_advance ++# AXI4Stream.tdata beat2 ++# AXI4Stream.tdata beat3
---   actual `shouldBe` expected
-
--- it "signal verification - tvalid always True during Squeeze phases" $ do
---   let msg =
---         SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
---           ++ 0 :> 1 :> 0 :> 0 :> Nil
-
---   -- Setup input
---   let msgBV = pack msg :: BitVector 1084
---   let msg1024 :: BitVector 1024
---       msg60 :: BitVector 60
---       (msg1024, msg60) = split msgBV
---   let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
---   let beat16 = msg60 ++# 0 :: BitVector 64
---   let inputBeats = beats0_15 :< beat16
-
---   let testInput = stimuliGenerator clockGen resetGen inputBeats
---   let treadyAlwaysHigh = pure True
---   let output = Hash.Stateful6.topEntity clockGen resetGen enableGen treadyAlwaysHigh testInput
-
---   let samples = sampleN @System 50 output
-
---   -- Verify tvalid=False during Absorb and Permute phases (cycles 0-41)
---   let absorbPermuteCycles = [samples P.!! i | i <- [0..41]]
---   not (any AXI4Stream.tvalid absorbPermuteCycles) `shouldBe` True
-
---   -- Verify tvalid=True during Squeeze phases (cycles 42-45)
---   let squeezeCycles = [samples P.!! i | i <- [42..45]]
---   all AXI4Stream.tvalid squeezeCycles `shouldBe` True
-
---   -- Verify tlast sequence
---   AXI4Stream.tlast (samples P.!! 42) `shouldBe` False -- Squeeze 0
---   AXI4Stream.tlast (samples P.!! 43) `shouldBe` False -- Squeeze 1
---   AXI4Stream.tlast (samples P.!! 44) `shouldBe` False -- Squeeze 2
---   AXI4Stream.tlast (samples P.!! 45) `shouldBe` True  -- Squeeze 3 (final)
+    actual `shouldBe` expected

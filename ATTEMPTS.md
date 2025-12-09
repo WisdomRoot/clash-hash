@@ -26,7 +26,7 @@
 [bench] Time/Mem: load 4.41s | compile 9.50s | synth 17.68s | mem 3271.12 MB
 ```
 
-* S6: stateful sponge, 17 beats of 64-bit input / 64-bit output
+* S6: stateful sponge, 17 beats of 64-bit input / 64-bit AXI4-Stream output
 
 [bench] Module areas (from stat):
   module                                            area (µm²)   seq area (µm²)    seq %

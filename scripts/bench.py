@@ -175,6 +175,7 @@ ALIASES = {
     "S4": "Hash.Stateful4.topEntity",
     "S5": "Hash.Stateful5.topEntity",
     "S6": "Hash.Stateful6.topEntity",
+    "S7": "Hash.Stateful7.topEntity",
 }
 
 
