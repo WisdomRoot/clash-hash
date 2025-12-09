@@ -415,7 +415,7 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
             :> 0
             :> 0
             :> Nil
-    let expected = pack (SHA3.sha3_256 msg) :: BitVector 256
+    let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
 
     -- Split into 17 beats
     let msgBV = pack msg :: BitVector 1084
@@ -431,8 +431,19 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
     let treadyAlwaysHigh = pure True -- No backpressure
     let output = Hash.Stateful7.topEntity clockGen resetGen enableGen treadyAlwaysHigh testInput
 
-    -- Sample outputs and check manually
-    let samples = sampleN @System 50 output
-    let actual = tdata (samples P.!! 42) ++# tdata (samples P.!! 43) ++# tdata (samples P.!! 44) ++# tdata (samples P.!! 45)
+    let latency = 46
 
-    actual `shouldBe` expected
+    -- Sample outputs and check manually
+    let samples = sampleN @System latency output
+    let actual = P.take 4 $ P.drop 42 samples
+    -- let actual = tdata (samples P.!! 42) ++# tdata (samples P.!! 43) ++# tdata (samples P.!! 44) ++# tdata (samples P.!! 45)
+
+    fmap (tdata . fst) actual
+      `shouldBe` [ expected !! (0 :: Integer),
+                   expected !! (1 :: Integer),
+                   expected !! (2 :: Integer),
+                   expected !! (3 :: Integer)
+                 ]
+
+    fmap snd samples
+      `shouldBe` (P.replicate 18 True <> P.replicate 28 False)

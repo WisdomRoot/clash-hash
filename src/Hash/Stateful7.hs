@@ -51,9 +51,9 @@ topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool -> -- tready input (backpressure)
+  Signal System Bool -> -- output tready
   Signal System (AXI4Stream MsgBits) -> -- Input message
-  Signal System (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
+  Signal System (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
 topEntity clk rst en treadySig msgSig =
   withClockResetEnable clk rst en
     $ Sponge.Stateful7.sponge @System spongeFSM (bundle (msgSig, treadySig))
