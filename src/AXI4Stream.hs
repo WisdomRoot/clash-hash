@@ -28,6 +28,8 @@ data AXI4Stream (n :: Nat) = AXI4Stream
   deriving stock (Generic, Show)
   deriving anyclass (NFDataX)
 
+instance Bundle (AXI4Stream n)
+
 --------------------------------------------------------------------------------
 -- Common Bus Widths
 --------------------------------------------------------------------------------

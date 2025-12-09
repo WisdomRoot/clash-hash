@@ -8,14 +8,15 @@ where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import qualified Permutation.KeccakF1600 as Perm
-import qualified Sponge.Stateful7
+import Permutation.KeccakF1600 qualified as Perm
+import Sponge.Stateful7 qualified
 
 --------------------------------------------------------------------------------
 -- Stateful7 SHA3-256 Top Entity (24 single-round iterations)
 --------------------------------------------------------------------------------
 
 type MsgBits = 64
+
 type DigestBits = 64
 
 -- Wrapper function for module naming control
@@ -51,8 +52,8 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System Bool -> -- tready input (backpressure)
-  Signal System (BitVector MsgBits) -> -- Input message
+  Signal System (AXI4Stream MsgBits) -> -- Input message
   Signal System (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
 topEntity clk rst en treadySig msgSig =
-  withClockResetEnable clk rst en $
-    Sponge.Stateful7.sponge @System spongeFSM treadySig msgSig
+  withClockResetEnable clk rst en
+    $ Sponge.Stateful7.sponge @System spongeFSM (bundle (msgSig, treadySig))

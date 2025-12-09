@@ -8,7 +8,7 @@
 
 module Test.Stateful (spec) where
 
-import AXI4Stream (AXI4Stream(..))
+import AXI4Stream (AXI4Stream (..))
 import Clash.Explicit.Testbench
 import Clash.Prelude hiding (tlast)
 import Hash.Stateful4 qualified
@@ -380,7 +380,7 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
                    expected !! (2 :: Integer),
                    expected !! (2 :: Integer), -- second stall
                    expected !! (3 :: Integer),
-                   expected !! (3 :: Integer)  -- stays at last after completion
+                   expected !! (3 :: Integer) -- stays at last after completion
                  ]
 
     fmap tvalid actual `shouldBe` [True, True, True, True, True, True, True]
@@ -405,7 +405,6 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
     fmap tvalid actual `shouldBe` [True, True, True, True, True, True, True]
     fmap tlast actual `shouldBe` [False, False, False, False, False, False, True]
 
-
 s7Tests :: Spec
 s7Tests = describe "Hash.Stateful7.topEntity" $ do
   it "Hash.Stateful7.topEntity = SHA3.sha3_256" $ do
@@ -425,7 +424,7 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
         (msg1024, msg60) = split msgBV
     let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
     let beat16 = msg60 ++# 0 :: BitVector 64
-    let inputBeats = beats0_15 :< beat16
+    let inputBeats = fmap (\b -> AXI4Stream b True False) beats0_15 :< AXI4Stream beat16 True True
 
     -- Create testbench using stimuliGenerator
     let testInput = stimuliGenerator clockGen resetGen inputBeats
