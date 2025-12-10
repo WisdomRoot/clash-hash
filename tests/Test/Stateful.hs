@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds #-}
+{-# HLINT ignore "Use head" #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
-
-{-# HLINT ignore "Use head" #-}
 
 module Test.Stateful (spec) where
 
@@ -476,5 +476,63 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
                    expected !! (3 :: Integer)
                  ]
 
-    -- fmap snd samples
-    --   `shouldBe` (P.replicate 18 True <> P.replicate 28 False)
+  it "128-bit input" $ do
+    let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfgh")
+    let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
+
+    let input = markLast $ fmap (\b -> AXI4Stream b False False) (bitCoerce msg :: Vec 2 (BitVector 64))
+
+    -- Create testbench using stimuliGenerator
+    let output =
+          Hash.Stateful7.topEntity
+            clockGen
+            resetGen
+            enableGen
+            (pure True) -- No backpressure
+            (stimuliGenerator clockGen resetGen input)
+
+    let latency = 46
+
+    -- Sample outputs and check manually
+    let samples = sampleN @System latency output
+    let actual = P.take 4 $ P.drop 27 samples
+
+    fmap (tdata . fst) actual
+      `shouldBe` [ expected !! (0 :: Integer),
+                   expected !! (1 :: Integer),
+                   expected !! (2 :: Integer),
+                   expected !! (3 :: Integer)
+                 ]
+
+  it "1024-bit input" $ do
+    let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh")
+    let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
+
+    let input = markLast $ fmap (\b -> AXI4Stream b False False) (bitCoerce msg :: Vec 16 (BitVector 64))
+
+    -- Create testbench using stimuliGenerator
+    let output =
+          Hash.Stateful7.topEntity
+            clockGen
+            resetGen
+            enableGen
+            (pure True) -- No backpressure
+            (stimuliGenerator clockGen resetGen input)
+
+    let latency = 46
+
+    -- Sample outputs and check manually
+    let samples = sampleN @System latency output
+    let actual = P.take 4 $ P.drop 41 samples
+
+    fmap (tdata . fst) actual
+      `shouldBe` [ expected !! (0 :: Integer),
+                   expected !! (1 :: Integer),
+                   expected !! (2 :: Integer),
+                   expected !! (3 :: Integer)
+                 ]
+
+markLast :: Vec n (AXI4Stream w) -> Vec n (AXI4Stream w)
+markLast Nil = Nil
+markLast (Cons x Nil) = Cons (x {tlast = True}) Nil
+markLast (Cons x xs) = Cons x (markLast xs)
