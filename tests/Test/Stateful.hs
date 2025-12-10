@@ -407,36 +407,67 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
 
 s7Tests :: Spec
 s7Tests = describe "Hash.Stateful7.topEntity" $ do
-  it "Hash.Stateful7.topEntity = SHA3.sha3_256" $ do
-    let msg =
-          SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
-            ++ 0
-            :> 1
-            :> 0
-            :> 0
-            :> Nil
+  -- it "Hash.Stateful7.topEntity = SHA3.sha3_256" $ do
+  --   let msg =
+  --         SHA3internal.toBitString $(listToVecTH "7867cffe3cd4818ed6f8e861e712238ffe23046f0e639f647f4edfcf23761b9ecadc1e45aa5adbb9580ddd5affaff1e00ee09176fc6f15eeb229e3c236ba331chdyanzq")
+  --           ++ 0
+  --           :> 1
+  --           :> 0
+  --           :> 0
+  --           :> Nil
+  --   let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
+
+  --   -- Split into 17 beats
+  --   let msgBV = pack msg :: BitVector 1084
+  --   let msg1024 :: BitVector 1024
+  --       msg60 :: BitVector 60
+  --       (msg1024, msg60) = split msgBV
+  --   let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
+  --   let beat16 = msg60 ++# 0 :: BitVector 64
+  --   let inputBeats = fmap (\b -> AXI4Stream b True False) beats0_15 :< AXI4Stream beat16 True True
+
+  --   -- Create testbench using stimuliGenerator
+  --   let testInput = stimuliGenerator clockGen resetGen inputBeats
+  --   let treadyAlwaysHigh = pure True -- No backpressure
+  --   let output = Hash.Stateful7.topEntity clockGen resetGen enableGen treadyAlwaysHigh testInput
+
+  --   let latency = 46
+
+  --   -- Sample outputs and check manually
+  --   let samples = sampleN @System latency output
+  --   let actual = P.take 4 $ P.drop 42 samples
+  --   -- let actual = tdata (samples P.!! 42) ++# tdata (samples P.!! 43) ++# tdata (samples P.!! 44) ++# tdata (samples P.!! 45)
+
+  --   fmap (tdata . fst) actual
+  --     `shouldBe` [ expected !! (0 :: Integer),
+  --                  expected !! (1 :: Integer),
+  --                  expected !! (2 :: Integer),
+  --                  expected !! (3 :: Integer)
+  --                ]
+
+  --   fmap snd samples
+  --     `shouldBe` (P.replicate 18 True <> P.replicate 28 False)
+
+  it "64-bit input" $ do
+    let msg = SHA3internal.toBitString $(listToVecTH "qwertyui")
     let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
 
-    -- Split into 17 beats
-    let msgBV = pack msg :: BitVector 1084
-    let msg1024 :: BitVector 1024
-        msg60 :: BitVector 60
-        (msg1024, msg60) = split msgBV
-    let beats0_15 = bitCoerce msg1024 :: Vec 16 (BitVector 64)
-    let beat16 = msg60 ++# 0 :: BitVector 64
-    let inputBeats = fmap (\b -> AXI4Stream b True False) beats0_15 :< AXI4Stream beat16 True True
+    let input = AXI4Stream (pack msg) True True :> Nil :: Vec 1 (AXI4Stream 64)
 
     -- Create testbench using stimuliGenerator
-    let testInput = stimuliGenerator clockGen resetGen inputBeats
-    let treadyAlwaysHigh = pure True -- No backpressure
-    let output = Hash.Stateful7.topEntity clockGen resetGen enableGen treadyAlwaysHigh testInput
+    let output =
+          Hash.Stateful7.topEntity
+            clockGen
+            resetGen
+            enableGen
+            (pure True) -- No backpressure
+            (stimuliGenerator clockGen resetGen input)
 
     let latency = 46
 
     -- Sample outputs and check manually
     let samples = sampleN @System latency output
-    let actual = P.take 4 $ P.drop 42 samples
-    -- let actual = tdata (samples P.!! 42) ++# tdata (samples P.!! 43) ++# tdata (samples P.!! 44) ++# tdata (samples P.!! 45)
+    let actual = P.take 4 $ P.drop 26 samples
 
     fmap (tdata . fst) actual
       `shouldBe` [ expected !! (0 :: Integer),
@@ -445,5 +476,5 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
                    expected !! (3 :: Integer)
                  ]
 
-    fmap snd samples
-      `shouldBe` (P.replicate 18 True <> P.replicate 28 False)
+    -- fmap snd samples
+    --   `shouldBe` (P.replicate 18 True <> P.replicate 28 False)

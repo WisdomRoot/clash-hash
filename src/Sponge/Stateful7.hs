@@ -8,6 +8,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
+import Debug.Trace (traceShow)
 import Sponge.Stateful5 qualified as S5
 
 type MsgBits = 64
@@ -37,6 +38,16 @@ data State
       NFDataX
     )
 
+-- setSlice (SNat @1535) (SNat @1472) (slice (SNat @1535) (SNat @1472) state `xor` block) state
+maskFront1 :: BitVector 1600 -> BitVector 1600
+maskFront1 state = setSlice (SNat @1534) (SNat @1533) (slice (SNat @1534) (SNat @1533) state `xor` 0b11) state
+
+maskBack :: BitVector 1600 -> BitVector 1600
+maskBack state = setSlice d513 d512 (slice d513 d512 state `xor` 0b01) state
+
+mask :: BitVector 1600 -> BitVector 1600
+mask = maskBack . maskFront1
+
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
 sponge ::
@@ -54,18 +65,18 @@ sponge permute = mealy step (State (Absorb 0) 0)
   where
     step :: State -> (AXI4Stream MsgBits, Bool) -> (State, (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready)
-      | counter < 16 =
+      | counter < 16 && not (tlast input) =
           let state' = S5.staticXOR state (tdata input) counter
            in (State (Absorb (counter + 1)) state', (idleAXI4Stream, True))
       | otherwise =
-          -- Beat 16: Extract 60 bits, pad with 4 bits, then XOR at position 1024 (16 * 64)
-          let msg60 :: Vec 60 Bit
-              msg60 = take d60 (unpack (tdata input)) -- low 60 bits carry the remaining message
-              -- SHA3 padding bits (msb..lsb) = 0,1,1,1 live in the least-significant nibble
-              padding = (0b0111 :: BitVector 4)
-              paddedBlock = pack msg60 ++# padding
-              state' = S5.staticXOR state paddedBlock 16
-           in (State (Permute 0) state', (idleAXI4Stream, True))
+          let state' = S5.staticXOR state (tdata input) counter
+              state'' =
+                if counter == 0
+                  then mask state'
+                  else state
+           in traceShow
+                ("Input", input, "Counter", counter, slice (SNat @1599) d512 state'')
+                (State (Permute 0) state'', (idleAXI4Stream, False))
     step (State (Permute 23) state) (_msg, _tready) = (State (Squeeze 0) (permute 23 state), (idleAXI4Stream, False))
     step (State (Permute count) state) (_msg, _tready) = (State (Permute (count + 1)) (permute count state), (idleAXI4Stream, False))
     -- Squeeze phase with backpressure: only advance if tready is True
