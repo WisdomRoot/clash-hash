@@ -90,15 +90,14 @@ sponge permute = mealy step (State (Absorb 0) 0)
       | otherwise =
           let state' = S5.staticXOR state (tdata input) counter
            in (State (Permute 0 False) state', (idleAXI4Stream, False))
-    step (State (Permute 23 True) state) (_msg, _tready) =
-      let state' = permute 23 state
-          padded = pad 16 state'
-       in (State (Permute 0 False) padded, (idleAXI4Stream, False))
-    step (State (Permute 23 False) state) (_msg, _tready) =
-      let state' = permute 23 state
-       in (State (Squeeze 0) state', (idleAXI4Stream, False))
-    step (State (Permute count shouldPad) state) (_msg, _tready) =
-      (State (Permute (count + 1) shouldPad) (permute count state), (idleAXI4Stream, False))
+    step (State (Permute counter shouldPad) state) (_msg, _tready) =
+      let state' = permute counter state
+       in if counter == 23
+            then
+              if shouldPad
+                then (State (Permute 0 False) (pad 16 state'), (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
+                else (State (Squeeze 0) state', (idleAXI4Stream, False))
+            else (State (Permute (counter + 1) shouldPad) state', (idleAXI4Stream, False))
     -- Squeeze phase with backpressure: only advance if tready is True
     step (State (Squeeze 0) state) (_msg, tready) =
       let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state, tvalid = True, tlast = False}

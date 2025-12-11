@@ -37,6 +37,16 @@
 
 [bench] Time/Mem: load 4.49s | compile 9.46s | synth 16.97s | mem 3419.91 MB
 
+* S7: stateful sponge, 64-bit AXI4-Stream input/output
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_Stateful7_topEntity_keccakF1600Round          15559.138            0.000     0.00%
+  Hash_Stateful7_topEntity_spongeFSM                 18157.426         8554.560    47.11%
+  Stateful7_SHA3                                     33716.564         8554.560    25.37%
+
+[bench] Time/Mem: load 4.58s | compile 9.67s | synth 24.03s | mem 3259.52 MB
+
 ## Versions
 
 * Baseline: original monolithic design
