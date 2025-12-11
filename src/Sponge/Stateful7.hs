@@ -17,7 +17,7 @@ type DigestBits = 64
 -- | Phases of the sponge operation
 data Phase
   = Absorb (Index 17)
-  | Permute (Index 24)
+  | Permute (Index 24) Bool -- Bool indicates if a complete 1088-bit padding is needed after this permutation
   | Squeeze (Index 4)
   deriving
     ( Show,
@@ -58,7 +58,7 @@ pad 12 = complementAt 512 . complementAt 765 . complementAt 766
 pad 13 = complementAt 512 . complementAt 701 . complementAt 702
 pad 14 = complementAt 512 . complementAt 637 . complementAt 638
 pad 15 = complementAt 512 . complementAt 573 . complementAt 574
-pad _ = id
+pad _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- special case for a whole 1088-bit padding
 
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
@@ -80,17 +80,25 @@ sponge permute = mealy step (State (Absorb 0) 0)
       | tlast input && counter < 16 =
           let state' = S5.staticXOR state (tdata input) counter
               padded = pad counter state'
-           in (State (Permute 0) padded, (idleAXI4Stream, False))
+           in (State (Permute 0 False) padded, (idleAXI4Stream, False))
       | tlast input && counter >= 16 =
-          undefined
+          let state' = S5.staticXOR state (tdata input) counter
+           in (State (Permute 0 True) state', (idleAXI4Stream, False))
       | counter < 16 =
           let state' = S5.staticXOR state (tdata input) counter
            in (State (Absorb (counter + 1)) state', (idleAXI4Stream, True))
       | otherwise =
           let state' = S5.staticXOR state (tdata input) counter
-           in (State (Permute 0) state', (idleAXI4Stream, False))
-    step (State (Permute 23) state) (_msg, _tready) = (State (Squeeze 0) (permute 23 state), (idleAXI4Stream, False))
-    step (State (Permute count) state) (_msg, _tready) = (State (Permute (count + 1)) (permute count state), (idleAXI4Stream, False))
+           in (State (Permute 0 False) state', (idleAXI4Stream, False))
+    step (State (Permute 23 True) state) (_msg, _tready) =
+      let state' = permute 23 state
+          padded = pad 16 state'
+       in (State (Permute 0 False) padded, (idleAXI4Stream, False))
+    step (State (Permute 23 False) state) (_msg, _tready) =
+      let state' = permute 23 state
+       in (State (Squeeze 0) state', (idleAXI4Stream, False))
+    step (State (Permute count shouldPad) state) (_msg, _tready) =
+      (State (Permute (count + 1) shouldPad) (permute count state), (idleAXI4Stream, False))
     -- Squeeze phase with backpressure: only advance if tready is True
     step (State (Squeeze 0) state) (_msg, tready) =
       let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state, tvalid = True, tlast = False}

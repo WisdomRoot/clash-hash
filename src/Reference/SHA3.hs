@@ -2,21 +2,20 @@
 {-# OPTIONS_GHC -Wno-simplifiable-class-constraints #-}
 
 module Reference.SHA3
-  ( keccakf
-  , keccak
-  , sha3_224
-  , sha3_256
-  , sha3_384
-  , sha3_512
-  , shake_128
-  , shake_256
-  , topEntity
-  ) where
+  ( keccakf,
+    keccak,
+    sha3_224,
+    sha3_256,
+    sha3_384,
+    sha3_512,
+    shake_128,
+    shake_256,
+    topEntity,
+  )
+where
 
 import Clash.Prelude hiding (pi)
 import Reference.SHA3internal
-
--- $
 
 -- $setup
 -- >>> import Clash.Prelude
@@ -26,21 +25,25 @@ import Reference.SHA3internal
 -- >>> s = bv2v $(bLit "011") ++ repeat @572 0 ++ singleton 1 ++ repeat 0 :: State 1600
 -- >>> hexdump "%02X " $ keccakf s
 -- "A6 9F 73 CC A2 3A 9A C5 C8 B5 67 DC 18 5A 75 6E 97 C9 82 16 4F E2 58 59 E0 D1 DC C1 47 5C 80 A6 15 B2 12 3A F1 F5 F9 4C 11 E3 E9 40 2C 3A C5 58 F5 00 19 9D 95 B6 D3 E3 01 75 85 86 28 1D CD 26 36 4B C5 B8 E7 8F 53 B8 23 DD A7 F4 DE 9F AD 00 E6 7D B7 2F 9F 9F EA 0C E3 C9 FE F1 5A 76 AD C5 85 EB 2E FD 11 87 FB 65 F9 C9 A2 73 31 51 67 E3 14 FA 68 B6 A3 22 D4 07 01 5D 50 2A CD EC 8C 88 5C 4F 77 84 CE D0 46 09 BB 35 15 4A 96 48 4B 56 25 D3 41 7C 88 60 7A CD E4 C2 C9 9B AE 5E DF 9E EA 2A D0 FB 55 A2 26 18 9E 11 D2 49 60 43 3E 2B 0E E0 45 A4 73 09 97 76 DD 5D E7 39 DB 9B A8 19 D5 4C B9 03 A7 A5 D7 EE "
-
-keccakp :: forall b nr l w. ( KeccakParameter l w b
-                            , KnownNat nr
-                            , 1 <= nr
-                            , nr <= 12 + 2 * l
-                            )
-        => State b
-        -> State b
-keccakp = foldl (flip f) id $ dropI @(12 + 2 * l - nr) indicesI where
-  f i = (.) ( iota  sha3_constants i
-            . chi   sha3_constants
-            . pi    sha3_constants
-            . rho   sha3_constants
+keccakp ::
+  forall b nr l w.
+  ( KeccakParameter l w b,
+    KnownNat nr,
+    1 <= nr,
+    nr <= 12 + 2 * l
+  ) =>
+  State b ->
+  State b
+keccakp = foldl (flip f) id $ dropI @(12 + 2 * l - nr) indicesI
+  where
+    f i =
+      (.)
+        ( iota sha3_constants i
+            . chi sha3_constants
+            . pi sha3_constants
+            . rho sha3_constants
             . theta sha3_constants
-            )
+        )
 
 keccakf :: forall l w b. (KeccakParameter l w b) => State b -> State b
 keccakf = keccakp @b @(12 + 2 * l) @l @w
@@ -49,47 +52,61 @@ keccakf = keccakp @b @(12 + 2 * l) @l @w
 -- >>> i = bv2v $(bLit "01")
 -- >>> hexdump "%02X " $ keccak @1024 @512 i
 -- "A6 9F 73 CC A2 3A 9A C5 C8 B5 67 DC 18 5A 75 6E 97 C9 82 16 4F E2 58 59 E0 D1 DC C1 47 5C 80 A6 15 B2 12 3A F1 F5 F9 4C 11 E3 E9 40 2C 3A C5 58 F5 00 19 9D 95 B6 D3 E3 01 75 85 86 28 1D CD 26 "
+type SpongeParameter b r n m k d =
+  ( KnownNat b,
+    KnownNat r,
+    KnownNat n,
+    KnownNat (n * r),
+    KnownNat m,
+    KnownNat k,
+    KnownNat d,
+    1 <= b,
+    1 <= r,
+    r <= b - 1,
+    r <= b,
+    1 <= n,
+    n ~ (m + r + 1) `Div` r,
+    m + 2 <= n * r,
+    n * r <= m + r + 1,
+    k ~ d `Div` r,
+    d <= (k + 1) * r
+  )
 
-type SpongeParameter b r n m k d = ( KnownNat b
-                                   , KnownNat r
-                                   , KnownNat n
-                                   , KnownNat m
-                                   , KnownNat k
-                                   , KnownNat d
-                                   , 1 <= b
-                                   , 1 <= r
-                                   , r <= b - 1
-                                   , r <= b
-                                   , 1 <= n
-                                   , n ~ (m + r + 1) `Div` r
-                                   , m + 2 <= n * r
-                                   , n * r <= m + r + 1
-                                   , k ~ d `Div` r
-                                   , d <= (k + 1) * r
-                                   )
+sponge ::
+  forall b r n m k d.
+  (SpongeParameter b r n m k d) =>
+  (BitString b -> BitString b) ->
+  BitString m ->
+  BitString d
+sponge f = trunc . squeeze . absorb . pad
+  where
+    pad :: BitString m -> Vec n (BitString r)
+    pad x = padded
+      where
+        padded = unconcatI $ x ++ singleton 1 ++ repeat @(n * r - (m + 2)) 0 ++ singleton 1
+    absorb :: Vec n (BitString r) -> BitString b
+    absorb = foldl g $ repeat 0
+      where
+        g s chunk =
+          let blockPre = zipWith xor s (chunk ++ repeat @(b - r) 0)
+              block = blockPre
+              permuted = f block
+           in permuted
+    squeeze :: BitString b -> Vec (k + 1) (BitString r)
+    squeeze = map (leToPlusKN @r @b takeI) . iterateI f
+    trunc :: Vec (k + 1) (BitString r) -> BitString d
+    trunc = leToPlusKN @d @((k + 1) * r) takeI . concat
 
-sponge :: forall b r n m k d. (SpongeParameter b r n m k d)
-       => (BitString b -> BitString b)
-       -> BitString m
-       -> BitString d
-sponge f = trunc . squeeze . absorb . pad where
-  pad :: BitString m -> Vec n (BitString r)
-  pad x = unconcatI $ x ++ singleton 1 ++ repeat @(n * r - (m + 2)) 0 ++ singleton 1
-  absorb :: Vec n (BitString r) -> BitString b
-  absorb = foldl g $ repeat 0 where g s = f . zipWith xor s . flip (++) (repeat @(b - r) 0)
-  squeeze :: BitString b -> Vec (k + 1) (BitString r)
-  squeeze = map (leToPlusKN @r @b takeI) . iterateI f
-  trunc :: Vec (k + 1) (BitString r) -> BitString d
-  trunc = leToPlusKN @d @((k + 1) * r) takeI . concat
-
-keccak :: forall c d r n m k. ( KnownNat c
-                              , 1 <= c
-                              , c <= 1599
-                              , r ~ 1600 - c
-                              , SpongeParameter 1600 r n m k d
-                              )
-       => BitString m
-       -> BitString d
+keccak ::
+  forall c d r n m k.
+  ( KnownNat c,
+    1 <= c,
+    c <= 1599,
+    r ~ 1600 - c,
+    SpongeParameter 1600 r n m k d
+  ) =>
+  BitString m ->
+  BitString d
 keccak = sponge @1600 @r @n @m @k @d $ keccakf @6 @64 @1600
 
 -- | SHA3 hash functions
@@ -117,21 +134,32 @@ keccak = sponge @1600 @r @n @m @k @d $ keccakf @6 @64 @1600
 -- "3054d249f916a6039b2a9c3ebec1418791a0608a170e6d36486035e5f92635eaba98072a85373cb54e2ae3f982ce132b"
 -- >>> hexdump "%02x" . sha3_512 . v2bs @_ @(Unsigned 8) . unpack $ pack (0x664ef2e3a7059daf1c58caf52008c5227e85cdcb83b4c59457f02c508d4f4f69f826bd82c0cffc5cb6a97af6e561c6f96970005285e58f21ef6511d26e709889a7e513c434c90a3cf7448f0caeec7114c747b2a0758a3b4503a7cf0c69873ed31d94dbef2b7b2f168830ef7da3322c3d3e10cafb7c2c33c83bbf4c46a31da90cff3bfd4ccc6ed4b310758491eeba603a76 :: Unsigned 1160)
 -- "e5825ff1a3c070d5a52fbbe711854a440554295ffb7a7969a17908d10163bfbe8f1d52a676e8a0137b56a11cdf0ffbb456bc899fc727d14bd8882232549d914e"
-
-sha3_224 :: forall m n. (KnownNat m, SpongeParameter 1600 1152 n (m + 2) 0 224)
-         => BitString m -> BitString 224
+sha3_224 ::
+  forall m n.
+  (KnownNat m, SpongeParameter 1600 1152 n (m + 2) 0 224) =>
+  BitString m ->
+  BitString 224
 sha3_224 = keccak @448 @224 @1152 @n @(m + 2) @0 . flip (++) (bv2v $(bLit "01"))
 
-sha3_256 :: forall m n. (KnownNat m, SpongeParameter 1600 1088 n (m + 2) 0 256)
-         => BitString m -> BitString 256
+sha3_256 ::
+  forall m n.
+  (KnownNat m, SpongeParameter 1600 1088 n (m + 2) 0 256) =>
+  BitString m ->
+  BitString 256
 sha3_256 = keccak @512 @256 @1088 @n @(m + 2) @0 . flip (++) (bv2v $(bLit "01"))
 
-sha3_384 :: forall m n. (KnownNat m, SpongeParameter 1600 832 n (m + 2) 0 384)
-         => BitString m -> BitString 384
+sha3_384 ::
+  forall m n.
+  (KnownNat m, SpongeParameter 1600 832 n (m + 2) 0 384) =>
+  BitString m ->
+  BitString 384
 sha3_384 = keccak @768 @384 @832 @n @(m + 2) @0 . flip (++) (bv2v $(bLit "01"))
 
-sha3_512 :: forall m n. (KnownNat m, SpongeParameter 1600 576 n (m + 2) 0 512)
-         => BitString m -> BitString 512
+sha3_512 ::
+  forall m n.
+  (KnownNat m, SpongeParameter 1600 576 n (m + 2) 0 512) =>
+  BitString m ->
+  BitString 512
 sha3_512 = keccak @1024 @512 @576 @n @(m + 2) @0 . flip (++) (bv2v $(bLit "01"))
 
 -- | SHA3 extended output functions
@@ -139,33 +167,43 @@ sha3_512 = keccak @1024 @512 @576 @n @(m + 2) @0 . flip (++) (bv2v $(bLit "01"))
 -- "5feaf99c15f48851943ff9baa6e5055d8377f0dd347aa4dbece51ad3a6d9ce0c01aee9fe2260b80a4673a909b532adcdd1e421c32d6460535b5fe392a58d2634979a5a104d6c470aa3306c400b061db91c463b2848297bca2bc26d1864ba49d7ff949ebca50fbf79a5e63716dc82b600bd52ca7437ed774d169f6bf02e46487956fba2230f34cd2a0485484d"
 -- >>> hexdump "%02x" . shake_256 @_ @2000 . v2bs @_ @(Unsigned 8) . unpack $ pack (0x8d8001e2c096f1b88e7c9224a086efd4797fbf74a8033a2d422a2b6b8f6747e4 :: Unsigned 256)
 -- "2e975f6a8a14f0704d51b13667d8195c219f71e6345696c49fa4b9d08e9225d3d39393425152c97e71dd24601c11abcfa0f12f53c680bd3ae757b8134a9c10d429615869217fdd5885c4db174985703a6d6de94a667eac3023443a8337ae1bc601b76d7d38ec3c34463105f0d3949d78e562a039e4469548b609395de5a4fd43c46ca9fd6ee29ada5efc07d84d553249450dab4a49c483ded250c9338f85cd937ae66bb436f3b4026e859fda1ca571432f3bfc09e7c03ca4d183b741111ca0483d0edabc03feb23b17ee48e844ba2408d9dcfd0139d2e8c7310125aee801c61ab7900d1efc47c078281766f361c5e6111346235e1dc38325666c"
-
-shake_128 :: forall m d n k. (KnownNat m, SpongeParameter 1600 1344 n (m + 4) k d)
-         => BitString m -> BitString d
+shake_128 ::
+  forall m d n k.
+  (KnownNat m, SpongeParameter 1600 1344 n (m + 4) k d) =>
+  BitString m ->
+  BitString d
 shake_128 = keccak @256 @d @1344 @n @(m + 4) @k . flip (++) (bv2v $(bLit "1111"))
 
-shake_256 :: forall m d n k. (KnownNat m, SpongeParameter 1600 1088 n (m + 4) k d)
-         => BitString m -> BitString d
+shake_256 ::
+  forall m d n k.
+  (KnownNat m, SpongeParameter 1600 1088 n (m + 4) k d) =>
+  BitString m ->
+  BitString d
 shake_256 = keccak @512 @d @1088 @n @(m + 4) @k . flip (++) (bv2v $(bLit "1111"))
 
 --
 
-{-# ANN topEntity
-  (Synthesize
-    { t_name = "SHA3_256"
-    , t_inputs = [ PortName "CLK"
-                 , PortName "RST"
-                 , PortName "EN"
-                 , PortName "DIN"
-                 ]
-    , t_output = PortName "DOUT"
-    }) #-}
+{-# ANN
+  topEntity
+  ( Synthesize
+      { t_name = "SHA3_256",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "DIN"
+          ],
+        t_output = PortName "DOUT"
+      }
+  )
+  #-}
 {-# OPAQUE topEntity #-}
-
-topEntity :: Clock System
-          -> Reset System
-          -> Enable System
-          -> Signal System (State 1600)
-          -> Signal System (State 1600)
-topEntity = exposeClockResetEnable $ fmap (iota c 0 . chi c . pi c . rho c . theta c) where
-  c = $(lift $ sha3_constants @6 @64 @1600)
+topEntity ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (State 1600) ->
+  Signal System (State 1600)
+topEntity = exposeClockResetEnable $ fmap (iota c 0 . chi c . pi c . rho c . theta c)
+  where
+    c = $(lift $ sha3_constants @6 @64 @1600)

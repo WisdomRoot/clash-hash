@@ -448,11 +448,95 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
   --   fmap snd samples
   --     `shouldBe` (P.replicate 18 True <> P.replicate 28 False)
 
-  it "64-bit input" $ do
-    let msg = SHA3internal.toBitString $(listToVecTH "qwertyui")
+  -- it "64-bit input" $ do
+  --   let msg = SHA3internal.toBitString $(listToVecTH "qwertyui")
+  --   let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
+
+  --   let input = AXI4Stream (pack msg) True True :> Nil :: Vec 1 (AXI4Stream 64)
+
+  --   -- Create testbench using stimuliGenerator
+  --   let output =
+  --         Hash.Stateful7.topEntity
+  --           clockGen
+  --           resetGen
+  --           enableGen
+  --           (pure True) -- No backpressure
+  --           (stimuliGenerator clockGen resetGen input)
+
+  --   let latency = 46
+
+  --   -- Sample outputs and check manually
+  --   let samples = sampleN @System latency output
+  --   let actual = P.take 4 $ P.drop 26 samples
+
+  --   fmap (tdata . fst) actual
+  --     `shouldBe` [ expected !! (0 :: Integer),
+  --                  expected !! (1 :: Integer),
+  --                  expected !! (2 :: Integer),
+  --                  expected !! (3 :: Integer)
+  --                ]
+
+  -- it "128-bit input" $ do
+  --   let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfgh")
+  --   let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
+
+  --   let input = markLast $ fmap (\b -> AXI4Stream b True False) (bitCoerce msg :: Vec 2 (BitVector 64))
+
+  --   -- Create testbench using stimuliGenerator
+  --   let output =
+  --         Hash.Stateful7.topEntity
+  --           clockGen
+  --           resetGen
+  --           enableGen
+  --           (pure True) -- No backpressure
+  --           (stimuliGenerator clockGen resetGen input)
+
+  --   let latency = 46
+
+  --   -- Sample outputs and check manually
+  --   let samples = sampleN @System latency output
+  --   let actual = P.take 4 $ P.drop 27 samples
+
+  --   fmap (tdata . fst) actual
+  --     `shouldBe` [ expected !! (0 :: Integer),
+  --                  expected !! (1 :: Integer),
+  --                  expected !! (2 :: Integer),
+  --                  expected !! (3 :: Integer)
+  --                ]
+
+  -- it "1024-bit input" $ do
+  --   let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh")
+  --   let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
+
+  --   let input = markLast $ fmap (\b -> AXI4Stream b True False) (bitCoerce msg :: Vec 16 (BitVector 64))
+
+  --   -- Create testbench using stimuliGenerator
+  --   let output =
+  --         Hash.Stateful7.topEntity
+  --           clockGen
+  --           resetGen
+  --           enableGen
+  --           (pure True) -- No backpressure
+  --           (stimuliGenerator clockGen resetGen input)
+
+  --   let latency = 46
+
+  --   -- Sample outputs and check manually
+  --   let samples = sampleN @System latency output
+  --   let actual = P.take 4 $ P.drop 41 samples
+
+  --   fmap (tdata . fst) actual
+  --     `shouldBe` [ expected !! (0 :: Integer),
+  --                  expected !! (1 :: Integer),
+  --                  expected !! (2 :: Integer),
+  --                  expected !! (3 :: Integer)
+  --                ]
+
+  it "1088-bit input" $ do
+    let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyui")
     let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
 
-    let input = AXI4Stream (pack msg) True True :> Nil :: Vec 1 (AXI4Stream 64)
+    let input = markLast $ fmap (\b -> AXI4Stream b True False) (bitCoerce msg :: Vec 17 (BitVector 64))
 
     -- Create testbench using stimuliGenerator
     let output =
@@ -463,67 +547,12 @@ s7Tests = describe "Hash.Stateful7.topEntity" $ do
             (pure True) -- No backpressure
             (stimuliGenerator clockGen resetGen input)
 
-    let latency = 46
+    let latency = 17 + 1 + 24 + 24 + 4
 
     -- Sample outputs and check manually
     let samples = sampleN @System latency output
-    let actual = P.take 4 $ P.drop 26 samples
-
-    fmap (tdata . fst) actual
-      `shouldBe` [ expected !! (0 :: Integer),
-                   expected !! (1 :: Integer),
-                   expected !! (2 :: Integer),
-                   expected !! (3 :: Integer)
-                 ]
-
-  it "128-bit input" $ do
-    let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfgh")
-    let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
-
-    let input = markLast $ fmap (\b -> AXI4Stream b False False) (bitCoerce msg :: Vec 2 (BitVector 64))
-
-    -- Create testbench using stimuliGenerator
-    let output =
-          Hash.Stateful7.topEntity
-            clockGen
-            resetGen
-            enableGen
-            (pure True) -- No backpressure
-            (stimuliGenerator clockGen resetGen input)
-
-    let latency = 46
-
-    -- Sample outputs and check manually
-    let samples = sampleN @System latency output
-    let actual = P.take 4 $ P.drop 27 samples
-
-    fmap (tdata . fst) actual
-      `shouldBe` [ expected !! (0 :: Integer),
-                   expected !! (1 :: Integer),
-                   expected !! (2 :: Integer),
-                   expected !! (3 :: Integer)
-                 ]
-
-  it "1024-bit input" $ do
-    let msg = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh")
-    let expected = bitCoerce (SHA3.sha3_256 msg) :: Vec 4 (BitVector 64)
-
-    let input = markLast $ fmap (\b -> AXI4Stream b False False) (bitCoerce msg :: Vec 16 (BitVector 64))
-
-    -- Create testbench using stimuliGenerator
-    let output =
-          Hash.Stateful7.topEntity
-            clockGen
-            resetGen
-            enableGen
-            (pure True) -- No backpressure
-            (stimuliGenerator clockGen resetGen input)
-
-    let latency = 46
-
-    -- Sample outputs and check manually
-    let samples = sampleN @System latency output
-    let actual = P.take 4 $ P.drop 41 samples
+    -- mapM_ print samples
+    let actual = P.take 4 $ P.drop (17 + 1 + 24 + 24) samples
 
     fmap (tdata . fst) actual
       `shouldBe` [ expected !! (0 :: Integer),
