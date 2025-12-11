@@ -14,10 +14,18 @@ type MsgBits = 64
 
 type DigestBits = 64
 
+data SeenTLAST
+  = SeenTLASTAndPadded -- final block has been absorbed and padded
+  | SeenTLASTNotPadded -- final block has been absorbed but not yet padded
+  | NotSeenTLAST -- final block not yet absorbed
+  deriving (Show, Eq, Generic, NFDataX)
+
 -- | Phases of the sponge operation
 data Phase
   = Absorb (Index 17)
-  | Permute (Index 24) Bool -- Bool indicates if a complete 1088-bit padding is needed after this permutation
+  | Permute
+      (Index 24)
+      SeenTLAST
   | Squeeze (Index 4)
   deriving
     ( Show,
@@ -80,24 +88,24 @@ sponge permute = mealy step (State (Absorb 0) 0)
       | tlast input && counter < 16 =
           let state' = S5.staticXOR state (tdata input) counter
               padded = pad counter state'
-           in (State (Permute 0 False) padded, (idleAXI4Stream, False))
+           in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
       | tlast input && counter >= 16 =
           let state' = S5.staticXOR state (tdata input) counter
-           in (State (Permute 0 True) state', (idleAXI4Stream, False))
+           in (State (Permute 0 SeenTLASTNotPadded) state', (idleAXI4Stream, False))
       | counter < 16 =
           let state' = S5.staticXOR state (tdata input) counter
            in (State (Absorb (counter + 1)) state', (idleAXI4Stream, True))
       | otherwise =
           let state' = S5.staticXOR state (tdata input) counter
-           in (State (Permute 0 False) state', (idleAXI4Stream, False))
-    step (State (Permute counter shouldPad) state) (_msg, _tready) =
+           in (State (Permute 0 NotSeenTLAST) state', (idleAXI4Stream, False))
+    step (State (Permute counter seenTLAST) state) (_msg, _tready) =
       let state' = permute counter state
        in if counter == 23
-            then
-              if shouldPad
-                then (State (Permute 0 False) (pad 16 state'), (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
-                else (State (Squeeze 0) state', (idleAXI4Stream, False))
-            else (State (Permute (counter + 1) shouldPad) state', (idleAXI4Stream, False))
+            then case seenTLAST of
+              SeenTLASTAndPadded -> (State (Squeeze 0) state', (idleAXI4Stream, False)) -- go to squeeze phase
+              SeenTLASTNotPadded -> (State (Permute 0 SeenTLASTAndPadded) (pad 16 state'), (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
+              NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True)) -- go back to absorb phase
+            else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
     -- Squeeze phase with backpressure: only advance if tready is True
     step (State (Squeeze 0) state) (_msg, tready) =
       let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state, tvalid = True, tlast = False}
