@@ -408,8 +408,8 @@ s6Tests = describe "Hash.Stateful6.topEntity" $ do
 
 s7Tests :: Spec
 s7Tests = describe "Hash.Stateful7.topEntity" $
-  for_ s7TestCases $ \(S7TestCase label message expected) ->
-    it label $ runS7Case message expected
+  for_ s7TestCases $ \(S7TestCase label message expected control) ->
+    it label $ runS7Case message expected control
 
 data S7TestCase where
   S7TestCase ::
@@ -417,16 +417,22 @@ data S7TestCase where
     { s7Label :: String
     , s7Message :: Vec (beats * 64) Bit
     , s7Expected :: Vec 4 (BitVector 64)
+    , s7InputControl :: S7InputControl
     } ->
     S7TestCase
 
+data S7InputControl
+  = NoUpstreamStall
+  | UpstreamStall [Bool]
+
 s7TestCases :: [S7TestCase]
 s7TestCases =
-  [ S7TestCase "64-bit input" msg64 expected64
-  , S7TestCase "128-bit input" msg128 expected128
-  , S7TestCase "1024-bit input" msg1024 expected1024
-  , S7TestCase "1088-bit input" msg1088 expected1088
-  , S7TestCase "1600-bit input" msg1600 expected1600
+  [ S7TestCase "64-bit input" msg64 expected64 NoUpstreamStall
+  , S7TestCase "128-bit input" msg128 expected128 NoUpstreamStall
+  , S7TestCase "1024-bit input" msg1024 expected1024 NoUpstreamStall
+  , S7TestCase "1088-bit input" msg1088 expected1088 NoUpstreamStall
+  , S7TestCase "1600-bit input" msg1600 expected1600 NoUpstreamStall
+  , S7TestCase "128-bit input (upstream stalls)" msg128 expected128 (UpstreamStall stallPattern)
   ]
   where
     msg64 :: Vec (1 * 64) Bit
@@ -459,18 +465,37 @@ s7TestCases =
         $(listToVecTH "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
     expected1600 :: Vec 4 (BitVector 64)
     expected1600 = bitCoerce (SHA3.sha3_256 msg1600)
+    stallPattern :: [Bool]
+    stallPattern =
+      [ True
+      , False
+      , True
+      , True
+      , False
+      , True
+      , True
+      , True
+      , False
+      , True
+      , True
+      , False
+      , True
+      , True
+      , True
+      ]
 
 runS7Case ::
   forall beats.
   KnownNat beats =>
   Vec (beats * 64) Bit ->
   Vec 4 (BitVector 64) ->
+  S7InputControl ->
   Expectation
-runS7Case message expected = do
+runS7Case message expected control = do
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
         withClockResetEnable clockGen resetGen enableGen $
-          s7InputStream messageWords
+          s7InputStream control messageWords
       output =
         Hash.Stateful7.topEntity
           clockGen
@@ -498,30 +523,41 @@ s7InputStream ::
   ( KnownNat beats
   , HiddenClockResetEnable dom
   ) =>
+  S7InputControl ->
   Vec beats (BitVector 64) ->
   Signal dom (AXI4Stream 64)
-s7InputStream messageWords =
-  mealy step (toList messageWords, 0 :: Int, 0 :: Int) (pure ())
+s7InputStream control messageWords =
+  mealy step (toList messageWords, 0 :: Int, 0 :: Int, controlToList control) (pure ())
   where
-    step (xs, waitCount, emittedInBlock) _ =
-      if waitCount > 0
-        then ((xs, waitCount - 1, emittedInBlock), idleBeat)
-        else case xs of
-          [] -> (([], 0, 0), idleBeat)
-          y : ys ->
-            let isLast = P.null ys
-                emittedNow = emittedInBlock + 1
-                needGap = emittedNow == 17 && not isLast
-                nextWait = if needGap then 24 else 0
-                nextEmitted = if needGap then 0 else emittedNow
-                nextState = (ys, nextWait, nextEmitted)
-                outBeat =
-                  AXI4Stream
-                    { tdata = y
-                    , tvalid = True
-                    , tlast = isLast
-                    }
-             in (nextState, outBeat)
+    controlToList NoUpstreamStall = []
+    controlToList (UpstreamStall xs) = xs
+
+    step (xs, waitCount, emittedInBlock, ctrl) _ =
+      let (canSend, ctrl') =
+            case ctrl of
+              [] -> (True, [])
+              b : bs -> (b, bs)
+       in if waitCount > 0
+            then ((xs, waitCount - 1, emittedInBlock, ctrl'), idleBeat)
+            else
+              if not canSend
+                then ((xs, waitCount, emittedInBlock, ctrl'), idleBeat)
+                else case xs of
+                  [] -> (([], 0, 0, ctrl'), idleBeat)
+                  y : ys ->
+                    let isLast = P.null ys
+                        emittedNow = emittedInBlock + 1
+                        needGap = emittedNow == 17 && not isLast
+                        nextWait = if needGap then 24 else 0
+                        nextEmitted = if needGap then 0 else emittedNow
+                        nextState = (ys, nextWait, nextEmitted, ctrl')
+                        outBeat =
+                          AXI4Stream
+                            { tdata = y
+                            , tvalid = True
+                            , tlast = isLast
+                            }
+                     in (nextState, outBeat)
     idleBeat =
       AXI4Stream
         { tdata = 0
