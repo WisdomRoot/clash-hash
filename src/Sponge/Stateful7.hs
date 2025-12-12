@@ -85,6 +85,7 @@ sponge permute = mealy step (State (Absorb 0) 0)
   where
     step :: State -> (AXI4Stream MsgBits, Bool) -> (State, (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready)
+      | not (tvalid input) = (State (Absorb counter) state, (idleAXI4Stream, True)) -- wait for valid input
       | tlast input && counter < 16 =
           let state' = S5.staticXOR state (tdata input) counter
               padded = pad counter state'
