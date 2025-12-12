@@ -42,11 +42,7 @@ piF1600 bv = map ((bv !) . rev) $(Constants.pi 6)
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map ((bv !) . rev) Constants.rho6
-
--- -- Rho transformation: bit permutation (lane rotation)
--- rhoF1600BV :: BitVector 1600 -> BitVector 1600
--- rhoF1600BV bv = bitCoerce $ map (bv !) $(Constants.rho 6)
+rhoF1600 bv = map (bv !) Constants.rho6
 
 -- Iota transformation: XOR lane 0 with round constant
 -- Matches SHA3internal.iota implementation exactly
@@ -70,7 +66,7 @@ iotaF1600 roundIdx v =
 --   - Enforces module boundary for potential blackbox override
 {-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
+keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 .  rhoF1600 . thetaF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =

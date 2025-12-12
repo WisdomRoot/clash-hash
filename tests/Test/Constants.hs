@@ -15,7 +15,12 @@ spec = describe "Constants" $ do
     let actual = $(Permutation.Constants.iota) :: Vec 24 (Vec 64 Bit)
     actual `shouldBe` expected
 
+  it "rho 6 reversed" $ do
+    let expected = Permutation.Constants.rho6Reversed
+    let actual = $(Permutation.Constants.rho 6)
+    actual `shouldBe` expected
+
   it "rho 6" $ do
     let expected = Permutation.Constants.rho6
-    let actual = $(Permutation.Constants.rho 6)
+    let actual = fmap (1599 -) $(Permutation.Constants.rho 6)
     actual `shouldBe` expected

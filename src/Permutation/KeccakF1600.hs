@@ -42,7 +42,7 @@ piF1600 bv = map ((bv !) . rev) $(Constants.pi 6)
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map ((bv !) . rev) Constants.rho6
+rhoF1600 bv = map ((bv !) . rev) Constants.rho6Reversed
 
 -- -- Rho transformation: bit permutation (lane rotation)
 -- rhoF1600BV :: BitVector 1600 -> BitVector 1600
