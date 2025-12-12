@@ -18,7 +18,7 @@ module Permutation.P1
 where
 
 import Clash.Prelude
-import qualified Permutation.Constants as Constants
+import Permutation.Constants qualified as Constants
 
 --------------------------------------------------------------------------------
 -- Round primitives
@@ -38,7 +38,7 @@ chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) 
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600 bv = map ((bv !) . rev) $(Constants.pi 6)
+piF1600 bv = map (bv !) Constants.pi6
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
@@ -66,7 +66,7 @@ iotaF1600 roundIdx v =
 --   - Enforces module boundary for potential blackbox override
 {-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 .  rhoF1600 . thetaF1600 . unpack
+keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
