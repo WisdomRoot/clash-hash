@@ -24,17 +24,13 @@ import Permutation.Constants qualified as Constants
 -- Round primitives
 --------------------------------------------------------------------------------
 
--- Helper: reverse index for bit ordering
-rev :: Index 1600 -> Index 1600
-rev i = 1599 - i
-
 -- Theta transformation: XOR with column parities
 thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
 thetaF1600 bv = map (fold xor . map (bv !)) $(Constants.theta 6)
 
 -- Chi transformation
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chi 6)
+chiF1600 bv = map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) Constants.chi6
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit

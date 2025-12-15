@@ -28,15 +28,15 @@ thetaF400 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 4)
 
 -- Chi transformation
 chiF400 :: Vec 400 Bit -> Vec 400 Bit
-chiF400 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 4)
+chiF400 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chiReversed 4)
 
 -- Pi transformation: bit permutation
 piF400 :: Vec 400 Bit -> Vec 400 Bit
-piF400 bv = map (bv !) $(Constants.pi 4)
+piF400 bv = map (bv !) $(Constants.piReversed 4)
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF400 :: Vec 400 Bit -> Vec 400 Bit
-rhoF400 bv = bitCoerce $ map (bv !) $(Constants.rho 4)
+rhoF400 bv = bitCoerce $ map (bv !) $(Constants.rhoReversed 4)
 
 -- Iota transformation: XOR lane 0 with round constant
 iotaF400 :: Index 24 -> Vec 400 Bit -> Vec 400 Bit

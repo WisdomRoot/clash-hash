@@ -60,7 +60,7 @@
 
 [bench] Time/Mem: load 4.20s | compile 9.39s | synth 12.54s | mem 3292.19 MB
 
-* P1: remove index reversals
+* P1: remove SOME index reversals
 
 [bench] Module areas (from stat):
   module                                            area (µm²)   seq area (µm²)    seq %
@@ -69,3 +69,13 @@
   Permutation_P1_topEntity_keccakF1600Round          15124.228            0.000     0.00%
 
 [bench] Time/Mem: load 4.28s | compile 9.49s | synth 12.79s | mem 3238.58 MB
+
+* P2: remove ALL index reversals
+
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  KeccakF1600_P2                                     15630.958            0.000     0.00%
+  Permutation_P2_topEntity_keccakF1600Round          15630.958            0.000     0.00%
+
+[bench] Time/Mem: load 4.18s | compile 9.08s | synth 11.81s | mem 3253.62 MB

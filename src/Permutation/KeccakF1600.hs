@@ -34,7 +34,7 @@ thetaF1600 bv = map (fold xor . map (bv !)) $(Constants.theta 6)
 
 -- Chi transformation
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chi 6)
+chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chiReversed 6)
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
@@ -46,7 +46,7 @@ rhoF1600 bv = map ((bv !) . rev) Constants.rho6Reversed
 
 -- -- Rho transformation: bit permutation (lane rotation)
 -- rhoF1600BV :: BitVector 1600 -> BitVector 1600
--- rhoF1600BV bv = bitCoerce $ map (bv !) $(Constants.rho 6)
+-- rhoF1600BV bv = bitCoerce $ map (bv !) $(Constants.rhoReversed 6)
 
 -- Iota transformation: XOR lane 0 with round constant
 -- Matches SHA3internal.iota implementation exactly
