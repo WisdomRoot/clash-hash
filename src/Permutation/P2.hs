@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Permutation.P1
+module Permutation.P2
   ( -- * Round primitives
     thetaF1600,
     rhoF1600,
@@ -38,7 +38,7 @@ chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) 
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600 bv = map ((bv !) . rev) Constants.pi6Reversed
+piF1600 bv = map (bv !) Constants.pi6
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
@@ -91,7 +91,7 @@ keccakF1600 initialState =
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF1600_P1",
+      { t_name = "KeccakF1600_P2",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",

@@ -178,6 +178,7 @@ ALIASES = {
     "S7": "Hash.Stateful7.topEntity",
     "P0": "Permutation.KeccakF1600.topEntity",
     "P1": "Permutation.P1.topEntity",
+    "P2": "Permutation.P2.topEntity",
 }
 
 
