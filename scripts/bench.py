@@ -179,6 +179,7 @@ ALIASES = {
     "P0": "Permutation.KeccakF1600.topEntity",
     "P1": "Permutation.P1.topEntity",
     "P2": "Permutation.P2.topEntity",
+    "P3": "Permutation.P3.topEntity",
 }
 
 
