@@ -55,16 +55,12 @@ thetaF1600 bv =
       -- For each lane, we need to XOR with two column parities
       -- output[y][x][z] = state[y][x][z] XOR parity[(x-1) mod 5][z] XOR parity[(x+1) mod 5][(z-1) mod 64]
 
-      -- Helper: rotate a 64-bit lane right by 1 position (z-1 mod 64)
-      rotateRight1 :: Vec 64 Bit -> Vec 64 Bit
-      rotateRight1 v = last v :> init v
-
-      -- Pre-compute the rotated parities (only 5 of them)
-      parity0Rot = rotateRight1 parity0
-      parity1Rot = rotateRight1 parity1
-      parity2Rot = rotateRight1 parity2
-      parity3Rot = rotateRight1 parity3
-      parity4Rot = rotateRight1 parity4
+      -- Pre-compute the rotated parities
+      parity0Rot = rotateRightS parity0 d1
+      parity1Rot = rotateRightS parity1 d1
+      parity2Rot = rotateRightS parity2 d1
+      parity3Rot = rotateRightS parity3 d1
+      parity4Rot = rotateRightS parity4 d1
 
       -- Apply theta for x=0: uses parity4 and rotated parity1
       applyX0 lane = zipWith xor lane (zipWith xor parity4 parity1Rot)
