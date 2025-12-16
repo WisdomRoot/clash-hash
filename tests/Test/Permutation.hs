@@ -8,6 +8,7 @@ module Test.Permutation (spec) where
 import Clash.Prelude
 import Permutation.KeccakF1600 qualified as P0
 import Permutation.P1 qualified as P1
+import Permutation.P3 qualified as P3
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
@@ -92,4 +93,42 @@ spec = describe "Permutation" $ do
     it "24 complete rounds" $ do
       let expected = pack $ SHA3.keccakf @6 @64 @1600 input
       let actual = P1.keccakF1600 inputBitVector
+      actual `shouldBe` expected
+
+  describe "P3" $ do
+    it "theta" $ do
+      let expected = pack $ SHA3internal.theta sha3Consts input
+      let actual = pack $ P3.thetaF1600 input
+      actual `shouldBe` expected
+
+    it "rho" $ do
+      let expected = pack $ SHA3internal.rho sha3Consts input
+      let actual = pack $ P3.rhoF1600 input
+      actual `shouldBe` expected
+
+    it "pi" $ do
+      let expected = pack $ SHA3internal.pi sha3Consts input
+      let actual = pack $ P3.piF1600 input
+      actual `shouldBe` expected
+
+    it "chi" $ do
+      let expected = pack $ SHA3internal.chi sha3Consts input
+      let actual = pack $ P3.chiF1600 input
+      actual `shouldBe` expected
+
+    it "iota (round 0)" $ do
+      let roundIdx = 0 :: Index 24
+      let expected = pack $ SHA3internal.iota sha3Consts roundIdx input
+      let actual = pack $ P3.iotaF1600 roundIdx input
+      actual `shouldBe` expected
+
+    it "1 round (round 0)" $ do
+      let roundIdx = 0 :: Index 24
+      let expected = pack $ SHA3internal.keccakf1Round roundIdx input
+      let actual = pack $ P3.keccakF1600Round roundIdx inputBitVector
+      actual `shouldBe` expected
+
+    it "24 complete rounds" $ do
+      let expected = pack $ SHA3.keccakf @6 @64 @1600 input
+      let actual = P3.keccakF1600 inputBitVector
       actual `shouldBe` expected
