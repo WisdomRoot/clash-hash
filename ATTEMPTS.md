@@ -89,3 +89,23 @@
   Permutation_P2_topEntity_keccakF1600Round          15630.958            0.000     0.00%
 
 [bench] Time/Mem: load 4.18s | compile 9.08s | synth 11.81s | mem 3253.62 MB
+
+* Theta0: baseline theta implementation
+
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Theta0                                             11194.344            0.000     0.00%
+
+[bench] Time/Mem: load 2.27s | compile 0.36s | synth 7.21s | mem 2889.66 MB
+
+
+* Theta1: 2-stage theta implementation
+
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Theta1                                              5107.200            0.000     0.00%
+
+[bench] Time/Mem: load 0.77s | compile 0.01s | synth 0.72s | mem 137.53 MB
+
