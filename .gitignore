@@ -39,7 +39,6 @@ cabal.config
 *.iml
 
 # HDL directories often created during development cycle
-/vhdl
 /verilog
 /systemverilog
 /build
@@ -47,3 +46,5 @@ cabal.config
 .vscode
 /trace
 *.cabal
+
+.yosys-plugins

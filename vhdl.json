@@ -1,0 +1,13 @@
+{
+  "H0": {
+    "dir": "high_speed_core",
+    "top": "keccak",
+    "files": [
+      "keccak_globals.vhd",
+      "keccak_round_constants_gen.vhd",
+      "keccak_round.vhd",
+      "keccak_buffer.vhd",
+      "keccak.vhd"
+    ]
+  }
+}
