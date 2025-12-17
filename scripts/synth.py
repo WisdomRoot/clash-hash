@@ -21,8 +21,21 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VERILOG_ROOT = PROJECT_ROOT / "verilog"
+TARGETS_FILE = PROJECT_ROOT / "clash.json"
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "build" / "synth"
 DEFAULT_LIBERTY = PROJECT_ROOT / "lib" / "nangate45" / "NangateOpenCellLibrary_typical.lib"
+
+
+def load_aliases() -> dict[str, str]:
+    if not TARGETS_FILE.is_file():
+        sys.exit(f"error: targets file missing at {TARGETS_FILE}")
+    try:
+        data = json.loads(TARGETS_FILE.read_text(encoding="utf-8"))
+    except Exception as exc:
+        sys.exit(f"error: could not parse {TARGETS_FILE}: {exc}")
+    if not isinstance(data, dict):
+        sys.exit("error: targets file must contain a JSON object")
+    return {str(k): str(v) for k, v in data.items()}
 
 
 def load_manifest(arg: str) -> tuple[Path, dict]:
@@ -114,7 +127,10 @@ def main(argv: list[str]) -> None:
     )
     args = parser.parse_args(argv)
 
-    manifest_path, manifest = load_manifest(args.target)
+    aliases = load_aliases()
+    target_label = aliases.get(args.target, args.target)
+
+    manifest_path, manifest = load_manifest(target_label)
     top = manifest.get("top_component", {}).get("name")
     if not top:
         sys.exit("error: manifest missing top_component.name")

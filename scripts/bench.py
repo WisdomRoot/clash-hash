@@ -21,6 +21,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VERILOG_ROOT = PROJECT_ROOT / "verilog"
+TARGETS_FILE = PROJECT_ROOT / "clash.json"
 
 
 def fmt2(value):
@@ -170,19 +171,19 @@ def module_from_label(label: str) -> str:
     return label[: -len(suffix)] if label.endswith(suffix) else label
 
 
-# Friendly aliases for targets
-ALIASES = {
-    "S4": "Hash.Stateful4.topEntity",
-    "S5": "Hash.Stateful5.topEntity",
-    "S6": "Hash.Stateful6.topEntity",
-    "S7": "Hash.Stateful7.topEntity",
-    "Theta0": "Permutation.Theta0.topEntity",
-    "Theta1": "Permutation.Theta1.topEntity",
-    "P0": "Permutation.KeccakF1600.topEntity",
-    "P1": "Permutation.P1.topEntity",
-    "P2": "Permutation.P2.topEntity",
-    "P3": "Permutation.P3.topEntity",
-}
+def load_aliases() -> dict[str, str]:
+    if not TARGETS_FILE.is_file():
+        sys.exit(f"[bench] ERROR: targets file missing at {TARGETS_FILE}")
+    try:
+        data = json.loads(TARGETS_FILE.read_text(encoding="utf-8"))
+    except Exception as exc:
+        sys.exit(f"[bench] ERROR: could not parse {TARGETS_FILE}: {exc}")
+    if not isinstance(data, dict):
+        sys.exit(f"[bench] ERROR: targets file must contain a JSON object")
+    return {str(k): str(v) for k, v in data.items()}
+
+
+ALIASES = load_aliases()
 
 
 def synth_label(label: str) -> str:
