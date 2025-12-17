@@ -9,5 +9,21 @@
       "keccak_buffer.vhd",
       "keccak.vhd"
     ]
+  },
+  "HP0": {
+    "dir": "high_speed_core",
+    "top": "keccak_round",
+    "files": [
+      "keccak_globals.vhd",
+      "keccak_round.vhd"
+    ]
+  },
+  "HTheta0": {
+    "dir": "high_speed_core",
+    "top": "keccak_round_theta",
+    "files": [
+      "keccak_globals.vhd",
+      "keccak_round_theta.vhd"
+    ]
   }
 }
