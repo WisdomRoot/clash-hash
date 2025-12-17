@@ -21,7 +21,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VERILOG_ROOT = PROJECT_ROOT / "verilog"
-TARGETS_FILE = PROJECT_ROOT / "clash.json"
+CLASH_TARGETS_FILE = PROJECT_ROOT / "clash.json"
+VHDL_TARGETS_FILE = PROJECT_ROOT / "vhdl.json"
 
 
 def fmt2(value):
@@ -58,6 +59,13 @@ def run_cmd(cmd, label, timeout=3600):
         print(result.stdout + result.stderr, file=sys.stderr)
         sys.exit(f"[bench] ERROR: {label} failed (exit {result.returncode})")
     return result.stdout + result.stderr
+
+
+def output_label(target: str) -> str:
+    if target in VHDL_TARGETS:
+        dir_name = VHDL_TARGETS[target].get("dir") or target
+        return f"vhdl_{dir_name}"
+    return target
 
 
 def parse_report(label: str) -> str | None:
@@ -171,19 +179,39 @@ def module_from_label(label: str) -> str:
     return label[: -len(suffix)] if label.endswith(suffix) else label
 
 
-def load_aliases() -> dict[str, str]:
-    if not TARGETS_FILE.is_file():
-        sys.exit(f"[bench] ERROR: targets file missing at {TARGETS_FILE}")
+def load_aliases(path: Path, required: bool = False) -> dict[str, str]:
+    if not path.is_file():
+        if required:
+            sys.exit(f"[bench] ERROR: targets file missing at {path}")
+        return {}
     try:
-        data = json.loads(TARGETS_FILE.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
-        sys.exit(f"[bench] ERROR: could not parse {TARGETS_FILE}: {exc}")
+        sys.exit(f"[bench] ERROR: could not parse {path}: {exc}")
     if not isinstance(data, dict):
-        sys.exit(f"[bench] ERROR: targets file must contain a JSON object")
+        sys.exit(f"[bench] ERROR: targets file {path} must contain a JSON object")
     return {str(k): str(v) for k, v in data.items()}
 
 
-ALIASES = load_aliases()
+ALIASES = load_aliases(CLASH_TARGETS_FILE, required=True)
+def load_vhdl_targets(path: Path) -> dict[str, dict]:
+    if not path.is_file():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        sys.exit(f"[bench] ERROR: could not parse {path}: {exc}")
+    if not isinstance(data, dict):
+        sys.exit(f"[bench] ERROR: vhdl targets file {path} must contain a JSON object")
+    targets: dict[str, dict] = {}
+    for name, entry in data.items():
+        if not isinstance(entry, dict):
+            sys.exit(f"[bench] ERROR: vhdl target '{name}' must be an object")
+        targets[str(name)] = entry
+    return targets
+
+
+VHDL_TARGETS = load_vhdl_targets(VHDL_TARGETS_FILE)
 
 
 def synth_label(label: str) -> str:
@@ -199,7 +227,7 @@ def synth_label(label: str) -> str:
     )
 
 
-def run_synth(label: str):
+def run_synth(target: str):
     run_cmd(
         [
             "nix",
@@ -207,17 +235,35 @@ def run_synth(label: str):
             "--command",
             "python3",
             "scripts/synth.py",
-            label,
+            target,
         ],
-        f"Synth {label}",
+        f"Synth {target}",
     )
-    report_text = parse_report(label)
+    report_text = parse_report(output_label(target))
     if report_text is None:
         sys.exit(f"[bench] ERROR: missing report for {label}")
     return parse_synth_output(report_text)
 
 
 def bench(target_label: str):
+    if target_label in VHDL_TARGETS:
+        cpu, mem, area, seq_area, seq_pct, modules = run_synth(target_label)
+        if modules:
+            print("\n[bench] Module areas (from stat):")
+            header = f"{'module':<45} {'area (µm²)':>14} {'seq area (µm²)':>16} {'seq %':>8}"
+            print("  " + header)
+            print("  " + "-" * len(header))
+            for mod, (a, sa, sp) in sorted(modules.items()):
+                row = f"{mod:<45} {fmt_area(a):>14} {fmt_area(sa):>16} {fmt2(sp):>8}%"
+                print("  " + row)
+
+        print(
+            "\n[bench] Time/Mem: load N/A | compile N/A | synth {0}s | mem {1} MB".format(
+                fmt2(cpu), fmt_mem(mem)
+            )
+        )
+        return
+
     target_label = ALIASES.get(target_label, target_label)
     module_name = module_from_label(target_label)
 
@@ -239,7 +285,6 @@ def bench(target_label: str):
 
     load_time, compile_time = parse_clash_timings(clash_output)
 
-    manifest = load_manifest(target_label)
     cpu, mem, area, seq_area, seq_pct, modules = run_synth(target_label)
 
     if modules:
