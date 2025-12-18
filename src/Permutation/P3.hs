@@ -20,6 +20,17 @@ where
 import Clash.Prelude
 import Permutation.Constants qualified as Constants
 
+-- Element-wise XOR for bit vectors
+-- NOTE: defining it as an left-associative operator would generate inefficient verilog!!
+(^^^) :: Vec n Bit -> Vec n Bit -> Vec n Bit
+(^^^) = zipWith xor
+
+infixr 7 ^^^ -- infixl 7 would generate inefficient verilog!!
+
+
+rotateRight1 :: KnownNat n => Vec n a -> Vec n a
+rotateRight1 x = rotateRightS x d1
+
 --------------------------------------------------------------------------------
 -- Round primitives
 --------------------------------------------------------------------------------
@@ -36,53 +47,30 @@ thetaF1600 bv =
       state :: Vec 25 (Vec 64 Bit)
       state = unconcatI bv
 
-      -- Extract the 5 lanes for each column (x=0,1,2,3,4)
-      -- Each column has 5 lanes at positions: y*5+x where y=0..4
-      col0 = state !! 0 :> state !! 5 :> state !! 10 :> state !! 15 :> state !! 20 :> Nil
-      col1 = state !! 1 :> state !! 6 :> state !! 11 :> state !! 16 :> state !! 21 :> Nil
-      col2 = state !! 2 :> state !! 7 :> state !! 12 :> state !! 17 :> state !! 22 :> Nil
-      col3 = state !! 3 :> state !! 8 :> state !! 13 :> state !! 18 :> state !! 23 :> Nil
-      col4 = state !! 4 :> state !! 9 :> state !! 14 :> state !! 19 :> state !! 24 :> Nil
+      -- Helper: get lane at index i
+      lane :: Index 25 -> Vec 64 Bit
+      lane i = state !! i
 
       -- Stage 1: Compute column parity for each column: XOR all 5 lanes
-      parity0 = fold (zipWith xor) col0
-      parity1 = fold (zipWith xor) col1
-      parity2 = fold (zipWith xor) col2
-      parity3 = fold (zipWith xor) col3
-      parity4 = fold (zipWith xor) col4
+      parity0 = lane 0 ^^^ lane 5 ^^^ lane 10 ^^^ lane 15 ^^^ lane 20
+      parity1 = lane 1 ^^^ lane 6 ^^^ lane 11 ^^^ lane 16 ^^^ lane 21
+      parity2 = lane 2 ^^^ lane 7 ^^^ lane 12 ^^^ lane 17 ^^^ lane 22
+      parity3 = lane 3 ^^^ lane 8 ^^^ lane 13 ^^^ lane 18 ^^^ lane 23
+      parity4 = lane 4 ^^^ lane 9 ^^^ lane 14 ^^^ lane 19 ^^^ lane 24
 
       -- Stage 2: Apply theta to each lane
       -- For each lane, we need to XOR with two column parities
       -- output[y][x][z] = state[y][x][z] XOR parity[(x-1) mod 5][z] XOR parity[(x+1) mod 5][(z-1) mod 64]
-
-      -- Pre-compute the rotated parities
-      parity0Rot = rotateRightS parity0 d1
-      parity1Rot = rotateRightS parity1 d1
-      parity2Rot = rotateRightS parity2 d1
-      parity3Rot = rotateRightS parity3 d1
-      parity4Rot = rotateRightS parity4 d1
-
-      -- Apply theta for x=0: uses parity4 and rotated parity1
-      applyX0 lane = zipWith xor lane (zipWith xor parity4 parity1Rot)
-      -- Apply theta for x=1: uses parity0 and rotated parity2
-      applyX1 lane = zipWith xor lane (zipWith xor parity0 parity2Rot)
-      -- Apply theta for x=2: uses parity1 and rotated parity3
-      applyX2 lane = zipWith xor lane (zipWith xor parity1 parity3Rot)
-      -- Apply theta for x=3: uses parity2 and rotated parity4
-      applyX3 lane = zipWith xor lane (zipWith xor parity2 parity4Rot)
-      -- Apply theta for x=4: uses parity3 and rotated parity0
-      applyX4 lane = zipWith xor lane (zipWith xor parity3 parity0Rot)
+      applyX :: Index 5 -> Vec 64 Bit -> Vec 64 Bit
+      applyX 0 x = x ^^^ parity4 ^^^ rotateRight1 parity1
+      applyX 1 x = x ^^^ parity0 ^^^ rotateRight1 parity2
+      applyX 2 x = x ^^^ parity1 ^^^ rotateRight1 parity3
+      applyX 3 x = x ^^^ parity2 ^^^ rotateRight1 parity4
+      applyX _ x = x ^^^ parity3 ^^^ rotateRight1 parity0
 
       -- Apply to all 25 lanes based on their column (i mod 5)
       outputState :: Vec 25 (Vec 64 Bit)
-      outputState = imap (\i lane ->
-        case resize (i `mod` 5) :: Index 5 of
-          0 -> applyX0 lane
-          1 -> applyX1 lane
-          2 -> applyX2 lane
-          3 -> applyX3 lane
-          _ -> applyX4 lane
-        ) state
+      outputState = imap (applyX . resize . (`mod` 5)) state
 
    in concat outputState
 
