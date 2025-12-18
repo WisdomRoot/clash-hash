@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Permutation.WithoutTheta0
+module Permutation.WithoutTheta
   ( rhoF1600,
     piF1600,
     chiF1600,
@@ -60,7 +60,7 @@ keccakF1600 initialState =
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF1600_WithoutTheta0",
+      { t_name = "WithoutTheta",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",

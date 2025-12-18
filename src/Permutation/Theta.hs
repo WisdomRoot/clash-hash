@@ -4,7 +4,7 @@ module Permutation.Theta
 where
 
 import Clash.Prelude
-import Permutation.P3 qualified as P3
+import Permutation.Perm qualified as P3
 
 {-# ANN
   topEntity

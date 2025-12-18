@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Permutation.P1
+module Permutation.Perm
   ( -- * Round primitives
     thetaF1600,
     rhoF1600,
@@ -20,6 +20,17 @@ where
 import Clash.Prelude
 import Permutation.Constants qualified as Constants
 
+-- Element-wise XOR for bit vectors
+-- NOTE: defining it as an left-associative operator would generate inefficient verilog!!
+(^^^) :: Vec n Bit -> Vec n Bit -> Vec n Bit
+(^^^) = zipWith xor
+
+infixr 7 ^^^ -- infixl 7 would generate inefficient verilog!!
+
+
+rotateRight1 :: KnownNat n => Vec n a -> Vec n a
+rotateRight1 x = rotateRightS x d1
+
 --------------------------------------------------------------------------------
 -- Round primitives
 --------------------------------------------------------------------------------
@@ -29,8 +40,39 @@ rev :: Index 1600 -> Index 1600
 rev i = 1599 - i
 
 -- Theta transformation: XOR with column parities
+-- Step 1: Just compute column parities (5 lanes of 64 bits = 320 bits)
 thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-thetaF1600 bv = map (fold xor . map (bv !)) $(Constants.theta 6)
+thetaF1600 bv =
+  let -- Unpack to 5×5×64: Vec 5 (Vec 5 (Vec 64 Bit))
+      state :: Vec 25 (Vec 64 Bit)
+      state = unconcatI bv
+
+      -- Helper: get lane at index i
+      lane :: Index 25 -> Vec 64 Bit
+      lane i = state !! i
+
+      -- Stage 1: Compute column parity for each column: XOR all 5 lanes
+      parity0 = lane 0 ^^^ lane 5 ^^^ lane 10 ^^^ lane 15 ^^^ lane 20
+      parity1 = lane 1 ^^^ lane 6 ^^^ lane 11 ^^^ lane 16 ^^^ lane 21
+      parity2 = lane 2 ^^^ lane 7 ^^^ lane 12 ^^^ lane 17 ^^^ lane 22
+      parity3 = lane 3 ^^^ lane 8 ^^^ lane 13 ^^^ lane 18 ^^^ lane 23
+      parity4 = lane 4 ^^^ lane 9 ^^^ lane 14 ^^^ lane 19 ^^^ lane 24
+
+      -- Stage 2: Apply theta to each lane
+      -- For each lane, we need to XOR with two column parities
+      -- output[y][x][z] = state[y][x][z] XOR parity[(x-1) mod 5][z] XOR parity[(x+1) mod 5][(z-1) mod 64]
+      applyX :: Index 5 -> Vec 64 Bit -> Vec 64 Bit
+      applyX 0 x = x ^^^ parity4 ^^^ rotateRight1 parity1
+      applyX 1 x = x ^^^ parity0 ^^^ rotateRight1 parity2
+      applyX 2 x = x ^^^ parity1 ^^^ rotateRight1 parity3
+      applyX 3 x = x ^^^ parity2 ^^^ rotateRight1 parity4
+      applyX _ x = x ^^^ parity3 ^^^ rotateRight1 parity0
+
+      -- Apply to all 25 lanes based on their column (i mod 5)
+      outputState :: Vec 25 (Vec 64 Bit)
+      outputState = imap (applyX . resize . (`mod` 5)) state
+
+   in concat outputState
 
 -- Chi transformation
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
@@ -91,7 +133,7 @@ keccakF1600 initialState =
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "KeccakF1600_P1",
+      { t_name = "KeccakF1600_Perm",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",

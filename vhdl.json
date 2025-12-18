@@ -26,7 +26,7 @@
       "keccak_round_theta.vhd"
     ]
   },
-  "HRoundWithoutTheta0": {
+  "HRoundWithoutTheta": {
     "dir": "high_speed_core",
     "top": "keccak_round_without_theta",
     "files": [

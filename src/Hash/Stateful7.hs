@@ -8,7 +8,7 @@ where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import Permutation.P3 qualified as Perm
+import Permutation.Perm qualified as Perm
 import Sponge.Stateful7 qualified
 
 --------------------------------------------------------------------------------
