@@ -18,15 +18,7 @@
       "keccak_round.vhd"
     ]
   },
-  "HTheta0": {
-    "dir": "high_speed_core",
-    "top": "keccak_round_theta",
-    "files": [
-      "keccak_globals.vhd",
-      "keccak_round_theta.vhd"
-    ]
-  },
-  "HTheta1": {
+  "HTheta": {
     "dir": "high_speed_core",
     "top": "keccak_round_theta",
     "files": [

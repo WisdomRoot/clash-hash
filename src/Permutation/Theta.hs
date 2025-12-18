@@ -1,4 +1,4 @@
-module Permutation.Theta1
+module Permutation.Theta
   ( topEntity,
   )
 where
@@ -9,7 +9,7 @@ import Permutation.P3 qualified as P3
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "Theta1",
+      { t_name = "Theta",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
