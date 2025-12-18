@@ -28,10 +28,18 @@
   },
   "HTheta1": {
     "dir": "high_speed_core",
-    "top": "keccak_round_theta1",
+    "top": "keccak_round_theta",
     "files": [
       "keccak_globals.vhd",
-      "keccak_round_theta1.vhd"
+      "keccak_round_theta.vhd"
+    ]
+  },
+  "HRoundWithoutTheta0": {
+    "dir": "high_speed_core",
+    "top": "keccak_round_without_theta",
+    "files": [
+      "keccak_globals.vhd",
+      "keccak_round_without_theta.vhd"
     ]
   }
 }
