@@ -2,9 +2,12 @@
 
 module Test.TestCase
   ( TestCase (..),
+    testCaseLabel,
     SomeMessage (..),
     Control (..),
-    run,
+    runTestCase,
+    try,
+    expectedCycles,
   )
 where
 
@@ -18,8 +21,7 @@ data SomeMessage where
   SomeMessage :: (KnownNat beats) => Vec (beats * 64) Bit -> SomeMessage
 
 data TestCase = TestCase
-  { testCaseLabel :: String,
-    testCaseMessage :: SomeMessage,
+  { testCaseMessage :: SomeMessage,
     testCaseExpected :: Vec 4 (BitVector 64),
     testCaseControl :: Control
   }
@@ -28,10 +30,22 @@ data Control
   = NoUpstreamStall
   | UpstreamStall [Bool]
 
-run ::
-  TestCase ->
-  Expectation
-run (TestCase _ (SomeMessage (message :: Vec (beats * 64) Bit)) expected control) = do
+-- | Get a label for a test case
+testCaseLabel :: TestCase -> String
+testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
+  show (natToNum @beats * 64 :: Int) <> "-bit"
+
+-- | Predict the number of cycles needed to complete a test case
+expectedCycles :: TestCase -> Int
+expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
+  let beatCount = natToNum @beats :: Int
+      absorbCycles = beatCount
+      permuteCycles = (24 + 1) * ((beatCount `div` 17) + 1) -- extra cycle of stall, to be removed
+      squeezeCycles = 4
+   in absorbCycles + permuteCycles + squeezeCycles
+
+try :: TestCase -> Expectation
+try testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) _expected control) = do
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
@@ -43,14 +57,31 @@ run (TestCase _ (SomeMessage (message :: Vec (beats * 64) Bit)) expected control
           enableGen
           (pure True)
           inputStream
-      beatCount = natToNum @beats :: Int
-      blockTransitions =
-        if beatCount <= 0
-          then 0
-          else P.max 0 (beatCount - 1) `div` 17
-      gapCycles = blockTransitions * 24
-      permutationCount = blockTransitions + 1
-      sampleCount = beatCount + gapCycles + 1 + permutationCount * 24 + 4 + 64
+      sampleCount = expectedCycles testCase
+      samples = sampleN @System sampleCount output
+
+      outputs = P.drop (sampleCount - 4) samples
+
+  print sampleCount
+
+  print outputs
+
+runTestCase ::
+  TestCase ->
+  Expectation
+runTestCase testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) expected control) = do
+  let messageWords = bitCoerce message :: Vec beats (BitVector 64)
+      inputStream =
+        withClockResetEnable clockGen resetGen enableGen
+          $ feedInput control messageWords
+      output =
+        Hash.NonPipelined.topEntity
+          clockGen
+          resetGen
+          enableGen
+          (pure True)
+          inputStream
+      sampleCount = expectedCycles testCase
       samples = sampleN @System sampleCount output
       actualStreams = P.take 4 $ P.filter (tvalid . fst) samples
 

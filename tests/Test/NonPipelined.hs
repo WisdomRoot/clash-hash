@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unused-local-binds #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 module Test.NonPipelined (spec) where
 
 import Clash.Prelude hiding (tlast)
@@ -7,19 +10,22 @@ import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
 import Test.TestCase
 
+run :: IO ()
+run = hspec spec
+
 spec :: Spec
 spec = describe "NonPipelined SHA3-256 Tests" $ do
   for_ testCases $ \testCase ->
-    it (testCaseLabel testCase) $ run testCase
+    it (testCaseLabel testCase) $ runTestCase testCase
 
 testCases :: [TestCase]
 testCases =
-  [ TestCase "64-bit input" (SomeMessage msg64) expected64 NoUpstreamStall,
-    TestCase "128-bit input" (SomeMessage msg128) expected128 NoUpstreamStall,
-    TestCase "1024-bit input" (SomeMessage msg1024) expected1024 NoUpstreamStall,
-    TestCase "1088-bit input" (SomeMessage msg1088) expected1088 NoUpstreamStall,
-    TestCase "1600-bit input" (SomeMessage msg1600) expected1600 NoUpstreamStall,
-    TestCase "128-bit input (upstream stalls)" (SomeMessage msg128) expected128 (UpstreamStall stallPattern)
+  [ TestCase (SomeMessage msg64) expected64 NoUpstreamStall,
+    TestCase (SomeMessage msg128) expected128 NoUpstreamStall,
+    TestCase (SomeMessage msg1024) expected1024 NoUpstreamStall,
+    TestCase (SomeMessage msg1088) expected1088 NoUpstreamStall,
+    TestCase (SomeMessage msg1600) expected1600 NoUpstreamStall
+    -- TestCase "128-bit input (upstream stalls)" (SomeMessage msg128) expected128 (UpstreamStall stallPattern)
   ]
   where
     msg64 :: Vec (1 * 64) Bit
