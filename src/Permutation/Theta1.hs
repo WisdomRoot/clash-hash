@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Permutation.Theta1
   ( topEntity,
   )
