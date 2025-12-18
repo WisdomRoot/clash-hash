@@ -109,3 +109,19 @@
 
 [bench] Time/Mem: load 0.77s | compile 0.01s | synth 0.72s | mem 137.53 MB
 
+* HTheta0: high-speed baseline theta implementation
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  keccak_round_theta                                  7150.080            0.000     0.00%
+
+[bench] Time/Mem: load N/A | compile N/A | synth 0.35s | mem 94.77 MB
+
+* HTheta1: high-speed baseline theta implementation with precomputed rotates
+
+[bench] Module areas (from stat):
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  keccak_round_theta1                                 5107.200            0.000     0.00%
+
+[bench] Time/Mem: load N/A | compile N/A | synth 0.26s | mem 79.00 MB
