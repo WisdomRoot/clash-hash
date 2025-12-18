@@ -1,10 +1,6 @@
 {
-  "S4": "Hash.Stateful4.topEntity",
-  "S5": "Hash.Stateful5.topEntity",
-  "S6": "Hash.Stateful6.topEntity",
-  "S7": "Hash.Stateful7.topEntity",
-  "Theta": "Permutation.Theta.topEntity",
-  "P0": "Permutation.KeccakF1600.topEntity",
+  "NP": "Hash.NonPipelined.topEntity",
   "Perm": "Permutation.Perm.topEntity",
+  "Theta": "Permutation.Theta.topEntity",
   "WithoutTheta": "Permutation.WithoutTheta.topEntity"
 }

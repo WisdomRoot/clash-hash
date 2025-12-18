@@ -1,14 +1,13 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Sponge.Stateful7
-  ( -- * Stateful7 Sponge
-    sponge,
+module Sponge.NonPipelined
+  ( sponge,
   )
 where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Sponge.Stateful5 qualified as S5
+import Sponge.XOR qualified as XOR
 
 type MsgBits = 64
 
@@ -87,17 +86,17 @@ sponge permute = mealy step (State (Absorb 0) 0)
     step (State (Absorb counter) state) (input, _tready)
       | not (tvalid input) = (State (Absorb counter) state, (idleAXI4Stream, True)) -- wait for valid input
       | tlast input && counter < 16 =
-          let state' = S5.staticXOR state (tdata input) counter
+          let state' = XOR.staticXOR state (tdata input) counter
               padded = pad counter state'
            in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
       | tlast input && counter >= 16 =
-          let state' = S5.staticXOR state (tdata input) counter
+          let state' = XOR.staticXOR state (tdata input) counter
            in (State (Permute 0 SeenTLASTNotPadded) state', (idleAXI4Stream, False))
       | counter < 16 =
-          let state' = S5.staticXOR state (tdata input) counter
+          let state' = XOR.staticXOR state (tdata input) counter
            in (State (Absorb (counter + 1)) state', (idleAXI4Stream, True))
       | otherwise =
-          let state' = S5.staticXOR state (tdata input) counter
+          let state' = XOR.staticXOR state (tdata input) counter
            in (State (Permute 0 NotSeenTLAST) state', (idleAXI4Stream, False))
     step (State (Permute counter seenTLAST) state) (_msg, _tready) =
       let state' = permute counter state

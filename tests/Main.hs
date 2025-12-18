@@ -5,7 +5,7 @@ module Main (main) where
 import Test.Combinational qualified
 import Test.Constants qualified
 import Test.Permutation qualified
-import Test.Stateful qualified
+import Test.NonPipelined qualified
 import Test.Tasty
 import Test.Tasty.Hspec
 import Prelude
@@ -15,7 +15,7 @@ main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationTests <- testSpec "Permutation" Test.Permutation.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
-  statefulTests <- testSpec "Stateful" Test.Stateful.spec
+  nonPipelinedTests <- testSpec "NonPipelined" Test.NonPipelined.spec
 
   defaultMain $
     testGroup
@@ -24,5 +24,5 @@ main = do
         constantsTests,
         permutationTests,
         combinationalTests,
-        statefulTests
+        nonPipelinedTests
       ]

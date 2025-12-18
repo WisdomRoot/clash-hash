@@ -1,21 +1,22 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Hash.Stateful6
-  ( -- * Stateful6 SHA3 Top Entity
+module Hash.NonPipelined
+  ( -- * NonPipelined SHA3 Top Entity
     topEntity,
   )
 where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import qualified Permutation.KeccakF1600 as Perm
-import qualified Sponge.Stateful6
+import Permutation.Perm qualified as Perm
+import Sponge.NonPipelined qualified
 
 --------------------------------------------------------------------------------
--- Stateful6 SHA3-256 Top Entity (24 single-round iterations)
+-- NonPipelined SHA3-256 Top Entity (24 single-round iterations)
 --------------------------------------------------------------------------------
 
 type MsgBits = 64
+
 type DigestBits = 64
 
 -- Wrapper function for module naming control
@@ -27,7 +28,7 @@ spongeFSM = Perm.keccakF1600Round
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "Stateful6_SHA3",
+      { t_name = "NonPipelined",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -50,9 +51,9 @@ topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool -> -- tready input (backpressure)
-  Signal System (BitVector MsgBits) -> -- Input message
-  Signal System (AXI4Stream DigestBits) -- Output digest (AXI4-Stream)
+  Signal System Bool -> -- output tready
+  Signal System (AXI4Stream MsgBits) -> -- Input message
+  Signal System (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
 topEntity clk rst en treadySig msgSig =
-  withClockResetEnable clk rst en $
-    Sponge.Stateful6.sponge @System spongeFSM treadySig msgSig
+  withClockResetEnable clk rst en
+    $ Sponge.NonPipelined.sponge @System spongeFSM (bundle (msgSig, treadySig))
