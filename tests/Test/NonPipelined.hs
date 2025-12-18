@@ -24,15 +24,15 @@ spec = describe "NonPipelined SHA3-256 Tests" $ do
 
 --
 
-data TestCase where
-  TestCase ::
-    (KnownNat beats) =>
-    { npLabel :: String,
-      npMessage :: Vec (beats * 64) Bit,
-      npExpected :: Vec 4 (BitVector 64),
-      npInputControl :: NPInputControl
-    } ->
-    TestCase
+data SomeMessage where
+  SomeMessage :: KnownNat beats => Vec (beats * 64) Bit -> SomeMessage
+
+data TestCase = TestCase
+  { npLabel :: String,
+    npMessage :: SomeMessage,
+    npExpected :: Vec 4 (BitVector 64),
+    npInputControl :: NPInputControl
+  }
 
 data NPInputControl
   = NoUpstreamStall
@@ -40,12 +40,12 @@ data NPInputControl
 
 testCases :: [TestCase]
 testCases =
-  [ TestCase "64-bit input" msg64 expected64 NoUpstreamStall,
-    TestCase "128-bit input" msg128 expected128 NoUpstreamStall,
-    TestCase "1024-bit input" msg1024 expected1024 NoUpstreamStall,
-    TestCase "1088-bit input" msg1088 expected1088 NoUpstreamStall,
-    TestCase "1600-bit input" msg1600 expected1600 NoUpstreamStall,
-    TestCase "128-bit input (upstream stalls)" msg128 expected128 (UpstreamStall stallPattern)
+  [ TestCase "64-bit input" (SomeMessage msg64) expected64 NoUpstreamStall,
+    TestCase "128-bit input" (SomeMessage msg128) expected128 NoUpstreamStall,
+    TestCase "1024-bit input" (SomeMessage msg1024) expected1024 NoUpstreamStall,
+    TestCase "1088-bit input" (SomeMessage msg1088) expected1088 NoUpstreamStall,
+    TestCase "1600-bit input" (SomeMessage msg1600) expected1600 NoUpstreamStall,
+    TestCase "128-bit input (upstream stalls)" (SomeMessage msg128) expected128 (UpstreamStall stallPattern)
   ]
   where
     msg64 :: Vec (1 * 64) Bit
@@ -98,13 +98,11 @@ testCases =
       ]
 
 runCase ::
-  forall beats.
-  (KnownNat beats) =>
-  Vec (beats * 64) Bit ->
+  SomeMessage ->
   Vec 4 (BitVector 64) ->
   NPInputControl ->
   Expectation
-runCase message expected control = do
+runCase (SomeMessage (message :: Vec (beats * 64) Bit)) expected control = do
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
