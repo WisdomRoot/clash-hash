@@ -4,6 +4,7 @@
 module Reference.SHA3
   ( keccakf,
     keccak,
+    SpongeParameter,
     sha3_224,
     sha3_256,
     sha3_384,

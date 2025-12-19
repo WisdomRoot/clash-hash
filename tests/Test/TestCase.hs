@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.TestCase
   ( TestCase (TestCase),
@@ -15,7 +16,10 @@ where
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
 import Hash.NonPipelined qualified
+import Reference.SHA3 (SpongeParameter)
+import Reference.SHA3 qualified as SHA3
 import Test.Hspec
+import Test.QuickCheck
 import Prelude qualified as P
 
 data SomeMessage where
@@ -30,6 +34,57 @@ data TestCase
 data UpstreamStall
   = NoUpstreamStall
   | UpstreamStall [Bool]
+
+instance Arbitrary UpstreamStall where
+  arbitrary =
+    frequency
+      [ (3, pure NoUpstreamStall),
+        (2, UpstreamStall <$> genPattern)
+      ]
+    where
+      genPattern = do
+        len <- chooseInt (0, 32)
+        vectorOf len arbitrary
+
+data BeatChoice
+  = Beats64
+  | Beats128
+  | Beats1024
+  | Beats1088
+  | Beats1600
+
+instance Arbitrary TestCase where
+  arbitrary = do
+    choice <- elements beatChoices
+    case choice of
+      Beats64 -> genCaseFor @1
+      Beats128 -> genCaseFor @2
+      Beats1024 -> genCaseFor @16
+      Beats1088 -> genCaseFor @17
+      Beats1600 -> genCaseFor @25
+    where
+      beatChoices =
+        [Beats64, Beats128, Beats1024, Beats1088, Beats1600]
+
+genCaseFor ::
+  forall beats n.
+  ( KnownNat beats,
+    KnownNat (beats * 64),
+    SpongeParameter 1600 1088 n ((beats * 64) + 2) 0 256
+  ) =>
+  Gen TestCase
+genCaseFor = do
+  messageBits <- genMessageBits @(beats * 64)
+  stall <- arbitrary
+  let expected = bitCoerce (SHA3.sha3_256 messageBits)
+  pure (TestCase (SomeMessage messageBits) expected stall)
+
+genMessageBits ::
+  forall n.
+  KnownNat n =>
+  Gen (Vec n Bit)
+genMessageBits =
+  sequenceA (repeat (boolToBit <$> arbitrary))
 
 -- | Get a label for a test case
 testCaseLabel :: TestCase -> String
