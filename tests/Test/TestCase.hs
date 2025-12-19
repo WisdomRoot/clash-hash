@@ -1,13 +1,14 @@
 {-# LANGUAGE GADTs #-}
 
 module Test.TestCase
-  ( TestCase (..),
+  ( TestCase (TestCase),
     testCaseLabel,
     SomeMessage (..),
-    Control (..),
+    UpstreamStall (..),
     runTestCase,
     try,
     expectedCycles,
+    expectedCycles2,
   )
 where
 
@@ -20,13 +21,13 @@ import Prelude qualified as P
 data SomeMessage where
   SomeMessage :: (KnownNat beats) => Vec (beats * 64) Bit -> SomeMessage
 
-data TestCase = TestCase
-  { testCaseMessage :: SomeMessage,
-    testCaseExpected :: Vec 4 (BitVector 64),
-    testCaseControl :: Control
-  }
+data TestCase
+  = TestCase
+      SomeMessage
+      (Vec 4 (BitVector 64))
+      UpstreamStall
 
-data Control
+data UpstreamStall
   = NoUpstreamStall
   | UpstreamStall [Bool]
 
@@ -43,6 +44,27 @@ expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
       permuteCycles = (24 + 1) * ((beatCount `div` 17) + 1) -- extra cycle of stall, to be removed
       squeezeCycles = 4
    in absorbCycles + permuteCycles + squeezeCycles
+
+-- | Predict the number of cycles with upstream stall support (using structural induction)
+expectedCycles2 :: TestCase -> Int
+expectedCycles2 (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
+  let beatCount = natToNum @beats :: Int
+      -- Absorb phase: actual time to get all beats from upstream
+      absorbCycles = case control of
+        NoUpstreamStall -> beatCount
+        UpstreamStall pattern -> countAbsorbCycles beatCount pattern
+
+      -- Permute and squeeze are independent of upstream stalls
+      permuteCycles = (24 + 1) * ((beatCount `div` 17) + 1)
+      squeezeCycles = 4
+   in absorbCycles + permuteCycles + squeezeCycles
+
+-- | Use structural induction on the stall pattern list
+countAbsorbCycles :: Int -> [Bool] -> Int
+countAbsorbCycles 0 _ = 0 -- base case: no beats needed
+countAbsorbCycles n [] = n -- base case: no more pattern, assume all True
+countAbsorbCycles n (True : rest) = 1 + countAbsorbCycles (n - 1) rest -- absorbed one beat
+countAbsorbCycles n (False : rest) = 1 + countAbsorbCycles n rest -- stalled, no progress
 
 try :: TestCase -> Expectation
 try testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) _expected control) = do
@@ -94,7 +116,7 @@ feedInput ::
   ( KnownNat beats,
     HiddenClockResetEnable dom
   ) =>
-  Control ->
+  UpstreamStall ->
   Vec beats (BitVector 64) ->
   Signal dom (AXI4Stream 64)
 feedInput control messageWords =
