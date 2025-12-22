@@ -54,8 +54,21 @@
               exec ${pkgs.python3}/bin/python "$script_path" "$@"
             '';
           };
+          staCli = pkgs.writeShellApplication {
+            name = "sta";
+            runtimeInputs = [ pkgs.python3 yosysPkg ];
+            text = ''
+              set -euo pipefail
+              script_path="$PWD/scripts/sta.py"
+              if [ ! -f "$script_path" ]; then
+                echo "error: scripts/sta.py not found; run from the repository root" >&2
+                exit 1
+              fi
+              exec ${pkgs.python3}/bin/python "$script_path" "$@"
+            '';
+          };
         in {
-          inherit yosysPkg synthCli benchCli;
+          inherit yosysPkg synthCli benchCli staCli;
           default = yosysPkg;
         };
     in {
@@ -78,6 +91,7 @@
               pkgs.python3
               pkgSet.synthCli
               pkgSet.benchCli
+              pkgSet.staCli
               pkgs.clang
               pkgs.stack
               pkgs.pkg-config
@@ -105,6 +119,10 @@
           bench = {
             type = "app";
             program = "${pkgSet.benchCli}/bin/bench";
+          };
+          sta = {
+            type = "app";
+            program = "${pkgSet.staCli}/bin/sta";
           };
         });
     };
