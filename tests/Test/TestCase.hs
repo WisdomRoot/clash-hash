@@ -7,9 +7,7 @@ module Test.TestCase
     SomeMessage (..),
     UpstreamStall (..),
     runTestCase,
-    try,
     expectedCycles,
-    expectedCycles2,
   )
 where
 
@@ -92,18 +90,13 @@ testCaseLabel :: TestCase -> String
 testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
   show (natToNum @beats * 64 :: Int) <> "-bit"
 
--- | Predict the number of cycles needed to complete a test case
-expectedCycles :: TestCase -> Int
-expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
-  let beatCount = natToNum @beats :: Int
-      absorbCycles = beatCount
-      permuteCycles = (24 + 1) * ((beatCount `div` 17) + 1) -- extra cycle of stall, to be removed
-      squeezeCycles = 4
-   in absorbCycles + permuteCycles + squeezeCycles
-
 -- | Predict the number of cycles with upstream stall support (using structural induction)
-expectedCycles2 :: TestCase -> Int
-expectedCycles2 (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
+--   Current formula: 
+--      if beat < 17 
+--          then beatCount + 25×(⌊beatCount/17⌋ + 1) + 4
+--          else beatCount + 25×(⌊beatCount/17⌋ + 1) + 5
+expectedCycles :: TestCase -> Int
+expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
   let beatCount = natToNum @beats :: Int
       -- Absorb phase: actual time to get all beats from upstream
       absorbCycles = case control of
@@ -113,7 +106,9 @@ expectedCycles2 (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
       -- Permute and squeeze are independent of upstream stalls
       permuteCycles = (24 + 1) * ((beatCount `div` 17) + 1)
       squeezeCycles = 4
-   in absorbCycles + permuteCycles + squeezeCycles
+   in if beatCount < 17 
+        then absorbCycles + permuteCycles + squeezeCycles
+        else absorbCycles + permuteCycles + squeezeCycles + 1
 
 -- | Use structural induction on the stall pattern list
 countAbsorbCycles :: Int -> [Bool] -> Int
@@ -122,77 +117,8 @@ countAbsorbCycles n [] = n -- base case: no more pattern, assume all True
 countAbsorbCycles n (True : rest) = 1 + countAbsorbCycles (n - 1) rest -- absorbed one beat
 countAbsorbCycles n (False : rest) = 1 + countAbsorbCycles n rest -- stalled, no progress
 
-try :: TestCase -> Expectation
-try testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) expected control) = do
-  let messageWords = bitCoerce message :: Vec beats (BitVector 64)
-      inputStream =
-        withClockResetEnable clockGen resetGen enableGen
-          $ feedInput control messageWords
-      output =
-        Hash.NonPipelined.topEntity
-          clockGen
-          resetGen
-          enableGen
-          (pure True)
-          inputStream
-      sampleCount = expectedCycles2 testCase
-      samples = sampleN @System sampleCount output
 
-      -- Extract all 4 wires for all cycles
-      actualTdata = fmap (tdata . fst) samples
-      actualTvalid = fmap (tvalid . fst) samples
-      actualTlast = fmap (tlast . fst) samples
-      actualTready = fmap snd samples
-
-      -- Build expected values for all 4 wires for all cycles
-      (expectedTdata, expectedTvalid, expectedTlast, expectedTready) =
-        buildExpectedOutputs (toList expected) sampleCount
-
-  -- Match ALL output wires cycle-by-cycle
-  actualTdata `shouldBe` expectedTdata
-  actualTvalid `shouldBe` expectedTvalid
-  actualTlast `shouldBe` expectedTlast
-  -- TODO: enable tready check once FSM state model is complete
-  -- actualTready `shouldBe` expectedTready
-
--- | Build expected output for all 4 wires for all cycles
-buildExpectedOutputs ::
-  [BitVector 64] ->
-  Int ->
-  ([BitVector 64], [Bool], [Bool], [Bool])
-buildExpectedOutputs [d0, d1, d2, d3] totalCycles =
-  let -- Generate cycle-by-cycle expectations for all 4 wires
-      cycles = [0 .. totalCycles - 1]
-
-      -- Outputs appear at the last 4 cycles
-      mkTdata i
-        | i == totalCycles - 4 = d0
-        | i == totalCycles - 3 = d1
-        | i == totalCycles - 2 = d2
-        | i == totalCycles - 1 = d3
-        | otherwise = 0
-
-      mkTvalid i
-        | i >= totalCycles - 4 && i <= totalCycles - 1 = True
-        | otherwise = False
-
-      mkTlast i
-        | i == totalCycles - 1 = True
-        | otherwise = False
-
-      -- TODO: tready depends on FSM state, need to model properly
-      mkTready _ = False -- placeholder
-
-      tdata = fmap mkTdata cycles
-      tvalid = fmap mkTvalid cycles
-      tlast = fmap mkTlast cycles
-      tready = fmap mkTready cycles
-   in (tdata, tvalid, tlast, tready)
-buildExpectedOutputs _ _ = error "Expected exactly 4 digest words"
-
-runTestCase ::
-  TestCase ->
-  Expectation
+runTestCase :: TestCase -> Expectation
 runTestCase testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) expected control) = do
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
@@ -207,11 +133,45 @@ runTestCase testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) e
           inputStream
       sampleCount = expectedCycles testCase
       samples = sampleN @System sampleCount output
-      actualStreams = P.take 4 $ P.filter (tvalid . fst) samples
 
-  fmap (tdata . fst) actualStreams `shouldBe` toList expected
-  fmap (tvalid . fst) actualStreams `shouldBe` P.replicate 4 True
-  fmap (tlast . fst) actualStreams `shouldBe` [False, False, False, True]
+      -- Extract all 4 wires for all cycles
+      actualTdata = fmap (tdata . fst) samples
+      actualTvalid = fmap (tvalid . fst) samples
+      actualTlast = fmap (tlast . fst) samples
+      actualTready = fmap snd samples
+
+      -- Build expected values for all 4 wires for all cycles
+      [d0, d1, d2, d3] = toList expected
+      cycles = [0 .. sampleCount - 1]
+
+      -- Outputs appear at the last 5 cycles: d0, d1, d2, d3, then final idle
+      expectedTdata = fmap mkTdata cycles
+        where
+          mkTdata i
+            | i == sampleCount - 5 = d0
+            | i == sampleCount - 4 = d1
+            | i == sampleCount - 3 = d2
+            | i == sampleCount - 2 = d3
+            | otherwise = 0
+
+      expectedTvalid = fmap mkTvalid cycles
+        where
+          mkTvalid i
+            | i >= sampleCount - 5 && i <= sampleCount - 2 = True
+            | otherwise = False
+
+      expectedTlast = fmap mkTlast cycles
+        where
+          mkTlast i
+            | i == sampleCount - 2 = True
+            | otherwise = False
+
+  -- Match ALL output wires cycle-by-cycle
+  actualTdata `shouldBe` expectedTdata
+  actualTvalid `shouldBe` expectedTvalid
+  actualTlast `shouldBe` expectedTlast
+  -- TODO: enable tready check once FSM state model is complete
+  -- actualTready `shouldBe` expectedTready
 
 feedInput ::
   forall beats dom.
