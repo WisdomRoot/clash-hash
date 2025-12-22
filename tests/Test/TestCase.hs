@@ -19,6 +19,7 @@ import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
 import Control.Monad (unless)
 import Hash.NonPipelined qualified
+import Numeric (showHex)
 import Reference.SHA3 (SpongeParameter)
 import Reference.SHA3 qualified as SHA3
 import Test.Hspec
@@ -237,23 +238,85 @@ compareResult actual expected = do
   compareSegment "digest" (digestSegment actual) (digestSegment expected)
   compareSegment "following" (followingSegment actual) (followingSegment expected)
 
+-- | Format BitVector as hexadecimal string
+showHexBV :: BitVector 64 -> String
+showHexBV bv = "0x" <> P.replicate (16 - P.length hex) '0' <> hex
+  where
+    hex = showHex bv ""
+
+-- | Find differences between actual and expected lists with cycle indices
+findDataDifferences :: [BitVector 64] -> [BitVector 64] -> (Int, Int) -> [(Int, BitVector 64, BitVector 64)]
+findDataDifferences actuals expecteds (start, _) =
+  let indexed = P.zip3 [start..] actuals expecteds
+  in [(i, a, e) | (i, a, e) <- indexed, a /= e]
+
+-- | Find differences between actual and expected Bool lists with cycle indices
+findBoolDifferences :: [Bool] -> [Bool] -> (Int, Int) -> [(Int, Bool, Bool)]
+findBoolDifferences actuals expecteds (start, _) =
+  let indexed = P.zip3 [start..] actuals expecteds
+  in [(i, a, e) | (i, a, e) <- indexed, a /= e]
+
+-- | Format a data difference as a string
+formatDataDiff :: (Int, BitVector 64, BitVector 64) -> String
+formatDataDiff (cycle, actual, expected) =
+  "  Cycle " <> show cycle <> ": expected " <> showHexBV expected <> ", got " <> showHexBV actual
+
+-- | Format a boolean difference as a string
+formatBoolDiff :: (Int, Bool, Bool) -> String
+formatBoolDiff (cycle, actual, expected) =
+  "  Cycle " <> show cycle <> ": expected " <> show expected <> ", got " <> show actual
+
 compareSegment :: String -> Segment -> Segment -> Expectation
 compareSegment label actual expected = do
   let prefix = "[" <> label <> " segment] "
+      interval = segmentInterval actual
 
   segmentInterval actual `shouldBe` segmentInterval expected
 
-  unless (segmentData actual == segmentData expected) $
-    expectationFailure $ prefix <> "Data mismatch:\n  expected: "
-      <> show (segmentData expected) <> "\n  but got:  " <> show (segmentData actual)
+  unless (segmentData actual == segmentData expected) $ do
+    let diffs = findDataDifferences (segmentData actual) (segmentData expected) interval
+        diffCount = P.length diffs
+        totalCount = P.length (segmentData expected)
+        summary = show diffCount <> " difference(s) out of " <> show totalCount <> " cycles"
+        diffLines = P.take 10 $ fmap formatDataDiff diffs
+        hasMore = P.length diffs > 10
+        moreMsg = if hasMore
+                  then ["  ... and " <> show (P.length diffs - 10) <> " more differences"]
+                  else []
+    expectationFailure $ P.unlines $
+      [prefix <> "Data mismatch (" <> summary <> "):"]
+      <> diffLines
+      <> moreMsg
 
-  unless (segmentValid actual == segmentValid expected) $
-    expectationFailure $ prefix <> "Valid mismatch:\n  expected: "
-      <> show (segmentValid expected) <> "\n  but got:  " <> show (segmentValid actual)
+  unless (segmentValid actual == segmentValid expected) $ do
+    let diffs = findBoolDifferences (segmentValid actual) (segmentValid expected) interval
+        diffCount = P.length diffs
+        totalCount = P.length (segmentValid expected)
+        summary = show diffCount <> " difference(s) out of " <> show totalCount <> " cycles"
+        diffLines = P.take 10 $ fmap formatBoolDiff diffs
+        hasMore = P.length diffs > 10
+        moreMsg = if hasMore
+                  then ["  ... and " <> show (P.length diffs - 10) <> " more differences"]
+                  else []
+    expectationFailure $ P.unlines $
+      [prefix <> "Valid mismatch (" <> summary <> "):"]
+      <> diffLines
+      <> moreMsg
 
-  unless (segmentLast actual == segmentLast expected) $
-    expectationFailure $ prefix <> "Last mismatch:\n  expected: "
-      <> show (segmentLast expected) <> "\n  but got:  " <> show (segmentLast actual)
+  unless (segmentLast actual == segmentLast expected) $ do
+    let diffs = findBoolDifferences (segmentLast actual) (segmentLast expected) interval
+        diffCount = P.length diffs
+        totalCount = P.length (segmentLast expected)
+        summary = show diffCount <> " difference(s) out of " <> show totalCount <> " cycles"
+        diffLines = P.take 10 $ fmap formatBoolDiff diffs
+        hasMore = P.length diffs > 10
+        moreMsg = if hasMore
+                  then ["  ... and " <> show (P.length diffs - 10) <> " more differences"]
+                  else []
+    expectationFailure $ P.unlines $
+      [prefix <> "Last mismatch (" <> summary <> "):"]
+      <> diffLines
+      <> moreMsg
 
 feedInput ::
   forall beats dom.
