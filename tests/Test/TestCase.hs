@@ -6,6 +6,10 @@ module Test.TestCase
     testCaseLabel,
     SomeMessage (..),
     UpstreamStall (..),
+    Segment (..),
+    Result (..),
+    toActualResult,
+    toExpectedResult,
     runTestCase,
     expectedCycles,
   )
@@ -13,11 +17,12 @@ where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
+import Control.Monad (unless)
 import Hash.NonPipelined qualified
 import Reference.SHA3 (SpongeParameter)
 import Reference.SHA3 qualified as SHA3
 import Test.Hspec
-import Test.QuickCheck
+import Test.QuickCheck hiding (Result)
 import Prelude qualified as P
 
 data SomeMessage where
@@ -64,6 +69,114 @@ instance Arbitrary TestCase where
     where
       beatChoices =
         [Beats64, Beats128, Beats1024, Beats1088, Beats1600]
+
+-- A segment of output signals
+data Segment = Segment
+  { segmentInterval :: (Int, Int), -- [start cycle, end cycle)
+    segmentData :: [BitVector 64],
+    segmentValid :: [Bool],
+    segmentLast :: [Bool],
+    segmentReady :: [Bool]
+  }
+  deriving (Show, Eq)
+
+data Result = Result
+  { previousSegment :: Segment, -- the segment that contains the previous cycles
+    digestSegment :: Segment, -- the 4-cycle segment containing the output digest
+    followingSegment :: Segment -- the segment that contains the following cycles
+  }
+  deriving (Show, Eq)
+
+toActualResult :: TestCase -> Result
+toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) _ control) =
+  let messageWords = bitCoerce message :: Vec beats (BitVector 64)
+      inputStream =
+        withClockResetEnable clockGen resetGen enableGen
+          $ feedInput control messageWords
+      output =
+        Hash.NonPipelined.topEntity
+          clockGen
+          resetGen
+          enableGen
+          (pure True)
+          inputStream
+      sampleCount = expectedCycles testCase
+      samples :: [(AXI4Stream 64, Bool)]
+      samples = sampleN @System sampleCount output
+
+      actualTdata = fmap (tdata . fst) samples
+      actualTvalid = fmap (tvalid . fst) samples
+      actualTlast = fmap (tlast . fst) samples
+      actualTready = fmap snd samples
+
+      digestStart = max 0 (sampleCount - 4)
+      digestEnd = min sampleCount (digestStart + 4)
+      followingStart = digestEnd
+
+      mkSegment interval@(start, end) =
+        Segment
+          { segmentInterval = interval,
+            segmentData = takeSlice start end actualTdata,
+            segmentValid = takeSlice start end actualTvalid,
+            segmentLast = takeSlice start end actualTlast,
+            segmentReady = takeSlice start end actualTready
+          }
+
+      takeSlice start end = P.take (end - start) . P.drop start
+   in Result
+        { previousSegment = mkSegment (0, digestStart),
+          digestSegment = mkSegment (digestStart, digestEnd),
+          followingSegment = mkSegment (followingStart, sampleCount)
+        }
+
+toExpectedResult :: TestCase -> Result
+toExpectedResult testCase@(TestCase _ expected _) =
+  let sampleCount = expectedCycles testCase
+      digestStart = max 0 (sampleCount - 4)
+      digestEnd = min sampleCount (digestStart + 4)
+      followingStart = digestEnd
+      [d0, d1, d2, d3] = toList expected
+      cycles = [0 .. sampleCount - 1]
+
+      expectedTdata = fmap mkTdata cycles
+        where
+          mkTdata i
+            | i == sampleCount - 4 = d0
+            | i == sampleCount - 3 = d1
+            | i == sampleCount - 2 = d2
+            | i == sampleCount - 1 = d3
+            | otherwise = 0
+
+      expectedTvalid = fmap mkTvalid cycles
+        where
+          mkTvalid i
+            | i >= sampleCount - 4 && i <= sampleCount - 1 = True
+            | otherwise = False
+
+      expectedTlast = fmap mkTlast cycles
+        where
+          mkTlast i
+            | i == sampleCount - 1 = True
+            | otherwise = False
+
+      expectedTready = P.replicate sampleCount False
+
+      mkSegment interval@(start, end) =
+        Segment
+          { segmentInterval = interval,
+            segmentData = takeSlice start end expectedTdata,
+            segmentValid = takeSlice start end expectedTvalid,
+            segmentLast = takeSlice start end expectedTlast,
+            segmentReady = takeSlice start end expectedTready
+          }
+
+      takeSlice start end = P.take (end - start) . P.drop start
+   in Result
+        { previousSegment = mkSegment (0, digestStart),
+          digestSegment = mkSegment (digestStart, digestEnd),
+          followingSegment = mkSegment (followingStart, sampleCount)
+        }
+
 
 genCaseFor ::
   forall beats n.
@@ -119,59 +232,34 @@ countAbsorbCycles n (False : rest) = 1 + countAbsorbCycles n rest -- stalled, no
 
 
 runTestCase :: TestCase -> Expectation
-runTestCase testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) expected control) = do
-  let messageWords = bitCoerce message :: Vec beats (BitVector 64)
-      inputStream =
-        withClockResetEnable clockGen resetGen enableGen
-          $ feedInput control messageWords
-      output =
-        Hash.NonPipelined.topEntity
-          clockGen
-          resetGen
-          enableGen
-          (pure True)
-          inputStream
-      sampleCount = expectedCycles testCase
-      samples = sampleN @System sampleCount output
+runTestCase testCase = do
+  let actualResult = toActualResult testCase
+      expectedResult = toExpectedResult testCase
+  compareResult actualResult expectedResult
 
-      -- Extract all 4 wires for all cycles
-      actualTdata = fmap (tdata . fst) samples
-      actualTvalid = fmap (tvalid . fst) samples
-      actualTlast = fmap (tlast . fst) samples
-      actualTready = fmap snd samples
+compareResult :: Result -> Result -> Expectation
+compareResult actual expected = do
+  compareSegment "previous" (previousSegment actual) (previousSegment expected)
+  compareSegment "digest" (digestSegment actual) (digestSegment expected)
+  compareSegment "following" (followingSegment actual) (followingSegment expected)
 
-      -- Build expected values for all 4 wires for all cycles
-      [d0, d1, d2, d3] = toList expected
-      cycles = [0 .. sampleCount - 1]
+compareSegment :: String -> Segment -> Segment -> Expectation
+compareSegment label actual expected = do
+  let prefix = "[" <> label <> " segment] "
 
-      -- Outputs appear at the last 5 cycles: d0, d1, d2, d3, then final idle
-      expectedTdata = fmap mkTdata cycles
-        where
-          mkTdata i
-            | i == sampleCount - 5 = d0
-            | i == sampleCount - 4 = d1
-            | i == sampleCount - 3 = d2
-            | i == sampleCount - 2 = d3
-            | otherwise = 0
+  segmentInterval actual `shouldBe` segmentInterval expected
 
-      expectedTvalid = fmap mkTvalid cycles
-        where
-          mkTvalid i
-            | i >= sampleCount - 5 && i <= sampleCount - 2 = True
-            | otherwise = False
+  unless (segmentData actual == segmentData expected) $
+    expectationFailure $ prefix <> "Data mismatch:\n  expected: "
+      <> show (segmentData expected) <> "\n  but got:  " <> show (segmentData actual)
 
-      expectedTlast = fmap mkTlast cycles
-        where
-          mkTlast i
-            | i == sampleCount - 2 = True
-            | otherwise = False
+  unless (segmentValid actual == segmentValid expected) $
+    expectationFailure $ prefix <> "Valid mismatch:\n  expected: "
+      <> show (segmentValid expected) <> "\n  but got:  " <> show (segmentValid actual)
 
-  -- Match ALL output wires cycle-by-cycle
-  actualTdata `shouldBe` expectedTdata
-  actualTvalid `shouldBe` expectedTvalid
-  actualTlast `shouldBe` expectedTlast
-  -- TODO: enable tready check once FSM state model is complete
-  -- actualTready `shouldBe` expectedTready
+  unless (segmentLast actual == segmentLast expected) $
+    expectationFailure $ prefix <> "Last mismatch:\n  expected: "
+      <> show (segmentLast expected) <> "\n  but got:  " <> show (segmentLast actual)
 
 feedInput ::
   forall beats dom.
