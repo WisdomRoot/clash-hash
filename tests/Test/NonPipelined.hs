@@ -20,19 +20,19 @@ spec = describe "NonPipelined SHA3-256 Tests" $ do
     for_ testCases $ \testCase ->
       it (testCaseLabel testCase) $ runTestCase testCase
 
-  -- describe "QuickCheck property tests" $ do
-  --   it "correctly handles random test cases with upstream stalls" $
-  --     property $ \testCase -> runTestCase testCase
+  describe "QuickCheck property tests" $ do
+    it "correctly handles random test cases with upstream stalls" $
+      property $ \testCase -> runTestCase testCase
 
 testCases :: [TestCase]
 testCases =
-  [ TestCase (SomeMessage msg64) expected64 NoUpstreamStall,
+  [ 
+    TestCase (SomeMessage msg64) expected64 NoUpstreamStall,
     TestCase (SomeMessage msg128) expected128 NoUpstreamStall,
     TestCase (SomeMessage msg1024) expected1024 NoUpstreamStall,
     TestCase (SomeMessage msg1088) expected1088 NoUpstreamStall,
     TestCase (SomeMessage msg1600) expected1600 NoUpstreamStall,
     TestCase (SomeMessage msg3200) expected3200 NoUpstreamStall
-    -- TestCase "128-bit input (upstream stalls)" (SomeMessage msg128) expected128 (UpstreamStall stallPattern)
   ]
   where
     msg64 :: Vec (1 * 64) Bit

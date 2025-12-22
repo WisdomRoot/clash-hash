@@ -204,10 +204,7 @@ testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
   show (natToNum @beats * 64 :: Int) <> "-bit"
 
 -- | Predict the number of cycles with upstream stall support (using structural induction)
---   Current formula: 
---      if beat < 17 
---          then beatCount + 25×(⌊beatCount/17⌋ + 1) + 4
---          else beatCount + 25×(⌊beatCount/17⌋ + 1) + 5
+--   Current formula: beatCount + 24×(⌊beatCount/17⌋ + 1) + 4
 expectedCycles :: TestCase -> Int
 expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
   let beatCount = natToNum @beats :: Int
@@ -217,11 +214,9 @@ expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
         UpstreamStall pattern -> countAbsorbCycles beatCount pattern
 
       -- Permute and squeeze are independent of upstream stalls
-      permuteCycles = (24 + 1) * ((beatCount `div` 17) + 1)
+      permuteCycles = 24 * ((beatCount `div` 17) + 1) + 1
       squeezeCycles = 4
-   in if beatCount < 17 
-        then absorbCycles + permuteCycles + squeezeCycles
-        else absorbCycles + permuteCycles + squeezeCycles + 1
+   in absorbCycles + permuteCycles + squeezeCycles
 
 -- | Use structural induction on the stall pattern list
 countAbsorbCycles :: Int -> [Bool] -> Int
@@ -229,7 +224,6 @@ countAbsorbCycles 0 _ = 0 -- base case: no beats needed
 countAbsorbCycles n [] = n -- base case: no more pattern, assume all True
 countAbsorbCycles n (True : rest) = 1 + countAbsorbCycles (n - 1) rest -- absorbed one beat
 countAbsorbCycles n (False : rest) = 1 + countAbsorbCycles n rest -- stalled, no progress
-
 
 runTestCase :: TestCase -> Expectation
 runTestCase testCase = do
