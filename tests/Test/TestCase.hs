@@ -214,7 +214,7 @@ expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ control) =
         UpstreamStall pattern -> countAbsorbCycles beatCount pattern
 
       -- Permute and squeeze are independent of upstream stalls
-      permuteCycles = 24 * ((beatCount `div` 17) + 1) + 1
+      permuteCycles = 24 * ((beatCount `div` 17) + 1)
       squeezeCycles = 4
    in absorbCycles + permuteCycles + squeezeCycles
 
@@ -270,14 +270,14 @@ feedInput control messageWords =
     controlToList (UpstreamStall xs) = xs
 
     step (xs, waitCount, emittedInBlock, ctrl) _ =
-      let (canSend, ctrl') =
-            case ctrl of
-              [] -> (True, [])
-              b : bs -> (b, bs)
-       in if waitCount > 0
-            then ((xs, waitCount - 1, emittedInBlock, ctrl'), idleBeat)
-            else
-              if not canSend
+      if waitCount > 0
+        then ((xs, waitCount - 1, emittedInBlock, ctrl), idleBeat)
+        else
+          let (canSend, ctrl') =
+                case ctrl of
+                  [] -> (True, [])
+                  b : bs -> (b, bs)
+           in if not canSend
                 then ((xs, waitCount, emittedInBlock, ctrl'), idleBeat)
                 else case xs of
                   [] -> (([], 0, 0, ctrl'), idleBeat)

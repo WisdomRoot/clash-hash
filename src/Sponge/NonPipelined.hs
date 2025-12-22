@@ -98,11 +98,15 @@ sponge permute = mealy step (State (Absorb 0) 0)
       | otherwise =
           let state' = XOR.staticXOR state (tdata input) counter
            in (State (Permute 0 NotSeenTLAST) state', (idleAXI4Stream, False))
-    step (State (Permute counter seenTLAST) state) (_msg, _tready) =
+    step (State (Permute counter seenTLAST) state) (_msg, tready) =
       let state' = permute counter state
        in if counter == 23
             then case seenTLAST of
-              SeenTLASTAndPadded -> (State (Squeeze 0) state', (idleAXI4Stream, False)) -- go to squeeze phase
+              SeenTLASTAndPadded -> 
+                let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state', tvalid = True, tlast = False}
+                    nextState = if tready then State (Squeeze 1) state' else State (Squeeze 0) state'
+                in (nextState, (outStream, False))
+                -- (State (Squeeze 0) state', (idleAXI4Stream, False)) -- go to squeeze phase
               SeenTLASTNotPadded -> (State (Permute 0 SeenTLASTAndPadded) (pad 16 state'), (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
               NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True)) -- go back to absorb phase
             else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
