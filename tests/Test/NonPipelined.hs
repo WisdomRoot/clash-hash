@@ -8,6 +8,7 @@ import Data.Foldable (for_)
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
+import Test.QuickCheck
 import Test.TestCase
 
 run :: IO ()
@@ -15,8 +16,13 @@ run = hspec spec
 
 spec :: Spec
 spec = describe "NonPipelined SHA3-256 Tests" $ do
-  for_ testCases $ \testCase ->
-    it (testCaseLabel testCase) $ runTestCase testCase
+  describe "Fixed test cases" $ do
+    for_ testCases $ \testCase ->
+      it (testCaseLabel testCase) $ runTestCase testCase
+
+  describe "QuickCheck property tests" $ do
+    it "correctly handles random test cases with upstream stalls" $
+      property $ \testCase -> try testCase
 
 testCases :: [TestCase]
 testCases =

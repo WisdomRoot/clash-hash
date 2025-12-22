@@ -25,7 +25,7 @@ data AXI4Stream (n :: Nat) = AXI4Stream
     tvalid :: Bool, -- ^ Valid signal
     tlast :: Bool -- ^ Last beat indicator
   }
-  deriving stock (Generic, Show)
+  deriving stock (Generic, Show, Eq)
   deriving anyclass (NFDataX)
 
 instance Bundle (AXI4Stream n)

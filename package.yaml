@@ -123,3 +123,4 @@ tests:
       - tasty >= 1.2 && < 1.5
       - tasty-hspec
       - hspec
+      - QuickCheck
