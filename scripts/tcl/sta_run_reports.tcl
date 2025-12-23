@@ -242,6 +242,31 @@ if {[catch {
         puts $fd ""
 
         if {$has_timing} {
+            # Try to extract critical path timing from reg2reg report
+            set reg2reg_rpt_file "${reports_dir}/timing/reg2reg.rpt"
+            set critical_path_ns "N/A"
+
+            if {[file exists $reg2reg_rpt_file]} {
+                if {[catch {
+                    set report_fd [open $reg2reg_rpt_file r]
+                    set report_content [read $report_fd]
+                    close $report_fd
+
+                    # Look for the first "data arrival time" line
+                    set found_arrival 0
+                    foreach line [split $report_content "\n"] {
+                        if {!$found_arrival && [regexp {\s*([0-9.]+)\s+data arrival time\s*$} $line match val]} {
+                            set critical_path_ns $val
+                            set found_arrival 1
+                            break
+                        }
+                    }
+                } error]} {
+                    # Silently ignore errors
+                }
+            }
+
+            puts $fd [format "Critical Path:   %s ns" $critical_path_ns]
             puts $fd [format "WNS (max):       %s ns" $wns_val]
             puts $fd [format "TNS (max):       %s ns" $tns_val]
             puts $fd [format "Worst Slack:     %s ns" $slack_val]

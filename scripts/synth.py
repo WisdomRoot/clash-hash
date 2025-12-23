@@ -240,7 +240,6 @@ def build_yosys_commands(verilog_files: list[Path], top: str, netlist_path: Path
         "proc",
         "opt",
         "techmap",
-        "opt",
         f"dfflibmap -liberty {liberty_q}",
         f"abc -liberty {liberty_q}",
         "clean",
