@@ -76,10 +76,54 @@ def load_vhdl_targets(path: Path) -> dict[str, dict]:
     return targets
 
 
+def _auto_generate_verilog(module_name: str) -> bool:
+    """Attempt to auto-generate Verilog from Clash source."""
+    print(f"[synth] Verilog not found, generating from Clash: {module_name}", flush=True)
+
+    # Convert module name to file path: Hash.NonPipelined.topEntity -> src/Hash/NonPipelined.hs
+    parts = module_name.split(".")
+    if parts[-1] == "topEntity":
+        parts = parts[:-1]  # Remove topEntity suffix
+    file_path = PROJECT_ROOT / "src" / "/".join(parts[:-1]) / f"{parts[-1]}.hs"
+
+    if not file_path.exists():
+        print(f"[synth] Source file not found: {file_path}", flush=True)
+        return False
+
+    # Use: stack exec clash -- --verilog <file.hs>
+    result = subprocess.run(
+        ["stack", "exec", "clash", "--", "--verilog", str(file_path)],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        print(f"[synth] Failed to generate Verilog:", flush=True)
+        print(result.stdout, flush=True)
+        print(result.stderr, flush=True)
+        return False
+
+    print(f"[synth] ✓ Verilog generated successfully", flush=True)
+    return True
+
+
 def load_manifest(arg: str) -> tuple[Path, dict]:
     manifest_path = VERILOG_ROOT / arg / "clash-manifest.json"
+
+    # Auto-generate if missing
     if not manifest_path.is_file():
-        sys.exit(f"error: manifest not found at {manifest_path}")
+        # Try to resolve alias first
+        clash_aliases = load_simple_aliases(CLASH_TARGETS_FILE, required=False)
+        module_name = clash_aliases.get(arg, arg)
+
+        if not _auto_generate_verilog(module_name):
+            sys.exit(f"error: could not generate Verilog for {arg}")
+
+        # Check again after generation
+        if not manifest_path.is_file():
+            sys.exit(f"error: manifest not found at {manifest_path} even after generation")
+
     try:
         data = json.loads(manifest_path.read_text(encoding="utf-8"))
     except Exception as exc:
