@@ -144,37 +144,60 @@ def _resolve_netlist_path(target: str) -> tuple[Path, str, Path | None]:
     return (netlist, target, None)
 
 
+def _auto_synthesize(target: str) -> bool:
+    """Attempt to auto-synthesize the target if netlist is missing."""
+    _print(f"Netlist not found, attempting to synthesize '{target}' automatically...")
+    synth_script = SCRIPT_DIR / "synth.py"
+    if not synth_script.exists():
+        return False
+
+    result = subprocess.run(
+        [sys.executable, str(synth_script), target],
+        cwd=PROJECT_ROOT,
+    )
+    return result.returncode == 0
+
+
 def _setup_paths(process: str, target: str) -> dict[str, Path]:
     """Compute key paths for STA execution and create required directories."""
     # Resolve the netlist path from target (handles aliases and different formats)
     netlist, top_module, clash_sdc = _resolve_netlist_path(target)
 
     if not netlist.exists():
-        raise StaError(
-            f"Netlist file not found: {netlist}. "
-            f"Run 'nix run .#synth -- {target}' first."
-        )
+        # Try auto-synthesis
+        if not _auto_synthesize(target):
+            raise StaError(
+                f"Netlist file not found: {netlist}. "
+                f"Run 'nix run .#synth -- {target}' first."
+            )
+        # Re-resolve after synthesis to pick up SDC file
+        netlist, top_module, clash_sdc = _resolve_netlist_path(target)
+        if not netlist.exists():
+            raise StaError(f"Auto-synthesis failed for target '{target}'")
 
     # Use Clash-generated SDC if available, otherwise create a default one
     sdc = BUILD_DIR / "sta" / f"{top_module}.sdc"
     sdc.parent.mkdir(parents=True, exist_ok=True)
 
+    # Always regenerate SDC to avoid stale constraints
     if clash_sdc and clash_sdc.exists():
         # Use Clash-generated SDC file
         _print(f"Using Clash-generated SDC: {clash_sdc}")
         # Copy it to the STA build directory
         import shutil as shutil_module
         shutil_module.copy2(clash_sdc, sdc)
-    elif not sdc.exists():
-        # Create a basic SDC file with CLK (Clash convention) or clk
+    else:
+        # Create a basic SDC file
+        # Use CLK for Clash (uppercase) or clk for VHDL (lowercase)
+        clock_name = "CLK" if clash_sdc is not None or "vhdl" not in str(netlist) else "clk"
         sdc.write_text(
-            "# Auto-generated SDC for clash-hash STA\n"
-            "# Trying both CLK (Clash convention) and clk\n"
-            "create_clock -name CLK -period 10.0 [get_ports CLK]\n"
-            "set_input_delay -clock CLK 0.0 [all_inputs]\n"
-            "set_output_delay -clock CLK 0.0 [all_outputs]\n"
+            f"# Auto-generated SDC for clash-hash STA\n"
+            f"# Clock: {clock_name}\n"
+            f"create_clock -name {clock_name} -period 10.0 [get_ports {clock_name}]\n"
+            f"set_input_delay -clock {clock_name} 0.0 [all_inputs]\n"
+            f"set_output_delay -clock {clock_name} 0.0 [all_outputs]\n"
         )
-        _print(f"Created default SDC file: {sdc}")
+        _print(f"Generated SDC file: {sdc} (clock={clock_name})")
 
     output_dir = BUILD_DIR / "sta" / top_module
     (output_dir / "reports" / "timing").mkdir(parents=True, exist_ok=True)
