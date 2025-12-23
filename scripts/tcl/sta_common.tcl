@@ -39,5 +39,49 @@ if {[file exists $sdc_file]} {
     puts "Continuing with default constraints..."
 }
 
+# Check if this is a pure combinational design
+set flops_count [llength [all_registers -edge_triggered]]
+set is_combinational [expr {$flops_count == 0}]
+
+if {$is_combinational} {
+    puts ""
+    puts "==================================================================="
+    puts "PURE COMBINATIONAL DESIGN DETECTED"
+    puts "==================================================================="
+    puts "No registers found in design. This is a pure combinational module."
+    puts "Adding input/output delay constraints for in2out path analysis..."
+    puts ""
+
+    # Get all clocks (should have at least one from SDC)
+    set clocks [all_clocks]
+    if {[llength $clocks] > 0} {
+        set main_clock [lindex $clocks 0]
+        set clock_name [get_property $main_clock name]
+        puts "Using clock '$clock_name' for I/O delay constraints"
+
+        # Set input delays to 0 (data available at clock edge)
+        set input_ports [all_inputs]
+        foreach port $input_ports {
+            set port_name [get_property $port full_name]
+            # Skip clock ports
+            if {![string match "*CLK*" $port_name] && ![string match "*clk*" $port_name]} {
+                set_input_delay 0.0 -clock $clock_name $port
+            }
+        }
+
+        # Set output delays to 0 (data should be ready by end of cycle)
+        set output_ports [all_outputs]
+        foreach port $output_ports {
+            set_output_delay 0.0 -clock $clock_name $port
+        }
+
+        puts "Input/output delay constraints added for combinational analysis"
+    } else {
+        puts "Warning: No clocks found, cannot add I/O delay constraints"
+    }
+    puts "==================================================================="
+    puts ""
+}
+
 puts "Design setup completed."
 puts ""

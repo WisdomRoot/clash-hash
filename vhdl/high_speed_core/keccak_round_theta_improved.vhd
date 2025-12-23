@@ -11,15 +11,15 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
 
-entity keccak_round_theta1 is
+entity keccak_round_theta_improved is
   port (
     round_in  : in  k_state;
     round_constant_signal : in std_logic_vector(63 downto 0);
     round_out : out k_state
   );
-end keccak_round_theta1;
+end keccak_round_theta_improved;
 
-architecture rtl of keccak_round_theta1 is
+architecture rtl of keccak_round_theta_improved is
   signal theta_in  : k_state;
   signal theta_out : k_state;
   signal sum_sheet : k_plane;

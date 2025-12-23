@@ -133,6 +133,10 @@ puts "Generating summary metrics report..."
 if {[catch {
     set summary_file "${reports_dir}/summary.rpt"
 
+    # Check if this is a pure combinational design
+    set flops_count [llength [all_registers -edge_triggered]]
+    set is_combinational [expr {$flops_count == 0}]
+
     # Get metrics from OpenSTA
     report_wns -digits 3 > "${summary_file}.tmp.wns"
     report_tns -digits 3 > "${summary_file}.tmp.tns"
@@ -157,15 +161,95 @@ if {[catch {
     file delete "${summary_file}.tmp.slack"
 
     # Extract numeric values (format: "wns max 0.000" -> "0.000")
-    regexp {([0-9.]+)$} $wns_line -> wns_val
+    set has_timing [regexp {([0-9.]+)$} $wns_line -> wns_val]
     regexp {([0-9.]+)$} $tns_line -> tns_val
     regexp {([0-9.]+)$} $slack_line -> slack_val
 
     # Write formatted table
     set fd [open $summary_file w]
-    puts $fd [format "  WNS (max)        %s" $wns_val]
-    puts $fd [format "  TNS (max)        %s" $tns_val]
-    puts $fd [format "  Worst Slack      %s" $slack_val]
+
+    if {$is_combinational} {
+        puts $fd "Design Type:     Pure Combinational (No Registers)"
+        puts $fd ""
+
+        # Try to get combinational delay from in2out paths
+        # Read the already-generated in2out.rpt file
+        set in2out_rpt_file "${reports_dir}/timing/in2out.rpt"
+        if {[file exists $in2out_rpt_file]} {
+            if {[catch {
+                # Read the in2out report file
+                set report_fd [open $in2out_rpt_file r]
+                set report_content [read $report_fd]
+                close $report_fd
+
+                # Extract data arrival time and required time from the report
+                # Look for lines like: "           0.43   data arrival time"
+                set comb_delay 0.0
+                set required 10.0
+                set slack_num 0.0
+
+                # Split into lines and find the values
+                # First occurrence of each is the actual value we want
+                set found_arrival 0
+                set found_required 0
+                set found_slack 0
+
+                foreach line [split $report_content "\n"] {
+                    # Look for "data arrival time" line with a number (may have leading spaces)
+                    if {!$found_arrival && [regexp {\s*([0-9.]+)\s+data arrival time\s*$} $line match val]} {
+                        set comb_delay $val
+                        set found_arrival 1
+                    }
+                    # Look for "data required time" line
+                    if {!$found_required && [regexp {\s*([0-9.]+)\s+data required time\s*$} $line match val]} {
+                        set required $val
+                        set found_required 1
+                    }
+                    # Look for slack line
+                    if {!$found_slack && [regexp {\s*([0-9.]+)\s+slack \(([A-Z]+)\)} $line match val status]} {
+                        if {$status == "VIOLATED"} {
+                            set slack_num [expr {-1.0 * $val}]
+                        } else {
+                            set slack_num $val
+                        }
+                        set found_slack 1
+                    }
+                }
+
+                if {$found_arrival} {
+                    puts $fd [format "Combinational Delay: %.3f ns" $comb_delay]
+                    puts $fd [format "Required Time:       %.3f ns" $required]
+                    puts $fd [format "Slack:               %.3f ns" $slack_num]
+                    puts $fd ""
+
+                    # Calculate max frequency
+                    if {$comb_delay > 0} {
+                        set max_freq [expr {1000.0 / $comb_delay}]
+                        puts $fd [format "Max Frequency:       %.2f MHz (if used combinationally)" $max_freq]
+                    }
+                } else {
+                    puts $fd "Could not extract timing values from in2out report"
+                }
+            } error]} {
+                puts $fd "Error reading in2out report: $error"
+                puts $fd "See timing/in2out.rpt for detailed timing information"
+            }
+        } else {
+            puts $fd "No combinational paths found"
+        }
+    } else {
+        puts $fd "Design Type:     Sequential (With Registers)"
+        puts $fd ""
+
+        if {$has_timing} {
+            puts $fd [format "WNS (max):       %s ns" $wns_val]
+            puts $fd [format "TNS (max):       %s ns" $tns_val]
+            puts $fd [format "Worst Slack:     %s ns" $slack_val]
+        } else {
+            puts $fd "No timing paths found"
+        }
+    }
+
     close $fd
 } error]} {
     puts "Warning: Could not generate summary metrics report: $error"
