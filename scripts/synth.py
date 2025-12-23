@@ -210,7 +210,6 @@ def convert_vhdl_to_sv(name: str, top: str, vhdl_files: list[Path]) -> Path:
         [
             ghdl_cmd,
             f"hierarchy -check -top {top_q}",
-            "proc; opt; memory; opt",
             f"write_verilog -sv {out_file_q}",
         ]
     )
