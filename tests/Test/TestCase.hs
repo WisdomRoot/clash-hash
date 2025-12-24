@@ -27,18 +27,23 @@ import Test.QuickCheck hiding (Result)
 import Prelude qualified as P
 
 data SomeMessage where
-  SomeMessage :: (KnownNat beats) => Vec (beats * 64) Bit -> SomeMessage
+  SomeMessage ::
+    forall beats n.
+    ( KnownNat beats,
+      KnownNat (beats * 64),
+      SpongeParameter 1600 1088 n ((beats * 64) + 2) 0 256
+    ) =>
+    Vec (beats * 64) Bit ->
+    SomeMessage
 
 data TestCase
   = TestCase
       SomeMessage
-      (Vec 4 (BitVector 64))
 
 instance Show TestCase where
-  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) expected) =
+  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
     "TestCase {"
     <> "beats=" <> show (natToNum @beats :: Int)
-    <> ", expected=" <> show expected
     <> "}"
 
 data UpstreamStall
@@ -87,7 +92,7 @@ data Result = Result
   deriving (Show, Eq)
 
 toActualResult :: TestCase -> Result
-toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) _) =
+toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit))) =
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
@@ -128,22 +133,30 @@ toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)
           followingSegment = mkSegment (followingStart, sampleCount)
         }
 
+expectedDigest :: SomeMessage -> Vec 4 (BitVector 64)
+expectedDigest (SomeMessage (messageBits :: Vec (beats * 64) Bit)) =
+  bitCoerce (SHA3.sha3_256 messageBits)
+
 toExpectedResult :: TestCase -> Result
-toExpectedResult testCase@(TestCase _ expected) =
+toExpectedResult testCase@(TestCase someMessage) =
   let sampleCount = expectedCycles testCase
       digestStart = max 0 (sampleCount - 4)
       digestEnd = min sampleCount (digestStart + 4)
       followingStart = digestEnd
-      [d0, d1, d2, d3] = toList expected
+      expected = expectedDigest someMessage
+      (out0, out1, out2, out3) =
+        case toList expected of
+          [a, b, c, d] -> (a, b, c, d)
+          other -> error $ "Unexpected digest words: " <> show other
       cycles = [0 .. sampleCount - 1]
 
       expectedTdata = fmap mkTdata cycles
         where
           mkTdata i
-            | i == sampleCount - 4 = d0
-            | i == sampleCount - 3 = d1
-            | i == sampleCount - 2 = d2
-            | i == sampleCount - 1 = d3
+            | i == sampleCount - 4 = out0
+            | i == sampleCount - 3 = out1
+            | i == sampleCount - 2 = out2
+            | i == sampleCount - 1 = out3
             | otherwise = 0
 
       expectedTvalid = fmap mkTvalid cycles
@@ -186,8 +199,7 @@ genCaseFor ::
   Gen TestCase
 genCaseFor = do
   messageBits <- genMessageBits @(beats * 64)
-  let expected = bitCoerce (SHA3.sha3_256 messageBits)
-  pure (TestCase (SomeMessage messageBits) expected)
+  pure (TestCase (SomeMessage messageBits))
 
 genMessageBits ::
   forall n.
@@ -198,13 +210,13 @@ genMessageBits =
 
 -- | Get a label for a test case
 testCaseLabel :: TestCase -> String
-testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _) =
+testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
   show (natToNum @beats * 64 :: Int) <> "-bit"
 
 -- | Predict the number of cycles with upstream stall support (using structural induction)
 --   Current formula: beatCount + 24×(⌊beatCount/17⌋ + 1) + 4
 expectedCycles :: TestCase -> Int
-expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _) =
+expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
   let beatCount = natToNum @beats :: Int
       absorbCycles = beatCount
       permuteCycles = 24 * ((beatCount `div` 17) + 1)
@@ -243,17 +255,17 @@ findBoolDifferences actuals expecteds (start, _) =
 
 -- | Format a data difference as a string
 formatDataDiff :: (Int, BitVector 64, BitVector 64) -> String
-formatDataDiff (cycle, actual, expected) =
-  "  Cycle " <> show cycle <> ": expected " <> showHexBV expected <> ", got " <> showHexBV actual
+formatDataDiff (cycleIdx, actual, expected) =
+  "  Cycle " <> show cycleIdx <> ": expected " <> showHexBV expected <> ", got " <> showHexBV actual
 
 -- | Format a boolean difference as a string
 formatBoolDiff :: (Int, Bool, Bool) -> String
-formatBoolDiff (cycle, actual, expected) =
-  "  Cycle " <> show cycle <> ": expected " <> show expected <> ", got " <> show actual
+formatBoolDiff (cycleIdx, actual, expected) =
+  "  Cycle " <> show cycleIdx <> ": expected " <> show expected <> ", got " <> show actual
 
 compareSegment :: String -> Segment -> Segment -> Expectation
-compareSegment label actual expected = do
-  let prefix = "[" <> label <> " segment] "
+compareSegment segLabel actual expected = do
+  let prefix = "[" <> segLabel <> " segment] "
       interval = segmentInterval actual
 
   segmentInterval actual `shouldBe` segmentInterval expected

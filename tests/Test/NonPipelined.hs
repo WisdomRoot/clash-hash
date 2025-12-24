@@ -8,7 +8,6 @@ import Data.Foldable (for_)
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
-import Test.QuickCheck
 import Test.TestCase
 
 run :: IO ()
@@ -27,12 +26,12 @@ spec = describe "NonPipelined SHA3-256 Tests" $ do
 testCases :: [TestCase]
 testCases =
   [ 
-    TestCase (SomeMessage msg64) expected64,
-    TestCase (SomeMessage msg128) expected128,
-    TestCase (SomeMessage msg1024) expected1024,
-    TestCase (SomeMessage msg1088) expected1088,
-    TestCase (SomeMessage msg1600) expected1600,
-    TestCase (SomeMessage msg3200) expected3200
+    TestCase (SomeMessage msg64),
+    TestCase (SomeMessage msg128),
+    TestCase (SomeMessage msg1024),
+    TestCase (SomeMessage msg1088),
+    TestCase (SomeMessage msg1600),
+    TestCase (SomeMessage msg3200)
   ]
   where
     msg64 :: Vec (1 * 64) Bit
