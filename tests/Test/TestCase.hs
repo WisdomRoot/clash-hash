@@ -54,25 +54,8 @@ data UpstreamStall
 instance Arbitrary UpstreamStall where
   arbitrary = pure NoUpstreamStall
 
-data BeatChoice
-  = Beats64
-  | Beats128
-  | Beats1024
-  | Beats1088
-  | Beats1600
-
 instance Arbitrary TestCase where
-  arbitrary = do
-    choice <- elements beatChoices
-    case choice of
-      Beats64 -> genCaseFor @1
-      Beats128 -> genCaseFor @2
-      Beats1024 -> genCaseFor @16
-      Beats1088 -> genCaseFor @17
-      Beats1600 -> genCaseFor @25
-    where
-      beatChoices =
-        [Beats64, Beats128, Beats1024, Beats1088, Beats1600]
+  arbitrary = oneof genCaseGenerators
 
 -- A segment of output signals
 data Segment = Segment
@@ -200,6 +183,70 @@ genCaseFor ::
 genCaseFor = do
   messageBits <- genMessageBits @(beats * 64)
   pure (TestCase (SomeMessage messageBits))
+
+genCaseGenerators :: [Gen TestCase]
+genCaseGenerators =
+  [ genCaseFor @1,
+    genCaseFor @2,
+    genCaseFor @3,
+    genCaseFor @4,
+    genCaseFor @5,
+    genCaseFor @6,
+    genCaseFor @7,
+    genCaseFor @8,
+    genCaseFor @9,
+    genCaseFor @10,
+    genCaseFor @11,
+    genCaseFor @12,
+    genCaseFor @13,
+    genCaseFor @14,
+    genCaseFor @15,
+    genCaseFor @16,
+    genCaseFor @17,
+    genCaseFor @18,
+    genCaseFor @19,
+    genCaseFor @20,
+    genCaseFor @21,
+    genCaseFor @22,
+    genCaseFor @23,
+    genCaseFor @24,
+    genCaseFor @25,
+    genCaseFor @26,
+    genCaseFor @27,
+    genCaseFor @28,
+    genCaseFor @29,
+    genCaseFor @30,
+    genCaseFor @31,
+    genCaseFor @32,
+    genCaseFor @33,
+    genCaseFor @34,
+    genCaseFor @35,
+    genCaseFor @36,
+    genCaseFor @37,
+    genCaseFor @38,
+    genCaseFor @39,
+    genCaseFor @40,
+    genCaseFor @41,
+    genCaseFor @42,
+    genCaseFor @43,
+    genCaseFor @44,
+    genCaseFor @45,
+    genCaseFor @46,
+    genCaseFor @47,
+    genCaseFor @48,
+    genCaseFor @49,
+    genCaseFor @50,
+    genCaseFor @51,
+    genCaseFor @52,
+    genCaseFor @53,
+    genCaseFor @54,
+    genCaseFor @55,
+    genCaseFor @56,
+    genCaseFor @57,
+    genCaseFor @58,
+    genCaseFor @59,
+    genCaseFor @60
+  ]
 
 genMessageBits ::
   forall n.
