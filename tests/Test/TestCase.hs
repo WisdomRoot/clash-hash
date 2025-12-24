@@ -60,11 +60,13 @@ data SomeMessage where
 data TestCase
   = TestCase
       SomeMessage
+      UpstreamStall
 
 instance Show TestCase where
-  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
+  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) control) =
     "TestCase {"
     <> "beats=" <> show (natToNum @beats :: Int)
+    <> ", control=" <> show control
     <> "}"
 
 data UpstreamStall
@@ -73,7 +75,13 @@ data UpstreamStall
   deriving (Show)
 
 instance Arbitrary UpstreamStall where
-  arbitrary = pure NoUpstreamStall
+  arbitrary = frequency
+    [ (3, pure NoUpstreamStall),          -- 75% no stalls
+      (1, UpstreamStall <$> genStalls)    -- 25% random stalls
+    ]
+    where
+      genStalls = listOf (frequency [(3, pure True), (1, pure False)])
+      -- Generates list of booleans: 75% True (send), 25% False (stall)
 
 instance Arbitrary TestCase where
   arbitrary = oneof genCaseGenerators
@@ -96,11 +104,11 @@ data Result = Result
   deriving (Show, Eq)
 
 toActualResult :: TestCase -> Result
-toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit))) =
+toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) control) =
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
-          $ feedInput messageWords
+          $ feedInput control messageWords
       output =
         Hash.NonPipelined.topEntity
           clockGen
@@ -142,7 +150,7 @@ expectedDigest (SomeMessage (messageBits :: Vec (beats * 64) Bit)) =
   bitCoerce (SHA3.sha3_256 messageBits)
 
 toExpectedResult :: TestCase -> Result
-toExpectedResult testCase@(TestCase someMessage) =
+toExpectedResult testCase@(TestCase someMessage _control) =
   let sampleCount = expectedCycles testCase
       digestStart = max 0 (sampleCount - 4)
       digestEnd = min sampleCount (digestStart + 4)
@@ -203,70 +211,18 @@ genCaseFor ::
   Gen TestCase
 genCaseFor = do
   messageBits <- genMessageBits @(beats * 64)
-  pure (TestCase (SomeMessage messageBits))
+  stall <- arbitrary
+  pure (TestCase (SomeMessage messageBits) stall)
 
 genCaseGenerators :: [Gen TestCase]
 genCaseGenerators =
-  [ genCaseFor @1,
-    genCaseFor @2,
-    genCaseFor @3,
-    genCaseFor @4,
-    genCaseFor @5,
-    genCaseFor @6,
-    genCaseFor @7,
-    genCaseFor @8,
-    genCaseFor @9,
-    genCaseFor @10,
-    genCaseFor @11,
-    genCaseFor @12,
-    genCaseFor @13,
-    genCaseFor @14,
-    genCaseFor @15,
-    genCaseFor @16,
-    genCaseFor @17,
-    genCaseFor @18,
-    genCaseFor @19,
-    genCaseFor @20,
-    genCaseFor @21,
-    genCaseFor @22,
-    genCaseFor @23,
-    genCaseFor @24,
-    genCaseFor @25,
-    genCaseFor @26,
-    genCaseFor @27,
-    genCaseFor @28,
-    genCaseFor @29,
-    genCaseFor @30,
-    genCaseFor @31,
-    genCaseFor @32,
-    genCaseFor @33,
-    genCaseFor @34,
-    genCaseFor @35,
-    genCaseFor @36,
-    genCaseFor @37,
-    genCaseFor @38,
-    genCaseFor @39,
-    genCaseFor @40,
-    genCaseFor @41,
-    genCaseFor @42,
-    genCaseFor @43,
-    genCaseFor @44,
-    genCaseFor @45,
-    genCaseFor @46,
-    genCaseFor @47,
-    genCaseFor @48,
-    genCaseFor @49,
-    genCaseFor @50,
-    genCaseFor @51,
-    genCaseFor @52,
-    genCaseFor @53,
-    genCaseFor @54,
-    genCaseFor @55,
-    genCaseFor @56,
-    genCaseFor @57,
-    genCaseFor @58,
-    genCaseFor @59,
-    genCaseFor @60
+  [ genCaseFor @1,   -- Minimum message
+    genCaseFor @16,  -- One beat before first block fills
+    genCaseFor @17,  -- Exactly one block (triggers 1 permutation)
+    genCaseFor @18,  -- Just over one block (triggers 2 permutations)
+    genCaseFor @25,  -- Full Keccak state (1600 bits)
+    genCaseFor @34,  -- Exactly two blocks (17 × 2)
+    genCaseFor @51   -- Exactly three blocks (17 × 3)
   ]
 
 genMessageBits ::
@@ -278,16 +234,30 @@ genMessageBits =
 
 -- | Get a label for a test case
 testCaseLabel :: TestCase -> String
-testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
+testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _) =
   show (natToNum @beats * 64 :: Int) <> "-bit"
 
 -- | Predict the number of cycles with upstream stall support (using structural induction)
 --   Current formula: beatCount + 24×(⌊beatCount/17⌋ + 1) + 4
 expectedCycles :: TestCase -> Int
-expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
+expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) control) =
   let beatCount = natToNum @beats :: Int
-      permutePhases = (beatCount `div` beatsPerBlock) + 1
-   in beatCount + permuteLatency * permutePhases + squeezeLatency
+      -- Absorb phase: actual time to get all beats from upstream
+      absorbCycles = case control of
+        NoUpstreamStall -> beatCount
+        UpstreamStall pattern -> countAbsorbCycles beatCount pattern
+
+      -- Permute and squeeze are independent of upstream stalls
+      permuteCycles = permuteLatency * ((beatCount `div` beatsPerBlock) + 1)
+      squeezeCycles = squeezeLatency
+   in absorbCycles + permuteCycles + squeezeCycles
+
+-- | Use structural induction on the stall pattern list
+countAbsorbCycles :: Int -> [Bool] -> Int
+countAbsorbCycles 0 _ = 0 -- base case: no beats needed
+countAbsorbCycles n [] = n -- base case: no more pattern, assume all True
+countAbsorbCycles n (True : rest) = 1 + countAbsorbCycles (n - 1) rest -- absorbed one beat
+countAbsorbCycles n (False : rest) = 1 + countAbsorbCycles n rest -- stalled, no progress
 
 runTestCase :: TestCase -> Expectation
 runTestCase testCase = do
@@ -386,35 +356,45 @@ feedInput ::
   ( KnownNat beats,
     HiddenClockResetEnable dom
   ) =>
+  UpstreamStall ->
   Vec beats (BitVector 64) ->
   Signal dom (AXI4Stream 64)
-feedInput messageWords =
-  mealy step (toList messageWords, 0 :: Int, 0 :: Int) (pure ())
+feedInput control messageWords =
+  mealy step (toList messageWords, 0 :: Int, 0 :: Int, controlToList control) (pure ())
   where
-    step (xs, waitCount, emittedInBlock) _ =
+    controlToList NoUpstreamStall = []
+    controlToList (UpstreamStall xs) = xs
+
+    step (xs, waitCount, emittedInBlock, ctrl) _ =
       if waitCount > 0
-        then ((xs, waitCount - 1, emittedInBlock), idleBeat)
+        then ((xs, waitCount - 1, emittedInBlock, ctrl), idleBeat)
         else
-          case xs of
-            [] -> (([], 0, 0), idleBeat)
-            y : ys ->
-              let isLast = P.null ys
-                  emittedNow = emittedInBlock + 1
-                  blockCompleted = emittedNow == beatsPerBlock
-                  needGap = blockCompleted && not isLast
-                  nextWait = if needGap then permuteLatency else 0
-                  nextEmitted =
-                    if blockCompleted
-                      then 0
-                      else emittedNow
-                  nextState = (ys, nextWait, nextEmitted)
-                  outBeat =
-                    AXI4Stream
-                      { tdata = y,
-                        tvalid = True,
-                        tlast = isLast
-                      }
-               in (nextState, outBeat)
+          let (canSend, ctrl') =
+                case ctrl of
+                  [] -> (True, [])
+                  b : bs -> (b, bs)
+           in if not canSend
+                then ((xs, waitCount, emittedInBlock, ctrl'), idleBeat)
+                else case xs of
+                  [] -> (([], 0, 0, ctrl'), idleBeat)
+                  y : ys ->
+                    let isLast = P.null ys
+                        emittedNow = emittedInBlock + 1
+                        blockCompleted = emittedNow == beatsPerBlock
+                        needGap = blockCompleted && not isLast
+                        nextWait = if needGap then permuteLatency else 0
+                        nextEmitted =
+                          if blockCompleted
+                            then 0
+                            else emittedNow
+                        nextState = (ys, nextWait, nextEmitted, ctrl')
+                        outBeat =
+                          AXI4Stream
+                            { tdata = y,
+                              tvalid = True,
+                              tlast = isLast
+                            }
+                     in (nextState, outBeat)
     idleBeat =
       AXI4Stream
         { tdata = 0,

@@ -9,6 +9,7 @@ import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
 import Test.TestCase
+import Test.QuickCheck
 
 run :: IO ()
 run = hspec spec
@@ -19,19 +20,20 @@ spec = describe "NonPipelined SHA3-256 Tests" $ do
     for_ testCases $ \testCase ->
       it (testCaseLabel testCase) $ runTestCase testCase
 
-  -- describe "QuickCheck property tests" $ do
-  --   it "correctly handles random test cases with upstream stalls" $
-  --     property $ \testCase -> runTestCase testCase
+  describe "QuickCheck property tests" $ do
+    it "correctly handles random test cases with upstream stalls" $
+      withMaxSuccess 5 $
+        property $ \testCase -> runTestCase testCase
 
 testCases :: [TestCase]
 testCases =
-  [ 
-    TestCase (SomeMessage msg64),
-    TestCase (SomeMessage msg128),
-    TestCase (SomeMessage msg1024),
-    TestCase (SomeMessage msg1088),
-    TestCase (SomeMessage msg1600),
-    TestCase (SomeMessage msg3200)
+  [
+    TestCase (SomeMessage msg64) NoUpstreamStall,
+    TestCase (SomeMessage msg128) NoUpstreamStall,
+    TestCase (SomeMessage msg1024) NoUpstreamStall,
+    TestCase (SomeMessage msg1088) NoUpstreamStall,
+    TestCase (SomeMessage msg1600) NoUpstreamStall,
+    TestCase (SomeMessage msg3200) NoUpstreamStall
   ]
   where
     msg64 :: Vec (1 * 64) Bit
