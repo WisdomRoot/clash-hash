@@ -1,5 +1,7 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Test.TestCase
   ( TestCase (TestCase),
@@ -25,6 +27,25 @@ import Reference.SHA3 qualified as SHA3
 import Test.Hspec
 import Test.QuickCheck hiding (Result)
 import Prelude qualified as P
+
+type RateBits = 1088
+
+type StreamWordBits = 64
+
+type BeatsPerBlock = RateBits `Div` StreamWordBits
+
+type PermutationLatency = 24
+
+type SqueezeBeats = 4
+
+beatsPerBlock :: Int
+beatsPerBlock = natToNum @BeatsPerBlock
+
+permuteLatency :: Int
+permuteLatency = natToNum @PermutationLatency
+
+squeezeLatency :: Int
+squeezeLatency = natToNum @SqueezeBeats
 
 data SomeMessage where
   SomeMessage ::
@@ -265,10 +286,8 @@ testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
 expectedCycles :: TestCase -> Int
 expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit))) =
   let beatCount = natToNum @beats :: Int
-      absorbCycles = beatCount
-      permuteCycles = 24 * ((beatCount `div` 17) + 1)
-      squeezeCycles = 4
-   in absorbCycles + permuteCycles + squeezeCycles
+      permutePhases = (beatCount `div` beatsPerBlock) + 1
+   in beatCount + permuteLatency * permutePhases + squeezeLatency
 
 runTestCase :: TestCase -> Expectation
 runTestCase testCase = do
@@ -381,9 +400,13 @@ feedInput messageWords =
             y : ys ->
               let isLast = P.null ys
                   emittedNow = emittedInBlock + 1
-                  needGap = emittedNow == 17 && not isLast
-                  nextWait = if needGap then 24 else 0
-                  nextEmitted = if needGap then 0 else emittedNow
+                  blockCompleted = emittedNow == beatsPerBlock
+                  needGap = blockCompleted && not isLast
+                  nextWait = if needGap then permuteLatency else 0
+                  nextEmitted =
+                    if blockCompleted
+                      then 0
+                      else emittedNow
                   nextState = (ys, nextWait, nextEmitted)
                   outBeat =
                     AXI4Stream
