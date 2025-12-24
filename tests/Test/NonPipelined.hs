@@ -28,12 +28,12 @@ spec = describe "NonPipelined SHA3-256 Tests" $ do
 testCases :: [TestCase]
 testCases =
   [
-    TestCase (SomeMessage msg64) NoUpstreamStall,
-    TestCase (SomeMessage msg128) NoUpstreamStall,
-    TestCase (SomeMessage msg1024) NoUpstreamStall,
-    TestCase (SomeMessage msg1088) NoUpstreamStall,
-    TestCase (SomeMessage msg1600) NoUpstreamStall,
-    TestCase (SomeMessage msg3200) NoUpstreamStall
+    TestCase (SomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure,
+    TestCase (SomeMessage msg128) NoUpstreamStall NoDownstreamBackpressure,
+    TestCase (SomeMessage msg1024) NoUpstreamStall NoDownstreamBackpressure,
+    TestCase (SomeMessage msg1088) NoUpstreamStall NoDownstreamBackpressure,
+    TestCase (SomeMessage msg1600) NoUpstreamStall NoDownstreamBackpressure,
+    TestCase (SomeMessage msg3200) NoUpstreamStall NoDownstreamBackpressure
   ]
   where
     msg64 :: Vec (1 * 64) Bit

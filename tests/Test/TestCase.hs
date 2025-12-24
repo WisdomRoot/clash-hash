@@ -8,6 +8,7 @@ module Test.TestCase
     testCaseLabel,
     SomeMessage (..),
     UpstreamStall (..),
+    DownstreamBackpressure (..),
     Segment (..),
     Result (..),
     toActualResult,
@@ -61,12 +62,14 @@ data TestCase
   = TestCase
       SomeMessage
       UpstreamStall
+      DownstreamBackpressure
 
 instance Show TestCase where
-  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) control) =
+  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) upstream downstream) =
     "TestCase {"
     <> "beats=" <> show (natToNum @beats :: Int)
-    <> ", control=" <> show control
+    <> ", upstream=" <> show upstream
+    <> ", downstream=" <> show downstream
     <> "}"
 
 data UpstreamStall
@@ -82,6 +85,20 @@ instance Arbitrary UpstreamStall where
     where
       genStalls = listOf (frequency [(3, pure True), (1, pure False)])
       -- Generates list of booleans: 75% True (send), 25% False (stall)
+
+data DownstreamBackpressure
+  = NoDownstreamBackpressure
+  | DownstreamBackpressure [Bool]
+  deriving (Show)
+
+instance Arbitrary DownstreamBackpressure where
+  arbitrary = frequency
+    [ (3, pure NoDownstreamBackpressure),           -- 75% no backpressure
+      (1, DownstreamBackpressure <$> genBackpressure) -- 25% random backpressure
+    ]
+    where
+      genBackpressure = listOf (frequency [(3, pure True), (1, pure False)])
+      -- Generates list of booleans: 75% True (accept), 25% False (stall)
 
 instance Arbitrary TestCase where
   arbitrary = oneof genCaseGenerators
@@ -104,17 +121,22 @@ data Result = Result
   deriving (Show, Eq)
 
 toActualResult :: TestCase -> Result
-toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) control) =
+toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) upstreamControl downstreamControl) =
   let messageWords = bitCoerce message :: Vec beats (BitVector 64)
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
-          $ feedInput control messageWords
+          $ feedInput upstreamControl messageWords
+
+      -- Generate dynamic tready signal from backpressure pattern
+      treadyPattern = backpressureToList downstreamControl
+      treadySignal = fromList (treadyPattern <> P.repeat True)
+
       output =
         Hash.NonPipelined.topEntity
           clockGen
           resetGen
           enableGen
-          (pure True)
+          treadySignal
           inputStream
       sampleCount = expectedCycles testCase
       samples :: [(AXI4Stream 64, Bool)]
@@ -150,7 +172,7 @@ expectedDigest (SomeMessage (messageBits :: Vec (beats * 64) Bit)) =
   bitCoerce (SHA3.sha3_256 messageBits)
 
 toExpectedResult :: TestCase -> Result
-toExpectedResult testCase@(TestCase someMessage _control) =
+toExpectedResult testCase@(TestCase someMessage _upstreamControl _downstreamControl) =
   let sampleCount = expectedCycles testCase
       digestStart = max 0 (sampleCount - 4)
       digestEnd = min sampleCount (digestStart + 4)
@@ -201,6 +223,9 @@ toExpectedResult testCase@(TestCase someMessage _control) =
           followingSegment = mkSegment (followingStart, sampleCount)
         }
 
+backpressureToList :: DownstreamBackpressure -> [Bool]
+backpressureToList NoDownstreamBackpressure = []
+backpressureToList (DownstreamBackpressure xs) = xs
 
 genCaseFor ::
   forall beats n.
@@ -211,8 +236,9 @@ genCaseFor ::
   Gen TestCase
 genCaseFor = do
   messageBits <- genMessageBits @(beats * 64)
-  stall <- arbitrary
-  pure (TestCase (SomeMessage messageBits) stall)
+  upstreamStall <- arbitrary
+  downstreamBackpressure <- arbitrary
+  pure (TestCase (SomeMessage messageBits) upstreamStall downstreamBackpressure)
 
 genCaseGenerators :: [Gen TestCase]
 genCaseGenerators =
@@ -234,22 +260,30 @@ genMessageBits =
 
 -- | Get a label for a test case
 testCaseLabel :: TestCase -> String
-testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _) =
+testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
   show (natToNum @beats * 64 :: Int) <> "-bit"
 
--- | Predict the number of cycles with upstream stall support (using structural induction)
---   Current formula: beatCount + 24×(⌊beatCount/17⌋ + 1) + 4
+-- | Predict the number of cycles with upstream stall and downstream backpressure support
+--   Current formula: absorbCycles + 24×(⌊beatCount/17⌋ + 1) + squeezeCycles
 expectedCycles :: TestCase -> Int
-expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) control) =
+expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) upstreamControl downstreamControl) =
   let beatCount = natToNum @beats :: Int
       -- Absorb phase: actual time to get all beats from upstream
-      absorbCycles = case control of
+      absorbCycles = case upstreamControl of
         NoUpstreamStall -> beatCount
         UpstreamStall pattern -> countAbsorbCycles beatCount pattern
 
-      -- Permute and squeeze are independent of upstream stalls
+      -- Permute phase is independent of upstream stalls and downstream backpressure
       permuteCycles = permuteLatency * ((beatCount `div` beatsPerBlock) + 1)
-      squeezeCycles = squeezeLatency
+
+      -- Squeeze phase: 4 beats, but downstream backpressure can extend this
+      squeezeCycles = case downstreamControl of
+        NoDownstreamBackpressure -> squeezeLatency  -- 4 cycles
+        DownstreamBackpressure pattern ->
+          let squeezeStart = absorbCycles + permuteCycles
+              relevantPattern = P.drop squeezeStart pattern
+          in countSqueezeCycles squeezeLatency relevantPattern
+
    in absorbCycles + permuteCycles + squeezeCycles
 
 -- | Use structural induction on the stall pattern list
@@ -258,6 +292,13 @@ countAbsorbCycles 0 _ = 0 -- base case: no beats needed
 countAbsorbCycles n [] = n -- base case: no more pattern, assume all True
 countAbsorbCycles n (True : rest) = 1 + countAbsorbCycles (n - 1) rest -- absorbed one beat
 countAbsorbCycles n (False : rest) = 1 + countAbsorbCycles n rest -- stalled, no progress
+
+-- | Count cycles needed to output all squeeze beats with backpressure
+countSqueezeCycles :: Int -> [Bool] -> Int
+countSqueezeCycles 0 _ = 0        -- base case: all beats sent
+countSqueezeCycles n [] = n       -- base case: no more pattern, assume all True
+countSqueezeCycles n (True : rest) = 1 + countSqueezeCycles (n - 1) rest  -- sent one beat
+countSqueezeCycles n (False : rest) = 1 + countSqueezeCycles n rest       -- stalled, no progress
 
 runTestCase :: TestCase -> Expectation
 runTestCase testCase = do
