@@ -1,7 +1,8 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Sponge.NonPipelined
-  ( sponge,
+  ( HashMode (..),
+    sponge,
   )
 where
 
@@ -67,6 +68,8 @@ pad 14 = complementAt 512 . complementAt 637 . complementAt 638
 pad 15 = complementAt 512 . complementAt 573 . complementAt 574
 pad _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- special case for a whole 1088-bit padding
 
+data HashMode = SHA3 | SHAKE
+
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
 sponge ::
@@ -77,10 +80,11 @@ sponge ::
     MsgBits + 2 <= n * 1088,
     MsgBits + 4 <= n * 1088
   ) =>
+  HashMode -> -- SHAKE256 or SHA3-256 mode
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (AXI4Stream MsgBits, Bool) -> -- Input message, output tready
   Signal dom (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
-sponge permute = mealy step (State (Absorb 0) 0)
+sponge _mode permute = mealy step (State (Absorb 0) 0)
   where
     step :: State -> (AXI4Stream MsgBits, Bool) -> (State, (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready)

@@ -56,4 +56,4 @@ topEntity ::
   Signal System (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
 topEntity clk rst en treadySig msgSig =
   withClockResetEnable clk rst en
-    $ Sponge.NonPipelined.sponge @System spongeFSM (bundle (msgSig, treadySig))
+    $ Sponge.NonPipelined.sponge @System Sponge.NonPipelined.SHA3 spongeFSM (bundle (msgSig, treadySig))
