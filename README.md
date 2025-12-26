@@ -1,23 +1,18 @@
 # clash-hash
 
-## Synthesis
+## Scripts / Commands
 
 ```
-nix develop          # enter shell exposing yosys + synth
-synth                # synthesise every target found under ./verilog
-synth SHA2.topEntity # target names resolve relative to ./verilog/
+nix develop
+synth N256 -- convert Clash to Verilog and run Yosys synthesis
+bench N256 -- run benchmark for N256 target
+stack test -- run all tests
 ```
 
-The tool expects each Clash export under `verilog/<target>/`, typically containing `clash-manifest.json` and the emitted `.v` file. Outputs land in `build/synth/<target>/netlist`, with Yosys logs in `build/synth/<target>/reports`.
+## Targets
 
-## Clash coding guidelines (to keep Yosys happy)
+* N256: Non-pipelined SHA3-256 (Clash)
+* N256X: Non-pipelined SHAKE-256 (Clash)
+* H256: Pipelined *high_speed_core* SHA3-256 by *Team Keccak*
 
-When writing permutation and sponge logic in Clash we found the following patterns generate much better RTL:
-
-- Keep the state and ports as `BitVector` (or `BV n` as a type alias) so they are simple packed bit-vectors in the emitted HDL.
-- Use `Vec` locally, just where you want to avoid `replaceBit` and bit-level mutation:
-  - Build `Vec n Bit` with `map` from a permutation table (e.g. `Vec (Index n)` constants).
-  - Use `bitCoerce` at the boundaries to go between `BitVector n` and `Vec n Bit`.
-  - Avoid using large `Vec` as long-lived state or for huge TH-generated tables; that tends to go through `vecArray` and produce big mux/decoder structures in Yosys.
-
-In short: construct new vectors in one pass from their source bits instead of "copy + overwrite one bit at a time", and keep `Vec` confined to those construction sites.
+These targets can be used with the `synth` and `bench` commands. They are defined in `clash.json` and `vhdl.json`.

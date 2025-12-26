@@ -21,7 +21,7 @@ where
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
 import Control.Monad (unless)
-import Hash.NonPipelined qualified
+import Hash.SHA3256 qualified as SHA3256
 import Numeric (showHex)
 import Reference.SHA3 (SpongeParameter)
 import Reference.SHA3 qualified as SHA3
@@ -130,14 +130,11 @@ toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)
       -- Generate dynamic tready signal from backpressure pattern
       treadyPattern = backpressureToList downstreamControl
       treadySignal = fromList (treadyPattern <> P.repeat True)
-      modeSignal = pure False -- SHA3-256 mode
-
       output =
-        Hash.NonPipelined.topEntity
+        SHA3256.topEntity
           clockGen
           resetGen
           enableGen
-          modeSignal
           treadySignal
           inputStream
       sampleCount = expectedCycles testCase

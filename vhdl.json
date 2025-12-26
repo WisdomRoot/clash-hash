@@ -1,5 +1,5 @@
 {
-  "H0": {
+  "H256": {
     "dir": "high_speed_core",
     "top": "keccak",
     "files": [

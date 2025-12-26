@@ -1,5 +1,6 @@
 {
-  "NP": "Hash.NonPipelined.topEntity",
+  "N256": "Hash.SHA3256.topEntity",
+  "N256X": "Hash.SHAKE256.topEntity",
   "Perm": "Permutation.Perm.topEntity",
   "Chi": "Permutation.Chi.topEntity",
   "Rho": "Permutation.Rho.topEntity",

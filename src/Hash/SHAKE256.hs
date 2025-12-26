@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Hash.NonPipelined
-  ( -- * NonPipelined SHA3 Top Entity
+module Hash.SHAKE256
+  ( -- * NonPipelined SHAKE256 Top Entity
     topEntity,
   )
 where
@@ -12,7 +12,7 @@ import Permutation.Perm qualified as Perm
 import Sponge.NonPipelined qualified
 
 --------------------------------------------------------------------------------
--- NonPipelined SHA3-256 Top Entity (24 single-round iterations)
+-- NonPipelined SHAKE256 Top Entity
 --------------------------------------------------------------------------------
 
 type MsgBits = 64
@@ -28,7 +28,7 @@ spongeFSM = Perm.keccakF1600Round
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "NonPipelined",
+      { t_name = "SHAKE_256_NonPipelined",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -56,4 +56,4 @@ topEntity ::
   Signal System (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
 topEntity clk rst en treadySig msgSig =
   withClockResetEnable clk rst en
-    $ Sponge.NonPipelined.sponge @System Sponge.NonPipelined.SHA3 spongeFSM (bundle (msgSig, treadySig))
+    $ Sponge.NonPipelined.sponge @System Sponge.NonPipelined.SHAKE spongeFSM (bundle (msgSig, treadySig))
