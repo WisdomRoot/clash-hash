@@ -1,12 +1,17 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Test.TestCase
-  ( TestCase (TestCase),
+  ( SHA3 (SHA3),
     testCaseLabel,
     SomeMessage (..),
+    ShakeSomeMessage (..),
+    Shake (Shake),
+    shakeTestCaseLabel,
     UpstreamStall (..),
     DownstreamBackpressure (..),
     Segment (..),
@@ -14,6 +19,7 @@ module Test.TestCase
     toActualResult,
     toExpectedResult,
     runTestCase,
+    runShakeTestCase,
     expectedCycles,
   )
 where
@@ -22,6 +28,7 @@ import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
 import Control.Monad (unless)
 import Hash.SHA3256 qualified as SHA3256
+import Hash.SHAKE256 qualified as SHAKE256
 import Numeric (showHex)
 import Reference.SHA3 (SpongeParameter)
 import Reference.SHA3 qualified as SHA3
@@ -39,6 +46,14 @@ type PermutationLatency = 24
 
 type SqueezeBeats = 4
 
+type Dut =
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System Bool ->
+  Signal System (AXI4Stream StreamWordBits) ->
+  Signal System (AXI4Stream StreamWordBits, Bool)
+
 beatsPerBlock :: Int
 beatsPerBlock = natToNum @BeatsPerBlock
 
@@ -53,20 +68,44 @@ data SomeMessage where
     forall beats n.
     ( KnownNat beats,
       KnownNat (beats * 64),
-      SpongeParameter 1600 1088 n ((beats * 64) + 2) 0 256
+      SpongeParameter 1600 1088 n (beats * 64 + 2) 0 256
     ) =>
     Vec (beats * 64) Bit ->
     SomeMessage
 
-data TestCase
-  = TestCase
+data SHA3
+  = SHA3
       SomeMessage
       UpstreamStall
       DownstreamBackpressure
 
-instance Show TestCase where
-  show (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) upstream downstream) =
-    "TestCase {"
+instance Show SHA3 where
+  show (SHA3 (SomeMessage (_ :: Vec (beats * 64) Bit)) upstream downstream) =
+    "SHA3 {"
+    <> "beats=" <> show (natToNum @beats :: Int)
+    <> ", upstream=" <> show upstream
+    <> ", downstream=" <> show downstream
+    <> "}"
+
+data ShakeSomeMessage where
+  ShakeSomeMessage ::
+    forall beats n.
+    ( KnownNat beats,
+      KnownNat (beats * 64),
+      SpongeParameter 1600 1088 n (beats * 64 + 4) 0 256
+    ) =>
+    Vec (beats * 64) Bit ->
+    ShakeSomeMessage
+
+data Shake
+  = Shake
+      ShakeSomeMessage
+      UpstreamStall
+      DownstreamBackpressure
+
+instance Show Shake where
+  show (Shake (ShakeSomeMessage (_ :: Vec (beats * 64) Bit)) upstream downstream) =
+    "Shake {"
     <> "beats=" <> show (natToNum @beats :: Int)
     <> ", upstream=" <> show upstream
     <> ", downstream=" <> show downstream
@@ -100,8 +139,11 @@ instance Arbitrary DownstreamBackpressure where
       genBackpressure = listOf (frequency [(3, pure True), (1, pure False)])
       -- Generates list of booleans: 75% True (accept), 25% False (stall)
 
-instance Arbitrary TestCase where
+instance Arbitrary SHA3 where
   arbitrary = oneof genCaseGenerators
+
+instance Arbitrary Shake where
+  arbitrary = oneof shakeGenCaseGenerators
 
 -- A segment of output signals
 data Segment = Segment
@@ -120,107 +162,11 @@ data Result = Result
   }
   deriving (Show, Eq)
 
-toActualResult :: TestCase -> Result
-toActualResult testCase@(TestCase (SomeMessage (message :: Vec (beats * 64) Bit)) upstreamControl downstreamControl) =
-  let messageWords = bitCoerce message :: Vec beats (BitVector 64)
-      inputStream =
-        withClockResetEnable clockGen resetGen enableGen
-          $ feedInput upstreamControl messageWords
+toActualResult :: SHA3 -> Result
+toActualResult = toActualResultWith SHA3256.topEntity
 
-      -- Generate dynamic tready signal from backpressure pattern
-      treadyPattern = backpressureToList downstreamControl
-      treadySignal = fromList (treadyPattern <> P.repeat True)
-      output =
-        SHA3256.topEntity
-          clockGen
-          resetGen
-          enableGen
-          treadySignal
-          inputStream
-      sampleCount = expectedCycles testCase
-      samples :: [(AXI4Stream 64, Bool)]
-      samples = sampleN @System sampleCount output
-
-      actualTdata = fmap (tdata . fst) samples
-      actualTvalid = fmap (tvalid . fst) samples
-      actualTlast = fmap (tlast . fst) samples
-      actualTready = fmap snd samples
-
-      digestStart = max 0 (sampleCount - 4)
-      digestEnd = min sampleCount (digestStart + 4)
-      followingStart = digestEnd
-
-      mkSegment interval@(start, end) =
-        Segment
-          { segmentInterval = interval,
-            segmentData = takeSlice start end actualTdata,
-            segmentValid = takeSlice start end actualTvalid,
-            segmentLast = takeSlice start end actualTlast,
-            segmentReady = takeSlice start end actualTready
-          }
-
-      takeSlice start end = P.take (end - start) . P.drop start
-   in Result
-        { previousSegment = mkSegment (0, digestStart),
-          digestSegment = mkSegment (digestStart, digestEnd),
-          followingSegment = mkSegment (followingStart, sampleCount)
-        }
-
-expectedDigest :: SomeMessage -> Vec 4 (BitVector 64)
-expectedDigest (SomeMessage (messageBits :: Vec (beats * 64) Bit)) =
-  bitCoerce (SHA3.sha3_256 messageBits)
-
-toExpectedResult :: TestCase -> Result
-toExpectedResult testCase@(TestCase someMessage _upstreamControl _downstreamControl) =
-  let sampleCount = expectedCycles testCase
-      digestStart = max 0 (sampleCount - 4)
-      digestEnd = min sampleCount (digestStart + 4)
-      followingStart = digestEnd
-      expected = expectedDigest someMessage
-      (out0, out1, out2, out3) =
-        case toList expected of
-          [a, b, c, d] -> (a, b, c, d)
-          other -> error $ "Unexpected digest words: " <> show other
-      cycles = [0 .. sampleCount - 1]
-
-      expectedTdata = fmap mkTdata cycles
-        where
-          mkTdata i
-            | i == sampleCount - 4 = out0
-            | i == sampleCount - 3 = out1
-            | i == sampleCount - 2 = out2
-            | i == sampleCount - 1 = out3
-            | otherwise = 0
-
-      expectedTvalid = fmap mkTvalid cycles
-        where
-          mkTvalid i
-            | i >= sampleCount - 4 && i <= sampleCount - 1 = True
-            | otherwise = False
-
-      expectedTlast = fmap mkTlast cycles
-        where
-          mkTlast i
-            | i == sampleCount - 1 = True
-            | otherwise = False
-
-      expectedTready = P.replicate sampleCount False
-
-      mkSegment interval@(start, end) =
-        Segment
-          { segmentInterval = interval,
-            segmentData = takeSlice start end expectedTdata,
-            segmentValid = takeSlice start end expectedTvalid,
-            segmentLast = takeSlice start end expectedTlast,
-            segmentReady = takeSlice start end expectedTready
-          }
-
-      takeSlice start end = P.take (end - start) . P.drop start
-   in Result
-        { previousSegment = mkSegment (0, digestStart),
-          digestSegment = mkSegment (digestStart, digestEnd),
-          followingSegment = mkSegment (followingStart, sampleCount)
-        }
+toExpectedResult :: SHA3 -> Result
+toExpectedResult = toExpectedResultWith (bitCoerce . SHA3.sha3_256)
 
 backpressureToList :: DownstreamBackpressure -> [Bool]
 backpressureToList NoDownstreamBackpressure = []
@@ -230,16 +176,15 @@ genCaseFor ::
   forall beats n.
   ( KnownNat beats,
     KnownNat (beats * 64),
-    SpongeParameter 1600 1088 n ((beats * 64) + 2) 0 256
+    SpongeParameter 1600 1088 n (beats * 64 + 2) 0 256
   ) =>
-  Gen TestCase
+  Gen SHA3
 genCaseFor = do
   messageBits <- genMessageBits @(beats * 64)
   upstreamStall <- arbitrary
-  downstreamBackpressure <- arbitrary
-  pure (TestCase (SomeMessage messageBits) upstreamStall downstreamBackpressure)
+  SHA3 (SomeMessage messageBits) upstreamStall <$> arbitrary
 
-genCaseGenerators :: [Gen TestCase]
+genCaseGenerators :: [Gen SHA3]
 genCaseGenerators =
   [ genCaseFor @1,   -- Minimum message
     genCaseFor @16,  -- One beat before first block fills
@@ -250,6 +195,29 @@ genCaseGenerators =
     genCaseFor @51   -- Exactly three blocks (17 × 3)
   ]
 
+shakeGenCaseFor ::
+  forall beats n.
+  ( KnownNat beats,
+    KnownNat (beats * 64),
+    SpongeParameter 1600 1088 n (beats * 64 + 4) 0 256
+  ) =>
+  Gen Shake
+shakeGenCaseFor = do
+  messageBits <- genMessageBits @(beats * 64)
+  upstreamStall <- arbitrary
+  Shake (ShakeSomeMessage messageBits) upstreamStall <$> arbitrary
+
+shakeGenCaseGenerators :: [Gen Shake]
+shakeGenCaseGenerators =
+  [ shakeGenCaseFor @1,
+    shakeGenCaseFor @16,
+    shakeGenCaseFor @17,
+    shakeGenCaseFor @18,
+    shakeGenCaseFor @25,
+    shakeGenCaseFor @34,
+    shakeGenCaseFor @51
+  ]
+
 genMessageBits ::
   forall n.
   KnownNat n =>
@@ -258,31 +226,180 @@ genMessageBits =
   sequenceA (repeat (boolToBit <$> arbitrary))
 
 -- | Get a label for a test case
-testCaseLabel :: TestCase -> String
-testCaseLabel (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
+testCaseLabel :: SHA3 -> String
+testCaseLabel (SHA3 (SomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
   show (natToNum @beats * 64 :: Int) <> "-bit"
+
+shakeTestCaseLabel :: Shake -> String
+shakeTestCaseLabel (Shake (ShakeSomeMessage (_ :: Vec (beats * 64) Bit)) _ _) =
+  show (natToNum @beats * 64 :: Int) <> "-bit"
+
+--------------------------------------------------------------------------------
+-- Shared helpers between SHA3-256 and SHAKE-256 cases
+--------------------------------------------------------------------------------
+
+type DigestWords = Vec SqueezeBeats (BitVector 64)
+
+class HashCase c where
+  withMessage ::
+    c ->
+    (forall beats n.
+      ( KnownNat beats,
+        KnownNat (beats * 64),
+        SpongeParameter 1600 1088 n (beats * 64 + Suffix c) 0 256
+      ) =>
+      Vec (beats * 64) Bit ->
+      r) ->
+    r
+  upstreamCtrl :: c -> UpstreamStall
+  downstreamCtrl :: c -> DownstreamBackpressure
+  expectedCyclesOf :: c -> Int
+
+type family Suffix c :: Nat
+
+type instance Suffix SHA3 = 2
+type instance Suffix Shake = 4
+
+instance HashCase SHA3 where
+  withMessage (SHA3 (SomeMessage msg) _ _) f = f msg
+  upstreamCtrl (SHA3 _ up _) = up
+  downstreamCtrl (SHA3 _ _ down) = down
+  expectedCyclesOf = expectedCycles
+
+instance HashCase Shake where
+  withMessage (Shake (ShakeSomeMessage msg) _ _) f = f msg
+  upstreamCtrl (Shake _ up _) = up
+  downstreamCtrl (Shake _ _ down) = down
+  expectedCyclesOf = shakeExpectedCycles
+
+toActualResultWith ::
+  HashCase c =>
+  Dut ->
+  c ->
+  Result
+toActualResultWith dut testCase =
+  withMessage testCase $ \(message :: Vec (beats * 64) Bit) ->
+    let messageWords = bitCoerce message :: Vec beats (BitVector 64)
+        inputStream =
+          withClockResetEnable clockGen resetGen enableGen $
+            feedInput (upstreamCtrl testCase) messageWords
+        treadyPattern = backpressureToList (downstreamCtrl testCase)
+        treadySignal = fromList (treadyPattern <> P.repeat True)
+        output =
+          dut
+            clockGen
+            resetGen
+            enableGen
+            treadySignal
+            inputStream
+        sampleCount = expectedCyclesOf testCase
+        samples = sampleN @System sampleCount output
+        actualTdata = fmap (tdata . fst) samples
+        actualTvalid = fmap (tvalid . fst) samples
+        actualTlast = fmap (tlast . fst) samples
+        actualTready = fmap snd samples
+        digestStart = max 0 (sampleCount - 4)
+        digestEnd = min sampleCount (digestStart + 4)
+        followingStart = digestEnd
+        mkSegment interval@(start, end) =
+          Segment
+            { segmentInterval = interval,
+              segmentData = takeSlice start end actualTdata,
+              segmentValid = takeSlice start end actualTvalid,
+              segmentLast = takeSlice start end actualTlast,
+              segmentReady = takeSlice start end actualTready
+            }
+        takeSlice start end = P.take (end - start) . P.drop start
+     in Result
+          { previousSegment = mkSegment (0, digestStart),
+            digestSegment = mkSegment (digestStart, digestEnd),
+            followingSegment = mkSegment (followingStart, sampleCount)
+          }
+
+toExpectedResultWith ::
+  forall c.
+  HashCase c =>
+  (forall beats n.
+     ( KnownNat beats,
+       KnownNat (beats * 64),
+       SpongeParameter 1600 1088 n (beats * 64 + Suffix c) 0 256
+     ) =>
+     Vec (beats * 64) Bit ->
+     DigestWords) ->
+  c ->
+  Result
+toExpectedResultWith digestFn testCase =
+  withMessage testCase $ \(messageBits :: Vec (beats * 64) Bit) ->
+    let sampleCount = expectedCyclesOf testCase
+        digestStart = max 0 (sampleCount - 4)
+        digestEnd = min sampleCount (digestStart + 4)
+        followingStart = digestEnd
+        expected = digestFn @beats messageBits
+        (out0, out1, out2, out3) =
+          case toList expected of
+            [a, b, c, d] -> (a, b, c, d)
+            other -> error $ "Unexpected digest words: " <> show other
+        cycles = [0 .. sampleCount - 1]
+        expectedTdata = fmap mkTdata cycles
+          where
+            mkTdata i
+              | i == sampleCount - 4 = out0
+              | i == sampleCount - 3 = out1
+              | i == sampleCount - 2 = out2
+              | i == sampleCount - 1 = out3
+              | otherwise = 0
+        expectedTvalid = fmap mkTvalid cycles
+          where
+            mkTvalid i
+              | i >= sampleCount - 4 && i <= sampleCount - 1 = True
+              | otherwise = False
+        expectedTlast = fmap mkTlast cycles
+          where
+            mkTlast i = i == sampleCount - 1
+        expectedTready = P.replicate sampleCount False
+        mkSegment interval@(start, end) =
+          Segment
+            { segmentInterval = interval,
+              segmentData = takeSlice start end expectedTdata,
+              segmentValid = takeSlice start end expectedTvalid,
+              segmentLast = takeSlice start end expectedTlast,
+              segmentReady = takeSlice start end expectedTready
+            }
+        takeSlice start end = P.take (end - start) . P.drop start
+     in Result
+          { previousSegment = mkSegment (0, digestStart),
+            digestSegment = mkSegment (digestStart, digestEnd),
+            followingSegment = mkSegment (followingStart, sampleCount)
+          }
 
 -- | Predict the number of cycles with upstream stall and downstream backpressure support
 --   Current formula: absorbCycles + 24×(⌊beatCount/17⌋ + 1) + squeezeCycles
-expectedCycles :: TestCase -> Int
-expectedCycles (TestCase (SomeMessage (_ :: Vec (beats * 64) Bit)) upstreamControl downstreamControl) =
-  let beatCount = natToNum @beats :: Int
-      -- Absorb phase: actual time to get all beats from upstream
-      absorbCycles = case upstreamControl of
-        NoUpstreamStall -> beatCount
-        UpstreamStall pattern -> countAbsorbCycles beatCount pattern
+expectedCycles :: SHA3 -> Int
+expectedCycles (SHA3 (SomeMessage (_ :: Vec (beats * 64) Bit)) upstreamControl downstreamControl) =
+  expectedCyclesFor (natToNum @beats) upstreamControl downstreamControl
 
-      -- Permute phase is independent of upstream stalls and downstream backpressure
-      permuteCycles = permuteLatency * ((beatCount `div` beatsPerBlock) + 1)
+shakeExpectedCycles :: Shake -> Int
+shakeExpectedCycles (Shake (ShakeSomeMessage (_ :: Vec (beats * 64) Bit)) upstreamControl downstreamControl) =
+  expectedCyclesFor (natToNum @beats) upstreamControl downstreamControl
 
-      -- Squeeze phase: 4 beats, but downstream backpressure can extend this
-      squeezeCycles = case downstreamControl of
-        NoDownstreamBackpressure -> squeezeLatency  -- 4 cycles
-        DownstreamBackpressure pattern ->
-          let squeezeStart = absorbCycles + permuteCycles
-              relevantPattern = P.drop squeezeStart pattern
-          in countSqueezeCycles squeezeLatency relevantPattern
-
+expectedCyclesFor ::
+  Int ->
+  UpstreamStall ->
+  DownstreamBackpressure ->
+  Int
+expectedCyclesFor beatCount upstreamControl downstreamControl =
+  let absorbCycles =
+        case upstreamControl of
+          NoUpstreamStall -> beatCount
+          UpstreamStall pattern -> countAbsorbCycles beatCount pattern
+      permuteCycles = permuteLatency * (beatCount `div` beatsPerBlock + 1)
+      squeezeCycles =
+        case downstreamControl of
+          NoDownstreamBackpressure -> squeezeLatency
+          DownstreamBackpressure pattern ->
+            let squeezeStart = absorbCycles + permuteCycles
+                relevantPattern = P.drop squeezeStart pattern
+             in countSqueezeCycles squeezeLatency relevantPattern
    in absorbCycles + permuteCycles + squeezeCycles
 
 -- | Use structural induction on the stall pattern list
@@ -299,11 +416,35 @@ countSqueezeCycles n [] = n       -- base case: no more pattern, assume all True
 countSqueezeCycles n (True : rest) = 1 + countSqueezeCycles (n - 1) rest  -- sent one beat
 countSqueezeCycles n (False : rest) = 1 + countSqueezeCycles n rest       -- stalled, no progress
 
-runTestCase :: TestCase -> Expectation
-runTestCase testCase = do
-  let actualResult = toActualResult testCase
-      expectedResult = toExpectedResult testCase
+runHashTestCase ::
+  forall c.
+  HashCase c =>
+  Dut ->
+  (forall beats n.
+     ( KnownNat beats,
+       KnownNat (beats * 64),
+       SpongeParameter 1600 1088 n (beats * 64 + Suffix c) 0 256
+     ) =>
+     Vec (beats * 64) Bit ->
+     DigestWords) ->
+  c ->
+  Expectation
+runHashTestCase dut digestFn testCase = do
+  let actualResult = toActualResultWith dut testCase
+      expectedResult = toExpectedResultWith digestFn testCase
   compareResult actualResult expectedResult
+
+runTestCase :: SHA3 -> Expectation
+runTestCase =
+  runHashTestCase
+    SHA3256.topEntity
+    (bitCoerce . SHA3.sha3_256)
+
+runShakeTestCase :: Shake -> Expectation
+runShakeTestCase =
+  runHashTestCase
+    SHAKE256.topEntity
+    (bitCoerce . SHA3.shake_256 @_ @256)
 
 compareResult :: Result -> Result -> Expectation
 compareResult actual expected = do
@@ -353,9 +494,7 @@ compareSegment segLabel actual expected = do
         summary = show diffCount <> " difference(s) out of " <> show totalCount <> " cycles"
         diffLines = P.take 10 $ fmap formatDataDiff diffs
         hasMore = P.length diffs > 10
-        moreMsg = if hasMore
-                  then ["  ... and " <> show (P.length diffs - 10) <> " more differences"]
-                  else []
+        moreMsg = (["  ... and " <> show (P.length diffs - 10) <> " more differences" | hasMore])
     expectationFailure $ P.unlines $
       [prefix <> "Data mismatch (" <> summary <> "):"]
       <> diffLines
@@ -368,9 +507,7 @@ compareSegment segLabel actual expected = do
         summary = show diffCount <> " difference(s) out of " <> show totalCount <> " cycles"
         diffLines = P.take 10 $ fmap formatBoolDiff diffs
         hasMore = P.length diffs > 10
-        moreMsg = if hasMore
-                  then ["  ... and " <> show (P.length diffs - 10) <> " more differences"]
-                  else []
+        moreMsg = (["  ... and " <> show (P.length diffs - 10) <> " more differences" | hasMore])
     expectationFailure $ P.unlines $
       [prefix <> "Valid mismatch (" <> summary <> "):"]
       <> diffLines
@@ -383,9 +520,7 @@ compareSegment segLabel actual expected = do
         summary = show diffCount <> " difference(s) out of " <> show totalCount <> " cycles"
         diffLines = P.take 10 $ fmap formatBoolDiff diffs
         hasMore = P.length diffs > 10
-        moreMsg = if hasMore
-                  then ["  ... and " <> show (P.length diffs - 10) <> " more differences"]
-                  else []
+        moreMsg = (["  ... and " <> show (P.length diffs - 10) <> " more differences" | hasMore])
     expectationFailure $ P.unlines $
       [prefix <> "Last mismatch (" <> summary <> "):"]
       <> diffLines

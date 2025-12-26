@@ -84,7 +84,7 @@ sponge ::
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (AXI4Stream MsgBits, Bool) -> -- Input message, output tready
   Signal dom (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
-sponge _mode permute = mealy step (State (Absorb 0) 0)
+sponge mode permute = mealy step (State (Absorb 0) 0)
   where
     step :: State -> (AXI4Stream MsgBits, Bool) -> (State, (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready)
