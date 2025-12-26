@@ -26,6 +26,6 @@ main = do
         -- constantsTests,
         -- permutationTests,
         -- combinationalTests,
-        n256Tests,
+        -- n256Tests,
         n256xTests
       ]

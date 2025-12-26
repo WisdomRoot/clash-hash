@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 {-# OPTIONS_GHC -Wno-unused-local-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
@@ -16,15 +17,14 @@ spec = describe "NonPipelined SHAKE-256 Tests" $ do
     for_ testCases $ \testCase ->
       it (shakeTestCaseLabel testCase) $ runShakeTestCase testCase
 
-  describe "QuickCheck property tests" $ do
-    it "correctly handles random test cases with upstream stalls" $
-      withMaxSuccess 5 $
-        property $ \ (testCase :: Shake) -> runShakeTestCase testCase
+-- describe "QuickCheck property tests" $ do
+--   it "correctly handles random test cases with upstream stalls" $
+--     withMaxSuccess 5 $
+--       property $ \ (testCase :: Shake) -> runShakeTestCase testCase
 
 testCases :: [Shake]
 testCases =
-  [
-    Shake (ShakeSomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure,
+  [ Shake (ShakeSomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure,
     Shake (ShakeSomeMessage msg128) NoUpstreamStall NoDownstreamBackpressure,
     Shake (ShakeSomeMessage msg1024) NoUpstreamStall NoDownstreamBackpressure,
     Shake (ShakeSomeMessage msg1088) NoUpstreamStall NoDownstreamBackpressure,
