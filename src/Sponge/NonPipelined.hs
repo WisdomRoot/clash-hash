@@ -69,23 +69,108 @@ padSHA3 15 = complementAt 512 . complementAt 573 . complementAt 574
 padSHA3 _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- special case for a whole 1088-bit padding
 
 padSHAKE :: Index 17 -> BitVector 1600 -> BitVector 1600
-padSHAKE 0 = complementAt 512 . complementAt 1533 . complementAt 1534
-padSHAKE 1 = complementAt 512 . complementAt 1469 . complementAt 1470
-padSHAKE 2 = complementAt 512 . complementAt 1405 . complementAt 1406
-padSHAKE 3 = complementAt 512 . complementAt 1341 . complementAt 1342
-padSHAKE 4 = complementAt 512 . complementAt 1277 . complementAt 1278
-padSHAKE 5 = complementAt 512 . complementAt 1213 . complementAt 1214
-padSHAKE 6 = complementAt 512 . complementAt 1149 . complementAt 1150
-padSHAKE 7 = complementAt 512 . complementAt 1085 . complementAt 1086
-padSHAKE 8 = complementAt 512 . complementAt 1021 . complementAt 1022
-padSHAKE 9 = complementAt 512 . complementAt 957 . complementAt 958
-padSHAKE 10 = complementAt 512 . complementAt 893 . complementAt 894
-padSHAKE 11 = complementAt 512 . complementAt 829 . complementAt 830
-padSHAKE 12 = complementAt 512 . complementAt 765 . complementAt 766
-padSHAKE 13 = complementAt 512 . complementAt 701 . complementAt 702
-padSHAKE 14 = complementAt 512 . complementAt 637 . complementAt 638
-padSHAKE 15 = complementAt 512 . complementAt 573 . complementAt 574
-padSHAKE _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- special case for a whole 1088-bit padding
+padSHAKE 0 =
+  complementAt 512
+    . complementAt 1531
+    . complementAt 1532
+    . complementAt 1533
+    . complementAt 1534
+padSHAKE 1 =
+  complementAt 512
+    . complementAt 1467
+    . complementAt 1468
+    . complementAt 1469
+    . complementAt 1470
+padSHAKE 2 =
+  complementAt 512
+    . complementAt 1403
+    . complementAt 1404
+    . complementAt 1405
+    . complementAt 1406
+padSHAKE 3 =
+  complementAt 512
+    . complementAt 1339
+    . complementAt 1340
+    . complementAt 1341
+    . complementAt 1342
+padSHAKE 4 =
+  complementAt 512
+    . complementAt 1275
+    . complementAt 1276
+    . complementAt 1277
+    . complementAt 1278
+padSHAKE 5 =
+  complementAt 512
+    . complementAt 1211
+    . complementAt 1212
+    . complementAt 1213
+    . complementAt 1214
+padSHAKE 6 =
+  complementAt 512
+    . complementAt 1147
+    . complementAt 1148
+    . complementAt 1149
+    . complementAt 1150
+padSHAKE 7 =
+  complementAt 512
+    . complementAt 1083
+    . complementAt 1084
+    . complementAt 1085
+    . complementAt 1086
+padSHAKE 8 =
+  complementAt 512
+    . complementAt 1019
+    . complementAt 1020
+    . complementAt 1021
+    . complementAt 1022
+padSHAKE 9 =
+  complementAt 512
+    . complementAt 955
+    . complementAt 956
+    . complementAt 957
+    . complementAt 958
+padSHAKE 10 =
+  complementAt 512
+    . complementAt 891
+    . complementAt 892
+    . complementAt 893
+    . complementAt 894
+padSHAKE 11 =
+  complementAt 512
+    . complementAt 827
+    . complementAt 828
+    . complementAt 829
+    . complementAt 830
+padSHAKE 12 =
+  complementAt 512
+    . complementAt 763
+    . complementAt 764
+    . complementAt 765
+    . complementAt 766
+padSHAKE 13 =
+  complementAt 512
+    . complementAt 699
+    . complementAt 700
+    . complementAt 701
+    . complementAt 702
+padSHAKE 14 =
+  complementAt 512
+    . complementAt 635
+    . complementAt 636
+    . complementAt 637
+    . complementAt 638
+padSHAKE 15 =
+  complementAt 512
+    . complementAt 571
+    . complementAt 572
+    . complementAt 573
+    . complementAt 574
+padSHAKE _ =
+  complementAt 512
+    . complementAt 1595
+    . complementAt 1596
+    . complementAt 1597
+    . complementAt 1598 -- special case for a whole 1088-bit padding
 
 data HashMode = SHA3 | SHAKE
 
@@ -111,8 +196,8 @@ sponge mode permute = mealy step (State (Absorb 0) 0)
       | tlast input && counter < 16 =
           let state' = XOR.staticXOR state (tdata input) counter
               padded = case mode of
-                  SHA3 -> padSHA3 counter state'
-                  SHAKE -> padSHAKE counter state'
+                SHA3 -> padSHA3 counter state'
+                SHAKE -> padSHAKE counter state'
            in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
       | tlast input && counter >= 16 =
           let state' = XOR.staticXOR state (tdata input) counter
@@ -130,8 +215,8 @@ sponge mode permute = mealy step (State (Absorb 0) 0)
               SeenTLASTAndPadded ->
                 let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state', tvalid = True, tlast = False}
                     nextState = if tready then State (Squeeze 1) state' else State (Squeeze 0) state'
-                in (nextState, (outStream, False))
-                -- (State (Squeeze 0) state', (idleAXI4Stream, False)) -- go to squeeze phase
+                 in (nextState, (outStream, False))
+              -- (State (Squeeze 0) state', (idleAXI4Stream, False)) -- go to squeeze phase
               SeenTLASTNotPadded ->
                 let padded = case mode of
                       SHA3 -> padSHA3 16 state'
