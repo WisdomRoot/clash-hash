@@ -26,7 +26,7 @@ data Phase
   | Permute
       (Index 24)
       SeenTLAST
-  | Squeeze (Index 4)
+  | Squeeze (Index 17)
   deriving
     ( Show,
       Eq,
@@ -237,7 +237,65 @@ sponge mode permute = mealy step (State (Absorb 0) 0)
       let outStream = AXI4Stream {tdata = slice (SNat @1471) (SNat @1408) state, tvalid = True, tlast = False}
           nextState = if tready then State (Squeeze 3) state else State (Squeeze 2) state
        in (nextState, (outStream, False))
-    step (State (Squeeze _) state) (_msg, tready) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1407) (SNat @1344) state, tvalid = True, tlast = True}
-          nextState = if tready then State (Absorb 0) 0 else State (Squeeze 3) state
+    step (State (Squeeze 3) state) (_msg, tready) = case mode of
+      SHA3 ->
+        let outStream = AXI4Stream {tdata = slice (SNat @1407) (SNat @1344) state, tvalid = True, tlast = True}
+            nextState = if tready then State (Absorb 0) 0 else State (Squeeze 3) state
+        in (nextState, (outStream, False))
+      SHAKE ->
+        let outStream = AXI4Stream {tdata = slice (SNat @1407) (SNat @1344) state, tvalid = True, tlast = False}
+            nextState = if tready then State (Squeeze 4) state else State (Squeeze 3) state
+        in (nextState, (outStream, False))
+    step (State (Squeeze 4) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @1343) (SNat @1280) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 5) state else State (Squeeze 4) state
        in (nextState, (outStream, False))
+    step (State (Squeeze 5) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @1279) (SNat @1216) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 6) state else State (Squeeze 5) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 6) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @1215) (SNat @1152) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 7) state else State (Squeeze 6) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 7) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @1151) (SNat @1088) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 8) state else State (Squeeze 7) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 8) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @1087) (SNat @1024) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 9) state else State (Squeeze 8) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 9) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @1023) (SNat @960) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 10) state else State (Squeeze 9) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 10) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @959) (SNat @896) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 11) state else State (Squeeze 10) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 11) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @895) (SNat @832) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 12) state else State (Squeeze 11) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 12) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @831) (SNat @768) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 13) state else State (Squeeze 12) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 13) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @767) (SNat @704) state, tvalid = True, tlast = False }
+          nextState = if tready then State (Squeeze 14) state else State (Squeeze 13) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 14) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @703) (SNat @640) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 15) state else State (Squeeze 14) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze 15) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @639) (SNat @576) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Squeeze 16) state else State (Squeeze 15) state
+       in (nextState, (outStream, False))
+    step (State (Squeeze _) state) (_msg, tready) =
+      let outStream = AXI4Stream {tdata = slice (SNat @575) (SNat @512) state, tvalid = True, tlast = False}
+          nextState = if tready then State (Permute 0 SeenTLASTAndPadded) state else State (Squeeze 16) state
+       in (nextState, (outStream, False))
+    

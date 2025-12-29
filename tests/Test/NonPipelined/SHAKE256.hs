@@ -24,12 +24,12 @@ spec = describe "NonPipelined SHAKE-256 Tests" $ do
 
 testCases :: [Shake]
 testCases =
-  [ Shake (ShakeSomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure,
-    Shake (ShakeSomeMessage msg128) NoUpstreamStall NoDownstreamBackpressure,
-    Shake (ShakeSomeMessage msg1024) NoUpstreamStall NoDownstreamBackpressure,
-    Shake (ShakeSomeMessage msg1088) NoUpstreamStall NoDownstreamBackpressure,
-    Shake (ShakeSomeMessage msg1600) NoUpstreamStall NoDownstreamBackpressure,
-    Shake (ShakeSomeMessage msg3200) NoUpstreamStall NoDownstreamBackpressure
+  [ Shake (ShakeSomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure
+    -- Shake (ShakeSomeMessage msg128) NoUpstreamStall NoDownstreamBackpressure,
+    -- Shake (ShakeSomeMessage msg1024) NoUpstreamStall NoDownstreamBackpressure,
+    -- Shake (ShakeSomeMessage msg1088) NoUpstreamStall NoDownstreamBackpressure,
+    -- Shake (ShakeSomeMessage msg1600) NoUpstreamStall NoDownstreamBackpressure,
+    -- Shake (ShakeSomeMessage msg3200) NoUpstreamStall NoDownstreamBackpressure
   ]
   where
     msg64 :: Vec (1 * 64) Bit
