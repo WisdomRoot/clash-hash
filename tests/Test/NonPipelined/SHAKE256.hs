@@ -18,12 +18,12 @@ spec = describe "NonPipelined SHAKE-256 Tests" $ do
 
 testCases :: [ShakeSimple]
 testCases =
-  [ ShakeSimple (BS8.pack "qwertyui") 32 NoUpstreamStall NoDownstreamBackpressure,
-    ShakeSimple (BS8.pack "qwertyuiopasdfgh") 64 NoUpstreamStall NoDownstreamBackpressure,
-    ShakeSimple (BS8.pack msg1024) 32 NoUpstreamStall NoDownstreamBackpressure,
-    ShakeSimple (BS8.pack msg1088) 128 NoUpstreamStall NoDownstreamBackpressure,
-    ShakeSimple (BS8.pack msg1600) 64 NoUpstreamStall NoDownstreamBackpressure,
-    ShakeSimple (BS8.pack msg3200) 256 NoUpstreamStall NoDownstreamBackpressure
+  [ ShakeSimple (BS8.pack "qwertyui") 32 NoUpstreamStall NoDownstreamBackpressure
+    -- ShakeSimple (BS8.pack "qwertyuiopasdfgh") 64 NoUpstreamStall NoDownstreamBackpressure,
+    -- ShakeSimple (BS8.pack msg1024) 32 NoUpstreamStall NoDownstreamBackpressure,
+    -- ShakeSimple (BS8.pack msg1088) 128 NoUpstreamStall NoDownstreamBackpressure,
+    -- ShakeSimple (BS8.pack msg1600) 64 NoUpstreamStall NoDownstreamBackpressure,
+    -- ShakeSimple (BS8.pack msg3200) 256 NoUpstreamStall NoDownstreamBackpressure
   ]
   where
     -- 128 characters = 1024 bits

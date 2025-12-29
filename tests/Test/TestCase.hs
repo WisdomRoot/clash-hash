@@ -29,17 +29,21 @@ where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
+import Clash.Sized.Vector qualified as V
 import Control.Monad (unless)
-import Data.Bits (setBit, testBit)
+import Data.Bits qualified as Bits
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.Maybe (fromJust)
+import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
+import GHC.TypeLits (SomeNat (..), someNatVal)
 import Hash.SHA3256 qualified as SHA3256
 import Hash.SHAKE256 qualified as SHAKE256
 import Numeric (showHex)
 import Reference.SHA3 (SpongeParameter)
 import Reference.SHA3 qualified as SHA3
-import Reference.SHAKE256Runtime (shake256Native)
+import Reference.SHAKE256Runtime (shake256, shake256Native)
 import Test.Hspec
 import Test.QuickCheck hiding (Result)
 import Prelude qualified as P
@@ -505,20 +509,93 @@ vecBitsToByteString bits =
 runShakeTestCaseSimple :: ShakeSimple -> Expectation
 runShakeTestCaseSimple (ShakeSimple inputBS outputBytes upstreamCtrl downstreamCtrl) = do
   let inputBits = byteStringToVecBits inputBS
-      numInputBits = BS.length inputBS * 8
-      numOutputBits = outputBytes * 8
+      inputBytes = BS.length inputBS
+      -- Calculate number of 64-bit beats needed
+      beats = (inputBytes + 7) `div` 8
 
-      -- Get reference result using shake256Native
-      expectedBS = shake256Native outputBytes inputBS
+  -- Get reference result using shake256Native
+  let expectedBS = shake256Native outputBytes inputBS
       expectedBits = byteStringToVecBits expectedBS
 
-      -- Run hardware test
-      -- For now, just compare against reference
-      -- TODO: Actually run through SHAKE256.topEntity and extract output
-      actualBits = expectedBits -- Placeholder
+  -- Run hardware through SHAKE256.topEntity
+  let actualBits = runShakeHardware beats inputBits upstreamCtrl downstreamCtrl outputBytes
 
-  -- Compare the bits
+  -- Compare hardware output against reference
   actualBits `shouldBe` expectedBits
+
+-- | Run SHAKE256 hardware and extract output bits
+runShakeHardware :: Int -> [Bit] -> UpstreamStall -> DownstreamBackpressure -> Int -> [Bit]
+runShakeHardware beats inputBits upstreamCtrl downstreamCtrl outputBytes =
+  case fromJust (someNatVal (P.fromIntegral beats)) of
+    SomeNat (_ :: Proxy beats') ->
+      runShakeHardware' @beats' beats inputBits upstreamCtrl downstreamCtrl outputBytes
+
+-- | Helper with KnownNat constraint available
+runShakeHardware' ::
+  forall beats.
+  KnownNat beats =>
+  Int ->
+  [Bit] ->
+  UpstreamStall ->
+  DownstreamBackpressure ->
+  Int ->
+  [Bit]
+runShakeHardware' beats inputBits upstreamCtrl downstreamCtrl outputBytes =
+  let -- Pad input to multiple of 64 bits (8 bytes)
+      paddedBits = P.take (beats * 64) (inputBits P.++ P.repeat 0)
+      -- Convert to Vec beats (BitVector 64)
+      messageWords = bitListToWords beats paddedBits
+      -- Create input stream
+      inputStream =
+        withClockResetEnable clockGen resetGen enableGen $
+          feedInput upstreamCtrl messageWords
+      -- Create downstream ready signal
+      treadyPattern = backpressureToList downstreamCtrl
+      treadySignal = fromList (treadyPattern <> P.repeat True)
+      -- Run through hardware
+      output =
+        SHAKE256.topEntity
+          clockGen
+          resetGen
+          enableGen
+          treadySignal
+          inputStream
+      -- Calculate how many cycles to sample
+      -- Hardware outputs 17 beats of 64 bits = 1088 bits per squeeze
+      -- We need to sample enough to get outputBytes * 8 bits
+      outputBits = outputBytes * 8
+      squeezesNeeded = (outputBits + 1087) `div` 1088 -- Round up
+      -- Rough estimate: absorb cycles + permutation cycles + squeeze cycles
+      -- For now, sample a large number to ensure we get all output
+      sampleCount = beats * 2 + 24 + squeezesNeeded * (17 + 24) + 100
+      samples = sampleN @System sampleCount output
+      -- Extract tdata when tvalid is true
+      validOutputs = [(tdata stream, tlast stream) | (stream, _) <- samples, tvalid stream]
+      -- Convert output words to bits and take first outputBits
+      outputWordBits = P.concatMap wordToBits (P.map fst validOutputs)
+   in P.take outputBits outputWordBits
+  where
+    bitListToWords :: Int -> [Bit] -> Vec beats (BitVector 64)
+    bitListToWords n bits =
+      let chunks = chunksOf 64 bits
+          words = P.map bitsToWord (P.take n chunks)
+       in V.unsafeFromList words
+
+    bitsToWord :: [Bit] -> BitVector 64
+    bitsToWord bits =
+      let paddedBits = P.take 64 (bits P.++ P.repeat 0)
+          word = P.foldl accumBit 0 (P.zip [0 ..] paddedBits)
+       in word
+      where
+        accumBit :: BitVector 64 -> (Int, Bit) -> BitVector 64
+        accumBit acc (i, b) = if b P.== 1 then Bits.setBit acc i else acc
+
+    wordToBits :: BitVector 64 -> [Bit]
+    wordToBits w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 63]]
+
+    chunksOf :: Int -> [a] -> [[a]]
+    chunksOf _ [] = []
+    chunksOf n xs = P.take n xs : chunksOf n (P.drop n xs)
 
 compareResult :: Result -> Result -> Expectation
 compareResult actual expected = do
