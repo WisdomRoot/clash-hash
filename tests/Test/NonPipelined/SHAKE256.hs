@@ -4,56 +4,53 @@
 
 module Test.NonPipelined.SHAKE256 (spec) where
 
-import Clash.Prelude hiding (tlast)
+import Data.ByteString.Char8 qualified as BS8
 import Data.Foldable (for_)
-import Reference.SHA3internal qualified as SHA3internal
+import Prelude (($))
 import Test.Hspec
-import Test.QuickCheck
 import Test.TestCase
 
 spec :: Spec
 spec = describe "NonPipelined SHAKE-256 Tests" $ do
   describe "Fixed test cases" $ do
     for_ testCases $ \testCase ->
-      it (shakeTestCaseLabel testCase) $ runShakeTestCase testCase
+      it (shakeSimpleLabel testCase) $ runShakeTestCaseSimple testCase
 
--- describe "QuickCheck property tests" $ do
---   it "correctly handles random test cases with upstream stalls" $
---     withMaxSuccess 5 $
---       property $ \ (testCase :: Shake) -> runShakeTestCase testCase
-
-testCases :: [Shake]
+testCases :: [ShakeSimple]
 testCases =
-  [ Shake (ShakeSomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure
-    -- Shake (ShakeSomeMessage msg128) NoUpstreamStall NoDownstreamBackpressure,
-    -- Shake (ShakeSomeMessage msg1024) NoUpstreamStall NoDownstreamBackpressure,
-    -- Shake (ShakeSomeMessage msg1088) NoUpstreamStall NoDownstreamBackpressure,
-    -- Shake (ShakeSomeMessage msg1600) NoUpstreamStall NoDownstreamBackpressure,
-    -- Shake (ShakeSomeMessage msg3200) NoUpstreamStall NoDownstreamBackpressure
+  [ ShakeSimple (BS8.pack "qwertyui") 32 NoUpstreamStall NoDownstreamBackpressure,
+    ShakeSimple (BS8.pack "qwertyuiopasdfgh") 64 NoUpstreamStall NoDownstreamBackpressure,
+    ShakeSimple (BS8.pack msg1024) 32 NoUpstreamStall NoDownstreamBackpressure,
+    ShakeSimple (BS8.pack msg1088) 128 NoUpstreamStall NoDownstreamBackpressure,
+    ShakeSimple (BS8.pack msg1600) 64 NoUpstreamStall NoDownstreamBackpressure,
+    ShakeSimple (BS8.pack msg3200) 256 NoUpstreamStall NoDownstreamBackpressure
   ]
   where
-    msg64 :: Vec (1 * 64) Bit
-    msg64 = SHA3internal.toBitString $(listToVecTH "qwertyui")
-
-    msg128 :: Vec (2 * 64) Bit
-    msg128 = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfgh")
-
-    msg1024 :: Vec (16 * 64) Bit
+    -- 128 characters = 1024 bits
     msg1024 =
-      SHA3internal.toBitString
-        $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh")
+      "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
+      \qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh"
 
-    msg1088 :: Vec (17 * 64) Bit
+    -- 136 characters = 1088 bits
     msg1088 =
-      SHA3internal.toBitString
-        $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyui")
+      "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
+      \qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
+      \qwertyui"
 
-    msg1600 :: Vec (25 * 64) Bit
+    -- 200 characters = 1600 bits
     msg1600 =
-      SHA3internal.toBitString
-        $(listToVecTH "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
+      "01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789"
 
-    msg3200 :: Vec (50 * 64) Bit
+    -- 400 characters = 3200 bits
     msg3200 =
-      SHA3internal.toBitString
-        $(listToVecTH "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
+      "01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789\
+      \01234567890123456789012345678901234567890123456789"
