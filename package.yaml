@@ -49,6 +49,10 @@ library:
     - ghc-typelits-extra
     - ghc-typelits-knownnat
     - clash-multicycle-moore
+    - bytestring
+    - crypton
+    - memory
+    - constraints
 
 executables:
   clash:
