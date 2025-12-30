@@ -41,9 +41,10 @@ import GHC.TypeLits (SomeNat (..), someNatVal)
 import Hash.SHA3256 qualified as SHA3256
 import Hash.SHAKE256 qualified as SHAKE256
 import Numeric (showHex)
+import Reference.Hash qualified as Hash
 import Reference.SHA3 (SpongeParameter)
 import Reference.SHA3 qualified as SHA3
-import Reference.SHAKE256Runtime (shake256, shake256Native)
+import Reference.Crypton (shake256)
 import Test.Hspec
 import Test.QuickCheck hiding (Result)
 import Prelude qualified as P
@@ -513,8 +514,8 @@ runShakeTestCaseSimple (ShakeSimple inputBS outputBytes upstreamCtrl downstreamC
       -- Calculate number of 64-bit beats needed
       beats = (inputBytes + 7) `div` 8
 
-  -- Get reference result using shake256Native
-  let expectedBS = shake256Native outputBytes inputBS
+  -- Get reference result using Hash.shake256BS
+  let expectedBS = Hash.shake256BS outputBytes inputBS
       expectedBits = byteStringToVecBits expectedBS
 
   -- Run hardware through SHAKE256.topEntity

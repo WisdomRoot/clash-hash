@@ -1,12 +1,19 @@
 module Reference.Hash
   ( sponge,
     sha3_256,
+    sha3_256BS,
     shake256,
+    shake256BS,
+    bsToBitList,
+    bitListToBS,
   )
 where
 
 import Clash.Prelude hiding (fromList)
 import Clash.Sized.Vector qualified as V
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
+import Data.Word (Word8)
 import Prelude qualified as P
 import Reference.SHA3 qualified as SHA3
 
@@ -71,9 +78,49 @@ sha3_256 input =
       resultBits = sponge @1600 @1088 SHA3.keccakf 256 inputWithDomain
    in V.unsafeFromList resultBits
 
+-- | SHA3-256 using ByteString input and ByteString output
+sha3_256BS :: ByteString -> ByteString
+sha3_256BS input =
+  let inputBits = bsToBitList input
+      resultBits = V.toList (sha3_256 inputBits)
+   in bitListToBS resultBits
+
 -- | SHAKE256 using runtime-length input and variable output length
 shake256 :: Int -> [Bit] -> [Bit]
 shake256 outputBits input =
   let domainSep = [1, 1, 1, 1]  -- SHAKE256 domain separator: 0x1F = "1111"
       inputWithDomain = input P.++ domainSep
    in sponge @1600 @1088 SHA3.keccakf outputBits inputWithDomain
+
+-- | SHAKE256 using ByteString input and ByteString output
+shake256BS :: P.Int -> ByteString -> ByteString
+shake256BS outputBytes input =
+  let inputBits = bsToBitList input
+      outputBits = outputBytes P.* 8
+      resultBits = shake256 outputBits inputBits
+   in bitListToBS resultBits
+
+-- | ByteString -> [Bit] using bitCoerce (LSB-first per byte)
+bsToBitList :: ByteString -> [Bit]
+bsToBitList bs =
+  let bytes = BS.unpack bs
+      -- Convert each Word8 to BitVector 8, then toList to [Bit]
+      toBits :: Word8 -> [Bit]
+      toBits w =
+        let bv = bitCoerce w :: BitVector 8
+         in P.reverse (V.toList (unpack bv :: Vec 8 Bit))
+   in P.concatMap toBits bytes
+
+-- | [Bit] -> ByteString using bitCoerce (LSB-first per byte)
+bitListToBS :: [Bit] -> ByteString
+bitListToBS bits =
+  let chunks = chunksOf 8 bits
+      -- Convert each [Bit] chunk to Word8 via BitVector 8
+      toWord8 :: [Bit] -> Word8
+      toWord8 chunk =
+        let paddedChunk = P.take 8 (chunk P.++ P.repeat low)
+            vec = V.unsafeFromList (P.reverse paddedChunk) :: Vec 8 Bit
+            bv = pack vec :: BitVector 8
+         in bitCoerce bv
+      bytes = P.map toWord8 chunks
+   in BS.pack bytes

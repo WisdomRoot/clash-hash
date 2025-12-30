@@ -2,19 +2,21 @@ module Test.Reference.SHAKE256 (spec) where
 
 import Data.ByteString.Char8 qualified as BS8
 import Data.Foldable (for_)
-import Prelude (Int, String, ($))
-import Reference.SHAKE256Runtime (shake256, shake256Native)
+import Prelude (String, ($))
+import Prelude qualified as P
+import Reference.Hash qualified as Hash
+import Reference.Crypton qualified as Crypton
 import Test.Hspec
 
 spec :: Spec
 spec = describe "Reference SHAKE256 Tests" $ do
     for_ testCases $ \(label, outputBytes, input) ->
       it label $ do
-        let cryptonResult = shake256 outputBytes input
-            nativeResult = shake256Native outputBytes input
-        nativeResult `shouldBe` cryptonResult
+        let cryptonResult = Crypton.shake256 outputBytes input
+            hashResult = Hash.shake256BS outputBytes input
+        hashResult `shouldBe` cryptonResult
 
-testCases :: [(String, Int, BS8.ByteString)]
+testCases :: [(String, P.Int, BS8.ByteString)]
 testCases =
   [ ("Empty input, 32-byte output", 32, BS8.empty),
     ("8-byte input, 32-byte output", 32, BS8.pack "qwertyui"),
