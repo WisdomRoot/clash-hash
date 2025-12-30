@@ -75,102 +75,119 @@ padSHAKE 0 =
     . complementAt 1532
     . complementAt 1533
     . complementAt 1534
+    . complementAt 1535
 padSHAKE 1 =
   complementAt 512
     . complementAt 1467
     . complementAt 1468
     . complementAt 1469
     . complementAt 1470
+    . complementAt 1471
 padSHAKE 2 =
   complementAt 512
     . complementAt 1403
     . complementAt 1404
     . complementAt 1405
     . complementAt 1406
+    . complementAt 1407
 padSHAKE 3 =
   complementAt 512
     . complementAt 1339
     . complementAt 1340
     . complementAt 1341
     . complementAt 1342
+    . complementAt 1343
 padSHAKE 4 =
   complementAt 512
     . complementAt 1275
     . complementAt 1276
     . complementAt 1277
     . complementAt 1278
+    . complementAt 1279
 padSHAKE 5 =
   complementAt 512
     . complementAt 1211
     . complementAt 1212
     . complementAt 1213
     . complementAt 1214
+    . complementAt 1215
 padSHAKE 6 =
   complementAt 512
     . complementAt 1147
     . complementAt 1148
     . complementAt 1149
     . complementAt 1150
+    . complementAt 1151
 padSHAKE 7 =
   complementAt 512
     . complementAt 1083
     . complementAt 1084
     . complementAt 1085
     . complementAt 1086
+    . complementAt 1087
 padSHAKE 8 =
   complementAt 512
     . complementAt 1019
     . complementAt 1020
     . complementAt 1021
     . complementAt 1022
+    . complementAt 1023
 padSHAKE 9 =
   complementAt 512
     . complementAt 955
     . complementAt 956
     . complementAt 957
     . complementAt 958
+    . complementAt 959
 padSHAKE 10 =
   complementAt 512
     . complementAt 891
     . complementAt 892
     . complementAt 893
     . complementAt 894
+    . complementAt 895
 padSHAKE 11 =
   complementAt 512
     . complementAt 827
     . complementAt 828
     . complementAt 829
     . complementAt 830
+    . complementAt 831
 padSHAKE 12 =
   complementAt 512
     . complementAt 763
     . complementAt 764
     . complementAt 765
     . complementAt 766
+    . complementAt 767
 padSHAKE 13 =
   complementAt 512
     . complementAt 699
     . complementAt 700
     . complementAt 701
     . complementAt 702
+    . complementAt 703
 padSHAKE 14 =
   complementAt 512
     . complementAt 635
     . complementAt 636
     . complementAt 637
     . complementAt 638
+    . complementAt 639
 padSHAKE 15 =
   complementAt 512
     . complementAt 571
     . complementAt 572
     . complementAt 573
     . complementAt 574
+    . complementAt 575
 padSHAKE _ =
   complementAt 512
     . complementAt 1595
     . complementAt 1596
     . complementAt 1597
-    . complementAt 1598 -- special case for a whole 1088-bit padding
+    . complementAt 1598
+    . complementAt 1599 -- special case for a whole 1088-bit padding
 
 data HashMode = SHA3 | SHAKE
 

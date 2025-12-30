@@ -47,6 +47,7 @@ import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as BS8
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
+import Data.Word (Word8)
 import GHC.TypeLits (SomeNat (..), someNatVal)
 import Hash.SHAKE256 qualified as SHAKE256
 import Prelude (Bool (..), Int, Show (..), String, ($), (++), (<>))
@@ -139,7 +140,10 @@ runHardware' ::
 runHardware' test beats =
   let inputBS = testMessage test
       outputBytes = testOutputBytes test
-      inputBits = Hash.bsToBitList inputBS
+      inputBits = bsToBitListHW inputBS -- Use hardware-specific conversion
+
+      -- Hardware applies domain separator internally via padSHAKE
+      -- So we don't add it here
 
       -- Pad input to multiple of 64 bits
       paddedBits = P.take (beats P.* 64) (inputBits P.++ P.repeat 0)
@@ -182,7 +186,7 @@ runHardware' test beats =
       outputWordBits = P.concatMap wordToBits validOutputs
       resultBits = P.take outputBits outputWordBits
 
-   in Hash.bitListToBS resultBits
+   in bitListToBSHW resultBits
 
 -- | Feed input message to hardware with optional stall pattern
 feedInput ::
@@ -236,7 +240,31 @@ makeBackpressureSignal NoDownstreamBackpressure = pure True
 makeBackpressureSignal (DownstreamBackpressure pattern) =
   fromList (pattern P.++ P.repeat True)
 
+-- | Convert ByteString to bit list (LSB-first per byte, matching working SHA3 tests)
+bsToBitListHW :: ByteString -> [Bit]
+bsToBitListHW bs =
+  P.concatMap word8ToBits (BS.unpack bs)
+  where
+    word8ToBits :: Word8 -> [Bit]
+    word8ToBits w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 7]]
+
+-- | Convert bit list to ByteString (reverse of bsToBitListHW, matching working SHA3 tests)
+bitListToBSHW :: [Bit] -> ByteString
+bitListToBSHW bits =
+  BS.pack (packBytes bits)
+  where
+    packBytes :: [Bit] -> [Word8]
+    packBytes [] = []
+    packBytes bs =
+      let (chunk, rest) = P.splitAt 8 bs
+          byte = P.foldl setBit' 0 (P.zip [0 ..] chunk)
+       in byte : packBytes rest
+    setBit' :: Word8 -> (Int, Bit) -> Word8
+    setBit' acc (i, b) = if b P.== 1 then Bits.setBit acc i else acc
+
 -- | Convert list of bits to Vec of 64-bit words
+--   Hardware XORs beat 0 into bits 1599:1536, beat 1 into 1535:1472, etc.
+--   This means bits are indexed from MSB to LSB
 bitListToWords :: forall beats. KnownNat beats => Int -> [Bit] -> Vec beats (BitVector 64)
 bitListToWords n bits =
   let chunks = chunksOf 64 bits
@@ -250,15 +278,17 @@ bitListToWords n bits =
     bitsToWord :: [Bit] -> BitVector 64
     bitsToWord bs =
       let paddedBits = P.take 64 (bs P.++ P.repeat 0)
-          word = P.foldl accumBit 0 (P.zip [0 ..] paddedBits)
+          -- Reverse bits: first bit in list should go to MSB (bit 63) of word
+          -- because hardware XORs block bit 63 into state bit 1599
+          word = P.foldl accumBit 0 (P.zip [63, 62 .. 0] paddedBits)
        in word
       where
         accumBit :: BitVector 64 -> (Int, Bit) -> BitVector 64
         accumBit acc (i, b) = if b P.== 1 then Bits.setBit acc i else acc
 
--- | Convert 64-bit word to list of bits
+-- | Convert 64-bit word to list of bits (MSB first)
 wordToBits :: BitVector 64 -> [Bit]
-wordToBits w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 63]]
+wordToBits w = [if Bits.testBit w i then 1 else 0 | i <- [63, 62 .. 0]]
 
 --------------------------------------------------------------------------------
 -- Common test messages

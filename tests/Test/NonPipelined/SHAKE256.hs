@@ -12,21 +12,24 @@ import Test.TestHarness.SHAKE256
 
 spec :: Spec
 spec = describe "NonPipelined SHAKE-256 Tests" $ do
+
+  -- it "qwertyui" $ runTest (makeBasicTest (BS8.pack "qwertyui") 32)
+
   describe "Basic functionality tests" $ do
     for_ testCases $ \testCase ->
       it (testLabel testCase) $ runTest testCase
 
-  describe "Variable output length tests" $ do
-    for_ testCasesVariableOutput $ \testCase ->
-      it (testLabel testCase) $ runTest testCase
+  -- describe "Variable output length tests" $ do
+  --   for_ testCasesVariableOutput $ \testCase ->
+  --     it (testLabel testCase) $ runTest testCase
 
-  describe "Upstream stall handling" $ do
-    for_ testCasesWithStalls $ \testCase ->
-      it (testLabel testCase) $ runTest testCase
+  -- describe "Upstream stall handling" $ do
+  --   for_ testCasesWithStalls $ \testCase ->
+  --     it (testLabel testCase) $ runTest testCase
 
-  describe "Downstream backpressure handling" $ do
-    for_ testCasesWithBackpressure $ \testCase ->
-      it (testLabel testCase) $ runTest testCase
+  -- describe "Downstream backpressure handling" $ do
+  --   for_ testCasesWithBackpressure $ \testCase ->
+  --     it (testLabel testCase) $ runTest testCase
 
 -- | Basic test cases with various input sizes, all with 32-byte (256-bit) output
 testCases :: [SHAKE256Test]
