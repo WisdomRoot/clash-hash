@@ -8,21 +8,6 @@ import Test.Hspec
 
 spec :: Spec
 spec = describe "Reference SHAKE256 Tests" $ do
-  describe "shake256 (crypton) basic tests" $ do
-    it "Empty input, 32-byte output" $ do
-      let result = shake256 32 BS8.empty
-      BS8.length result `shouldBe` 32
-
-    it "8-byte input, 32-byte output" $ do
-      let result = shake256 32 (BS8.pack "qwertyui")
-      BS8.length result `shouldBe` 32
-
-  describe "shake256Native basic test" $ do
-    it "8-byte input, 32-byte output" $ do
-      let result = shake256Native 32 (BS8.pack "test")
-      BS8.length result `shouldBe` 32
-
-  describe "shake256Native vs shake256 (crypton)" $ do
     for_ testCases $ \(label, outputBytes, input) ->
       it label $ do
         let cryptonResult = shake256 outputBytes input

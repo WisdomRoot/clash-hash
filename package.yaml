@@ -129,3 +129,5 @@ tests:
       - hspec
       - QuickCheck
       - bytestring
+      - crypton
+      - memory
