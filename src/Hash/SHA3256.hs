@@ -34,7 +34,13 @@ spongeFSM = Perm.keccakF1600Round
             PortName "RST",
             PortName "EN",
             PortName "TREADY",
-            PortName "MSG"
+            PortProduct
+              "MSG"
+              [ PortName "MSG_TDATA",
+                PortName "MSG_TVALID",
+                PortName "MSG_TLAST",
+                PortName "MSG_FLUSH"
+              ]
           ],
         t_output =
           PortProduct
@@ -52,8 +58,9 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System Bool -> -- output tready
-  Signal System (AXI4Stream MsgBits) -> -- Input message
+  Signal System (AXI4Stream MsgBits, Bool) -> -- Input message with flush signal
   Signal System (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
-topEntity clk rst en treadySig msgSig =
+topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
-    $ Sponge.NonPipelined.sponge @System Sponge.NonPipelined.SHA3 spongeFSM (bundle (msgSig, treadySig))
+    $ let (msgSig, flushSig) = unbundle inputSig
+       in Sponge.NonPipelined.sponge @System Sponge.NonPipelined.SHA3 spongeFSM (bundle (msgSig, treadySig, flushSig))

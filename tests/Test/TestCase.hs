@@ -64,7 +64,7 @@ type Dut =
   Reset System ->
   Enable System ->
   Signal System Bool ->
-  Signal System (AXI4Stream StreamWordBits) ->
+  Signal System (AXI4Stream StreamWordBits, Bool) ->
   Signal System (AXI4Stream StreamWordBits, Bool)
 
 beatsPerBlock :: Int
@@ -685,25 +685,31 @@ feedInput ::
   ) =>
   UpstreamStall ->
   Vec beats (BitVector 64) ->
-  Signal dom (AXI4Stream 64)
+  Signal dom (AXI4Stream 64, Bool)
 feedInput control messageWords =
-  mealy step (toList messageWords, 0 :: Int, 0 :: Int, controlToList control) (pure ())
+  let isEmpty = V.length messageWords == 0
+   in mealy step (toList messageWords, 0 :: Int, 0 :: Int, controlToList control, isEmpty) (pure ())
   where
     controlToList NoUpstreamStall = []
     controlToList (UpstreamStall xs) = xs
 
-    step (xs, waitCount, emittedInBlock, ctrl) _ =
+    step (xs, waitCount, emittedInBlock, ctrl, wasEmpty) _ =
       if waitCount > 0
-        then ((xs, waitCount - 1, emittedInBlock, ctrl), idleBeat)
+        then ((xs, waitCount - 1, emittedInBlock, ctrl, wasEmpty), (idleBeat, False))
         else
           let (canSend, ctrl') =
                 case ctrl of
                   [] -> (True, [])
                   b : bs -> (b, bs)
            in if not canSend
-                then ((xs, waitCount, emittedInBlock, ctrl'), idleBeat)
+                then ((xs, waitCount, emittedInBlock, ctrl', wasEmpty), (idleBeat, False))
                 else case xs of
-                  [] -> (([], 0, 0, ctrl'), idleBeat)
+                  -- Empty input: send flush signal on first cycle
+                  [] | wasEmpty ->
+                       (([], 0, 0, ctrl', False), (idleBeat, True))
+                  -- After flush or normal completion
+                  [] -> (([], 0, 0, ctrl', False), (idleBeat, False))
+                  -- Normal data beats
                   y : ys ->
                     let isLast = P.null ys
                         emittedNow = emittedInBlock + 1
@@ -714,14 +720,14 @@ feedInput control messageWords =
                           if blockCompleted
                             then 0
                             else emittedNow
-                        nextState = (ys, nextWait, nextEmitted, ctrl')
+                        nextState = (ys, nextWait, nextEmitted, ctrl', False)
                         outBeat =
                           AXI4Stream
                             { tdata = y,
                               tvalid = True,
                               tlast = isLast
                             }
-                     in (nextState, outBeat)
+                     in (nextState, (outBeat, False))
     idleBeat =
       AXI4Stream
         { tdata = 0,

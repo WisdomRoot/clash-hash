@@ -196,36 +196,42 @@ feedInput ::
   ) =>
   UpstreamStall ->
   Vec beats (BitVector 64) ->
-  Signal dom (AXI4Stream 64)
+  Signal dom (AXI4Stream 64, Bool)
 feedInput control messageWords =
-  mealy step (toList messageWords, 0 :: Int, stallPattern) (pure ())
+  let isEmpty = V.length messageWords == 0
+   in mealy step (toList messageWords, 0 :: Int, stallPattern, isEmpty) (pure ())
   where
     stallPattern = case control of
       NoUpstreamStall -> []
       UpstreamStall xs -> xs
 
-    step (xs, waitCount, ctrl) _ =
+    step (xs, waitCount, ctrl, wasEmpty) _ =
       if waitCount P.> 0
-        then ((xs, waitCount P.- 1, ctrl), idleBeat)
+        then ((xs, waitCount P.- 1, ctrl, wasEmpty), (idleBeat, False))
         else
           let (canSend, ctrl') = case ctrl of
                 [] -> (True, [])
                 b : bs -> (b, bs)
            in if P.not canSend
-                then ((xs, waitCount, ctrl'), idleBeat)
+                then ((xs, waitCount, ctrl', wasEmpty), (idleBeat, False))
                 else case xs of
-                  [] -> (([], 0, ctrl'), idleBeat)
+                  -- Empty input: send flush signal on first cycle
+                  [] | wasEmpty ->
+                       (([], 0, ctrl', False), (idleBeat, True))
+                  -- After flush or normal completion
+                  [] -> (([], 0, ctrl', False), (idleBeat, False))
+                  -- Normal data beats
                   y : ys ->
                     let isLast = P.null ys
                         -- For now, simple implementation without block gaps
-                        nextState = (ys, 0, ctrl')
+                        nextState = (ys, 0, ctrl', False)
                         outBeat =
                           AXI4Stream
                             { tdata = y,
                               tvalid = True,
                               tlast = isLast
                             }
-                     in (nextState, outBeat)
+                     in (nextState, (outBeat, False))
 
     idleBeat =
       AXI4Stream
