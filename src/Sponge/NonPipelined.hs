@@ -210,9 +210,10 @@ sponge mode permute = mealy step (State (Absorb 0) 0)
     step :: State -> (AXI4Stream MsgBits, Bool, Bool) -> (State, (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready, flush)
       | flush && counter == 0 =
+          -- Empty input: use wildcard padding (whole 1088-bit padding)
           let padded = case mode of
-                SHA3 -> padSHA3 0 state
-                SHAKE -> padSHAKE 0 state
+                SHA3 -> padSHA3 16 state  -- wildcard case for SHA3
+                SHAKE -> padSHAKE 16 state  -- wildcard case for SHAKE
            in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
       | not (tvalid input) = (State (Absorb counter) state, (idleAXI4Stream, True)) -- wait for valid input
       | tlast input && counter < 16 =

@@ -31,7 +31,7 @@ main = do
         -- permutationTests,
         -- combinationalTests,
         -- n256Tests,
-        n256xTests
-        -- refShake256Tests,
+        n256xTests,
         -- refSha3Tests
+        refShake256Tests
       ]

@@ -13,6 +13,7 @@ import Test.TestHarness.SHAKE256
 spec :: Spec
 spec = describe "NonPipelined SHAKE-256 Tests" $ do
 
+  it "empty input" $ runTest (makeBasicTest BS8.empty 32)
   -- it "qwertyui" $ runTest (makeBasicTest (BS8.pack "qwertyui") 32)
 
   describe "Basic functionality tests" $ do
