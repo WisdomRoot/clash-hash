@@ -48,9 +48,7 @@ import Data.ByteString.Char8 qualified as BS8
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
-import GHC.TypeLits (SomeNat (..), someNatVal)
 import Hash.SHAKE256 qualified as SHAKE256
-import Prelude (Bool (..), Int, Show (..), String, ($), (++), (<>))
 import Prelude qualified as P
 import Reference.Hash qualified as Hash
 import Test.Hspec (Expectation, shouldBe)
@@ -199,32 +197,39 @@ feedInput ::
   Signal dom (AXI4Stream 64, Bool)
 feedInput control messageWords =
   let isEmpty = V.length messageWords == 0
-   in mealy step (toList messageWords, 0 :: Int, stallPattern, isEmpty) (pure ())
+   in mealy step (toList messageWords, 0 :: Int, 0 :: Int, stallPattern, isEmpty) (pure ())
   where
     stallPattern = case control of
       NoUpstreamStall -> []
       UpstreamStall xs -> xs
 
-    step (xs, waitCount, ctrl, wasEmpty) _ =
+    beatsPerBlock = 17 :: Int  -- Rate 1088 bits / 64 bits per beat = 17 beats
+    permuteLatency = 24 :: Int  -- Keccak-f[1600] = 24 rounds
+
+    step (xs, waitCount, emittedInBlock, ctrl, wasEmpty) _ =
       if waitCount P.> 0
-        then ((xs, waitCount P.- 1, ctrl, wasEmpty), (idleBeat, False))
+        then ((xs, waitCount P.- 1, emittedInBlock, ctrl, wasEmpty), (idleBeat, False))
         else
           let (canSend, ctrl') = case ctrl of
                 [] -> (True, [])
                 b : bs -> (b, bs)
            in if P.not canSend
-                then ((xs, waitCount, ctrl', wasEmpty), (idleBeat, False))
+                then ((xs, waitCount, emittedInBlock, ctrl', wasEmpty), (idleBeat, False))
                 else case xs of
                   -- Empty input: send flush signal on first cycle
                   [] | wasEmpty ->
-                       (([], 0, ctrl', False), (idleBeat, True))
+                       (([], 0, 0, ctrl', False), (idleBeat, True))
                   -- After flush or normal completion
-                  [] -> (([], 0, ctrl', False), (idleBeat, False))
+                  [] -> (([], 0, 0, ctrl', False), (idleBeat, False))
                   -- Normal data beats
                   y : ys ->
                     let isLast = P.null ys
-                        -- For now, simple implementation without block gaps
-                        nextState = (ys, 0, ctrl', False)
+                        emittedNow = emittedInBlock P.+ 1
+                        blockCompleted = emittedNow == beatsPerBlock
+                        needGap = blockCompleted P.&& P.not isLast
+                        nextWait = if needGap then permuteLatency else 0
+                        nextEmitted = if blockCompleted then 0 else emittedNow
+                        nextState = (ys, nextWait, nextEmitted, ctrl', False)
                         outBeat =
                           AXI4Stream
                             { tdata = y,
