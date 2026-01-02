@@ -1,93 +1,71 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unused-imports #-}
 {-# OPTIONS_GHC -Wno-unused-local-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Test.NonPipelined.SHA3256 (spec) where
 
-import Clash.Prelude hiding (tlast)
+import Data.ByteString.Char8 qualified as BS8
 import Data.Foldable (for_)
-import Reference.SHA3 qualified as SHA3
-import Reference.SHA3internal qualified as SHA3internal
+import Prelude (($))
 import Test.Hspec
-import Test.TestCase
-import Test.QuickCheck
-
-run :: IO ()
-run = hspec spec
+import Test.TestHarness.SHA3256
 
 spec :: Spec
 spec = describe "NonPipelined SHA3-256 Tests" $ do
-  describe "Fixed test cases" $ do
+
+  describe "Basic functionality tests" $ do
     for_ testCases $ \testCase ->
-      it (testCaseLabel testCase) $ runTestCase testCase
+      it (testLabel testCase) $ runTest testCase
 
-  describe "QuickCheck property tests" $ do
-    it "correctly handles random test cases with upstream stalls" $
-      withMaxSuccess 5 $
-        property $ \(testCase :: SHA3) -> runTestCase testCase
+  describe "Upstream stall handling" $ do
+    for_ testCasesWithStalls $ \testCase ->
+      it (testLabel testCase) $ runTest testCase
 
-testCases :: [SHA3]
+  describe "Downstream backpressure handling" $ do
+    for_ testCasesWithBackpressure $ \testCase ->
+      it (testLabel testCase) $ runTest testCase
+
+-- | Basic test cases with various input sizes
+testCases :: [SHA3256Test]
 testCases =
-  [
-    SHA3 (SomeMessage msg64) NoUpstreamStall NoDownstreamBackpressure,
-    SHA3 (SomeMessage msg128) NoUpstreamStall NoDownstreamBackpressure,
-    SHA3 (SomeMessage msg1024) NoUpstreamStall NoDownstreamBackpressure,
-    SHA3 (SomeMessage msg1088) NoUpstreamStall NoDownstreamBackpressure,
-    SHA3 (SomeMessage msg1600) NoUpstreamStall NoDownstreamBackpressure,
-    SHA3 (SomeMessage msg3200) NoUpstreamStall NoDownstreamBackpressure
+  [ -- Single 64-bit word (8 bytes)
+    makeBasicTest "qwertyui",
+    -- Two 64-bit words (16 bytes)
+    makeBasicTest "qwertyuiopasdfgh",
+    -- 1024 bits (128 bytes) - fits in one rate block (rate=1088)
+    makeBasicTest msg1024,
+    -- 1088 bits (136 bytes) - exactly one rate block
+    makeBasicTest msg1088,
+    -- 1600 bits (200 bytes) - full Keccak state, needs two absorb cycles
+    makeBasicTest msg1600,
+    -- 3200 bits (400 bytes) - multiple blocks
+    makeBasicTest msg3200
   ]
-  where
-    msg64 :: Vec (1 * 64) Bit
-    msg64 = SHA3internal.toBitString $(listToVecTH "qwertyui")
-    expected64 :: Vec 4 (BitVector 64)
-    expected64 = bitCoerce (SHA3.sha3_256 msg64)
 
-    msg128 :: Vec (2 * 64) Bit
-    msg128 = SHA3internal.toBitString $(listToVecTH "qwertyuiopasdfgh")
-    expected128 :: Vec 4 (BitVector 64)
-    expected128 = bitCoerce (SHA3.sha3_256 msg128)
+-- | Test cases with upstream stalls (tests absorb phase resilience)
+testCasesWithStalls :: [SHA3256Test]
+testCasesWithStalls =
+  [ -- Basic input with simple stall pattern
+    makeStallTest "qwertyui" stallPatternSimple,
+    -- Longer input with moderate stalls
+    makeStallTest "qwertyuiopasdfgh" stallPatternModerate,
+    -- Multi-block with aggressive stalls
+    makeStallTest msg1088 stallPatternAggressive
+  ]
 
-    msg1024 :: Vec (16 * 64) Bit
-    msg1024 =
-      SHA3internal.toBitString
-        $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh")
-    expected1024 :: Vec 4 (BitVector 64)
-    expected1024 = bitCoerce (SHA3.sha3_256 msg1024)
-
-    msg1088 :: Vec (17 * 64) Bit
-    msg1088 =
-      SHA3internal.toBitString
-        $(listToVecTH "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyui")
-    expected1088 :: Vec 4 (BitVector 64)
-    expected1088 = bitCoerce (SHA3.sha3_256 msg1088)
-
-    msg1600 :: Vec (25 * 64) Bit
-    msg1600 =
-      SHA3internal.toBitString
-        $(listToVecTH "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
-    expected1600 :: Vec 4 (BitVector 64)
-    expected1600 = bitCoerce (SHA3.sha3_256 msg1600)
-
-    msg3200 :: Vec (50 * 64) Bit
-    msg3200 =
-      SHA3internal.toBitString
-        $(listToVecTH "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789")
-    expected3200 :: Vec 4 (BitVector 64)
-    expected3200 = bitCoerce (SHA3.sha3_256 msg3200)
-    stallPattern :: [Bool]
-    stallPattern =
-      [ True,
-        False,
-        True,
-        True,
-        False,
-        True,
-        True,
-        True,
-        False,
-        True,
-        True,
-        False,
-        True,
-        True,
-        True
-      ]
+-- | Test cases with downstream backpressure (tests squeeze phase resilience)
+testCasesWithBackpressure :: [SHA3256Test]
+testCasesWithBackpressure =
+  [ -- Basic test with simple backpressure
+    makeBackpressureTest "qwertyui" backpressurePatternSimple,
+    -- Longer input with moderate backpressure
+    makeBackpressureTest "qwertyuiopasdfgh" backpressurePatternModerate,
+    -- Large output with aggressive backpressure
+    makeBackpressureTest msg1024 backpressurePatternAggressive,
+    -- Combined: both stalls and backpressure
+    makeCombinedTest
+      "qwertyuiopasdfgh"
+      stallPatternSimple
+      backpressurePatternSimple
+  ]
