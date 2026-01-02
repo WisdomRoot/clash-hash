@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
 -- | Self-contained test harness infrastructure for SHAKE256 hardware testing
@@ -44,7 +45,6 @@ import Clash.Sized.Vector qualified as V
 import Data.Bits qualified as Bits
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.ByteString.Char8 qualified as BS8
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
@@ -308,39 +308,35 @@ wordToBits w = [if Bits.testBit w i then 1 else 0 | i <- [63, 62 .. 0]]
 -- | 128 bytes = 1024 bits (fits in one rate block, rate=1088)
 msg1024 :: ByteString
 msg1024 =
-  BS8.pack
-    "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
-    \qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh"
+  "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
+  \qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh"
 
 -- | 136 bytes = 1088 bits (exactly one rate block)
 msg1088 :: ByteString
 msg1088 =
-  BS8.pack
-    "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
-    \qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
-    \qwertyui"
+  "qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
+  \qwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfghqwertyuiopasdfgh\
+  \qwertyui"
 
 -- | 200 bytes = 1600 bits (full Keccak state)
 msg1600 :: ByteString
 msg1600 =
-  BS8.pack
-    "01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789"
+  "01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789"
 
 -- | 400 bytes = 3200 bits (multiple blocks)
 msg3200 :: ByteString
 msg3200 =
-  BS8.pack
-    "01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789\
-    \01234567890123456789012345678901234567890123456789"
+  "01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789\
+  \01234567890123456789012345678901234567890123456789"
 
 --------------------------------------------------------------------------------
 -- Upstream stall patterns

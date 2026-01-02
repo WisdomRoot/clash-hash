@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 {-# OPTIONS_GHC -Wno-unused-local-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
@@ -38,9 +39,9 @@ testCases =
   [ -- Empty input
     makeBasicTest BS8.empty 32,
     -- Single 64-bit word (8 bytes)
-    makeBasicTest (BS8.pack "qwertyui") 32,
+    makeBasicTest "qwertyui" 32,
     -- Two 64-bit words (16 bytes)
-    makeBasicTest (BS8.pack "qwertyuiopasdfgh") 32,
+    makeBasicTest "qwertyuiopasdfgh" 32,
     -- 1024 bits (128 bytes) - fits in one rate block (rate=1088)
     makeBasicTest msg1024 32,
     -- 1088 bits (136 bytes) - exactly one rate block
@@ -55,28 +56,28 @@ testCases =
 testCasesVariableOutput :: [SHAKE256Test]
 testCasesVariableOutput =
   [ -- 16-byte output (128 bits)
-    makeVariableOutputTest (BS8.pack "test") 16,
+    makeVariableOutputTest "test" 16,
     -- 32-byte output (256 bits) - standard
-    makeVariableOutputTest (BS8.pack "test") 32,
+    makeVariableOutputTest "test" 32,
     -- 64-byte output (512 bits)
-    makeVariableOutputTest (BS8.pack "test") 64,
+    makeVariableOutputTest "test" 64,
     -- 128-byte output (1024 bits)
-    makeVariableOutputTest (BS8.pack "test") 128,
+    makeVariableOutputTest "test" 128,
     -- 256-byte output (2048 bits) - multiple squeeze cycles
-    makeVariableOutputTest (BS8.pack "test") 256,
+    makeVariableOutputTest "test" 256,
     -- Edge case: 1-byte output
-    makeVariableOutputTest (BS8.pack "minimal") 1,
+    makeVariableOutputTest "minimal" 1,
     -- Edge case: odd number of bytes
-    makeVariableOutputTest (BS8.pack "odd length") 37
+    makeVariableOutputTest "odd length" 37
   ]
 
 -- | Test cases with upstream stalls (tests absorb phase resilience)
 testCasesWithStalls :: [SHAKE256Test]
 testCasesWithStalls =
   [ -- Basic input with simple stall pattern
-    makeStallTest (BS8.pack "qwertyui") 32 stallPatternSimple,
+    makeStallTest "qwertyui" 32 stallPatternSimple,
     -- Longer input with moderate stalls
-    makeStallTest (BS8.pack "qwertyuiopasdfgh") 32 stallPatternModerate,
+    makeStallTest "qwertyuiopasdfgh" 32 stallPatternModerate,
     -- Multi-block with aggressive stalls
     makeStallTest msg1088 32 stallPatternAggressive
   ]
@@ -85,14 +86,14 @@ testCasesWithStalls =
 testCasesWithBackpressure :: [SHAKE256Test]
 testCasesWithBackpressure =
   [ -- Basic test with simple backpressure
-    makeBackpressureTest (BS8.pack "qwertyui") 32 backpressurePatternSimple,
+    makeBackpressureTest "qwertyui" 32 backpressurePatternSimple,
     -- Variable output with moderate backpressure
-    makeBackpressureTest (BS8.pack "test") 64 backpressurePatternModerate,
+    makeBackpressureTest "test" 64 backpressurePatternModerate,
     -- Large output with aggressive backpressure
-    makeBackpressureTest (BS8.pack "large output") 128 backpressurePatternAggressive,
+    makeBackpressureTest "large output" 128 backpressurePatternAggressive,
     -- Combined: both stalls and backpressure
     makeCombinedTest
-      (BS8.pack "qwertyuiopasdfgh")
+      "qwertyuiopasdfgh"
       32
       stallPatternSimple
       backpressurePatternSimple

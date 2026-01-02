@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Test.Reference.SHAKE256 (spec) where
 
 import Data.ByteString.Char8 qualified as BS8
@@ -19,8 +21,8 @@ spec = describe "Reference SHAKE256 Tests" $ do
 testCases :: [(String, P.Int, BS8.ByteString)]
 testCases =
   [ ("Empty input, 32-byte output", 32, BS8.empty),
-    ("8-byte input, 32-byte output", 32, BS8.pack "qwertyui"),
-    ("16-byte input, 64-byte output", 64, BS8.pack "qwertyuiopasdfgh"),
-    ("Small output (16 bytes)", 16, BS8.pack "test"),
-    ("Large output (128 bytes)", 128, BS8.pack "large output test")
+    ("8-byte input, 32-byte output", 32, "qwertyui"),
+    ("16-byte input, 64-byte output", 64, "qwertyuiopasdfgh"),
+    ("Small output (16 bytes)", 16, "test"),
+    ("Large output (128 bytes)", 128, "large output test")
   ]

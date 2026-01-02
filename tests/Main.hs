@@ -27,11 +27,11 @@ main = do
     testGroup
       "All Tests"
       [
-        -- constantsTests,
-        -- permutationTests,
-        -- combinationalTests,
-        -- n256Tests,
+        constantsTests,
+        permutationTests,
+        combinationalTests,
+        n256Tests,
         n256xTests,
-        -- refSha3Tests
+        refSha3Tests,
         refShake256Tests
       ]
