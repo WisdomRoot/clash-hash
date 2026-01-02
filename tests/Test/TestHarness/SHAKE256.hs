@@ -52,6 +52,7 @@ import Hash.SHAKE256 qualified as SHAKE256
 import Prelude qualified as P
 import Reference.Hash qualified as Hash
 import Test.Hspec (Expectation, shouldBe)
+import Test.QuickCheck (Arbitrary (..), frequency, listOf, vector)
 
 --------------------------------------------------------------------------------
 -- Test data types
@@ -96,6 +97,61 @@ testLabel test =
     backpressureInfo = case testDownstreamBackpressure test of
       NoDownstreamBackpressure -> ""
       DownstreamBackpressure _ -> " [with backpressure]"
+
+--------------------------------------------------------------------------------
+-- QuickCheck Arbitrary instances
+--------------------------------------------------------------------------------
+
+instance Arbitrary UpstreamStall where
+  arbitrary =
+    frequency
+      [ (3, pure NoUpstreamStall), -- 75% no stalls
+        (1, UpstreamStall P.<$> genStalls) -- 25% random stalls
+      ]
+    where
+      genStalls = listOf (frequency [(3, pure True), (1, pure False)])
+
+instance Arbitrary DownstreamBackpressure where
+  arbitrary =
+    frequency
+      [ (3, pure NoDownstreamBackpressure), -- 75% no backpressure
+        (1, DownstreamBackpressure P.<$> genBackpressure) -- 25% random backpressure
+      ]
+    where
+      genBackpressure = listOf (frequency [(3, pure True), (1, pure False)])
+
+instance Arbitrary SHAKE256Test where
+  arbitrary = do
+    -- Generate various message sizes (in 64-bit beats)
+    -- Must be multiples of 8 bytes due to hardware limitation
+    -- Note: empty input (0 bytes) is valid for SHAKE256
+    beatCount <-
+      frequency
+        [ (1, pure 0), -- 0 bytes (empty input)
+          (1, pure 1), -- 8 bytes (64 bits)
+          (1, pure 2), -- 16 bytes (128 bits)
+          (1, pure 16), -- 128 bytes (1024 bits)
+          (1, pure 17), -- 136 bytes (1088 bits) - one block
+          (1, pure 18), -- 144 bytes - just over one block
+          (1, pure 25), -- 200 bytes (1600 bits) - full state
+          (1, pure 34), -- 272 bytes - two blocks
+          (1, pure 51) -- 408 bytes - three blocks
+        ]
+    -- Generate random bytes (8 bytes per beat)
+    messageBytes <- BS.pack P.<$> vector (beatCount P.* 8)
+    -- Generate various output lengths
+    outputBytes <-
+      frequency
+        [ (1, pure 1), -- 1 byte
+          (1, pure 16), -- 16 bytes (128 bits)
+          (2, pure 32), -- 32 bytes (256 bits) - standard
+          (1, pure 64), -- 64 bytes (512 bits)
+          (1, pure 128), -- 128 bytes (1024 bits)
+          (1, pure 256) -- 256 bytes (2048 bits) - multiple squeeze cycles
+        ]
+    upstreamStall <- arbitrary
+    downstreamBackpressure <- arbitrary
+    pure $ SHAKE256Test messageBytes outputBytes upstreamStall downstreamBackpressure
 
 --------------------------------------------------------------------------------
 -- Test execution

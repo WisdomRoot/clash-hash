@@ -9,6 +9,7 @@ import Data.ByteString.Char8 qualified as BS8
 import Data.Foldable (for_)
 import Prelude (($))
 import Test.Hspec
+import Test.QuickCheck
 import Test.TestHarness.SHAKE256
 
 spec :: Spec
@@ -29,6 +30,11 @@ spec = describe "NonPipelined SHAKE-256 Tests" $ do
   describe "Downstream backpressure handling" $ do
     for_ testCasesWithBackpressure $ \testCase ->
       it (testLabel testCase) $ runTest testCase
+
+  describe "QuickCheck property tests" $ do
+    it "correctly handles random test cases with variable output" $
+      withMaxSuccess 5 $
+        property $ \(testCase :: SHAKE256Test) -> runTest testCase
 
 -- | Basic test cases with various input sizes, all with 32-byte (256-bit) output
 testCases :: [SHAKE256Test]
