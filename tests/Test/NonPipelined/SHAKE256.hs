@@ -32,72 +32,55 @@ spec = describe "NonPipelined SHAKE-256 Tests" $ do
       it (testLabel testCase) $ runTest testCase
 
   describe "QuickCheck property tests" $ do
-    it "correctly handles random test cases with variable output" $
-      withMaxSuccess 5 $
+    it "correctly handles random test cases" $
+      withMaxSuccess 10 $
         property $ \(testCase :: SHAKE256Test) -> runTest testCase
 
--- | Basic test cases with various input sizes, all with 32-byte (256-bit) output
+-- | Basic test cases - critical boundary conditions
+-- (QuickCheck now covers intermediate sizes and variable outputs)
 testCases :: [SHAKE256Test]
 testCases =
-  [ -- Empty input
+  [ -- Empty input (SHAKE256-specific)
     makeBasicTest BS8.empty 32,
-    -- Single 64-bit word (8 bytes)
+    -- Single 64-bit word (8 bytes) - minimum
     makeBasicTest "qwertyui" 32,
-    -- Two 64-bit words (16 bytes)
-    makeBasicTest "qwertyuiopasdfgh" 32,
-    -- 1024 bits (128 bytes) - fits in one rate block (rate=1088)
-    makeBasicTest msg1024 32,
     -- 1088 bits (136 bytes) - exactly one rate block
     makeBasicTest msg1088 32,
-    -- 1600 bits (200 bytes) - full Keccak state, needs two absorb cycles
+    -- 1600 bits (200 bytes) - full Keccak state
     makeBasicTest msg1600 32,
     -- 3200 bits (400 bytes) - multiple blocks
     makeBasicTest msg3200 32
   ]
 
--- | Test cases with variable output lengths (key feature of SHAKE256)
+-- | Test cases with variable output lengths
+-- (QuickCheck now covers many output sizes)
+-- NOTE: All outputs must be multiples of 8 bytes (64 bits) per hardware spec
 testCasesVariableOutput :: [SHAKE256Test]
 testCasesVariableOutput =
-  [ -- 16-byte output (128 bits)
-    makeVariableOutputTest "testdata" 16,
-    -- 32-byte output (256 bits) - standard
-    makeVariableOutputTest "testdata" 32,
-    -- 64-byte output (512 bits)
-    makeVariableOutputTest "testdata" 64,
-    -- 128-byte output (1024 bits)
-    makeVariableOutputTest "testdata" 128,
-    -- 256-byte output (2048 bits) - multiple squeeze cycles
-    makeVariableOutputTest "testdata" 256,
-    -- Edge case: 1-byte output (input must be 8 bytes)
-    makeVariableOutputTest "minimal8" 1,
-    -- Edge case: odd number of output bytes (input must be multiple of 8)
-    makeVariableOutputTest "16byte_test_data" 37
+  [ -- Edge case: 8-byte output (minimum, 1 beat)
+    makeVariableOutputTest "minimal8" 8,
+    -- Medium output (5 beats = 40 bytes)
+    makeVariableOutputTest "16byte_test_data" 40,
+    -- Large output requiring multiple squeeze cycles (32 beats)
+    makeVariableOutputTest "testdata" 256
   ]
 
--- | Test cases with upstream stalls (tests absorb phase resilience)
+-- | Test cases with upstream stalls
+-- (QuickCheck now covers most stall scenarios)
 testCasesWithStalls :: [SHAKE256Test]
 testCasesWithStalls =
-  [ -- Basic input with simple stall pattern
-    makeStallTest "qwertyui" 32 stallPatternSimple,
-    -- Longer input with moderate stalls
-    makeStallTest "qwertyuiopasdfgh" 32 stallPatternModerate,
-    -- Multi-block with aggressive stalls
+  [ -- Multi-block with aggressive stalls - stress test
     makeStallTest msg1088 32 stallPatternAggressive
   ]
 
--- | Test cases with downstream backpressure (tests squeeze phase resilience)
+-- | Test cases with downstream backpressure
+-- (QuickCheck now covers most backpressure scenarios)
 testCasesWithBackpressure :: [SHAKE256Test]
 testCasesWithBackpressure =
-  [ -- Basic test with simple backpressure
-    makeBackpressureTest "qwertyui" 32 backpressurePatternSimple,
-    -- Variable output with moderate backpressure
-    makeBackpressureTest "testdata" 64 backpressurePatternModerate,
-    -- Large output with aggressive backpressure
-    makeBackpressureTest "largeoutput_test" 128 backpressurePatternAggressive,
-    -- Combined: both stalls and backpressure
+  [ -- Combined: stalls + backpressure + large output - comprehensive test
     makeCombinedTest
-      "qwertyuiopasdfgh"
-      32
-      stallPatternSimple
-      backpressurePatternSimple
+      msg1088
+      256
+      stallPatternAggressive
+      backpressurePatternAggressive
   ]

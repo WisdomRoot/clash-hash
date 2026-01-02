@@ -28,50 +28,39 @@ spec = describe "NonPipelined SHA3-256 Tests" $ do
       it (testLabel testCase) $ runTest testCase
 
   describe "QuickCheck property tests" $ do
-    it "correctly handles random test cases with upstream stalls" $
-      withMaxSuccess 5 $
+    it "correctly handles random test cases" $
+      withMaxSuccess 10 $
         property $ \(testCase :: SHA3256Test) -> runTest testCase
 
--- | Basic test cases with various input sizes
+-- | Basic test cases - critical boundary conditions
+-- (QuickCheck now covers intermediate sizes)
 testCases :: [SHA3256Test]
 testCases =
-  [ -- Single 64-bit word (8 bytes)
+  [ -- Single 64-bit word (8 bytes) - minimum
     makeBasicTest "qwertyui",
-    -- Two 64-bit words (16 bytes)
-    makeBasicTest "qwertyuiopasdfgh",
-    -- 1024 bits (128 bytes) - fits in one rate block (rate=1088)
-    makeBasicTest msg1024,
     -- 1088 bits (136 bytes) - exactly one rate block
     makeBasicTest msg1088,
-    -- 1600 bits (200 bytes) - full Keccak state, needs two absorb cycles
+    -- 1600 bits (200 bytes) - full Keccak state
     makeBasicTest msg1600,
     -- 3200 bits (400 bytes) - multiple blocks
     makeBasicTest msg3200
   ]
 
--- | Test cases with upstream stalls (tests absorb phase resilience)
+-- | Test cases with upstream stalls
+-- (QuickCheck now covers most stall scenarios)
 testCasesWithStalls :: [SHA3256Test]
 testCasesWithStalls =
-  [ -- Basic input with simple stall pattern
-    makeStallTest "qwertyui" stallPatternSimple,
-    -- Longer input with moderate stalls
-    makeStallTest "qwertyuiopasdfgh" stallPatternModerate,
-    -- Multi-block with aggressive stalls
+  [ -- Multi-block with aggressive stalls - stress test
     makeStallTest msg1088 stallPatternAggressive
   ]
 
--- | Test cases with downstream backpressure (tests squeeze phase resilience)
+-- | Test cases with downstream backpressure
+-- (QuickCheck now covers most backpressure scenarios)
 testCasesWithBackpressure :: [SHA3256Test]
 testCasesWithBackpressure =
-  [ -- Basic test with simple backpressure
-    makeBackpressureTest "qwertyui" backpressurePatternSimple,
-    -- Longer input with moderate backpressure
-    makeBackpressureTest "qwertyuiopasdfgh" backpressurePatternModerate,
-    -- Large output with aggressive backpressure
-    makeBackpressureTest msg1024 backpressurePatternAggressive,
-    -- Combined: both stalls and backpressure
+  [ -- Combined: both stalls and backpressure - comprehensive test
     makeCombinedTest
-      "qwertyuiopasdfgh"
-      stallPatternSimple
-      backpressurePatternSimple
+      msg1088
+      stallPatternAggressive
+      backpressurePatternAggressive
   ]

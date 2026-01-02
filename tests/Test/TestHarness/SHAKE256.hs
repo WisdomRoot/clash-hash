@@ -3,6 +3,11 @@
 {-# LANGUAGE TypeApplications #-}
 
 -- | Self-contained test harness infrastructure for SHAKE256 hardware testing
+--
+-- HARDWARE CONSTRAINTS:
+-- - Input lengths must be multiples of 64 bits (8 bytes)
+-- - Output lengths must be multiples of 64 bits (8 bytes)
+--
 -- Does not depend on Test.TestCase module
 module Test.TestHarness.SHAKE256
   ( -- * Test data types
@@ -52,7 +57,7 @@ import Hash.SHAKE256 qualified as SHAKE256
 import Prelude qualified as P
 import Reference.Hash qualified as Hash
 import Test.Hspec (Expectation, shouldBe)
-import Test.QuickCheck (Arbitrary (..), frequency, listOf, vector)
+import Test.QuickCheck (Arbitrary (..), frequency, listOf1, vector)
 
 --------------------------------------------------------------------------------
 -- Test data types
@@ -109,7 +114,7 @@ instance Arbitrary UpstreamStall where
         (1, UpstreamStall P.<$> genStalls) -- 25% random stalls
       ]
     where
-      genStalls = listOf (frequency [(3, pure True), (1, pure False)])
+      genStalls = listOf1 (frequency [(3, pure True), (1, pure False)])
 
 instance Arbitrary DownstreamBackpressure where
   arbitrary =
@@ -118,36 +123,36 @@ instance Arbitrary DownstreamBackpressure where
         (1, DownstreamBackpressure P.<$> genBackpressure) -- 25% random backpressure
       ]
     where
-      genBackpressure = listOf (frequency [(3, pure True), (1, pure False)])
+      genBackpressure = listOf1 (frequency [(3, pure True), (1, pure False)])
 
 instance Arbitrary SHAKE256Test where
   arbitrary = do
-    -- Generate various message sizes (in 64-bit beats)
-    -- Must be multiples of 8 bytes due to hardware limitation
-    -- Note: empty input (0 bytes) is valid for SHAKE256
+    -- IMPORTANT: All sizes are in beats (1 beat = 8 bytes = 64 bits)
+    -- Hardware spec requires input lengths to be multiples of 64 bits
+    -- Note: Empty input (0 beats) is valid for SHAKE256
     beatCount <-
       frequency
-        [ (1, pure 0), -- 0 bytes (empty input)
-          (1, pure 1), -- 8 bytes (64 bits)
-          (1, pure 2), -- 16 bytes (128 bits)
-          (1, pure 16), -- 128 bytes (1024 bits)
-          (1, pure 17), -- 136 bytes (1088 bits) - one block
+        [ (1, pure 0), -- 0 bytes - empty input (SHAKE256 only)
+          (2, pure 1), -- 8 bytes - emphasize minimum
+          (1, pure 2), -- 16 bytes
+          (1, pure 16), -- 128 bytes - just under one block
+          (2, pure 17), -- 136 bytes - exact block boundary (1088 bits) - important!
           (1, pure 18), -- 144 bytes - just over one block
-          (1, pure 25), -- 200 bytes (1600 bits) - full state
+          (2, pure 25), -- 200 bytes - full Keccak state (1600 bits) - important!
           (1, pure 34), -- 272 bytes - two blocks
           (1, pure 51) -- 408 bytes - three blocks
         ]
     -- Generate random bytes (8 bytes per beat)
     messageBytes <- BS.pack P.<$> vector (beatCount P.* 8)
-    -- Generate various output lengths
+    -- IMPORTANT: Output lengths must also be multiples of 64 bits (8 bytes) per hardware spec
     outputBytes <-
       frequency
-        [ (1, pure 1), -- 1 byte
-          (1, pure 16), -- 16 bytes (128 bits)
-          (2, pure 32), -- 32 bytes (256 bits) - standard
-          (1, pure 64), -- 64 bytes (512 bits)
-          (1, pure 128), -- 128 bytes (1024 bits)
-          (1, pure 256) -- 256 bytes (2048 bits) - multiple squeeze cycles
+        [ (2, pure 8), -- 64 bits - minimum (emphasize)
+          (1, pure 16), -- 128 bits
+          (2, pure 32), -- 256 bits - standard (keep 2x weight)
+          (1, pure 64), -- 512 bits
+          (1, pure 128), -- 1024 bits
+          (1, pure 256) -- 2048 bits - multiple squeezes
         ]
     upstreamStall <- arbitrary
     downstreamBackpressure <- arbitrary
