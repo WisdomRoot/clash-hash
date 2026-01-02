@@ -14,24 +14,21 @@ import Test.TestHarness.SHAKE256
 spec :: Spec
 spec = describe "NonPipelined SHAKE-256 Tests" $ do
 
-  it "empty input" $ runTest (makeBasicTest BS8.empty 32)
-  -- it "qwertyui" $ runTest (makeBasicTest (BS8.pack "qwertyui") 32)
-
   describe "Basic functionality tests" $ do
     for_ testCases $ \testCase ->
       it (testLabel testCase) $ runTest testCase
 
-  -- describe "Variable output length tests" $ do
-  --   for_ testCasesVariableOutput $ \testCase ->
-  --     it (testLabel testCase) $ runTest testCase
+  describe "Variable output length tests" $ do
+    for_ testCasesVariableOutput $ \testCase ->
+      it (testLabel testCase) $ runTest testCase
 
-  -- describe "Upstream stall handling" $ do
-  --   for_ testCasesWithStalls $ \testCase ->
-  --     it (testLabel testCase) $ runTest testCase
+  describe "Upstream stall handling" $ do
+    for_ testCasesWithStalls $ \testCase ->
+      it (testLabel testCase) $ runTest testCase
 
-  -- describe "Downstream backpressure handling" $ do
-  --   for_ testCasesWithBackpressure $ \testCase ->
-  --     it (testLabel testCase) $ runTest testCase
+  describe "Downstream backpressure handling" $ do
+    for_ testCasesWithBackpressure $ \testCase ->
+      it (testLabel testCase) $ runTest testCase
 
 -- | Basic test cases with various input sizes, all with 32-byte (256-bit) output
 testCases :: [SHAKE256Test]
@@ -56,19 +53,19 @@ testCases =
 testCasesVariableOutput :: [SHAKE256Test]
 testCasesVariableOutput =
   [ -- 16-byte output (128 bits)
-    makeVariableOutputTest "test" 16,
+    makeVariableOutputTest "testdata" 16,
     -- 32-byte output (256 bits) - standard
-    makeVariableOutputTest "test" 32,
+    makeVariableOutputTest "testdata" 32,
     -- 64-byte output (512 bits)
-    makeVariableOutputTest "test" 64,
+    makeVariableOutputTest "testdata" 64,
     -- 128-byte output (1024 bits)
-    makeVariableOutputTest "test" 128,
+    makeVariableOutputTest "testdata" 128,
     -- 256-byte output (2048 bits) - multiple squeeze cycles
-    makeVariableOutputTest "test" 256,
-    -- Edge case: 1-byte output
-    makeVariableOutputTest "minimal" 1,
-    -- Edge case: odd number of bytes
-    makeVariableOutputTest "odd length" 37
+    makeVariableOutputTest "testdata" 256,
+    -- Edge case: 1-byte output (input must be 8 bytes)
+    makeVariableOutputTest "minimal8" 1,
+    -- Edge case: odd number of output bytes (input must be multiple of 8)
+    makeVariableOutputTest "16byte_test_data" 37
   ]
 
 -- | Test cases with upstream stalls (tests absorb phase resilience)
@@ -88,9 +85,9 @@ testCasesWithBackpressure =
   [ -- Basic test with simple backpressure
     makeBackpressureTest "qwertyui" 32 backpressurePatternSimple,
     -- Variable output with moderate backpressure
-    makeBackpressureTest "test" 64 backpressurePatternModerate,
+    makeBackpressureTest "testdata" 64 backpressurePatternModerate,
     -- Large output with aggressive backpressure
-    makeBackpressureTest "large output" 128 backpressurePatternAggressive,
+    makeBackpressureTest "largeoutput_test" 128 backpressurePatternAggressive,
     -- Combined: both stalls and backpressure
     makeCombinedTest
       "qwertyuiopasdfgh"

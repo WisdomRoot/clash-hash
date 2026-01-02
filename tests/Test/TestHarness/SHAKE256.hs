@@ -168,9 +168,10 @@ runHardware' test beats =
 
       -- Calculate how many cycles to sample
       outputBits = outputBytes P.* 8
+      outputBeats = (outputBits P.+ 63) `P.div` 64  -- Round up to 64-bit beats
       -- Rate is 1088 bits, output is 64 bits per beat
       -- So we get 17 beats (1088 bits) per squeeze
-      squeezesNeeded = (outputBits P.+ 1087) `P.div` 1088
+      squeezesNeeded = (outputBeats P.+ 16) `P.div` 17  -- Round up to full squeezes
 
       -- Conservative estimate for sampling
       sampleCount = beats P.* 2 P.+ 24 P.+ squeezesNeeded P.* (17 P.+ 24) P.+ 200
@@ -181,7 +182,8 @@ runHardware' test beats =
       validOutputs = [(tdata stream) | (stream, _) <- samples, tvalid stream]
 
       -- Convert output words to bits and take required amount
-      outputWordBits = P.concatMap wordToBits validOutputs
+      -- CRITICAL: Take exactly outputBeats before converting to bits
+      outputWordBits = P.concatMap wordToBits (P.take outputBeats validOutputs)
       resultBits = P.take outputBits outputWordBits
 
    in bitListToBSHW resultBits
@@ -304,6 +306,12 @@ wordToBits w = [if Bits.testBit w i then 1 else 0 | i <- [63, 62 .. 0]]
 --------------------------------------------------------------------------------
 -- Common test messages
 --------------------------------------------------------------------------------
+
+-- IMPORTANT: All test message inputs MUST be multiples of 8 bytes (64 bits)
+-- due to hardware limitation in domain separator placement. The hardware
+-- assumes complete 64-bit beats and places the SHAKE256 domain separator
+-- (5 bits: 11111) at fixed positions based on beat counter, not actual
+-- message bit length.
 
 -- | 128 bytes = 1024 bits (fits in one rate block, rate=1088)
 msg1024 :: ByteString

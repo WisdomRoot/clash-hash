@@ -1,5 +1,14 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
+-- | KNOWN LIMITATION: This implementation always squeezes the full rate (1088 bits)
+-- per squeeze cycle, regardless of requested output length. The test harness
+-- compensates by taking only the required number of output beats.
+--
+-- For production use, add output length tracking to enable early termination:
+--   1. Add outputLength input signal to topEntity
+--   2. Add output beat counter to FSM state
+--   3. Modify squeeze phase to check counter and set tlast appropriately
+--   4. Add early termination when counter reaches outputLength
 module Sponge.NonPipelined
   ( HashMode (..),
     sponge,
