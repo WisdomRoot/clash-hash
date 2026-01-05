@@ -56,11 +56,11 @@
 
   module                                            area (µm²)   seq area (µm²)    seq %
   --------------------------------------------------------------------------------------
-  Hash_NonPipelined_SHAKE256_topEntity_keccakF1600Round       9516.682            0.000     0.00%
-  Hash_NonPipelined_SHAKE256_topEntity_spongeFSM      18971.120         8559.880    45.12%
-  SHAKE_256_NonPipelined                             28487.802         8559.880    30.05%
+  Hash_NonPipelined_SHAKE256_topEntity_pad            9517.480            0.000     0.00%
+  Hash_NonPipelined_SHAKE256_topEntity_spongeFSM      18445.770         8559.880    46.41%
+  SHAKE_256_NonPipelined                             27963.250         8559.880    30.61%
 
-[bench] Time/Mem: load 2.73s | compile 0.64s | synth 17.97s | mem 3246.80 MB
+[bench] Time/Mem: load 2.69s | compile 3.63s | synth 16.89s | mem 3222.78 MB
 
 ## Sponge
 
