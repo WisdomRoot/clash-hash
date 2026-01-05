@@ -11,7 +11,7 @@ stack test -- run all tests
 
 ## Targets
 
-* N256: Non-pipelined SHA3-256 (Clash)
+* N256: Non-pipelined SHA3-256 at `Hash.NonPipelined.SHA3256` (Clash)
 * N256X: Non-pipelined SHAKE-256 (Clash)
 * H256: Pipelined *high_speed_core* SHA3-256 by *Team Keccak*
 

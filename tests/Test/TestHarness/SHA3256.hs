@@ -52,7 +52,7 @@ import Data.ByteString qualified as BS
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
-import Hash.SHA3256 qualified as SHA3256
+import Hash.NonPipelined.SHA3256 qualified as SHA3256
 import Prelude qualified as P
 import Reference.Hash qualified as Hash
 import Test.Hspec (Expectation, shouldBe)
@@ -138,8 +138,7 @@ instance Arbitrary SHA3256Test where
     -- Generate random bytes (8 bytes per beat)
     messageBytes <- BS.pack P.<$> vector (beatCount P.* 8)
     upstreamStall <- arbitrary
-    downstreamBackpressure <- arbitrary
-    pure $ SHA3256Test messageBytes upstreamStall downstreamBackpressure
+    SHA3256Test messageBytes upstreamStall <$> arbitrary
 
 --------------------------------------------------------------------------------
 -- Test execution
@@ -222,7 +221,7 @@ runHardware' test beats =
       samples = sampleN @System sampleCount output
 
       -- Extract valid output data
-      validOutputs = [(tdata stream) | (stream, _) <- samples, tvalid stream]
+      validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
 
       -- Convert output words to bits and take required amount
       -- Take exactly outputBeats (4) before converting to bits

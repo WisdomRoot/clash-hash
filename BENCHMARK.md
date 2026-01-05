@@ -20,6 +20,16 @@
 
 [bench] Time/Mem: load 2.75s | compile 3.24s | synth 12.91s | mem 2208.92 MB
 
+* 20260105: standalone, decoupled from SHAKE256
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_NonPipelined_SHA3256_topEntity_keccakF1600Round       9516.682            0.000     0.00%
+  Hash_NonPipelined_SHA3256_topEntity_spongeFSM      16672.880         8559.880    51.34%
+  SHA3_256_NonPipelined                              26189.562         8559.880    32.68%
+
+[bench] Time/Mem: load 2.90s | compile 3.37s | synth 13.12s | mem 2400.42 MB
+
 ## SHAKE256
 
 * 20260105: baseline
