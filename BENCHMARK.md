@@ -1,3 +1,47 @@
+## SHA3-256
+
+* 20260105: baseline
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_SHA3256_topEntity_keccakF1600Round             9516.682            0.000     0.00%
+  Hash_SHA3256_topEntity_spongeFSM                   19480.776         8559.880    43.94%
+  SHA3_256_NonPipelined                              28997.458         8559.880    29.52%
+
+[bench] Time/Mem: load 2.77s | compile 3.70s | synth 17.36s | mem 2400.94 MB
+
+* 20260105: refactored squeeze
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_SHA3256_topEntity_keccakF1600Round             9516.682            0.000     0.00%
+  Hash_SHA3256_topEntity_spongeFSM                   19612.446         8559.880    43.65%
+  SHA3_256_NonPipelined                              29129.128         8559.880    29.39%
+
+[bench] Time/Mem: load 2.75s | compile 3.24s | synth 12.91s | mem 2208.92 MB
+
+## SHAKE256
+
+* 20260105: baseline
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_SHAKE256_topEntity_keccakF1600Round            9516.682            0.000     0.00%
+  Hash_SHAKE256_topEntity_spongeFSM                  19479.180         8559.880    43.94%
+  SHAKE_256_NonPipelined                             28995.862         8559.880    29.52%
+
+[bench] Time/Mem: load 2.69s | compile 3.53s | synth 21.99s | mem 3241.19 MB
+
+* 20260105: refactored squeeze
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_SHA3256_topEntity_keccakF1600Round             9516.682            0.000     0.00%
+  Hash_SHA3256_topEntity_spongeFSM                   19133.114         8559.880    44.74%
+  SHA3_256_NonPipelined                              28649.796         8559.880    29.88%
+
+[bench] Time/Mem: load 2.60s | compile 3.42s | synth 12.73s | mem 2149.11 MB
+
 ## Sponge
 
 * Baseline: stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output

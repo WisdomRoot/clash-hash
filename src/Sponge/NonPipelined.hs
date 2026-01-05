@@ -198,7 +198,27 @@ padSHAKE _ =
     . complementAt 1598
     . complementAt 1599 -- special case for a whole 1088-bit padding
 
-data HashMode = SHA3 | SHAKE
+-- | Squeeze phase bit slicing helper: extracts 64-bit chunks from the Keccak state
+squeezeSlice :: Index 17 -> BitVector 1600 -> BitVector 64
+squeezeSlice 0 state = slice (SNat @1599) (SNat @1536) state
+squeezeSlice 1 state = slice (SNat @1535) (SNat @1472) state
+squeezeSlice 2 state = slice (SNat @1471) (SNat @1408) state
+squeezeSlice 3 state = slice (SNat @1407) (SNat @1344) state
+squeezeSlice 4 state = slice (SNat @1343) (SNat @1280) state
+squeezeSlice 5 state = slice (SNat @1279) (SNat @1216) state
+squeezeSlice 6 state = slice (SNat @1215) (SNat @1152) state
+squeezeSlice 7 state = slice (SNat @1151) (SNat @1088) state
+squeezeSlice 8 state = slice (SNat @1087) (SNat @1024) state
+squeezeSlice 9 state = slice (SNat @1023) (SNat @960) state
+squeezeSlice 10 state = slice (SNat @959) (SNat @896) state
+squeezeSlice 11 state = slice (SNat @895) (SNat @832) state
+squeezeSlice 12 state = slice (SNat @831) (SNat @768) state
+squeezeSlice 13 state = slice (SNat @767) (SNat @704) state
+squeezeSlice 14 state = slice (SNat @703) (SNat @640) state
+squeezeSlice 15 state = slice (SNat @639) (SNat @576) state
+squeezeSlice _ state = slice (SNat @575) (SNat @512) state
+
+data HashMode = SHA3 | SHAKE deriving (Show, Eq, Generic, NFDataX)
 
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
@@ -221,8 +241,8 @@ sponge mode permute = mealy step (State (Absorb 0) 0)
       | flush && counter == 0 =
           -- Empty input: use wildcard padding (whole 1088-bit padding)
           let padded = case mode of
-                SHA3 -> padSHA3 16 state  -- wildcard case for SHA3
-                SHAKE -> padSHAKE 16 state  -- wildcard case for SHAKE
+                SHA3 -> padSHA3 16 state -- wildcard case for SHA3
+                SHAKE -> padSHAKE 16 state -- wildcard case for SHAKE
            in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
       | not (tvalid input) = (State (Absorb counter) state, (idleAXI4Stream, True)) -- wait for valid input
       | tlast input && counter < 16 =
@@ -256,78 +276,20 @@ sponge mode permute = mealy step (State (Absorb 0) 0)
                  in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
               NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True)) -- go back to absorb phase
             else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
-    -- Squeeze phase with backpressure: only advance if tready is True
-    step (State (Squeeze 0) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1599) (SNat @1536) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 1) state else State (Squeeze 0) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 1) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1535) (SNat @1472) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 2) state else State (Squeeze 1) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 2) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1471) (SNat @1408) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 3) state else State (Squeeze 2) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 3) state) (_msg, tready, _flush) = case mode of
-      SHA3 ->
-        let outStream = AXI4Stream {tdata = slice (SNat @1407) (SNat @1344) state, tvalid = True, tlast = True}
-            nextState = if tready then State (Absorb 0) 0 else State (Squeeze 3) state
-        in (nextState, (outStream, False))
-      SHAKE ->
-        let outStream = AXI4Stream {tdata = slice (SNat @1407) (SNat @1344) state, tvalid = True, tlast = False}
-            nextState = if tready then State (Squeeze 4) state else State (Squeeze 3) state
-        in (nextState, (outStream, False))
-    step (State (Squeeze 4) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1343) (SNat @1280) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 5) state else State (Squeeze 4) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 5) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1279) (SNat @1216) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 6) state else State (Squeeze 5) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 6) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1215) (SNat @1152) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 7) state else State (Squeeze 6) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 7) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1151) (SNat @1088) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 8) state else State (Squeeze 7) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 8) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1087) (SNat @1024) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 9) state else State (Squeeze 8) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 9) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @1023) (SNat @960) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 10) state else State (Squeeze 9) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 10) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @959) (SNat @896) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 11) state else State (Squeeze 10) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 11) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @895) (SNat @832) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 12) state else State (Squeeze 11) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 12) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @831) (SNat @768) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 13) state else State (Squeeze 12) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 13) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @767) (SNat @704) state, tvalid = True, tlast = False }
-          nextState = if tready then State (Squeeze 14) state else State (Squeeze 13) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 14) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @703) (SNat @640) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 15) state else State (Squeeze 14) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze 15) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @639) (SNat @576) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Squeeze 16) state else State (Squeeze 15) state
-       in (nextState, (outStream, False))
-    step (State (Squeeze _) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = slice (SNat @575) (SNat @512) state, tvalid = True, tlast = False}
-          nextState = if tready then State (Permute 0 SeenTLASTAndPadded) state else State (Squeeze 16) state
-       in (nextState, (outStream, False))
-    
+    step (State (Squeeze counter) state) (_msg, tready, _flush)
+      | counter == 3 && mode == SHA3 =
+          let outStream = AXI4Stream {tdata = squeezeSlice 3 state, tvalid = True, tlast = True}
+              nextState = if tready then State (Absorb 0) 0 else State (Squeeze 3) state
+           in (nextState, (outStream, False))
+      | counter == 3 && mode == SHAKE =
+          let outStream = AXI4Stream {tdata = squeezeSlice 3 state, tvalid = True, tlast = False}
+              nextState = if tready then State (Squeeze 4) state else State (Squeeze 3) state
+           in (nextState, (outStream, False))
+      | counter == 16 =
+          let outStream = AXI4Stream {tdata = squeezeSlice 16 state, tvalid = True, tlast = False}
+              nextState = if tready then State (Permute 0 SeenTLASTAndPadded) state else State (Squeeze 16) state
+           in (nextState, (outStream, False))
+      | otherwise =
+          let outStream = AXI4Stream {tdata = squeezeSlice counter state, tvalid = True, tlast = False}
+              nextState = if tready then State (Squeeze (counter + 1)) state else State (Squeeze counter) state
+           in (nextState, (outStream, False))

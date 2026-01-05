@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 -- | Runtime software implementation from the crypton library
 module Reference.Crypton
@@ -10,22 +9,13 @@ module Reference.Crypton
 where
 
 import Clash.Prelude hiding (fromList)
-import Clash.Sized.Vector qualified as V
 import Crypto.Hash (Digest, hash)
 import Crypto.Hash.Algorithms (SHA3_256, SHAKE256 (..))
-import Data.Bits qualified as Bits
 import Data.ByteArray (convert)
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
-import Data.Constraint (Dict (..))
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
-import Data.Word (Word8)
-import GHC.TypeLits (SomeNat (..), someNatVal)
-import Prelude (Int, fromIntegral, ($), (.), (<>))
 import Prelude qualified as P
-import Reference.SHA3 qualified as SHA3
-import Unsafe.Coerce (unsafeCoerce)
 
 -- | Compute SHA3-256 hash (using crypton library)
 --
