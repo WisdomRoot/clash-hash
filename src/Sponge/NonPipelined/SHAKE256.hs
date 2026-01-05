@@ -8,6 +8,7 @@ where
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
 import Sponge.NonPipelined
+import Sponge.XOR qualified as XOR
 
 -- | Padding function + XOR, flips 5 bits depending on the current beatCounter
 pad :: Index 17 -> BitVector 1600 -> BitVector 1600
@@ -166,8 +167,8 @@ sponge ::
   Signal dom (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
 sponge permModule = mealy step (State (Absorb 0) 0)
   where
-    step :: State 17 -> (AXI4Stream MsgBits, Bool, Bool) -> (State 17, (AXI4Stream DigestBits, Bool))
-    step (State (Absorb counter) state) (input, _tready, flush) = absorb pad counter state input flush
+    step :: State 17 17 -> (AXI4Stream MsgBits, Bool, Bool) -> (State 17 17, (AXI4Stream DigestBits, Bool))
+    step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
     step (State (Squeeze counter) state) (_msg, tready, _flush)
       | counter == 16 =

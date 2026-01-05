@@ -323,10 +323,10 @@ msg1408 :: ByteString
 msg1408 = BS8.replicate (22 * 8) 'b'
 
 msg2016 :: ByteString
-msg2016 = BS8.pack $ take (252) (cycle "0123456789abcdef")
+msg2016 = BS8.pack $ P.take 252 (P.cycle "0123456789abcdef")
 
 msg2688 :: ByteString
-msg2688 = BS8.pack $ take (336) (cycle "qwertyuiopasdfgh")
+msg2688 = BS8.pack $ P.take 336 (P.cycle "qwertyuiopasdfgh")
 
 --------------------------------------------------------------------------------
 -- Stall / backpressure patterns
