@@ -52,6 +52,16 @@
 
 [bench] Time/Mem: load 2.60s | compile 3.42s | synth 12.73s | mem 2149.11 MB
 
+* 20260105: standalone, decoupled from SHA3-256
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_NonPipelined_SHAKE256_topEntity_keccakF1600Round       9516.682            0.000     0.00%
+  Hash_NonPipelined_SHAKE256_topEntity_spongeFSM      18971.120         8559.880    45.12%
+  SHAKE_256_NonPipelined                             28487.802         8559.880    30.05%
+
+[bench] Time/Mem: load 2.73s | compile 0.64s | synth 17.97s | mem 3246.80 MB
+
 ## Sponge
 
 * Baseline: stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output

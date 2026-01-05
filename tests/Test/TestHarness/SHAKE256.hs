@@ -53,7 +53,7 @@ import Data.ByteString qualified as BS
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
-import Hash.SHAKE256 qualified as SHAKE256
+import Hash.NonPipelined.SHAKE256 qualified as SHAKE256
 import Prelude qualified as P
 import Reference.Hash qualified as Hash
 import Test.Hspec (Expectation, shouldBe)

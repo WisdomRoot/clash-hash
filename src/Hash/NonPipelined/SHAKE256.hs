@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Hash.SHAKE256
+module Hash.NonPipelined.SHAKE256
   ( -- * NonPipelined SHAKE256 Top Entity
     topEntity,
   )
@@ -9,7 +9,7 @@ where
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
 import Permutation.Perm qualified as Perm
-import Sponge.NonPipelined qualified
+import Sponge.NonPipelined.SHAKE256 qualified
 
 --------------------------------------------------------------------------------
 -- NonPipelined SHAKE256 Top Entity
@@ -64,4 +64,4 @@ topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig
           inputWithFlush = bundle (msgSig, treadySig, flushSig)
-       in Sponge.NonPipelined.sponge @System Sponge.NonPipelined.SHAKE spongeFSM inputWithFlush
+       in Sponge.NonPipelined.SHAKE256.sponge @System spongeFSM inputWithFlush
