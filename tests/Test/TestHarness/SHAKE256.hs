@@ -155,8 +155,7 @@ instance Arbitrary SHAKE256Test where
           (1, pure 256) -- 2048 bits - multiple squeezes
         ]
     upstreamStall <- arbitrary
-    downstreamBackpressure <- arbitrary
-    pure $ SHAKE256Test messageBytes outputBytes upstreamStall downstreamBackpressure
+    SHAKE256Test messageBytes outputBytes upstreamStall <$> arbitrary
 
 --------------------------------------------------------------------------------
 -- Test execution
@@ -240,7 +239,7 @@ runHardware' test beats =
       samples = sampleN @System sampleCount output
 
       -- Extract valid output data
-      validOutputs = [(tdata stream) | (stream, _) <- samples, tvalid stream]
+      validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
 
       -- Convert output words to bits and take required amount
       -- CRITICAL: Take exactly outputBeats before converting to bits

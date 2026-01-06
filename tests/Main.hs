@@ -29,7 +29,8 @@ main = do
   defaultMain $
     testGroup
       "All Tests"
-      [ constantsTests,
+      [
+        constantsTests,
         permutationTests,
         combinationalTests,
         n256Tests,

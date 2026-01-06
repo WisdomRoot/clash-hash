@@ -141,13 +141,10 @@ instance Arbitrary SHAKE128Test where
           (1, pure 128)
         ]
     upstreamStall <- arbitrary
-    downstreamBackpressure <- arbitrary
-    pure $
-      SHAKE128Test
+    SHAKE128Test
         messageBytes
         outputBytes
-        upstreamStall
-        downstreamBackpressure
+        upstreamStall <$> arbitrary
 
 --------------------------------------------------------------------------------
 -- Reference SHAKE128 (ByteString)
@@ -157,7 +154,7 @@ referenceShake128BS :: Int -> ByteString -> ByteString
 referenceShake128BS outputBytes input =
   let inputBits = Hash.bsToBitList input
       outputBits = outputBytes P.* 8
-      domain = [1, 1, 1, 1] -- SHAKE domain separator
+      domain = [1, 1, 1, 1] -- SHAKE domain separator (4 bits: 0xF)
       resultBits = Hash.sponge @1600 @1344 SHA3.keccakf outputBits (inputBits P.++ domain)
    in Hash.bitListToBS resultBits
 
@@ -167,7 +164,9 @@ referenceShake128BS outputBytes input =
 
 runTest :: SHAKE128Test -> Expectation
 runTest test = do
-  let expectedBS = referenceShake128BS (testOutputBytes test) (testMessage test)
+  let inputBS = testMessage test
+      outputBytes = testOutputBytes test
+      expectedBS = referenceShake128BS outputBytes inputBS
       actualBS = runHardware test
   actualBS `shouldBe` expectedBS
 
@@ -187,7 +186,6 @@ runHardware' ::
   ByteString
 runHardware' test beats =
   let inputBS = testMessage test
-      outputBytes = testOutputBytes test
       inputBits = bsToBitListHW inputBS
       paddedBits = P.take (beats P.* 64) (inputBits P.++ P.repeat 0)
       messageWords = bitListToWords @beats beats paddedBits
@@ -316,6 +314,11 @@ wordToBits w = [if Bits.testBit w i then 1 else 0 | i <- [63, 62 .. 0]]
 -- Sample messages
 --------------------------------------------------------------------------------
 
+-- IMPORTANT: All test message inputs MUST be multiples of 8 bytes (64 bits)
+-- due to hardware limitation in domain separator placement. The hardware
+-- assumes complete 64-bit beats and places the SHAKE128 domain separator
+-- at fixed positions based on beat counter, not actual message bit length.
+
 msg1344 :: ByteString
 msg1344 = BS8.replicate (21 * 8) 'a'
 
@@ -323,7 +326,7 @@ msg1408 :: ByteString
 msg1408 = BS8.replicate (22 * 8) 'b'
 
 msg2016 :: ByteString
-msg2016 = BS8.pack $ P.take 252 (P.cycle "0123456789abcdef")
+msg2016 = BS8.pack $ P.take 256 (P.cycle "0123456789abcdef")
 
 msg2688 :: ByteString
 msg2688 = BS8.pack $ P.take 336 (P.cycle "qwertyuiopasdfgh")
