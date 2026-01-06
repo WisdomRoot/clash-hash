@@ -5,12 +5,13 @@
 
 module Test.NonPipelined.SHAKE128 (spec) where
 
-import Data.ByteString.Char8 qualified as BS8
 import Data.Foldable (for_)
-import Prelude (($))
+import Prelude (($), fmap)
 import Test.Hspec
 import Test.QuickCheck
 import Test.TestHarness.SHAKE128
+import Test.TestHarness.SHAKECommon qualified as Common
+import Test.TestHarness.SHAKESamples qualified as Samples
 
 spec :: Spec
 spec = describe "NonPipelined SHAKE-128 Tests" $ do
@@ -36,38 +37,21 @@ spec = describe "NonPipelined SHAKE-128 Tests" $ do
       withMaxSuccess 10 $
         property $ \(testCase :: SHAKE128Test) -> runTest testCase
 
--- | Basic test cases covering SHAKE128-specific boundaries
+fromShared :: [Common.ShakeTest] -> [SHAKE128Test]
+fromShared = fmap SHAKE128Test
+
+-- | Basic test cases (shared with SHAKE256)
 testCases :: [SHAKE128Test]
-testCases =
-  [ makeBasicTest BS8.empty 32,
-    makeBasicTest "qwertyui" 32,
-    makeBasicTest msg1344 32,
-    makeBasicTest msg2016 32,
-    makeBasicTest msg2688 64
-  ]
+testCases = fromShared Samples.basicCases
 
 -- | Variable output length coverage
 testCasesVariableOutput :: [SHAKE128Test]
-testCasesVariableOutput =
-  [ makeVariableOutputTest "minimal8" 8,
-    makeVariableOutputTest "16byte_test_data" 40,
-    makeVariableOutputTest "testdata" 256
-  ]
+testCasesVariableOutput = fromShared Samples.variableOutputCases
 
 -- | Upstream stall scenarios
 testCasesWithStalls :: [SHAKE128Test]
-testCasesWithStalls =
-  [ makeStallTest msg1344 64 stallPatternAggressive,
-    makeStallTest msg2016 32 stallPatternModerate
-  ]
+testCasesWithStalls = fromShared Samples.stallCases
 
 -- | Downstream backpressure scenarios
 testCasesWithBackpressure :: [SHAKE128Test]
-testCasesWithBackpressure =
-  [ makeBackpressureTest msg1344 128 backpressurePatternSimple,
-    makeCombinedTest
-      msg1408
-      256
-      stallPatternSimple
-      backpressurePatternAggressive
-  ]
+testCasesWithBackpressure = fromShared Samples.backpressureCases

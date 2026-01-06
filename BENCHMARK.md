@@ -62,6 +62,18 @@
 
 [bench] Time/Mem: load 2.69s | compile 3.63s | synth 16.89s | mem 3222.78 MB
 
+## SHAKE128
+
+* 20260106: baseline
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_NonPipelined_SHAKE128_topEntity_pad            9517.480            0.000     0.00%
+  Hash_NonPipelined_SHAKE128_topEntity_spongeFSM      19273.828         8559.880    44.41%
+  SHAKE_128_NonPipelined                             28791.308         8559.880    29.73%
+
+[bench] Time/Mem: load 2.79s | compile 3.57s | synth 16.79s | mem 3218.16 MB
+
 ## Sponge
 
 * Baseline: stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output
