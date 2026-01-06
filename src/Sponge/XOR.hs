@@ -7,7 +7,8 @@ module Sponge.XOR
     shiftAndMask,
     caseBasedXOR,
     chunkBasedXOR,
-    staticXOR
+    staticXOR256,
+    staticXOR128,
   )
 where
 
@@ -82,8 +83,8 @@ caseBasedXOR state block beatCounter =
 -- Hash_Stateful5_topEntity_keccakF1600Round          15047.886            0.000     0.00%
 -- Hash_Stateful5_topEntity_spongeFSM                 16291.436         8543.920    52.44%
 -- Stateful5_SHA3                                     31339.322         8543.920    27.26%
-staticXOR :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
-staticXOR state block beatCounter =
+staticXOR256 :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
+staticXOR256 state block beatCounter =
   case beatCounter of
     0 -> setSlice (SNat @1599) (SNat @1536) (slice (SNat @1599) (SNat @1536) state `xor` block) state
     1 -> setSlice (SNat @1535) (SNat @1472) (slice (SNat @1535) (SNat @1472) state `xor` block) state
@@ -102,6 +103,33 @@ staticXOR state block beatCounter =
     14 -> setSlice d703 d640 (slice d703 d640 state `xor` block) state
     15 -> setSlice d639 d576 (slice d639 d576 state `xor` block) state
     16 -> setSlice d575 d512 (slice d575 d512 state `xor` block) state
+    _ -> state
+
+-- | XOR helper covering the full SHAKE128 rate (21 beats).
+staticXOR128 :: BitVector 1600 -> BitVector 64 -> Index 21 -> BitVector 1600
+staticXOR128 state block beat =
+  case beat of
+    0 -> setSlice (SNat @1599) (SNat @1536) (slice (SNat @1599) (SNat @1536) state `xor` block) state
+    1 -> setSlice (SNat @1535) (SNat @1472) (slice (SNat @1535) (SNat @1472) state `xor` block) state
+    2 -> setSlice (SNat @1471) (SNat @1408) (slice (SNat @1471) (SNat @1408) state `xor` block) state
+    3 -> setSlice (SNat @1407) (SNat @1344) (slice (SNat @1407) (SNat @1344) state `xor` block) state
+    4 -> setSlice (SNat @1343) (SNat @1280) (slice (SNat @1343) (SNat @1280) state `xor` block) state
+    5 -> setSlice (SNat @1279) (SNat @1216) (slice (SNat @1279) (SNat @1216) state `xor` block) state
+    6 -> setSlice (SNat @1215) (SNat @1152) (slice (SNat @1215) (SNat @1152) state `xor` block) state
+    7 -> setSlice (SNat @1151) (SNat @1088) (slice (SNat @1151) (SNat @1088) state `xor` block) state
+    8 -> setSlice (SNat @1087) (SNat @1024) (slice (SNat @1087) (SNat @1024) state `xor` block) state
+    9 -> setSlice (SNat @1023) (SNat @960) (slice (SNat @1023) (SNat @960) state `xor` block) state
+    10 -> setSlice (SNat @959) (SNat @896) (slice (SNat @959) (SNat @896) state `xor` block) state
+    11 -> setSlice (SNat @895) (SNat @832) (slice (SNat @895) (SNat @832) state `xor` block) state
+    12 -> setSlice (SNat @831) (SNat @768) (slice (SNat @831) (SNat @768) state `xor` block) state
+    13 -> setSlice (SNat @767) (SNat @704) (slice (SNat @767) (SNat @704) state `xor` block) state
+    14 -> setSlice (SNat @703) (SNat @640) (slice (SNat @703) (SNat @640) state `xor` block) state
+    15 -> setSlice (SNat @639) (SNat @576) (slice (SNat @639) (SNat @576) state `xor` block) state
+    16 -> setSlice (SNat @575) (SNat @512) (slice (SNat @575) (SNat @512) state `xor` block) state
+    17 -> setSlice (SNat @511) (SNat @448) (slice (SNat @511) (SNat @448) state `xor` block) state
+    18 -> setSlice (SNat @447) (SNat @384) (slice (SNat @447) (SNat @384) state `xor` block) state
+    19 -> setSlice (SNat @383) (SNat @320) (slice (SNat @383) (SNat @320) state `xor` block) state
+    20 -> setSlice (SNat @319) (SNat @256) (slice (SNat @319) (SNat @256) state `xor` block) state
     _ -> state
 
 -- | Chunk-based XOR using slice operations

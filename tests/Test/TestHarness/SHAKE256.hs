@@ -1,8 +1,5 @@
 module Test.TestHarness.SHAKE256
   ( ShakeTest,
-    UpstreamStall (..),
-    DownstreamBackpressure (..),
-    shake256Params,
     runTest,
     runHardware,
     testLabel
@@ -14,13 +11,10 @@ import Hash.NonPipelined.SHAKE256 qualified as SHAKE256
 import Reference.Hash qualified as Hash
 import Test.Hspec (Expectation)
 import Test.TestHarness.SHAKECommon
-  ( DownstreamBackpressure (..),
-    ShakeParams (..),
+  ( ShakeParams (..),
     ShakeTest,
-    UpstreamStall (..),
     runShakeHardware,
-    runShakeTest,
-    shake256GenConfig
+    runShakeTest
   )
 import Test.TestHarness.SHAKECommon qualified as Common
 import Prelude

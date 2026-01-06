@@ -33,7 +33,7 @@ import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
 import Test.Hspec (Expectation, shouldBe)
-import Test.QuickCheck (Arbitrary (..), Gen, frequency, listOf1, vector)
+import Test.QuickCheck (Arbitrary (..), Gen, chooseInt, frequency, listOf1, vector)
 import Prelude qualified as P
 
 --------------------------------------------------------------------------------
@@ -74,6 +74,7 @@ data ShakeTest = ShakeTest
 
 data ShakeGenConfig = ShakeGenConfig
   { sgBeatOptions :: [(Int, Int)],
+    sgBeatRanges :: [(Int, Int, Int)],
     sgOutputOptions :: [(Int, Int)]
   }
 
@@ -95,6 +96,7 @@ defaultShakeGenConfig =
           (1, 42),
           (1, 50)
         ],
+      sgBeatRanges = [(1, 0, 99)],
       sgOutputOptions =
         [ (2, 8),
           (1, 16),
@@ -141,7 +143,7 @@ shake256GenConfig =
 
 genShakeTest :: ShakeGenConfig -> Gen ShakeTest
 genShakeTest config = do
-  beatCount <- frequency (toFreq <$> sgBeatOptions config)
+  beatCount <- frequency (optionFreqs P.++ rangeFreqs)
   messageBytes <- BS.pack <$> vector (beatCount P.* 8)
   outputBytes <- frequency (toFreq <$> sgOutputOptions config)
   upstreamStall <- arbitrary
@@ -152,6 +154,11 @@ genShakeTest config = do
     <$> arbitrary
   where
     toFreq (weight, value) = (weight, pure value)
+    optionFreqs = toFreq <$> sgBeatOptions config
+    rangeFreqs =
+      [ (weight, chooseInt (lo, hi))
+        | (weight, lo, hi) <- sgBeatRanges config
+      ]
 
 instance Arbitrary ShakeTest where
   arbitrary = genShakeTest defaultShakeGenConfig
