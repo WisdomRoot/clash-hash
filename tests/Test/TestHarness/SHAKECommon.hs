@@ -7,6 +7,11 @@ module Test.TestHarness.SHAKECommon
     ShakeTest (..),
     ShakeParams (..),
     ShakeTopEntity,
+    ShakeGenConfig (..),
+    defaultShakeGenConfig,
+    shake128GenConfig,
+    shake256GenConfig,
+    genShakeTest,
     testLabel,
     runShakeTest,
     runShakeHardware,
@@ -14,7 +19,7 @@ module Test.TestHarness.SHAKECommon
     makeVariableOutputTest,
     makeStallTest,
     makeBackpressureTest,
-    makeCombinedTest
+    makeCombinedTest,
   )
 where
 
@@ -27,9 +32,9 @@ import Data.ByteString qualified as BS
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
-import Prelude qualified as P
 import Test.Hspec (Expectation, shouldBe)
-import Test.QuickCheck (Arbitrary (..), frequency, listOf1)
+import Test.QuickCheck (Arbitrary (..), Gen, frequency, listOf1, vector)
+import Prelude qualified as P
 
 --------------------------------------------------------------------------------
 -- Shared data types
@@ -66,6 +71,90 @@ data ShakeTest = ShakeTest
     testDownstreamBackpressure :: DownstreamBackpressure
   }
   deriving (Show)
+
+data ShakeGenConfig = ShakeGenConfig
+  { sgBeatOptions :: [(Int, Int)],
+    sgOutputOptions :: [(Int, Int)]
+  }
+
+defaultShakeGenConfig :: ShakeGenConfig
+defaultShakeGenConfig =
+  ShakeGenConfig
+    { sgBeatOptions =
+        [ (1, 0),
+          (2, 1),
+          (1, 2),
+          (1, 16),
+          (2, 17),
+          (1, 18),
+          (1, 20),
+          (2, 21),
+          (1, 22),
+          (1, 25),
+          (1, 34),
+          (1, 42),
+          (1, 50)
+        ],
+      sgOutputOptions =
+        [ (2, 8),
+          (1, 16),
+          (2, 32),
+          (1, 64),
+          (1, 96),
+          (1, 128),
+          (1, 256)
+        ]
+    }
+
+shake128GenConfig :: ShakeGenConfig
+shake128GenConfig =
+  defaultShakeGenConfig
+    { sgBeatOptions =
+        [ (1, 0),
+          (2, 1),
+          (1, 2),
+          (1, 20),
+          (4, 21),
+          (2, 22),
+          (1, 25),
+          (2, 30),
+          (2, 42),
+          (1, 50)
+        ]
+    }
+
+shake256GenConfig :: ShakeGenConfig
+shake256GenConfig =
+  defaultShakeGenConfig
+    { sgBeatOptions =
+        [ (1, 0),
+          (2, 1),
+          (1, 2),
+          (1, 16),
+          (4, 17),
+          (2, 18),
+          (1, 25),
+          (2, 34),
+          (2, 51)
+        ]
+    }
+
+genShakeTest :: ShakeGenConfig -> Gen ShakeTest
+genShakeTest config = do
+  beatCount <- frequency (toFreq <$> sgBeatOptions config)
+  messageBytes <- BS.pack <$> vector (beatCount P.* 8)
+  outputBytes <- frequency (toFreq <$> sgOutputOptions config)
+  upstreamStall <- arbitrary
+  ShakeTest
+    messageBytes
+    outputBytes
+    upstreamStall
+    <$> arbitrary
+  where
+    toFreq (weight, value) = (weight, pure value)
+
+instance Arbitrary ShakeTest where
+  arbitrary = genShakeTest defaultShakeGenConfig
 
 testLabel :: ShakeTest -> String
 testLabel test =
@@ -124,7 +213,7 @@ runShakeHardware params test =
 
 runHardwareKnown ::
   forall beats.
-  KnownNat beats =>
+  (KnownNat beats) =>
   ShakeParams ->
   ShakeTest ->
   Int ->
@@ -136,11 +225,12 @@ runHardwareKnown params test beats beatsPerBlock =
       paddedBits = P.take (beats P.* 64) (inputBits P.++ P.repeat 0)
       messageWords = bitListToWords @beats beats paddedBits
       inputStream =
-        withClockResetEnable clockGen resetGen enableGen $
-          feedInput @beats beatsPerBlock (testUpstreamStall test) messageWords
+        withClockResetEnable clockGen resetGen enableGen
+          $ feedInput @beats beatsPerBlock (testUpstreamStall test) messageWords
       treadySignal = makeBackpressureSignal (testDownstreamBackpressure test)
       output =
-        spTopEntity params
+        spTopEntity
+          params
           clockGen
           resetGen
           enableGen
@@ -191,8 +281,9 @@ feedInput beatsPerBlock control messageWords =
            in if P.not canSend
                 then ((xs, waitCount, emittedInBlock, ctrl', wasEmpty), (idleBeat, False))
                 else case xs of
-                  [] | wasEmpty ->
-                    (([], 0, 0, ctrl', False), (idleBeat, True))
+                  []
+                    | wasEmpty ->
+                        (([], 0, 0, ctrl', False), (idleBeat, True))
                   [] -> (([], 0, 0, ctrl', False), (idleBeat, False))
                   y : ys ->
                     let isLast = P.null ys
@@ -243,7 +334,7 @@ bitListToBSHW bits =
        in byte : packBytes rest
     setBit' acc (i, b) = if b == 1 then Bits.setBit acc i else acc
 
-bitListToWords :: forall beats. KnownNat beats => Int -> [Bit] -> Vec beats (BitVector 64)
+bitListToWords :: forall beats. (KnownNat beats) => Int -> [Bit] -> Vec beats (BitVector 64)
 bitListToWords n bits =
   let chunks = chunksOf 64 bits
       wordsList = P.map bitsToWord (P.take n chunks)

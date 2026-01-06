@@ -15,6 +15,8 @@ module Test.TestHarness.SHAKESamples
     backpressurePatternSimple,
     backpressurePatternModerate,
     backpressurePatternAggressive,
+    shake128Gen,
+    shake256Gen,
     basicCases,
     variableOutputCases,
     stallCases,
@@ -24,15 +26,19 @@ where
 
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 qualified as BS8
-import Prelude
+import Test.QuickCheck (Gen)
 import Test.TestHarness.SHAKECommon
   ( ShakeTest,
+    genShakeTest,
     makeBackpressureTest,
     makeBasicTest,
     makeCombinedTest,
     makeStallTest,
-    makeVariableOutputTest
+    makeVariableOutputTest,
+    shake128GenConfig,
+    shake256GenConfig
   )
+import Prelude
 
 --------------------------------------------------------------------------------
 -- Shared message fixtures
@@ -86,6 +92,12 @@ backpressurePatternModerate =
   [True, False, True, False, True, False, True, False, True, False]
 backpressurePatternAggressive =
   [True, False, False, False, True, False, False, True, False, False]
+
+shake128Gen :: Gen ShakeTest
+shake128Gen = genShakeTest shake128GenConfig
+
+shake256Gen :: Gen ShakeTest
+shake256Gen = genShakeTest shake256GenConfig
 
 --------------------------------------------------------------------------------
 -- Shared ShakeTest suites
