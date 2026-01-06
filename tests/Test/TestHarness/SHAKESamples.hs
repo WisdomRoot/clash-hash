@@ -17,6 +17,9 @@ module Test.TestHarness.SHAKESamples
     backpressurePatternAggressive,
     shake128Gen,
     shake256Gen,
+    sha3BasicCases,
+    sha3StallCases,
+    sha3BackpressureCases,
     basicCases,
     variableOutputCases,
     stallCases,
@@ -72,6 +75,9 @@ msg2688 = BS8.pack $ take 336 (cycle "qwertyuiopasdfgh")
 
 msg3200 :: ByteString
 msg3200 = BS8.pack $ take 400 (cycle "abcdef0123456789")
+
+msg8 :: ByteString
+msg8 = "qwertyui"
 
 --------------------------------------------------------------------------------
 -- Shared stall / backpressure patterns
@@ -140,6 +146,32 @@ backpressureCases =
     makeCombinedTest
       msg1088
       256
+      stallPatternAggressive
+      backpressurePatternAggressive
+  ]
+
+--------------------------------------------------------------------------------
+-- SHA3-256 deterministic cases
+--------------------------------------------------------------------------------
+
+sha3BasicCases :: [ShakeTest]
+sha3BasicCases =
+  [ makeBasicTest msg8 32,
+    makeBasicTest msg1088 32,
+    makeBasicTest msg1600 32,
+    makeBasicTest msg3200 32
+  ]
+
+sha3StallCases :: [ShakeTest]
+sha3StallCases =
+  [ makeStallTest msg1088 32 stallPatternAggressive
+  ]
+
+sha3BackpressureCases :: [ShakeTest]
+sha3BackpressureCases =
+  [ makeCombinedTest
+      msg1088
+      32
       stallPatternAggressive
       backpressurePatternAggressive
   ]
