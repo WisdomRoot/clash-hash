@@ -14,24 +14,17 @@ import Data.ByteString qualified as BS
 import Data.Vector (Vector)
 import Data.Vector qualified as V
 import Data.Word (Word16, Word8)
-import Reference.Hash qualified as Hash
-import Reference.SHA3 qualified as SHA3
+import Reference.Crypton qualified as Crypton
 import Prelude
 
 -- | Kyber/ML-KEM modulus Q = 3329
 q :: Word16
 q = 3329
 
--- | Generate infinite byte stream from SHAKE-128 XOF
+-- | Generate 2048 bytes from SHAKE-128 XOF (using crypton library)
 -- Pre-generates 2048 bytes to handle unlucky rejection sampling cases
 shake128XOF :: ByteString -> [Word8]
-shake128XOF seed =
-  let inputBits = Hash.bsToBitList seed
-      domain = [1, 1, 1, 1] -- SHAKE-128 domain separator
-      outputBits = 2048 * 8 -- 2048 bytes = 16384 bits
-      resultBits = Hash.sponge @1600 @1344 SHA3.keccakf outputBits (inputBits ++ domain)
-      resultBS = Hash.bitListToBS resultBits
-   in BS.unpack resultBS
+shake128XOF seed = BS.unpack (Crypton.shake128 2048 seed)
 
 -- | Extract two 12-bit values from three bytes (little-endian)
 -- Returns (d1, d2) where:
