@@ -1,10 +1,11 @@
-{-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
+{-# HLINT ignore "Use list comprehension" #-}
 module Reference.SampleNTT
   ( sampleNTT,
     sampleNTTBS,
     shake128XOF,
-    q
+    q,
   )
 where
 
@@ -39,7 +40,7 @@ extractTwoCoeffs b0 b1 b2 =
 -- | Rejection sampling: convert byte stream to valid coefficients
 -- Accepts coefficients < 3329, rejects others
 rejectionSample :: [Word8] -> [Word16]
-rejectionSample bytes = go bytes
+rejectionSample = go
   where
     go (b0 : b1 : b2 : rest) =
       let (d1, d2) = extractTwoCoeffs b0 b1 b2

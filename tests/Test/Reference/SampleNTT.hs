@@ -2,10 +2,7 @@
 
 module Test.Reference.SampleNTT (spec) where
 
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as BS
 import Data.Vector qualified as V
-import Data.Word (Word16)
 import Reference.SampleNTT
 import Test.Hspec
 import Prelude
@@ -57,7 +54,7 @@ propertyTests = describe "Property Tests" $ do
     -- Test multiple seeds to ensure range is always valid
     let seeds = ["prop1", "prop2", "prop3", "prop4", "prop5"]
     let results = map sampleNTT seeds
-    let allInRange = all (\vec -> V.all (< q) vec) results
+    let allInRange = all (V.all (< q)) results
     allInRange `shouldBe` True
 
   it "determinism property" $ do

@@ -8,7 +8,7 @@ where
 
 import Data.ByteString (ByteString)
 import Hash.NonPipelined.SHAKE256 qualified as SHAKE256
-import Reference.Hash qualified as Hash
+import Reference.Crypton qualified as Crypton
 import Test.Hspec (Expectation)
 import Test.TestHarness.SHAKECommon
   ( ShakeParams (..),
@@ -23,7 +23,7 @@ shake256Params :: ShakeParams
 shake256Params =
   ShakeParams
     { spBeatsPerBlock = 17,
-      spReference = Hash.shake256BS,
+      spReference = Crypton.shake256,
       spTopEntity = SHAKE256.topEntity
     }
 

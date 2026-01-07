@@ -9,7 +9,7 @@ where
 
 import Data.ByteString (ByteString)
 import Hash.NonPipelined.SHA3256 qualified as SHA3256
-import Reference.Hash qualified as Hash
+import Reference.Crypton qualified as Crypton
 import Test.Hspec (Expectation)
 import Test.QuickCheck (Gen)
 import Test.TestHarness.SHAKECommon
@@ -30,7 +30,7 @@ sha3256Params :: ShakeParams
 sha3256Params =
   ShakeParams
     { spBeatsPerBlock = 17,
-      spReference = const Hash.sha3_256BS,
+      spReference = const Crypton.sha3,
       spTopEntity = SHA3256.topEntity
     }
 
