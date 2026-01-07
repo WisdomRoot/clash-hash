@@ -2,6 +2,8 @@
 
 module Sponge.NonPipelined.SHAKE128
   ( sponge,
+    pad,
+    squeezeSlice,
   )
 where
 

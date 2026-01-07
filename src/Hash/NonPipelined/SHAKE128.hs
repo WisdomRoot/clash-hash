@@ -2,7 +2,7 @@
 
 module Hash.NonPipelined.SHAKE128
   ( -- * NonPipelined SHAKE128 Top Entity
-    topEntity,
+    topEntity
   )
 where
 
