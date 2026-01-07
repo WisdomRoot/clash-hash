@@ -53,6 +53,7 @@ library:
     - crypton
     - memory
     - constraints
+    - vector
 
 executables:
   clash:
@@ -131,3 +132,4 @@ tests:
       - bytestring
       - crypton
       - memory
+      - vector

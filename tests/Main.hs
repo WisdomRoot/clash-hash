@@ -11,6 +11,7 @@ import Test.NonPipelined.SHAKE128 qualified
 import Test.Permutation qualified
 import Test.Reference.SHA3 qualified
 import Test.Reference.SHAKE256 qualified
+import Test.Reference.SampleNTT qualified
 import Test.Tasty
 import Test.Tasty.Hspec
 import Prelude
@@ -25,6 +26,7 @@ main = do
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
+  refSampleNTTTests <- testSpec "Reference SampleNTT" Test.Reference.SampleNTT.spec
 
   defaultMain $
     testGroup
@@ -37,5 +39,6 @@ main = do
         n256xTests,
         n128xTests,
         refSha3Tests,
-        refShake256Tests
+        refShake256Tests,
+        refSampleNTTTests
       ]
