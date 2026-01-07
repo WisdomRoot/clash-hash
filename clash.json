@@ -2,6 +2,7 @@
   "N256": "Hash.NonPipelined.SHA3256.topEntity",
   "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
+  "SampleNTT": "Hash.NonPipelined.SampleNTT.topEntity",
   "Perm": "Permutation.Perm.topEntity",
   "Chi": "Permutation.Chi.topEntity",
   "Rho": "Permutation.Rho.topEntity",
