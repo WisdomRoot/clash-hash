@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.NonPipelined.SampleNTT (spec) where
+module Test.SampleNTT (spec) where
 
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -28,9 +28,9 @@ import Test.TestHarness.SHAKESamples
   )
 import Prelude
 
--- SampleNTT ALWAYS outputs 512 bytes (256 coefficients × 2 bytes)
+-- SampleNTT ALWAYS outputs 384 bytes (256 coefficients × 12 bits)
 sampleNTTOutputBytes :: Int
-sampleNTTOutputBytes = 512
+sampleNTTOutputBytes = 384
 
 -- | Create 34-byte seed for ML-KEM: 32-byte rho + i + j
 makeSeed :: ByteString -> Word8 -> Word8 -> ByteString

@@ -4,7 +4,7 @@ Minimal external reference for SampleNTT using kyber-py.
 
 Implements FIPS 203 Algorithm 6 (SampleNTT).
 Input: 34 raw bytes on stdin (32-byte rho + i + j)
-Output: 512 raw bytes on stdout (256 coefficients × 2 bytes, little-endian)
+Output: 384 raw bytes on stdout (256 coefficients × 12 bits, packed)
 """
 import sys
 import os
@@ -26,6 +26,15 @@ xof_bytes = shake_128(input_bytes).digest(840)
 R = PolynomialRing()
 poly_ntt = R.ntt_sample(xof_bytes)
 
-# Output raw 512 bytes (256 coeffs × 2 bytes little-endian)
-for coeff in poly_ntt.coeffs:
-    sys.stdout.buffer.write(coeff.to_bytes(2, 'little'))
+# Pack 256 coefficients as 12-bit values into 384 bytes (128 pairs × 3 bytes)
+# Each pair of coefficients uses 24 bits = 3 bytes
+for i in range(0, 256, 2):
+    c0 = poly_ntt.coeffs[i]
+    c1 = poly_ntt.coeffs[i + 1]
+
+    # Pack two 12-bit coefficients into 3 bytes
+    byte0 = c0 & 0xFF                           # Lower 8 bits of c0
+    byte1 = ((c0 >> 8) & 0x0F) | ((c1 & 0x0F) << 4)  # Upper 4 bits of c0, lower 4 bits of c1
+    byte2 = (c1 >> 4) & 0xFF                    # Upper 8 bits of c1
+
+    sys.stdout.buffer.write(bytes([byte0, byte1, byte2]))

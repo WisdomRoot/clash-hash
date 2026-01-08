@@ -8,7 +8,7 @@ where
 
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Hash.NonPipelined.SampleNTT qualified as SampleNTT
+import Component.SampleNTT qualified as SampleNTT
 import System.FilePath ((</>))
 import Test.Hspec (Expectation)
 import Test.TestHarness.ExternalReference (callPythonReference)
@@ -21,8 +21,8 @@ import Test.TestHarness.SHAKECommon
 import Test.TestHarness.SHAKECommon qualified as Common
 import Prelude
 
--- | SampleNTT always outputs 256 coefficients = 512 bytes = 64 beats
--- Input blocks are 21 beats (like SHAKE128) but output is fixed at 64 beats
+-- | SampleNTT always outputs 256 coefficients × 12 bits = 3072 bits = 384 bytes = 48 beats
+-- Input blocks are 21 beats (like SHAKE128) but output is fixed at 48 beats
 sampleNTTParams :: ShakeParams
 sampleNTTParams =
   ShakeParams
@@ -32,7 +32,7 @@ sampleNTTParams =
     }
 
 -- | External reference implementation using kyber-py
--- SampleNTT always produces 256 coefficients = 512 bytes regardless of requested output size
+-- SampleNTT always produces 256 coefficients × 12 bits = 384 bytes regardless of requested output size
 externalSampleNTT :: ByteString -> ByteString
 externalSampleNTT = callPythonReference ("reference" </> "kyber" </> "sample_ntt.py")
 
