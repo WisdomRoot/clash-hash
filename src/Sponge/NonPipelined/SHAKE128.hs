@@ -206,9 +206,9 @@ sponge ::
 sponge permModule = mealy step (State (Absorb 0) 0)
   where
     step ::
-      State PadBeats RateBeats ->
+      State PadBeats (Index RateBeats) ->
       (AXI4Stream MsgBits, Bool, Bool) ->
-      (State PadBeats RateBeats, (AXI4Stream DigestBits, Bool))
+      (State PadBeats (Index RateBeats), (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR128 counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) =
       permute permModule pad counter seenTLAST state tready

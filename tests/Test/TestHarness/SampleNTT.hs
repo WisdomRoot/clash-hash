@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Test.TestHarness.SampleNTT
   ( ShakeTest,
     runTest,
@@ -8,14 +6,12 @@ module Test.TestHarness.SampleNTT
   )
 where
 
-import Data.Bits qualified as Bits
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Vector qualified as V
-import Data.Word (Word16, Word8)
 import Hash.NonPipelined.SampleNTT qualified as SampleNTT
-import Reference.SampleNTT qualified as Ref
+import System.FilePath ((</>))
 import Test.Hspec (Expectation)
+import Test.TestHarness.ExternalReference (callPythonReference)
 import Test.TestHarness.SHAKECommon
   ( ShakeParams (..),
     ShakeTest,
@@ -30,26 +26,15 @@ import Prelude
 sampleNTTParams :: ShakeParams
 sampleNTTParams =
   ShakeParams
-    { spBeatsPerBlock = 64,  -- 64 beats × 8 bytes = 512 bytes output
-      spReference = referenceSampleNTT,
+    { spBeatsPerBlock = 21, -- SHAKE128 rate: 21 beats/absorb block (21*64 = 1344 bits)
+      spReference = \outBytes seed -> BS.take outBytes (externalSampleNTT seed),
       spTopEntity = SampleNTT.topEntity
     }
 
--- | Reference implementation wrapper
--- SampleNTT always produces 256 coefficients regardless of requested output size
-referenceSampleNTT :: Int -> ByteString -> ByteString
-referenceSampleNTT _outputBytes input =
-  let coeffVec = Ref.sampleNTT input
-      coeffList = V.toList coeffVec
-      bytes = concatMap word16ToBytesLE coeffList
-   in BS.pack bytes
-  where
-    -- Little-endian encoding of Word16
-    word16ToBytesLE :: Word16 -> [Word8]
-    word16ToBytesLE w =
-      [ fromIntegral (w Bits..&. 0xFF),
-        fromIntegral (w `Bits.shiftR` 8)
-      ]
+-- | External reference implementation using kyber-py
+-- SampleNTT always produces 256 coefficients = 512 bytes regardless of requested output size
+externalSampleNTT :: ByteString -> ByteString
+externalSampleNTT = callPythonReference ("reference" </> "kyber" </> "sample_ntt.py")
 
 runTest :: ShakeTest -> Expectation
 runTest = runShakeTest sampleNTTParams

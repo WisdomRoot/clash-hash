@@ -35,12 +35,12 @@ data SeenTLAST
   deriving (Show, Eq, Generic, NFDataX)
 
 -- | Phases of the sponge operation
-data Phase k n
+data Phase k q
   = Absorb (Index k)
   | Permute
       (Index 24)
       SeenTLAST
-  | Squeeze (Index n)
+  | Squeeze q
   deriving
     ( Show,
       Eq,
@@ -101,7 +101,7 @@ permute ::
   SeenTLAST ->
   BitVector 1600 ->
   Bool ->
-  (State k n, (AXI4Stream 64, Bool))
+  (State k (Index n), (AXI4Stream 64, Bool))
 permute permModule pad counter seenTLAST state tready =
   let state' = permModule counter state
    in if counter == 23

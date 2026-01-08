@@ -48,3 +48,6 @@ cabal.config
 *.cabal
 
 .yosys-plugins
+
+# Python virtual environment (created by flake.nix shell hook)
+.venv/

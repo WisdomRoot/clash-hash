@@ -133,3 +133,5 @@ tests:
       - crypton
       - memory
       - vector
+      - process
+      - filepath

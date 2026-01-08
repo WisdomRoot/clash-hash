@@ -104,6 +104,17 @@
               export CXX=${pkgs.clang}/bin/clang++
               export MACOSX_DEPLOYMENT_TARGET=15.0
               export NIX_LDFLAGS="-w $NIX_LDFLAGS"
+
+              # Set KYBER_PY_PATH for external reference tests
+              export KYBER_PY_PATH=$PWD/../kyber-py/src
+
+              # Setup Python virtual environment for kyber-py
+              if [ ! -d .venv ]; then
+                echo "Creating Python virtual environment..."
+                ${pkgs.python3}/bin/python -m venv .venv
+                .venv/bin/pip install --quiet kyber-py
+              fi
+              source .venv/bin/activate
             '';
           };
         });
