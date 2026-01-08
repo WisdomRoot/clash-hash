@@ -6,6 +6,7 @@ module Test.TestHarness.SampleNTT
   )
 where
 
+import Clash.Prelude (unbundle)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Component.SampleNTT qualified as SampleNTT
@@ -28,7 +29,9 @@ sampleNTTParams =
   ShakeParams
     { spBeatsPerBlock = 21, -- SHAKE128 rate: 21 beats/absorb block (21*64 = 1344 bits)
       spReference = \outBytes seed -> BS.take outBytes (externalSampleNTT seed),
-      spTopEntity = SampleNTT.topEntity
+      spTopEntity = \clk rst en treadySig inputPair ->
+        let (msgSig, _) = unbundle inputPair
+         in SampleNTT.topEntity clk rst en treadySig msgSig
     }
 
 -- | External reference implementation using kyber-py

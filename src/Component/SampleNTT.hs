@@ -7,7 +7,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
--- import Sponge.NonPipelined.SHAKE128 qualified as SHAKE128
+import Hash.NonPipelined.SHAKE128 qualified as SHAKE128
 
 {-# ANN
   topEntity
@@ -22,8 +22,7 @@ import Clash.Prelude hiding (permute, tlast)
               "MSG"
               [ PortName "MSG_TDATA",
                 PortName "MSG_TVALID",
-                PortName "MSG_TLAST",
-                PortName "MSG_FLUSH"
+                PortName "MSG_TLAST"
               ]
           ],
         t_output =
@@ -45,24 +44,25 @@ topEntity ::
   Signal System (AXI4Stream 64) ->
   Signal System (AXI4Stream 64, Bool)
 topEntity clk rst en treadySig inputSig =
-  withClockResetEnable clk rst en
-    $ let input = bundle (inputSig, treadySig)
-       in sampleNTT @System input
+  withClockResetEnable clk rst en $
+    let hashInput = bundle (inputSig, treadySig, pure False)
+     in sampleNTT (SHAKE128.hash hashInput)
 
 sampleNTT ::
   forall dom.
   (HiddenClockResetEnable dom) =>
   Signal dom (AXI4Stream 64, Bool) ->
   Signal dom (AXI4Stream 64, Bool)
-sampleNTT = mealy step (State 0 0)
-  where
-    step ::
-      State ->
-      (AXI4Stream 64, Bool) ->
-      (State, (AXI4Stream 64, Bool))
-    step (State beat pointer) (input, ready)
-      | tvalid input && ready = undefined
-      | otherwise = (State beat pointer, (idleAXI4Stream, False))
+sampleNTT = id
+  -- mealy step (State 0 0)
+  -- where
+  --   step ::
+  --     State ->
+  --     (AXI4Stream 64, Bool) ->
+  --     (State, (AXI4Stream 64, Bool))
+  --   step (State beat pointer) (input, ready)
+  --     | tvalid input && ready = undefined
+  --     | otherwise = (State beat pointer, (idleAXI4Stream, False))
 
 -- -- | Stateful sponge with AXI4-Stream backpressure support.
 -- {-# OPAQUE sponge #-}

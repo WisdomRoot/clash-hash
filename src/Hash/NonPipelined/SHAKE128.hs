@@ -2,7 +2,8 @@
 
 module Hash.NonPipelined.SHAKE128
   ( -- * NonPipelined SHAKE128 Top Entity
-    topEntity
+    topEntity,
+    hash
   )
 where
 
@@ -63,3 +64,6 @@ topEntity clk rst en treadySig inputSig =
     $ let (msgSig, flushSig) = unbundle inputSig
           inputWithFlush = bundle (msgSig, treadySig, flushSig)
        in Sponge.NonPipelined.SHAKE128.sponge @System spongeFSM inputWithFlush
+
+hash :: (HiddenClockResetEnable dom) => Signal dom (AXI4Stream MsgBits, Bool, Bool) -> Signal dom (AXI4Stream DigestBits, Bool)
+hash = Sponge.NonPipelined.SHAKE128.sponge spongeFSM

@@ -131,14 +131,14 @@ def load_manifest(arg: str) -> tuple[Path, dict]:
     return manifest_path, data
 
 
-def collect_verilog_files(manifest_path: Path, manifest: dict) -> list[Path]:
+def verilog_files_from_manifest(manifest_path: Path, manifest: dict) -> list[Path]:
     files: list[Path] = []
     for entry in manifest.get("files", []):
         name = entry.get("name")
-        if isinstance(name, str) and name.endswith(".v"):
+        if isinstance(name, str) and name.lower().endswith((".v", ".sv")):
             files.append((manifest_path.parent / name).resolve())
     if not files:
-        sys.exit("error: manifest lists no .v files")
+        sys.exit(f"error: manifest at {manifest_path} lists no Verilog/SystemVerilog files")
     return files
 
 
@@ -297,7 +297,27 @@ def run_clash_target(label: str) -> None:
     if not top:
         sys.exit("error: manifest missing top_component.name")
 
-    verilog_files = collect_verilog_files(manifest_path, manifest)
+    seen_files: set[Path] = set()
+    verilog_files: list[Path] = []
+
+    def add_files(paths: list[Path]) -> None:
+        for path in paths:
+            resolved = path.resolve()
+            if resolved not in seen_files:
+                seen_files.add(resolved)
+                verilog_files.append(resolved)
+
+    add_files(verilog_files_from_manifest(manifest_path, manifest))
+
+    dep_entries = manifest.get("dependencies", {})
+    if isinstance(dep_entries, dict):
+        transitive = dep_entries.get("transitive", [])
+        if isinstance(transitive, list):
+            for dep in transitive:
+                if not isinstance(dep, str):
+                    continue
+                dep_manifest_path, dep_manifest = load_manifest(dep)
+                add_files(verilog_files_from_manifest(dep_manifest_path, dep_manifest))
 
     label_name = manifest_path.parent.name
     out_root = DEFAULT_OUTPUT_ROOT / label_name
