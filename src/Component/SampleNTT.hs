@@ -42,27 +42,75 @@ topEntity ::
   Enable System ->
   Signal System Bool ->
   Signal System (AXI4Stream 64) ->
-  Signal System (AXI4Stream 64, Bool)
+  Signal System (AXI4Stream 12, Bool)
 topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en $
-    let hashInput = bundle (inputSig, treadySig, pure False)
-     in sampleNTT (SHAKE128.hash hashInput)
+    let (shakeStream, _shakeTready) = unbundle $ SHAKE128.hash (bundle (inputSig, sampleTready, pure False))
+        (sampleStream, sampleTready) = unbundle $ sampleNTT (bundle (shakeStream, treadySig))
+     in bundle (sampleStream, sampleTready)
 
 sampleNTT ::
   forall dom.
   (HiddenClockResetEnable dom) =>
   Signal dom (AXI4Stream 64, Bool) ->
-  Signal dom (AXI4Stream 64, Bool)
-sampleNTT = id
-  -- mealy step (State 0 0)
-  -- where
-  --   step ::
-  --     State ->
-  --     (AXI4Stream 64, Bool) ->
-  --     (State, (AXI4Stream 64, Bool))
-  --   step (State beat pointer) (input, ready)
-  --     | tvalid input && ready = undefined
-  --     | otherwise = (State beat pointer, (idleAXI4Stream, False))
+  Signal dom (AXI4Stream 12, Bool)
+sampleNTT = mealy step (State 0 0)
+  where
+    step ::
+      State ->
+      (AXI4Stream 64, Bool) ->
+      (State, (AXI4Stream 12, Bool))
+    -- Extract 12-bit chunks from SHAKE128's 64-bit output
+    -- Each 64-bit word contains 5 complete 12-bit coefficients (60 bits used, 4 bits unused)
+    step (State beat pointer) (input, ready)
+      | tvalid input && ready =
+          let -- Calculate current coefficient count (0-indexed, so 255 is the 256th coefficient)
+              coeffCount :: Index 256
+              coeffCount = resize beat * 5 + resize pointer
+              isLastCoeff = coeffCount == 255
+           in if isLastCoeff
+                then
+                  -- Output last coefficient and stay in done state
+                  let -- Extract 12-bit coefficient at correct position
+                      -- pointer 0: [11:0], pointer 1: [23:12], pointer 2: [35:24], pointer 3: [47:36], pointer 4: [59:48]
+                      highBit = fromIntegral pointer * 12 + 11
+                      lowBit = fromIntegral pointer * 12
+                      coeff = slice (SNat @63) (SNat @0) (tdata input) `shiftR` lowBit .&. 0xFFF
+                      outStream =
+                        AXI4Stream
+                          { tdata = resize coeff,
+                            tvalid = True,
+                            tlast = True
+                          }
+                   in (State beat pointer, (outStream, pointer /= 4)) -- Don't advance state
+                else
+                  -- Normal processing
+                  let -- Extract 12-bit coefficient at correct position
+                      lowBit = fromIntegral pointer * 12
+                      coeff = slice (SNat @63) (SNat @0) (tdata input) `shiftR` lowBit .&. 0xFFF
+                      -- Move to next pointer/beat
+                      (nextBeat, nextPointer) =
+                        if pointer == 4
+                          then (beat + 1, 0)
+                          else (beat, pointer + 1)
+                      outStream =
+                        AXI4Stream
+                          { tdata = resize coeff,
+                            tvalid = True,
+                            tlast = False
+                          }
+                   in (State nextBeat nextPointer, (outStream, pointer /= 4))
+      | otherwise = (State beat pointer, (idleAXI4Stream, False))
+
+-- mealy step (State 0 0)
+-- where
+--   step ::
+--     State ->
+--     (AXI4Stream 64, Bool) ->
+--     (State, (AXI4Stream 64, Bool))
+--   step (State beat pointer) (input, ready)
+--     | tvalid input && ready = undefined
+--     | otherwise = (State beat pointer, (idleAXI4Stream, False))
 
 -- -- | Stateful sponge with AXI4-Stream backpressure support.
 -- {-# OPAQUE sponge #-}
