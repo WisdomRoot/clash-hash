@@ -7,9 +7,11 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
+import Debug.Trace (trace)
 import Permutation.Perm qualified as Perm
 import Sponge.NonPipelined
 import Sponge.XOR qualified as XOR
+import Prelude qualified as P
 
 
 {-# ANN
@@ -71,9 +73,11 @@ hashFixed34 msgSig treadySig = mealy step HSInit (bundle (msgSig, treadySig))
                 then (HSSqueeze 0 state', (idleAXI4Stream, False))
                 else (HSPermute (roundIdx + 1) state', (idleAXI4Stream, False))
         HSSqueeze outIdx state ->
-          let outStream =
+          let raw = squeezeSlice outIdx state
+              traced = traceSqueeze tready outIdx raw
+              outStream =
                 AXI4Stream
-                  { tdata = squeezeSlice outIdx state,
+                  { tdata = traced,
                     tvalid = True,
                     tlast = False
                   }
@@ -109,6 +113,76 @@ wordFromBytes bytes =
   let bits :: Vec 64 Bit
       bits = concatMap (reverse . unpack) bytes
    in pack bits
+
+traceSqueeze :: Bool -> Index 21 -> BitVector 64 -> BitVector 64
+traceSqueeze tready outIdx word =
+  if tready
+    then trace (traceMsg outIdx word) word
+    else word
+
+traceMsg :: Index 21 -> BitVector 64 -> P.String
+traceMsg outIdx word =
+  let coeffs = coeffsFromWord word
+      coeffU = fmap (unpack :: BitVector 12 -> Unsigned 12) coeffs
+      coeffList = toList coeffU
+   in "SHAKE12 beat "
+        P.++ P.show (fromIntegral outIdx :: P.Int)
+        P.++ ": "
+        P.++ P.show coeffList
+
+coeffsFromWord :: BitVector 64 -> Vec 5 (BitVector 12)
+coeffsFromWord w =
+  let rawBytes = bytesFromWord w
+      bytes = map bitReverse8 rawBytes
+   in pack (coeffFromBytes bytes 0)
+        :> pack (coeffFromBytes bytes 1)
+        :> pack (coeffFromBytes bytes 2)
+        :> pack (coeffFromBytes bytes 3)
+        :> pack (coeffFromBytes bytes 4)
+        :> Nil
+
+toU12 :: BitVector 8 -> Unsigned 12
+toU12 b = resize (unpack b :: Unsigned 8)
+
+bytesFromWord :: BitVector 64 -> Vec 8 (BitVector 8)
+bytesFromWord w = map (byteFromWord w) indicesI
+
+bitReverse8 :: BitVector 8 -> BitVector 8
+bitReverse8 b = pack (reverse (unpack b :: Vec 8 Bit))
+
+byteFromWord :: BitVector 64 -> Index 8 -> BitVector 8
+byteFromWord w k =
+  let base = fromIntegral k * 8
+      bits :: Vec 8 Bit
+      bits = map (\i -> boolToBit (testBit w (63 - (base + fromIntegral i)))) indicesI
+   in pack bits
+
+coeffFromBytes :: Vec 8 (BitVector 8) -> Index 16 -> Unsigned 12
+coeffFromBytes bytes pointer =
+  let i0 = 0 :: Index 8
+      i1 = 1 :: Index 8
+      i2 = 2 :: Index 8
+      i3 = 3 :: Index 8
+      i4 = 4 :: Index 8
+      i5 = 5 :: Index 8
+      i6 = 6 :: Index 8
+      i7 = 7 :: Index 8
+      b0 = bytes !! i0
+      b1 = bytes !! i1
+      b2 = bytes !! i2
+      b3 = bytes !! i3
+      b4 = bytes !! i4
+      b5 = bytes !! i5
+      b6 = bytes !! i6
+      b7 = bytes !! i7
+      d1' x y = toU12 x + shiftL (resize (unpack (y .&. 0x0F) :: Unsigned 8)) 8
+      d2' x y = resize (unpack (x `shiftR` 4) :: Unsigned 8) + shiftL (toU12 y) 4
+   in case pointer of
+        0 -> d1' b0 b1
+        1 -> d2' b1 b2
+        2 -> d1' b3 b4
+        3 -> d2' b4 b5
+        _ -> d1' b6 b7
 
 type RateBeats = 21
 

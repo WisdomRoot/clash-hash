@@ -51,3 +51,9 @@ cabal.config
 
 # Python virtual environment (created by flake.nix shell hook)
 .venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
