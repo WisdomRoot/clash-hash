@@ -18,16 +18,25 @@ type PadBeats = 168
 -- | Padding function for byte-stream SHAKE128
 -- XORs domain separator (0x1F) and final pad bit (0x80)
 pad :: Index PadBeats -> BitVector 1600 -> BitVector 1600
-pad beatIndex =
-  let -- Domain separator 0x1F goes at bit position after last absorbed byte
-      -- Final pad bit 0x80 goes at bit 256 (last bit of rate)
-      domainBitPos = 1599 - (resize beatIndex * 8 + 7) :: Index 1600
-   in complementAt 256 -- Final pad bit
-        . complementAt domainBitPos -- DS bit 0
-        . complementAt (domainBitPos - 1) -- DS bit 1
-        . complementAt (domainBitPos - 2) -- DS bit 2
-        . complementAt (domainBitPos - 3) -- DS bit 3
-        . complementAt (domainBitPos - 4) -- DS bit 4
+pad beatIndex
+  | beatIndex == maxBound =
+      complementAt 256
+        . complementAt 1595
+        . complementAt 1596
+        . complementAt 1597
+        . complementAt 1598
+        . complementAt 1599
+  | otherwise =
+      let -- Domain separator 0x1F goes in the byte *after* the last absorbed byte
+          -- Final pad bit 0x80 goes at bit 256 (last bit of rate)
+          nextBeat = beatIndex + 1
+          domainBitPos = 1599 - (resize nextBeat * 8) :: Index 1600
+       in complementAt 256
+            . complementAt domainBitPos
+            . complementAt (domainBitPos - 1)
+            . complementAt (domainBitPos - 2)
+            . complementAt (domainBitPos - 3)
+            . complementAt (domainBitPos - 4)
 
 -- | Squeeze operation: extract one 8-bit byte from state
 squeezeSlice :: KnownNat n => Index n -> BitVector 1600 -> BitVector 8
@@ -85,7 +94,7 @@ sponge permuteFn input = mealy step (State (Absorb 0) 0) input
           nextCounter = if tready' then counter + 1 else counter
        in if tready'
             then
-              if nextCounter >= maxBound
+              if counter == maxBound
                 then (State (Permute 0 SeenTLASTAndPadded) state, (outStream, False))
                 else (State (Squeeze nextCounter) state, (outStream, False))
             else (State (Squeeze counter) state, (outStream, False))
