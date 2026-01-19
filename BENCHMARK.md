@@ -74,6 +74,25 @@
 
 [bench] Time/Mem: load 2.79s | compile 3.57s | synth 16.79s | mem 3218.16 MB
 
+## SHAKE128B
+
+* 20260119: baseline
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_NonPipelined_SHAKE128B_topEntity_keccakF1600Round       9516.682            0.000     0.00%
+  Hash_NonPipelined_SHAKE128B_topEntity_spongeFSM      42142.646         8565.200    20.32%
+  SHAKE_128B_NonPipelined                            51659.328         8565.200    16.58%
+
+[bench] Time/Mem: load 2.81s | compile 3.24s | synth 20.37s | mem 3391.34 MB
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_NonPipelined_SHAKE128B_topEntity_keccakF1600Round       9516.682            0.000     0.00%
+  Hash_NonPipelined_SHAKE128B_topEntity_spongeFSM      37037.042         8565.200    23.13%
+  SHAKE_128B_NonPipelined                            46553.724         8565.200    18.40%
+
+[bench] Time/Mem: load 2.81s | compile 7.03s | synth 24.78s | mem 3844.94 MB
+
 ## Sponge
 
 * Baseline: stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output
