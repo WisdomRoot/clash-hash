@@ -10,6 +10,7 @@ where
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
 import Sponge.NonPipelined (Phase (..), SeenTLAST (..), State (..), complementAt)
+import Sponge.XOR qualified as XOR
 
 type RateBeats = 168 -- 168 bytes = 1344 bits (SHAKE128 rate)
 
@@ -1365,7 +1366,8 @@ squeezeSlice 163 state = slice (SNat @295) (SNat @288) state
 squeezeSlice 164 state = slice (SNat @287) (SNat @280) state
 squeezeSlice 165 state = slice (SNat @279) (SNat @272) state
 squeezeSlice 166 state = slice (SNat @271) (SNat @264) state
-squeezeSlice 167 state = slice (SNat @263) (SNat @256) state
+squeezeSlice _ state = slice (SNat @263) (SNat @256) state
+
 -- | Main sponge construction for byte-stream SHAKE128
 sponge ::
   forall dom.
@@ -1382,28 +1384,11 @@ sponge permuteFn input = mealy step (State (Absorb 0) 0) input
     step (State phase state) (inputStream, tready, flush) =
       case phase of
         Absorb counter ->
-          absorb pad xorByte counter state inputStream flush
+          absorb pad XOR.staticXOR128B counter state inputStream flush
         Permute permuteCounter seenTLAST ->
           permute permuteFn pad permuteCounter seenTLAST state tready
         Squeeze squeezeCounter ->
           squeeze squeezeCounter state tready
-
-    -- XOR an 8-bit byte into the state at the given beat index
-    xorByte :: BitVector 1600 -> BitVector 8 -> Index RateBeats -> BitVector 1600
-    xorByte state byte beatIndex =
-      let -- Calculate bit position from MSB (beat 0 starts at bit 1599)
-          beatU :: Unsigned 16
-          beatU = fromIntegral beatIndex
-          bitPos = fromIntegral (beatU * 8) :: Int
-          shiftAmt = 1592 - bitPos
-          -- Extract current byte, XOR it, then reconstruct state
-          currentByte = truncateB (state `shiftR` shiftAmt) :: BitVector 8
-          xoredByte = currentByte `xor` byte
-          -- Create mask to clear the target byte, then OR in the new value
-          mask = complement (resize (maxBound :: BitVector 8) `shiftL` shiftAmt) :: BitVector 1600
-          cleared = state .&. mask
-          newValue = resize xoredByte `shiftL` shiftAmt
-       in cleared .|. newValue
 
     squeeze :: Index RateBeats -> BitVector 1600 -> Bool -> (State RateBeats (Index RateBeats), (AXI4Stream 8, Bool))
     squeeze counter state tready' =
