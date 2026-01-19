@@ -17,24 +17,21 @@ module Test.TestHarness.SampleNTTCommon
     SampleNTTTopEntity,
     runSampleNTTTest,
     runSampleNTTHardware,
-    unpackPython384Bytes,
   )
 where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
+import Clash.Sized.Vector qualified as V
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Maybe (fromJust)
-import Data.Proxy (Proxy (..))
-import Data.Word (Word16)
+import Data.Word (Word8)
 import Test.Hspec (Expectation, shouldBe)
 import Test.TestHarness.SHAKECommon (DownstreamBackpressure (..), ShakeTest (..), UpstreamStall (..), makeBackpressureTest, makeBasicTest, makeCombinedTest, makeStallTest, makeVariableOutputTest, testLabel)
 import Test.TestHarness.StreamCommon
-  ( bitListToWords,
-    bsToBitListHW,
-    feedInput,
+  ( bitListToBSHW,
     makeBackpressureSignal,
+    wordToBits,
   )
 import Prelude qualified as P
 
@@ -46,13 +43,13 @@ type SampleNTTTopEntity =
   Clock System ->
   Reset System ->
   Enable System ->
+  Signal System (BitVector 272) ->
   Signal System Bool ->
-  Signal System (AXI4Stream 64, Bool) ->
-  Signal System (AXI4Stream 12, Bool)
+  Signal System (AXI4Stream 64, Bool)
 
 data SampleNTTParams = SampleNTTParams
   { spBeatsPerBlock :: Int,
-    spReference :: ByteString -> [Word16],
+    spReference :: Int -> ByteString -> ByteString,
     spTopEntity :: SampleNTTTopEntity
   }
 
@@ -62,39 +59,17 @@ data SampleNTTParams = SampleNTTParams
 
 runSampleNTTTest :: SampleNTTParams -> ShakeTest -> Expectation
 runSampleNTTTest params test = do
-  let expected = spReference params (testMessage test)
+  let expected = spReference params (testOutputBytes test) (testMessage test)
       actual = runSampleNTTHardware params test
-  -- Verify length first for better error messages
-  P.length actual `shouldBe` 256
-  P.length expected `shouldBe` 256
-  -- Verify coefficient-wise equality
+  BS.length actual `shouldBe` testOutputBytes test
+  BS.length expected `shouldBe` testOutputBytes test
   actual `shouldBe` expected
 
-runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
+runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> ByteString
 runSampleNTTHardware params test =
   let beatsPerBlock = spBeatsPerBlock params
-      inputBytes = BS.length (testMessage test)
-      beats = (inputBytes P.+ 7) `P.div` 8
-   in case fromJust (someNatVal (P.fromIntegral beats)) of
-        SomeNat (_ :: Proxy beats') ->
-          runHardwareKnown @beats' params test beats beatsPerBlock
-
-runHardwareKnown ::
-  forall beats.
-  (KnownNat beats) =>
-  SampleNTTParams ->
-  ShakeTest ->
-  Int ->
-  Int ->
-  [Word16]
-runHardwareKnown params test beats beatsPerBlock =
-  let inputBS = testMessage test
-      inputBits = bsToBitListHW inputBS
-      paddedBits = P.take (beats P.* 64) (inputBits P.++ P.repeat 0)
-      messageWords = bitListToWords @beats beats paddedBits
-      inputStream =
-        withClockResetEnable clockGen resetGen enableGen
-          $ feedInput @beats beatsPerBlock (testUpstreamStall test) messageWords
+      msgBV = bsToBV272 (testMessage test)
+      msgSig = pure msgBV
       treadySignal = makeBackpressureSignal (testDownstreamBackpressure test)
       output =
         spTopEntity
@@ -102,38 +77,29 @@ runHardwareKnown params test beats beatsPerBlock =
           clockGen
           resetGen
           enableGen
+          msgSig
           treadySignal
-          inputStream
-      -- Conservative sample count for 256 coefficients
+      outputBytes = testOutputBytes test
+      outputBeats = (outputBytes P.+ 7) `P.div` 8
+      squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
       sampleCount =
-        beats P.* 2
-          P.+ 24 -- SHAKE permutation latency
-          P.+ 256 P.* 3 -- 256 coefficients with potential gaps
-          P.+ 200 -- Safety margin
-      samples = sampleN @System sampleCount output
-      -- Extract valid beats where handshake completed (tvalid && tready)
-      validOutputs = [tdata stream | (stream, ready) <- samples, tvalid stream P.&& ready]
-      -- Convert BitVector 12 to Word16, take exactly 256 coefficients
-      coeffs = P.map bitVectorToWord16 (P.take 256 validOutputs)
-   in coeffs
-  where
-    bitVectorToWord16 :: BitVector 12 -> Word16
-    bitVectorToWord16 bv = P.fromIntegral (unpack bv :: Unsigned 12)
+        24
+          P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
+          P.+ 200
+      samples = sampleN @System sampleCount (bundle (output, treadySignal))
+      validOutputs =
+        [ tdata stream
+          | ((stream, _), ready) <- samples,
+            tvalid stream P.&& ready
+        ]
+      outputWordBits = P.concatMap wordToBits (P.take outputBeats validOutputs)
+      resultBits = P.take (outputBytes P.* 8) outputWordBits
+   in bitListToBSHW resultBits
 
---------------------------------------------------------------------------------
--- Unpacking Python 384-byte format
---------------------------------------------------------------------------------
-
--- | Unpack Python's 384-byte format to 256 coefficients
--- Python packs two 12-bit coefficients into 3 bytes (128 triplets):
---   c0 = byte0 + 256 * (byte1 & 0x0F)  (bits 0-11)
---   c1 = (byte1 >> 4) + 16 * byte2      (bits 12-23)
-unpackPython384Bytes :: ByteString -> [Word16]
-unpackPython384Bytes bs = go (BS.unpack bs)
-  where
-    go (b0 : b1 : b2 : rest) =
-      let c0 = P.fromIntegral b0 P.+ 256 P.* (P.fromIntegral b1 .&. 0x0F)
-          c1 = (P.fromIntegral b1 `shiftR` 4) P.+ 16 P.* P.fromIntegral b2
-       in c0 : c1 : go rest
-    go [] = []
-    go _ = P.error "unpackPython384Bytes: Expected 384 bytes (multiple of 3)"
+bsToBV272 :: ByteString -> BitVector 272
+bsToBV272 bs =
+  let bytes = BS.unpack bs
+      padded = P.take 34 (bytes P.++ P.repeat 0)
+      vec :: Vec 34 (BitVector 8)
+      vec = V.unsafeFromList (P.map (fromIntegral :: Word8 -> BitVector 8) padded)
+   in pack vec

@@ -1,114 +1,16 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Component.SampleNTT
-  ( topEntity,
+module Sponge.NonPipelined.SHAKE128ForSampleNTT
+  ( sponge,
+    pad,
+    squeezeSlice,
   )
 where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Permutation.Perm qualified as Perm
 import Sponge.NonPipelined
 import Sponge.XOR qualified as XOR
-
-
-{-# ANN
-  topEntity
-  ( Synthesize
-      { t_name = "Component_SampleNTT",
-        t_inputs =
-          [ PortName "CLK",
-            PortName "RST",
-            PortName "EN",
-            PortName "MSG_34B",
-            PortName "DIGEST_TREADY"
-          ],
-        t_output =
-          PortProduct
-            ""
-            [ PortName "DIGEST_TDATA",
-              PortName "DIGEST_TVALID",
-              PortName "DIGEST_TLAST"
-            ]
-      }
-  )
-  #-}
-{-# NOINLINE topEntity #-}
-topEntity ::
-  Clock System ->
-  Reset System ->
-  Enable System ->
-  Signal System (BitVector 272) ->
-  Signal System Bool ->
-  Signal System (AXI4Stream 64, Bool)
-topEntity clk rst en msgSig treadySig =
-  withClockResetEnable clk rst en
-    $ hashFixed34 msgSig treadySig
-
--- | Fixed-length SHAKE128 for SampleNTT.
---   Consumes a fixed 34-byte message, applies SHAKE padding internally,
---   then streams 64-bit output beats.
-hashFixed34 ::
-  forall dom.
-  (HiddenClockResetEnable dom) =>
-  Signal dom (BitVector 272) ->
-  Signal dom Bool ->
-  Signal dom (AXI4Stream 64, Bool)
-hashFixed34 msgSig treadySig = mealy step HSInit (bundle (msgSig, treadySig))
-  where
-    step ::
-      HashState ->
-      (BitVector 272, Bool) ->
-      (HashState, (AXI4Stream 64, Bool))
-    step st (inputMsg, tready) =
-      case st of
-        HSInit ->
-          let initState = buildState (unpack inputMsg :: Vec 34 (BitVector 8))
-           in (HSPermute 0 initState, (idleAXI4Stream, True))
-        HSPermute roundIdx state ->
-          let state' = Perm.keccakF1600Round roundIdx state
-           in if roundIdx == maxBound
-                then (HSSqueeze 0 state', (idleAXI4Stream, False))
-                else (HSPermute (roundIdx + 1) state', (idleAXI4Stream, False))
-        HSSqueeze outIdx state ->
-          let outStream =
-                AXI4Stream
-                  { tdata = squeezeSlice outIdx state,
-                    tvalid = True,
-                    tlast = False
-                  }
-              nextState =
-                if tready
-                  then
-                    if outIdx == maxBound
-                      then HSPermute 0 state
-                      else HSSqueeze (outIdx + 1) state
-                  else HSSqueeze outIdx state
-           in (nextState, (outStream, False))
-
-data HashState
-  = HSInit
-  | HSPermute (Index 24) (BitVector 1600)
-  | HSSqueeze (Index 21) (BitVector 1600)
-  deriving (Show, Eq, Generic, NFDataX)
-
--- | Build initial Keccak state from the 34-byte message with SHAKE padding.
-buildState :: Vec 34 (BitVector 8) -> BitVector 1600
-buildState msg =
-  let zeroPad :: Vec 132 (BitVector 8)
-      zeroPad = repeat 0
-      padded :: Vec 168 (BitVector 8)
-      padded = msg ++ (0x1F :> zeroPad) ++ (0x80 :> Nil)
-      rateWords :: Vec 21 (BitVector 64)
-      rateWords = map wordFromBytes (unconcat d8 padded)
-   in foldl (\st (i, w) -> XOR.staticXOR128 st w i) 0 (imap (,) rateWords)
-
--- | Convert 8 bytes into a 64-bit word using the same packing as the harness.
-wordFromBytes :: Vec 8 (BitVector 8) -> BitVector 64
-wordFromBytes bytes =
-  let bits :: Vec 64 Bit
-      bits = concatMap (reverse . unpack) bytes
-   in pack bits
 
 type RateBeats = 21
 
