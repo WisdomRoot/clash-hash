@@ -7,9 +7,9 @@ module Test.TestHarness.SampleNTT
 where
 
 import Clash.Prelude (unbundle)
+import Component.SampleNTT qualified as SampleNTT
 import Data.ByteString (ByteString)
 import Data.Word (Word16)
-import Component.SampleNTT qualified as SampleNTT
 import System.FilePath ((</>))
 import Test.Hspec (Expectation)
 import Test.TestHarness.ExternalReference (callPythonReference)
@@ -29,7 +29,7 @@ sampleNTTParams :: SampleNTTParams
 sampleNTTParams =
   SampleNTTParams
     { spBeatsPerBlock = 21, -- SHAKE128 rate: 21 beats/absorb block (21*64 = 1344 bits)
-      spReference = \seed -> unpackPython384Bytes (externalSampleNTTPacked seed),
+      spReference = unpackPython384Bytes . externalSampleNTTPacked,
       spTopEntity = \clk rst en treadySig inputPair ->
         let (msgSig, _) = unbundle inputPair
          in SampleNTT.topEntity clk rst en treadySig msgSig
