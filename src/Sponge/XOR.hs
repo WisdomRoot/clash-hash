@@ -95,14 +95,14 @@ staticXOR256 state block beatCounter =
     6 -> setSlice (SNat @1215) (SNat @1152) (slice (SNat @1215) (SNat @1152) state `xor` block) state
     7 -> setSlice (SNat @1151) (SNat @1088) (slice (SNat @1151) (SNat @1088) state `xor` block) state
     8 -> setSlice (SNat @1087) (SNat @1024) (slice (SNat @1087) (SNat @1024) state `xor` block) state
-    9 -> setSlice d1023 d960 (slice d1023 d960 state `xor` block) state
-    10 -> setSlice d959 d896 (slice d959 d896 state `xor` block) state
-    11 -> setSlice d895 d832 (slice d895 d832 state `xor` block) state
-    12 -> setSlice d831 d768 (slice d831 d768 state `xor` block) state
-    13 -> setSlice d767 d704 (slice d767 d704 state `xor` block) state
-    14 -> setSlice d703 d640 (slice d703 d640 state `xor` block) state
-    15 -> setSlice d639 d576 (slice d639 d576 state `xor` block) state
-    16 -> setSlice d575 d512 (slice d575 d512 state `xor` block) state
+    9 -> setSlice (SNat @1023) (SNat @960) (slice (SNat @1023) (SNat @960) state `xor` block) state
+    10 -> setSlice (SNat @959) (SNat @896) (slice (SNat @959) (SNat @896) state `xor` block) state
+    11 -> setSlice (SNat @895) (SNat @832) (slice (SNat @895) (SNat @832) state `xor` block) state
+    12 -> setSlice (SNat @831) (SNat @768) (slice (SNat @831) (SNat @768) state `xor` block) state
+    13 -> setSlice (SNat @767) (SNat @704) (slice (SNat @767) (SNat @704) state `xor` block) state
+    14 -> setSlice (SNat @703) (SNat @640) (slice (SNat @703) (SNat @640) state `xor` block) state
+    15 -> setSlice (SNat @639) (SNat @576) (slice (SNat @639) (SNat @576) state `xor` block) state
+    16 -> setSlice (SNat @575) (SNat @512) (slice (SNat @575) (SNat @512) state `xor` block) state
     _ -> state
 
 -- | XOR helper covering the full SHAKE128 rate (21 beats).
@@ -149,8 +149,10 @@ chunkBasedXOR state block beatCounter =
       stateTarget = truncateB (state `shiftR` bitPos) :: BitVector 64
       stateTarget' = stateTarget `xor` block
 
-      -- Create a mask for clearing the target 64 bits
-      clearMask :: BitVector 1600
-      clearMask = complement (resize (maxBound :: BitVector 64) `shiftL` bitPos)
-   in -- Clear target bits, then OR in the new value
-      (state .&. clearMask) .|. (resize stateTarget' `shiftL` bitPos)
+      -- Mask: clear the target 64-bit region
+      mask = complement (resize (maxBound :: BitVector 64) `shiftL` bitPos) :: BitVector 1600
+
+      -- Apply: clear region, then OR in new value
+      stateCleared = state .&. mask
+      stateNew = resize stateTarget' `shiftL` bitPos
+   in stateCleared .|. stateNew
