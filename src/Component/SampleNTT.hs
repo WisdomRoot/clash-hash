@@ -7,7 +7,10 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
+import Debug.Trace (trace)
 import Hash.NonPipelined.SHAKE128 qualified as SHAKE128
+import Numeric (showHex)
+import Prelude qualified as P
 
 {-# ANN
   topEntity
@@ -47,120 +50,120 @@ topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en $
     let (shakeStream, _shakeTready) = unbundle $ SHAKE128.hash (bundle (inputSig, sampleTready, pure False))
         (sampleStream, sampleTready) = unbundle $ sampleNTT (bundle (shakeStream, treadySig))
-     in bundle (sampleStream, sampleTready)
+     in bundle (sampleStream, treadySig)
 
 sampleNTT ::
   forall dom.
   (HiddenClockResetEnable dom) =>
   Signal dom (AXI4Stream 64, Bool) ->
   Signal dom (AXI4Stream 12, Bool)
-sampleNTT = mealy step (State 0 0)
+sampleNTT = mealy step (State 0 0 False 0)
   where
     step ::
       State ->
       (AXI4Stream 64, Bool) ->
       (State, (AXI4Stream 12, Bool))
-    -- Extract 12-bit chunks from SHAKE128's 64-bit output
-    -- Each 64-bit word contains 5 complete 12-bit coefficients (60 bits used, 4 bits unused)
-    step (State beat pointer) (input, ready)
-      | tvalid input && ready =
-          let -- Calculate current coefficient count (0-indexed, so 255 is the 256th coefficient)
-              coeffCount :: Index 256
-              coeffCount = resize beat * 5 + resize pointer
-              isLastCoeff = coeffCount == 255
-           in if isLastCoeff
-                then
-                  -- Output last coefficient and stay in done state
-                  let -- Extract 12-bit coefficient at correct position
-                      -- pointer 0: [11:0], pointer 1: [23:12], pointer 2: [35:24], pointer 3: [47:36], pointer 4: [59:48]
-                      highBit = fromIntegral pointer * 12 + 11
-                      lowBit = fromIntegral pointer * 12
-                      coeff = slice (SNat @63) (SNat @0) (tdata input) `shiftR` lowBit .&. 0xFFF
-                      outStream =
-                        AXI4Stream
-                          { tdata = resize coeff,
-                            tvalid = True,
-                            tlast = True
-                          }
-                   in (State beat pointer, (outStream, pointer /= 4)) -- Don't advance state
-                else
-                  -- Normal processing
-                  let -- Extract 12-bit coefficient at correct position
-                      lowBit = fromIntegral pointer * 12
-                      coeff = slice (SNat @63) (SNat @0) (tdata input) `shiftR` lowBit .&. 0xFFF
-                      -- Move to next pointer/beat
-                      (nextBeat, nextPointer) =
-                        if pointer == 4
-                          then (beat + 1, 0)
-                          else (beat, pointer + 1)
-                      outStream =
-                        AXI4Stream
-                          { tdata = resize coeff,
-                            tvalid = True,
-                            tlast = False
-                          }
-                   in (State nextBeat nextPointer, (outStream, pointer /= 4))
-      | otherwise = (State beat pointer, (idleAXI4Stream, False))
+    -- Extract 12-bit chunks from SHAKE128's 64-bit output.
+    -- Each 64-bit word contains 5 complete 12-bit coefficients (60 bits used, 4 bits unused).
+    -- IMPORTANT: latch a 64-bit word and emit all 5 slices before accepting the next word.
+    step (State beat pointer haveWord wordReg) (input, ready) =
+      let inValid = tvalid input
+          inWord = tdata input
+          inReady = not haveWord
+          inputHandshake = inValid && inReady
 
--- mealy step (State 0 0)
--- where
---   step ::
---     State ->
---     (AXI4Stream 64, Bool) ->
---     (State, (AXI4Stream 64, Bool))
---   step (State beat pointer) (input, ready)
---     | tvalid input && ready = undefined
---     | otherwise = (State beat pointer, (idleAXI4Stream, False))
+          outValid = haveWord || inValid
+          outWord = if haveWord then wordReg else inWord
+          outputHandshake = outValid && ready
 
--- -- | Stateful sponge with AXI4-Stream backpressure support.
--- {-# OPAQUE sponge #-}
--- sponge ::
---   forall dom.
---   (HiddenClockResetEnable dom) =>
---   (Index 24 -> BitVector 1600 -> BitVector 1600) ->
---   Signal dom (AXI4Stream 64, Bool, Bool) ->
---   Signal dom (AXI4Stream 64, Bool)
--- sponge permModule = SHAKE128.sponge permModule
+          -- Calculate current coefficient count (0-indexed, so 255 is the 256th coefficient)
+          coeffCount :: Index 256
+          coeffCount = resize beat * 5 + resize pointer
+          isLastCoeff = coeffCount == 255
 
--- -- -- | Remaining input after extracting 12 bits for sampling
--- -- data Remainder = Remain0 | Remain4 (BitVector 4) | Remain8 (BitVector 8)
--- --   deriving (Show, Eq, Generic, NFDataX)
+          -- Convert the 64-bit word to bytes in the same order as the SHAKE test harness:
+          --   byte0 bit0 = word bit63, byte0 bit7 = word bit56, byte1 bit0 = word bit55, etc.
+          bytes = bytesFromWord outWord
+
+          coeffU :: Unsigned 12
+          coeffU = coeffFromBytes bytes pointer
+          coeff12 :: BitVector 12
+          coeff12 = pack coeffU
+          bytesU :: Vec 8 (Unsigned 8)
+          bytesU = map (unpack :: BitVector 8 -> Unsigned 8) bytes
+          traceBytes = outputHandshake && pointer == 0 && beat == 0
+          tracedCoeff =
+            if traceBytes
+              then
+                trace
+                  ( "SHAKE tdata: 0x"
+                      <> showHexWord64 outWord
+                      <> " bytes: "
+                      <> show (toList bytesU)
+                  )
+                  coeff12
+              else trace ("SampleNTT raw12: " <> show coeffU) coeff12
+
+          outStream =
+            if outValid
+              then
+                AXI4Stream
+                  { tdata = tracedCoeff,
+                    tvalid = True,
+                    tlast = isLastCoeff
+                  }
+              else idleAXI4Stream
+
+          -- Capture a new word if we're ready and it is valid.
+          wordReg' = if inputHandshake then inWord else wordReg
+          have' = haveWord || inputHandshake
+
+          -- Then, advance pointer/beat only when the output handshake completes.
+          nextState =
+            if outputHandshake
+              then
+                if pointer == 4
+                  then State (beat + 1) 0 False wordReg'
+                  else State beat (pointer + 1) True wordReg'
+              else State beat pointer have' wordReg'
+       in (nextState, (outStream, inReady))
 
 data State
   = State
       (Index 256) -- beat
-      (Index 16) -- which part of the input is being processed, 0 for [0:11], 1 for [4:15], etc.
+      (Index 16) -- slice index within a 64-bit word (0..4)
+      Bool -- have a buffered 64-bit word
+      (BitVector 64) -- buffered 64-bit word
   deriving (Show, Eq, Generic, NFDataX)
 
--- -- sampleNTT :: forall dom. (HiddenClockResetEnable dom) => Signal dom (AXI4Stream 64, Bool) -> Signal dom (AXI4Stream 64, Bool)
--- -- sampleNTT = mealy step (State 0 Remain0 0)
--- --   where
--- --     step ::
--- --       State ->
--- --       (AXI4Stream 64, Bool) ->
--- --       (State, (AXI4Stream 64, Bool))
--- --     step (State beat remainder output) (input, ready)
--- --       | tvalid input && ready = _
--- --       | otherwise = (State beat remainder, (idleAXI4Stream, False))
+toU12 :: BitVector 8 -> Unsigned 12
+toU12 b = resize (unpack b :: Unsigned 8)
 
--- -- -- if tvalid && tready
--- -- --   then
--- -- --     let outStream =
--- -- --           AXI4Stream
--- -- --             { tdata = tdata,
--- -- --               tvalid = True,
--- -- --               tlast = sampleIdx == 255 && beat == 20
--- -- --             }
--- -- --         (nextBeat, nextSampleIdx) =
--- -- --           if beat == 20
--- -- --             then (0, sampleIdx + 1)
--- -- --             else (beat + 1, sampleIdx)
--- -- --      in (SamplingState nextBeat nextSampleIdx, (outStream, True))
--- -- --   else
--- -- --     let outStream =
--- -- --           AXI4Stream
--- -- --             { tdata = 0,
--- -- --               tvalid = False,
--- -- --               tlast = False
--- -- --             }
--- -- --      in (SamplingState beat sampleIdx, (outStream, False))
+bytesFromWord :: BitVector 64 -> Vec 8 (BitVector 8)
+bytesFromWord w = map (byteFromWord w) indicesI
+
+byteFromWord :: BitVector 64 -> Index 8 -> BitVector 8
+byteFromWord w k =
+  let base = fromIntegral k * 8
+      bits :: Vec 8 Bit
+      bits = map (\i -> boolToBit (testBit w (63 - (base + fromIntegral i)))) indicesI
+   in pack bits
+
+coeffFromBytes :: Vec 8 (BitVector 8) -> Index 16 -> Unsigned 12
+coeffFromBytes (b0 :> b1 :> b2 :> b3 :> b4 :> b5 :> b6 :> b7 :> Nil) pointer =
+  let d1' x y = toU12 x + shiftL (resize (unpack (y .&. 0x0F) :: Unsigned 8)) 8
+      d2' x y = resize (unpack (x `shiftR` 4) :: Unsigned 8) + shiftL (toU12 y) 4
+   in case pointer of
+        0 -> d1' b0 b1
+        1 -> d2' b1 b2
+        2 -> d1' b3 b4
+        3 -> d2' b4 b5
+        4 -> d1' b6 b7
+        _ -> 0
+
+showHexWord64 :: BitVector 64 -> String
+showHexWord64 w =
+  let u = unpack w :: Unsigned 64
+      hex = showHex u ""
+      pad = P.replicate (16 - P.length hex) '0'
+   in pad <> hex

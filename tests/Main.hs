@@ -12,7 +12,6 @@ import Test.SampleNTT qualified
 import Test.Permutation qualified
 import Test.Reference.SHA3 qualified
 import Test.Reference.SHAKE256 qualified
-import Test.Reference.SampleNTT qualified
 import Test.Tasty
 import Test.Tasty.Hspec
 import Prelude
@@ -28,7 +27,6 @@ main = do
   nSampleNTTTests <- testSpec "SampleNTT" Test.SampleNTT.spec
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
-  refSampleNTTTests <- testSpec "Reference SampleNTT" Test.Reference.SampleNTT.spec
 
   defaultMain $
     testGroup

@@ -128,7 +128,6 @@ runHardwareKnown params test beats beatsPerBlock =
 -- Python packs two 12-bit coefficients into 3 bytes (128 triplets):
 --   c0 = byte0 + 256 * (byte1 & 0x0F)  (bits 0-11)
 --   c1 = (byte1 >> 4) + 16 * byte2      (bits 12-23)
--- Based on extractTwoCoeffs from Reference.SampleNTT
 unpackPython384Bytes :: ByteString -> [Word16]
 unpackPython384Bytes bs = go (BS.unpack bs)
   where
