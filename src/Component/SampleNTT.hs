@@ -8,9 +8,7 @@ where
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
 import Permutation.Perm qualified as Perm
-import Sponge.NonPipelined
-import Sponge.XOR qualified as XOR
-
+import Sponge.NonPipelined (complementAt)
 
 {-# ANN
   topEntity
@@ -41,68 +39,7 @@ topEntity ::
   Signal System (BitVector 272) ->
   Signal System Bool ->
   Signal System (AXI4Stream 12, Bool)
-topEntity clk rst en msgSig treadySig =
-  withClockResetEnable clk rst en
-    $ hashFixed34 msgSig treadySig
-
--- | Fixed-length SHAKE128 for SampleNTT.
---   Consumes a fixed 34×8-bit message, applies SHAKE padding internally,
---   then streams 12-bit output chunks.
-hashFixed34 ::
-  forall dom.
-  (HiddenClockResetEnable dom) =>
-  Signal dom (BitVector 272) ->
-  Signal dom Bool ->
-  Signal dom (AXI4Stream 12, Bool)
-hashFixed34 msgSig treadySig = mealy step HSInit (bundle (msgSig, treadySig))
-  where
-    step ::
-      HashState ->
-      (BitVector 272, Bool) ->
-      (HashState, (AXI4Stream 12, Bool))
-    step st (inputMsg, tready) =
-      case st of
-        HSInit ->
-          let initState = buildState (unpack inputMsg :: Vec 34 (BitVector 8))
-           in (HSPermute 0 initState, (idleAXI4Stream, True))
-        HSPermute roundIdx state ->
-          let state' = Perm.keccakF1600Round roundIdx state
-           in if roundIdx == maxBound
-                then (HSSqueeze 0 state', (idleAXI4Stream, False))
-                else (HSPermute (roundIdx + 1) state', (idleAXI4Stream, False))
-        HSSqueeze coeffIdx state ->
-          let coeff = coeffFromState coeffIdx state
-              outStream =
-                AXI4Stream
-                  { tdata = pack (coeff :: Unsigned 12),
-                    tvalid = True,
-                    tlast = False
-                  }
-              nextState =
-                if tready
-                  then
-                    if coeffIdx == maxBound
-                      then HSPermute 0 state
-                      else HSSqueeze (coeffIdx + 1) state
-                  else HSSqueeze coeffIdx state
-           in (nextState, (outStream, False))
-
-data HashState
-  = HSInit
-  | HSPermute (Index 24) (BitVector 1600)
-  | HSSqueeze (Index 112) (BitVector 1600)
-  deriving (Show, Eq, Generic, NFDataX)
-
--- | Build initial Keccak state from the 34×8-bit message with SHAKE padding.
-buildState :: Vec 34 (BitVector 8) -> BitVector 1600
-buildState msg =
-  let zeroPad :: Vec 132 (BitVector 8)
-      zeroPad = repeat 0
-      padded :: Vec 168 (BitVector 8)
-      padded = msg ++ (0x1F :> zeroPad) ++ (0x80 :> Nil)
-      rateWords :: Vec 21 (BitVector 64)
-      rateWords = map wordFromElems8 (unconcat d8 padded)
-   in foldl (\st (i, w) -> XOR.staticXOR128 st w i) 0 (imap (,) rateWords)
+topEntity clk rst en msgSig treadySig = withClockResetEnable clk rst en (hash msgSig treadySig)
 
 -- | Convert 8 elements into a 64-bit word using the same packing as the harness.
 wordFromElems8 :: Vec 8 (BitVector 8) -> BitVector 64
@@ -135,162 +72,8 @@ streamBit bitIdxU state =
       bitPos = 63 - base - resize bitInLane :: Unsigned 7
    in boolToBit (testBit word (fromIntegral bitPos))
 
-type RateBeats = 21
-
-type PadBeats = 21
-
--- | Padding function + XOR, flips 5 domain bits plus pad bit at bit 256.
-pad :: Index PadBeats -> BitVector 1600 -> BitVector 1600
-pad 0 =
-  complementAt 256
-    . complementAt 1531
-    . complementAt 1532
-    . complementAt 1533
-    . complementAt 1534
-    . complementAt 1535
-pad 1 =
-  complementAt 256
-    . complementAt 1467
-    . complementAt 1468
-    . complementAt 1469
-    . complementAt 1470
-    . complementAt 1471
-pad 2 =
-  complementAt 256
-    . complementAt 1403
-    . complementAt 1404
-    . complementAt 1405
-    . complementAt 1406
-    . complementAt 1407
-pad 3 =
-  complementAt 256
-    . complementAt 1339
-    . complementAt 1340
-    . complementAt 1341
-    . complementAt 1342
-    . complementAt 1343
-pad 4 =
-  complementAt 256
-    . complementAt 1275
-    . complementAt 1276
-    . complementAt 1277
-    . complementAt 1278
-    . complementAt 1279
-pad 5 =
-  complementAt 256
-    . complementAt 1211
-    . complementAt 1212
-    . complementAt 1213
-    . complementAt 1214
-    . complementAt 1215
-pad 6 =
-  complementAt 256
-    . complementAt 1147
-    . complementAt 1148
-    . complementAt 1149
-    . complementAt 1150
-    . complementAt 1151
-pad 7 =
-  complementAt 256
-    . complementAt 1083
-    . complementAt 1084
-    . complementAt 1085
-    . complementAt 1086
-    . complementAt 1087
-pad 8 =
-  complementAt 256
-    . complementAt 1019
-    . complementAt 1020
-    . complementAt 1021
-    . complementAt 1022
-    . complementAt 1023
-pad 9 =
-  complementAt 256
-    . complementAt 955
-    . complementAt 956
-    . complementAt 957
-    . complementAt 958
-    . complementAt 959
-pad 10 =
-  complementAt 256
-    . complementAt 891
-    . complementAt 892
-    . complementAt 893
-    . complementAt 894
-    . complementAt 895
-pad 11 =
-  complementAt 256
-    . complementAt 827
-    . complementAt 828
-    . complementAt 829
-    . complementAt 830
-    . complementAt 831
-pad 12 =
-  complementAt 256
-    . complementAt 763
-    . complementAt 764
-    . complementAt 765
-    . complementAt 766
-    . complementAt 767
-pad 13 =
-  complementAt 256
-    . complementAt 699
-    . complementAt 700
-    . complementAt 701
-    . complementAt 702
-    . complementAt 703
-pad 14 =
-  complementAt 256
-    . complementAt 635
-    . complementAt 636
-    . complementAt 637
-    . complementAt 638
-    . complementAt 639
-pad 15 =
-  complementAt 256
-    . complementAt 571
-    . complementAt 572
-    . complementAt 573
-    . complementAt 574
-    . complementAt 575
-pad 16 =
-  complementAt 256
-    . complementAt 507
-    . complementAt 508
-    . complementAt 509
-    . complementAt 510
-    . complementAt 511
-pad 17 =
-  complementAt 256
-    . complementAt 443
-    . complementAt 444
-    . complementAt 445
-    . complementAt 446
-    . complementAt 447
-pad 18 =
-  complementAt 256
-    . complementAt 379
-    . complementAt 380
-    . complementAt 381
-    . complementAt 382
-    . complementAt 383
-pad 19 =
-  complementAt 256
-    . complementAt 315
-    . complementAt 316
-    . complementAt 317
-    . complementAt 318
-    . complementAt 319
-pad _ =
-  complementAt 256
-    . complementAt 1595
-    . complementAt 1596
-    . complementAt 1597
-    . complementAt 1598
-    . complementAt 1599
-
 -- | Extract 64-bit chunks from the Keccak state during squeeze.
-squeezeSlice :: Index RateBeats -> BitVector 1600 -> BitVector 64
+squeezeSlice :: Index 21 -> BitVector 1600 -> BitVector 64
 squeezeSlice 0 state = slice (SNat @1599) (SNat @1536) state
 squeezeSlice 1 state = slice (SNat @1535) (SNat @1472) state
 squeezeSlice 2 state = slice (SNat @1471) (SNat @1408) state
@@ -312,3 +95,187 @@ squeezeSlice 17 state = slice (SNat @511) (SNat @448) state
 squeezeSlice 18 state = slice (SNat @447) (SNat @384) state
 squeezeSlice 19 state = slice (SNat @383) (SNat @320) state
 squeezeSlice _ state = slice (SNat @319) (SNat @256) state
+
+--------------------------------------------------------------------------------
+-- Clean hash design (state starts at 0, no XOR needed)
+--------------------------------------------------------------------------------
+
+-- | New hash state type for clean design
+data HashState2
+  = Absorb
+  | Permute (Index 24) (BitVector 1600)
+  | Squeeze (Index 112) (BitVector 1600)
+  deriving (Show, Eq, Generic, NFDataX)
+
+-- | Absorb 34 bytes: place message and apply padding
+absorb34 :: BitVector 272 -> BitVector 1600
+absorb34 = pad34Bytes . placeMsg
+  where
+    -- \| Place 34-byte message at the start of state (no XOR needed since state starts at 0)
+    placeMsg :: BitVector 272 -> BitVector 1600
+    placeMsg msg = msg ++# (0 :: BitVector 1328)
+
+    -- \| Padding function for fixed 34-byte input + SHAKE padding.
+    pad34Bytes :: BitVector 1600 -> BitVector 1600
+    pad34Bytes =
+      complementAt 256 -- final pad bit (last bit of rate)
+        . complementAt 1323 -- DS bit in byte 34
+        . complementAt 1324
+        . complementAt 1325
+        . complementAt 1326
+        . complementAt 1327
+
+-- | Extract 12-bit coefficient from state (pattern matched on all 112 indices)
+squeezeCoeff12 :: Index 112 -> BitVector 1600 -> BitVector 12
+squeezeCoeff12 0 state = slice (SNat @1599) (SNat @1588) state
+squeezeCoeff12 1 state = slice (SNat @1587) (SNat @1576) state
+squeezeCoeff12 2 state = slice (SNat @1575) (SNat @1564) state
+squeezeCoeff12 3 state = slice (SNat @1563) (SNat @1552) state
+squeezeCoeff12 4 state = slice (SNat @1551) (SNat @1540) state
+squeezeCoeff12 5 state = slice (SNat @1539) (SNat @1528) state
+squeezeCoeff12 6 state = slice (SNat @1527) (SNat @1516) state
+squeezeCoeff12 7 state = slice (SNat @1515) (SNat @1504) state
+squeezeCoeff12 8 state = slice (SNat @1503) (SNat @1492) state
+squeezeCoeff12 9 state = slice (SNat @1491) (SNat @1480) state
+squeezeCoeff12 10 state = slice (SNat @1479) (SNat @1468) state
+squeezeCoeff12 11 state = slice (SNat @1467) (SNat @1456) state
+squeezeCoeff12 12 state = slice (SNat @1455) (SNat @1444) state
+squeezeCoeff12 13 state = slice (SNat @1443) (SNat @1432) state
+squeezeCoeff12 14 state = slice (SNat @1431) (SNat @1420) state
+squeezeCoeff12 15 state = slice (SNat @1419) (SNat @1408) state
+squeezeCoeff12 16 state = slice (SNat @1407) (SNat @1396) state
+squeezeCoeff12 17 state = slice (SNat @1395) (SNat @1384) state
+squeezeCoeff12 18 state = slice (SNat @1383) (SNat @1372) state
+squeezeCoeff12 19 state = slice (SNat @1371) (SNat @1360) state
+squeezeCoeff12 20 state = slice (SNat @1359) (SNat @1348) state
+squeezeCoeff12 21 state = slice (SNat @1347) (SNat @1336) state
+squeezeCoeff12 22 state = slice (SNat @1335) (SNat @1324) state
+squeezeCoeff12 23 state = slice (SNat @1323) (SNat @1312) state
+squeezeCoeff12 24 state = slice (SNat @1311) (SNat @1300) state
+squeezeCoeff12 25 state = slice (SNat @1299) (SNat @1288) state
+squeezeCoeff12 26 state = slice (SNat @1287) (SNat @1276) state
+squeezeCoeff12 27 state = slice (SNat @1275) (SNat @1264) state
+squeezeCoeff12 28 state = slice (SNat @1263) (SNat @1252) state
+squeezeCoeff12 29 state = slice (SNat @1251) (SNat @1240) state
+squeezeCoeff12 30 state = slice (SNat @1239) (SNat @1228) state
+squeezeCoeff12 31 state = slice (SNat @1227) (SNat @1216) state
+squeezeCoeff12 32 state = slice (SNat @1215) (SNat @1204) state
+squeezeCoeff12 33 state = slice (SNat @1203) (SNat @1192) state
+squeezeCoeff12 34 state = slice (SNat @1191) (SNat @1180) state
+squeezeCoeff12 35 state = slice (SNat @1179) (SNat @1168) state
+squeezeCoeff12 36 state = slice (SNat @1167) (SNat @1156) state
+squeezeCoeff12 37 state = slice (SNat @1155) (SNat @1144) state
+squeezeCoeff12 38 state = slice (SNat @1143) (SNat @1132) state
+squeezeCoeff12 39 state = slice (SNat @1131) (SNat @1120) state
+squeezeCoeff12 40 state = slice (SNat @1119) (SNat @1108) state
+squeezeCoeff12 41 state = slice (SNat @1107) (SNat @1096) state
+squeezeCoeff12 42 state = slice (SNat @1095) (SNat @1084) state
+squeezeCoeff12 43 state = slice (SNat @1083) (SNat @1072) state
+squeezeCoeff12 44 state = slice (SNat @1071) (SNat @1060) state
+squeezeCoeff12 45 state = slice (SNat @1059) (SNat @1048) state
+squeezeCoeff12 46 state = slice (SNat @1047) (SNat @1036) state
+squeezeCoeff12 47 state = slice (SNat @1035) (SNat @1024) state
+squeezeCoeff12 48 state = slice (SNat @1023) (SNat @1012) state
+squeezeCoeff12 49 state = slice (SNat @1011) (SNat @1000) state
+squeezeCoeff12 50 state = slice (SNat @999) (SNat @988) state
+squeezeCoeff12 51 state = slice (SNat @987) (SNat @976) state
+squeezeCoeff12 52 state = slice (SNat @975) (SNat @964) state
+squeezeCoeff12 53 state = slice (SNat @963) (SNat @952) state
+squeezeCoeff12 54 state = slice (SNat @951) (SNat @940) state
+squeezeCoeff12 55 state = slice (SNat @939) (SNat @928) state
+squeezeCoeff12 56 state = slice (SNat @927) (SNat @916) state
+squeezeCoeff12 57 state = slice (SNat @915) (SNat @904) state
+squeezeCoeff12 58 state = slice (SNat @903) (SNat @892) state
+squeezeCoeff12 59 state = slice (SNat @891) (SNat @880) state
+squeezeCoeff12 60 state = slice (SNat @879) (SNat @868) state
+squeezeCoeff12 61 state = slice (SNat @867) (SNat @856) state
+squeezeCoeff12 62 state = slice (SNat @855) (SNat @844) state
+squeezeCoeff12 63 state = slice (SNat @843) (SNat @832) state
+squeezeCoeff12 64 state = slice (SNat @831) (SNat @820) state
+squeezeCoeff12 65 state = slice (SNat @819) (SNat @808) state
+squeezeCoeff12 66 state = slice (SNat @807) (SNat @796) state
+squeezeCoeff12 67 state = slice (SNat @795) (SNat @784) state
+squeezeCoeff12 68 state = slice (SNat @783) (SNat @772) state
+squeezeCoeff12 69 state = slice (SNat @771) (SNat @760) state
+squeezeCoeff12 70 state = slice (SNat @759) (SNat @748) state
+squeezeCoeff12 71 state = slice (SNat @747) (SNat @736) state
+squeezeCoeff12 72 state = slice (SNat @735) (SNat @724) state
+squeezeCoeff12 73 state = slice (SNat @723) (SNat @712) state
+squeezeCoeff12 74 state = slice (SNat @711) (SNat @700) state
+squeezeCoeff12 75 state = slice (SNat @699) (SNat @688) state
+squeezeCoeff12 76 state = slice (SNat @687) (SNat @676) state
+squeezeCoeff12 77 state = slice (SNat @675) (SNat @664) state
+squeezeCoeff12 78 state = slice (SNat @663) (SNat @652) state
+squeezeCoeff12 79 state = slice (SNat @651) (SNat @640) state
+squeezeCoeff12 80 state = slice (SNat @639) (SNat @628) state
+squeezeCoeff12 81 state = slice (SNat @627) (SNat @616) state
+squeezeCoeff12 82 state = slice (SNat @615) (SNat @604) state
+squeezeCoeff12 83 state = slice (SNat @603) (SNat @592) state
+squeezeCoeff12 84 state = slice (SNat @591) (SNat @580) state
+squeezeCoeff12 85 state = slice (SNat @579) (SNat @568) state
+squeezeCoeff12 86 state = slice (SNat @567) (SNat @556) state
+squeezeCoeff12 87 state = slice (SNat @555) (SNat @544) state
+squeezeCoeff12 88 state = slice (SNat @543) (SNat @532) state
+squeezeCoeff12 89 state = slice (SNat @531) (SNat @520) state
+squeezeCoeff12 90 state = slice (SNat @519) (SNat @508) state
+squeezeCoeff12 91 state = slice (SNat @507) (SNat @496) state
+squeezeCoeff12 92 state = slice (SNat @495) (SNat @484) state
+squeezeCoeff12 93 state = slice (SNat @483) (SNat @472) state
+squeezeCoeff12 94 state = slice (SNat @471) (SNat @460) state
+squeezeCoeff12 95 state = slice (SNat @459) (SNat @448) state
+squeezeCoeff12 96 state = slice (SNat @447) (SNat @436) state
+squeezeCoeff12 97 state = slice (SNat @435) (SNat @424) state
+squeezeCoeff12 98 state = slice (SNat @423) (SNat @412) state
+squeezeCoeff12 99 state = slice (SNat @411) (SNat @400) state
+squeezeCoeff12 100 state = slice (SNat @399) (SNat @388) state
+squeezeCoeff12 101 state = slice (SNat @387) (SNat @376) state
+squeezeCoeff12 102 state = slice (SNat @375) (SNat @364) state
+squeezeCoeff12 103 state = slice (SNat @363) (SNat @352) state
+squeezeCoeff12 104 state = slice (SNat @351) (SNat @340) state
+squeezeCoeff12 105 state = slice (SNat @339) (SNat @328) state
+squeezeCoeff12 106 state = slice (SNat @327) (SNat @316) state
+squeezeCoeff12 107 state = slice (SNat @315) (SNat @304) state
+squeezeCoeff12 108 state = slice (SNat @303) (SNat @292) state
+squeezeCoeff12 109 state = slice (SNat @291) (SNat @280) state
+squeezeCoeff12 110 state = slice (SNat @279) (SNat @268) state
+squeezeCoeff12 _ state = slice (SNat @267) (SNat @256) state
+
+-- | Clean hash function for fixed 34-byte input
+hash ::
+  forall dom.
+  (HiddenClockResetEnable dom) =>
+  Signal dom (BitVector 272) ->
+  Signal dom Bool ->
+  Signal dom (AXI4Stream 12, Bool)
+hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
+  where
+    step ::
+      HashState2 ->
+      (BitVector 272, Bool) ->
+      (HashState2, (AXI4Stream 12, Bool))
+    step st (inputMsg, tready) =
+      case st of
+        Absorb ->
+          let initState = absorb34 inputMsg
+           in (Permute 0 initState, (idleAXI4Stream, True))
+        Permute roundIdx state ->
+          let state' = Perm.keccakF1600Round roundIdx state
+           in if roundIdx == maxBound
+                then (Squeeze 0 state', (idleAXI4Stream, False))
+                else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
+        Squeeze coeffIdx state ->
+          let coeff = coeffFromState coeffIdx state
+              outStream =
+                AXI4Stream
+                  { tdata = pack coeff,
+                    tvalid = True,
+                    tlast = False
+                  }
+              nextState =
+                if tready
+                  then
+                    if coeffIdx == maxBound
+                      then Permute 0 state
+                      else Squeeze (coeffIdx + 1) state
+                  else Squeeze coeffIdx state
+           in (nextState, (outStream, False))
