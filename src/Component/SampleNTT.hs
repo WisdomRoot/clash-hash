@@ -41,81 +41,56 @@ topEntity ::
   Signal System (AXI4Stream 12, Bool)
 topEntity clk rst en msgSig treadySig = withClockResetEnable clk rst en (hash msgSig treadySig)
 
--- | Convert 8 elements into a 64-bit word using the same packing as the harness.
-wordFromElems8 :: Vec 8 (BitVector 8) -> BitVector 64
-wordFromElems8 elems =
-  let bits :: Vec 64 Bit
-      bits = concatMap (reverse . unpack) elems
-   in pack bits
-
-coeffFromState :: Index 112 -> BitVector 1600 -> Unsigned 12
-coeffFromState coeffIdx state =
-  let coeffU = fromIntegral coeffIdx :: Unsigned 7
-      baseBit :: Unsigned 12
-      baseBit = resize (coeffU * 12)
-      offsets :: Vec 12 (Unsigned 12)
-      offsets = map (fromIntegral :: Index 12 -> Unsigned 12) indicesI
-      bits = map (\o -> streamBit (baseBit + o) state) offsets
-      bitsMSB = reverse bits
-   in unpack (pack bitsMSB :: BitVector 12)
-
-streamBit :: Unsigned 12 -> BitVector 1600 -> Bit
-streamBit bitIdxU state =
-  let laneIdx = bitIdxU `shiftR` 3
-      bitInLane = bitIdxU .&. 0x07
-      wordIdxU = laneIdx `shiftR` 3
-      laneInWord = laneIdx .&. 0x07
-      wordIdx :: Index 21
-      wordIdx = fromIntegral wordIdxU
-      word = squeezeSlice wordIdx state
-      base = resize laneInWord * 8 :: Unsigned 7
-      bitPos = 63 - base - resize bitInLane :: Unsigned 7
-   in boolToBit (testBit word (fromIntegral bitPos))
-
--- | Extract 64-bit chunks from the Keccak state during squeeze.
-squeezeSlice :: Index 21 -> BitVector 1600 -> BitVector 64
-squeezeSlice 0 state = slice (SNat @1599) (SNat @1536) state
-squeezeSlice 1 state = slice (SNat @1535) (SNat @1472) state
-squeezeSlice 2 state = slice (SNat @1471) (SNat @1408) state
-squeezeSlice 3 state = slice (SNat @1407) (SNat @1344) state
-squeezeSlice 4 state = slice (SNat @1343) (SNat @1280) state
-squeezeSlice 5 state = slice (SNat @1279) (SNat @1216) state
-squeezeSlice 6 state = slice (SNat @1215) (SNat @1152) state
-squeezeSlice 7 state = slice (SNat @1151) (SNat @1088) state
-squeezeSlice 8 state = slice (SNat @1087) (SNat @1024) state
-squeezeSlice 9 state = slice (SNat @1023) (SNat @960) state
-squeezeSlice 10 state = slice (SNat @959) (SNat @896) state
-squeezeSlice 11 state = slice (SNat @895) (SNat @832) state
-squeezeSlice 12 state = slice (SNat @831) (SNat @768) state
-squeezeSlice 13 state = slice (SNat @767) (SNat @704) state
-squeezeSlice 14 state = slice (SNat @703) (SNat @640) state
-squeezeSlice 15 state = slice (SNat @639) (SNat @576) state
-squeezeSlice 16 state = slice (SNat @575) (SNat @512) state
-squeezeSlice 17 state = slice (SNat @511) (SNat @448) state
-squeezeSlice 18 state = slice (SNat @447) (SNat @384) state
-squeezeSlice 19 state = slice (SNat @383) (SNat @320) state
-squeezeSlice _ state = slice (SNat @319) (SNat @256) state
-
---------------------------------------------------------------------------------
--- Clean hash design (state starts at 0, no XOR needed)
---------------------------------------------------------------------------------
-
--- | New hash state type for clean design
-data HashState2
+data State
   = Absorb
   | Permute (Index 24) (BitVector 1600)
   | Squeeze (Index 112) (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
 
+-- | Clean hash function for fixed 34-byte input
+hash ::
+  forall dom.
+  (HiddenClockResetEnable dom) =>
+  Signal dom (BitVector 272) ->
+  Signal dom Bool ->
+  Signal dom (AXI4Stream 12, Bool)
+hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
+  where
+    step ::
+      State ->
+      (BitVector 272, Bool) ->
+      (State, (AXI4Stream 12, Bool))
+    step st (inputMsg, tready) =
+      case st of
+        Absorb ->
+          let initState = absorb34 inputMsg
+           in (Permute 0 initState, (idleAXI4Stream, True))
+        Permute roundIdx state ->
+          let state' = Perm.keccakF1600Round roundIdx state
+           in if roundIdx == maxBound
+                then (Squeeze 0 state', (idleAXI4Stream, False))
+                else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
+        Squeeze index state ->
+          let coeff = squeezeCoeff12 index state
+              outStream = AXI4Stream {tdata = coeff, tvalid = True, tlast = False}
+              nextState =
+                if tready
+                  then
+                    if index == maxBound
+                      then Permute 0 state
+                      else Squeeze (index + 1) state
+                  else Squeeze index state
+           in (nextState, (outStream, False))
+
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600
 absorb34 = pad34Bytes . placeMsg
   where
-    -- \| Place 34-byte message at the start of state (no XOR needed since state starts at 0)
+    --  Place 34-byte message at the start of state (no XOR needed since state starts at 0)
     placeMsg :: BitVector 272 -> BitVector 1600
     placeMsg msg = msg ++# (0 :: BitVector 1328)
 
-    -- \| Padding function for fixed 34-byte input + SHAKE padding.
+    --  Padding function for fixed 34-byte input + SHAKE padding.
     pad34Bytes :: BitVector 1600 -> BitVector 1600
     pad34Bytes =
       complementAt 256 -- final pad bit (last bit of rate)
@@ -239,43 +214,3 @@ squeezeCoeff12 108 state = slice (SNat @303) (SNat @292) state
 squeezeCoeff12 109 state = slice (SNat @291) (SNat @280) state
 squeezeCoeff12 110 state = slice (SNat @279) (SNat @268) state
 squeezeCoeff12 _ state = slice (SNat @267) (SNat @256) state
-
--- | Clean hash function for fixed 34-byte input
-hash ::
-  forall dom.
-  (HiddenClockResetEnable dom) =>
-  Signal dom (BitVector 272) ->
-  Signal dom Bool ->
-  Signal dom (AXI4Stream 12, Bool)
-hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
-  where
-    step ::
-      HashState2 ->
-      (BitVector 272, Bool) ->
-      (HashState2, (AXI4Stream 12, Bool))
-    step st (inputMsg, tready) =
-      case st of
-        Absorb ->
-          let initState = absorb34 inputMsg
-           in (Permute 0 initState, (idleAXI4Stream, True))
-        Permute roundIdx state ->
-          let state' = Perm.keccakF1600Round roundIdx state
-           in if roundIdx == maxBound
-                then (Squeeze 0 state', (idleAXI4Stream, False))
-                else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
-        Squeeze coeffIdx state ->
-          let coeff = coeffFromState coeffIdx state
-              outStream =
-                AXI4Stream
-                  { tdata = pack coeff,
-                    tvalid = True,
-                    tlast = False
-                  }
-              nextState =
-                if tready
-                  then
-                    if coeffIdx == maxBound
-                      then Permute 0 state
-                      else Squeeze (coeffIdx + 1) state
-                  else Squeeze coeffIdx state
-           in (nextState, (outStream, False))

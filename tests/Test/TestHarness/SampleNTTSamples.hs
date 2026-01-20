@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Test.TestHarness.SampleNTTSamples
   ( -- Constants
     sampleNTTOutputBytes,
@@ -82,7 +80,7 @@ seed4 = makeSeed (BS.replicate 32 0x03) 2 3 -- All threes, larger indices
 seed5 = makeSeed (BS.pack [0 .. 31]) 0 0 -- Sequential bytes
 seed6 = makeSeed (BS.pack (take 32 (cycle [0x55, 0xAA]))) 1 1 -- Alternating pattern
 seed7 = makeSeed (BS.pack (take 32 (cycle [116, 101, 115, 116]))) 2 2 -- "test" in ASCII
-seed8 = makeSeed (BS.pack (take 32 (cycle [0xFF]))) 3 3 -- All ones
+seed8 = makeSeed (BS.pack (replicate 32 0xFF)) 3 3 -- All ones
 
 --------------------------------------------------------------------------------
 -- Test case arrays

@@ -9,7 +9,6 @@ where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
-import Clash.Sized.Vector qualified as V
 import Component.SampleNTT qualified as SampleNTT
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -44,7 +43,10 @@ runHardware input =
           | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
-      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 10 validOutputs)
+      -- Reverse bits to match Python reference bit ordering
+      reverseBits12 :: BitVector 12 -> BitVector 12
+      reverseBits12 bv = pack (reverse (unpack bv :: Vec 12 Bit))
+      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12) . reverseBits12) (P.take 10 validOutputs)
    in coeffs
 
 callSampleNTTCLI :: ByteString -> IO [Word16]
@@ -66,11 +68,10 @@ trim = dropWhileEnd isSpace . P.dropWhile isSpace
 
 bsToBV272 :: ByteString -> BitVector 272
 bsToBV272 bs =
-  let bytes = BS.unpack bs
-      padded = P.take 34 (bytes P.++ P.repeat 0)
-      vec :: Vec 34 (BitVector 8)
-      vec = V.unsafeFromList (P.map (fromIntegral :: Word8 -> BitVector 8) padded)
-   in pack vec
+  let padded = BS.take 34 (bs P.<> BS.replicate 34 0)
+      bytes = BS.unpack padded
+      step acc w = (acc `shiftL` 8) .|. resize (pack (fromIntegral w :: BitVector 8))
+   in P.foldl step (0 :: BitVector 272) bytes
 
 bsToHex :: ByteString -> String
 bsToHex bs = P.concatMap toHex (BS.unpack bs)

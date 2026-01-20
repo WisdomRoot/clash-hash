@@ -23,15 +23,12 @@ where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
-import Clash.Sized.Vector qualified as V
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Word (Word16, Word8)
+import Data.Word (Word16)
 import Test.Hspec (Expectation, shouldBe)
 import Test.TestHarness.SHAKECommon (DownstreamBackpressure (..), ShakeTest (..), UpstreamStall (..), makeBackpressureTest, makeBasicTest, makeCombinedTest, makeStallTest, makeVariableOutputTest, testLabel)
-import Test.TestHarness.StreamCommon
-  ( makeBackpressureSignal,
-  )
+import Test.TestHarness.StreamCommon (makeBackpressureSignal)
 import Prelude qualified as P
 
 --------------------------------------------------------------------------------
@@ -66,8 +63,7 @@ runSampleNTTTest params test = do
 
 runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
 runSampleNTTHardware params test =
-  let beatsPerBlock = spBeatsPerBlock params
-      msgBV = bsToBV272 (testMessage test)
+  let msgBV = bsToBV272 (testMessage test)
       msgSig = pure msgBV
       treadySignal = makeBackpressureSignal (testDownstreamBackpressure test)
       output =
@@ -78,7 +74,7 @@ runSampleNTTHardware params test =
           enableGen
           msgSig
           treadySignal
-      outputsPerBlock = beatsPerBlock P.* 5
+      outputsPerBlock = 112
       squeezesNeeded = (256 P.+ outputsPerBlock - 1) `P.div` outputsPerBlock
       sampleCount =
         24
@@ -90,16 +86,18 @@ runSampleNTTHardware params test =
           | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
-      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
+      -- Reverse bits to match Python reference bit ordering
+      reverseBits12 :: BitVector 12 -> BitVector 12
+      reverseBits12 bv = pack (reverse (unpack bv :: Vec 12 Bit))
+      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12) . reverseBits12) (P.take 256 validOutputs)
    in coeffs
 
 bsToBV272 :: ByteString -> BitVector 272
 bsToBV272 bs =
-  let bytes = BS.unpack bs
-      padded = P.take 34 (bytes P.++ P.repeat 0)
-      vec :: Vec 34 (BitVector 8)
-      vec = V.unsafeFromList (P.map (fromIntegral :: Word8 -> BitVector 8) padded)
-   in pack vec
+  let padded = BS.take 34 (bs P.<> BS.replicate 34 0)
+      bytes = BS.unpack padded
+      step acc w = (acc `shiftL` 8) .|. resize (pack (fromIntegral w :: BitVector 8))
+   in P.foldl step (0 :: BitVector 272) bytes
 
 --------------------------------------------------------------------------------
 -- Unpacking Python 384-byte format
