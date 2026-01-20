@@ -44,7 +44,7 @@ type SampleNTTTopEntity =
   Enable System ->
   Signal System (BitVector 272) ->
   Signal System Bool ->
-  Signal System (AXI4Stream 64, Bool)
+  Signal System (AXI4Stream 12, Bool)
 
 data SampleNTTParams = SampleNTTParams
   { spBeatsPerBlock :: Int,
@@ -78,11 +78,11 @@ runSampleNTTHardware params test =
           enableGen
           msgSig
           treadySignal
-      outputWords = (256 P.+ 4) `P.div` 5
-      squeezesNeeded = (outputWords P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
+      outputsPerBlock = beatsPerBlock P.* 5
+      squeezesNeeded = (256 P.+ outputsPerBlock - 1) `P.div` outputsPerBlock
       sampleCount =
         24
-          P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
+          P.+ squeezesNeeded P.* (outputsPerBlock P.+ 24)
           P.+ 200
       samples = sampleN @System sampleCount (bundle (output, treadySignal))
       validOutputs =
@@ -90,8 +90,8 @@ runSampleNTTHardware params test =
           | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
-      coeffs = P.concatMap wordToCoeffs (P.take outputWords validOutputs)
-   in P.take 256 coeffs
+      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
+   in coeffs
 
 bsToBV272 :: ByteString -> BitVector 272
 bsToBV272 bs =
@@ -100,60 +100,6 @@ bsToBV272 bs =
       vec :: Vec 34 (BitVector 8)
       vec = V.unsafeFromList (P.map (fromIntegral :: Word8 -> BitVector 8) padded)
    in pack vec
-
-wordToCoeffs :: BitVector 64 -> [Word16]
-wordToCoeffs w =
-  let rawBytes = bytesFromWord w
-      bytes = map bitReverse8 rawBytes
-      c0 = coeffFromBytes bytes 0
-      c1 = coeffFromBytes bytes 1
-      c2 = coeffFromBytes bytes 2
-      c3 = coeffFromBytes bytes 3
-      c4 = coeffFromBytes bytes 4
-   in P.map (P.fromIntegral :: Unsigned 12 -> Word16) [c0, c1, c2, c3, c4]
-
-toU12 :: BitVector 8 -> Unsigned 12
-toU12 b = resize (unpack b :: Unsigned 8)
-
-bytesFromWord :: BitVector 64 -> Vec 8 (BitVector 8)
-bytesFromWord w = map (byteFromWord w) indicesI
-
-bitReverse8 :: BitVector 8 -> BitVector 8
-bitReverse8 b = pack (reverse (unpack b :: Vec 8 Bit))
-
-byteFromWord :: BitVector 64 -> Index 8 -> BitVector 8
-byteFromWord w k =
-  let base = fromIntegral k * 8
-      bits :: Vec 8 Bit
-      bits = map (\i -> boolToBit (testBit w (63 - (base + fromIntegral i)))) indicesI
-   in pack bits
-
-coeffFromBytes :: Vec 8 (BitVector 8) -> Index 16 -> Unsigned 12
-coeffFromBytes bytes pointer =
-  let i0 = 0 :: Index 8
-      i1 = 1 :: Index 8
-      i2 = 2 :: Index 8
-      i3 = 3 :: Index 8
-      i4 = 4 :: Index 8
-      i5 = 5 :: Index 8
-      i6 = 6 :: Index 8
-      i7 = 7 :: Index 8
-      b0 = bytes !! i0
-      b1 = bytes !! i1
-      b2 = bytes !! i2
-      b3 = bytes !! i3
-      b4 = bytes !! i4
-      b5 = bytes !! i5
-      b6 = bytes !! i6
-      b7 = bytes !! i7
-      d1' x y = toU12 x + shiftL (resize (unpack (y .&. 0x0F) :: Unsigned 8)) 8
-      d2' x y = resize (unpack (x `shiftR` 4) :: Unsigned 8) + shiftL (toU12 y) 4
-   in case pointer of
-        0 -> d1' b0 b1
-        1 -> d2' b1 b2
-        2 -> d1' b3 b4
-        3 -> d2' b4 b5
-        _ -> d1' b6 b7
 
 --------------------------------------------------------------------------------
 -- Unpacking Python 384-byte format
