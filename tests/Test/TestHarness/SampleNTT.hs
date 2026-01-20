@@ -29,8 +29,7 @@ sampleNTTParams =
   SampleNTTParams
     { spBeatsPerBlock = 21, -- SHAKE128 rate: 21 beats/absorb block (21*64 = 1344 bits)
       spReference = unpackPython384Bytes . externalSampleNTTPacked,
-      spTopEntity = \clk rst en msgSig treadySig ->
-        SampleNTT.topEntity clk rst en msgSig treadySig
+      spTopEntity = SampleNTT.topEntity
     }
 
 -- | External reference implementation using kyber-py

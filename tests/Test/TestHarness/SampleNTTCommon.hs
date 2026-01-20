@@ -55,7 +55,7 @@ data SampleNTTParams = SampleNTTParams
 
 runSampleNTTTest :: SampleNTTParams -> ShakeTest -> Expectation
 runSampleNTTTest params test = do
-  let expected = spReference params (testMessage test)
+  let expected = P.map reverseBits12Word (spReference params (testMessage test))
       actual = runSampleNTTHardware params test
   P.length actual `shouldBe` 256
   P.length expected `shouldBe` 256
@@ -86,10 +86,7 @@ runSampleNTTHardware params test =
           | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
-      -- Reverse bits to match Python reference bit ordering
-      reverseBits12 :: BitVector 12 -> BitVector 12
-      reverseBits12 bv = pack (reverse (unpack bv :: Vec 12 Bit))
-      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12) . reverseBits12) (P.take 256 validOutputs)
+      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
    in coeffs
 
 bsToBV272 :: ByteString -> BitVector 272
@@ -98,6 +95,12 @@ bsToBV272 bs =
       bytes = BS.unpack padded
       step acc w = (acc `shiftL` 8) .|. resize (pack (fromIntegral w :: BitVector 8))
    in P.foldl step (0 :: BitVector 272) bytes
+
+reverseBits12Word :: Word16 -> Word16
+reverseBits12Word w =
+  let bv = pack (fromIntegral w :: Unsigned 12)
+      rev = pack (reverse (unpack bv :: Vec 12 Bit))
+   in P.fromIntegral (unpack rev :: Unsigned 12)
 
 --------------------------------------------------------------------------------
 -- Unpacking Python 384-byte format

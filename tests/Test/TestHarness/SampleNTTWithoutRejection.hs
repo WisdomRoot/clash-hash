@@ -22,8 +22,9 @@ import Prelude qualified as P
 runTest :: ByteString -> Expectation
 runTest input = do
   expected <- callSampleNTTCLI input
-  let actual = runHardware input
-  actual `shouldBe` expected
+  let expected' = P.map reverseBits12Word expected
+      actual = runHardware input
+  actual `shouldBe` expected'
 
 runHardware :: ByteString -> [Word16]
 runHardware input =
@@ -43,10 +44,7 @@ runHardware input =
           | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
-      -- Reverse bits to match Python reference bit ordering
-      reverseBits12 :: BitVector 12 -> BitVector 12
-      reverseBits12 bv = pack (reverse (unpack bv :: Vec 12 Bit))
-      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12) . reverseBits12) (P.take 10 validOutputs)
+      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 10 validOutputs)
    in coeffs
 
 callSampleNTTCLI :: ByteString -> IO [Word16]
@@ -72,6 +70,12 @@ bsToBV272 bs =
       bytes = BS.unpack padded
       step acc w = (acc `shiftL` 8) .|. resize (pack (fromIntegral w :: BitVector 8))
    in P.foldl step (0 :: BitVector 272) bytes
+
+reverseBits12Word :: Word16 -> Word16
+reverseBits12Word w =
+  let bv = pack (fromIntegral w :: Unsigned 12)
+      rev = pack (reverse (unpack bv :: Vec 12 Bit))
+   in P.fromIntegral (unpack rev :: Unsigned 12)
 
 bsToHex :: ByteString -> String
 bsToHex bs = P.concatMap toHex (BS.unpack bs)

@@ -46,6 +46,6 @@ main = do
         -- n128xbTests,
         -- refSha3Tests,
         -- refShake256Tests
-        nSampleNTTWithoutRejectionTests
-        -- nSampleNTTTests
+        -- nSampleNTTWithoutRejectionTests
+        nSampleNTTTests
       ]

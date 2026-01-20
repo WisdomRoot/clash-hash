@@ -72,7 +72,9 @@ hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
                 else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
         Squeeze index state ->
           let coeff = squeezeCoeff12 index state
-              outStream = AXI4Stream {tdata = coeff, tvalid = unpack coeff < (3329 :: Unsigned 12), tlast = False}
+              coeffRev = pack (reverse (unpack coeff :: Vec 12 Bit))
+              coeffVal = unpack coeffRev :: Unsigned 12
+              outStream = AXI4Stream {tdata = coeff, tvalid = coeffVal < (3329 :: Unsigned 12), tlast = False}
               nextState =
                 if tready
                   then
