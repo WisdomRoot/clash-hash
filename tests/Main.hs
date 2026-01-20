@@ -9,7 +9,7 @@ import Test.NonPipelined.SHA3256 qualified
 import Test.NonPipelined.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
-import Test.NonPipelined.SampleNTTCLI qualified
+import Test.NonPipelined.SampleNTTWithoutRejection qualified
 import Test.SampleNTT qualified
 import Test.Permutation qualified
 import Test.Reference.SHA3 qualified
@@ -27,7 +27,7 @@ main = do
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
-  nSampleNTTCLITests <- testSpec "SampleNTT CLI" Test.NonPipelined.SampleNTTCLI.spec
+  nSampleNTTWithoutRejectionTests <- testSpec "SampleNTT without rejection" Test.NonPipelined.SampleNTTWithoutRejection.spec
   nSampleNTTTests <- testSpec "SampleNTT" Test.SampleNTT.spec
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
@@ -46,6 +46,6 @@ main = do
         -- n128xbTests,
         -- refSha3Tests,
         -- refShake256Tests
-        nSampleNTTCLITests
+        nSampleNTTWithoutRejectionTests
         -- nSampleNTTTests
       ]

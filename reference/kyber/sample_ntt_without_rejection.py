@@ -2,7 +2,7 @@
 """
 Temporary development CLI for SHAKE128 testing.
 
-Usage: python3 sample_ntt_cli.py <68-char-hex-string>
+Usage: python3 sample_ntt_without_rejection.py <68-char-hex-string>
 Output: First 3 bytes of SHAKE128 output (raw bytes to stdout)
 """
 import sys
@@ -16,8 +16,8 @@ from sample_ntt import shake128_xof, sample_ntt
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python3 sample_ntt_cli.py <68-char-hex-string>", file=sys.stderr)
-        print("Example: python3 sample_ntt_cli.py " + "00" * 34, file=sys.stderr)
+        print("Usage: python3 sample_ntt_without_rejection.py <68-char-hex-string>", file=sys.stderr)
+        print("Example: python3 sample_ntt_without_rejection.py " + "00" * 34, file=sys.stderr)
         sys.exit(1)
 
     hex_string = sys.argv[1]

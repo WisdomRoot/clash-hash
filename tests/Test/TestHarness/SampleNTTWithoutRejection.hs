@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.TestHarness.SampleNTTCLI
+module Test.TestHarness.SampleNTTWithoutRejection
   ( runTest,
     runHardware,
   )
@@ -52,7 +52,7 @@ runHardware input =
 callSampleNTTCLI :: ByteString -> IO [Word16]
 callSampleNTTCLI input = do
   let hexArg = bsToHex input
-  out <- readProcess "python3" ["reference/kyber/sample_ntt_cli.py", hexArg] ""
+  out <- readProcess "python3" ["reference/kyber/sample_ntt_without_rejection.py", hexArg] ""
   pure (parseFirst10 out)
 
 parseFirst10 :: String -> [Word16]
