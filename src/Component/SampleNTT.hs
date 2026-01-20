@@ -7,11 +7,9 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Debug.Trace (trace)
 import Permutation.Perm qualified as Perm
 import Sponge.NonPipelined
 import Sponge.XOR qualified as XOR
-import Prelude qualified as P
 
 
 {-# ANN
@@ -42,7 +40,7 @@ topEntity ::
   Enable System ->
   Signal System (BitVector 272) ->
   Signal System Bool ->
-  Signal System (AXI4Stream 64, Bool)
+  Signal System (AXI4Stream 12, Bool)
 topEntity clk rst en msgSig treadySig =
   withClockResetEnable clk rst en
     $ hashFixed34 msgSig treadySig
@@ -55,13 +53,13 @@ hashFixed34 ::
   (HiddenClockResetEnable dom) =>
   Signal dom (BitVector 272) ->
   Signal dom Bool ->
-  Signal dom (AXI4Stream 64, Bool)
+  Signal dom (AXI4Stream 12, Bool)
 hashFixed34 msgSig treadySig = mealy step HSInit (bundle (msgSig, treadySig))
   where
     step ::
       HashState ->
       (BitVector 272, Bool) ->
-      (HashState, (AXI4Stream 64, Bool))
+      (HashState, (AXI4Stream 12, Bool))
     step st (inputMsg, tready) =
       case st of
         HSInit ->
@@ -70,30 +68,33 @@ hashFixed34 msgSig treadySig = mealy step HSInit (bundle (msgSig, treadySig))
         HSPermute roundIdx state ->
           let state' = Perm.keccakF1600Round roundIdx state
            in if roundIdx == maxBound
-                then (HSSqueeze 0 state', (idleAXI4Stream, False))
+                then (HSSqueeze 0 0 state', (idleAXI4Stream, False))
                 else (HSPermute (roundIdx + 1) state', (idleAXI4Stream, False))
-        HSSqueeze outIdx state ->
-          let raw = squeezeSlice outIdx state
-              traced = traceSqueeze tready outIdx raw
+        HSSqueeze outIdx ptr state ->
+          let word = squeezeSlice outIdx state
+              coeff = coeffFromWord word ptr
               outStream =
                 AXI4Stream
-                  { tdata = traced,
+                  { tdata = pack (coeff :: Unsigned 12),
                     tvalid = True,
                     tlast = False
                   }
               nextState =
                 if tready
                   then
-                    if outIdx == maxBound
-                      then HSPermute 0 state
-                      else HSSqueeze (outIdx + 1) state
-                  else HSSqueeze outIdx state
+                    if ptr == 4
+                      then
+                        if outIdx == maxBound
+                          then HSPermute 0 state
+                          else HSSqueeze (outIdx + 1) 0 state
+                      else HSSqueeze outIdx (ptr + 1) state
+                  else HSSqueeze outIdx ptr state
            in (nextState, (outStream, False))
 
 data HashState
   = HSInit
   | HSPermute (Index 24) (BitVector 1600)
-  | HSSqueeze (Index 21) (BitVector 1600)
+  | HSSqueeze (Index 21) (Index 5) (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
 
 -- | Build initial Keccak state from the 34-byte message with SHAKE padding.
@@ -114,38 +115,19 @@ wordFromBytes bytes =
       bits = concatMap (reverse . unpack) bytes
    in pack bits
 
-traceSqueeze :: Bool -> Index 21 -> BitVector 64 -> BitVector 64
-traceSqueeze tready outIdx word =
-  if tready
-    then trace (traceMsg outIdx word) word
-    else word
-
-traceMsg :: Index 21 -> BitVector 64 -> P.String
-traceMsg outIdx word =
-  let coeffs = coeffsFromWord word
-      coeffU = fmap (unpack :: BitVector 12 -> Unsigned 12) coeffs
-      coeffList = toList coeffU
-   in "SHAKE12 beat "
-        P.++ P.show (fromIntegral outIdx :: P.Int)
-        P.++ ": "
-        P.++ P.show coeffList
-
-coeffsFromWord :: BitVector 64 -> Vec 5 (BitVector 12)
-coeffsFromWord w =
-  let rawBytes = bytesFromWord w
-      bytes = map bitReverse8 rawBytes
-   in pack (coeffFromBytes bytes 0)
-        :> pack (coeffFromBytes bytes 1)
-        :> pack (coeffFromBytes bytes 2)
-        :> pack (coeffFromBytes bytes 3)
-        :> pack (coeffFromBytes bytes 4)
-        :> Nil
-
 toU12 :: BitVector 8 -> Unsigned 12
 toU12 b = resize (unpack b :: Unsigned 8)
 
 bytesFromWord :: BitVector 64 -> Vec 8 (BitVector 8)
 bytesFromWord w = map (byteFromWord w) indicesI
+
+coeffFromWord :: BitVector 64 -> Index 5 -> Unsigned 12
+coeffFromWord w ptr =
+  let rawBytes = bytesFromWord w
+      bytes = map bitReverse8 rawBytes
+      ptr16 :: Index 16
+      ptr16 = resize ptr
+   in coeffFromBytes bytes ptr16
 
 bitReverse8 :: BitVector 8 -> BitVector 8
 bitReverse8 b = pack (reverse (unpack b :: Vec 8 Bit))
