@@ -8,7 +8,7 @@
 module Hash.Combinational (pad, absorb, squeeze, truncate, hash, topEntity) where
 
 import Clash.Prelude hiding (truncate)
-import Permutation.KeccakF1600 qualified
+import Permutation.Perm qualified as Perm
 
 -- | Number of rate-blocks needed for padded message
 -- The message already has suffix (2 bits), so we need room for:
@@ -62,7 +62,7 @@ absorb msg =
     g s block =
       let xorState = zipWith xor s (block ++ repeat @512 0)
           stateAsBitVector = pack xorState :: BitVector 1600
-          permuted = Permutation.KeccakF1600.keccakF1600 stateAsBitVector
+          permuted = Perm.keccakF1600 stateAsBitVector
        in unpack permuted
 
 -- ============================================================================
@@ -89,7 +89,7 @@ squeeze msg =
     keccakF1600Wrapper :: Vec 1600 Bit -> Vec 1600 Bit
     keccakF1600Wrapper s =
       let stateAsBitVector = pack s :: BitVector 1600
-          permuted = Permutation.KeccakF1600.keccakF1600 stateAsBitVector
+          permuted = Perm.keccakF1600 stateAsBitVector
        in unpack permuted
 
 -- ============================================================================
