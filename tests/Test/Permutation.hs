@@ -10,6 +10,7 @@ import Permutation.Perm qualified as Perm
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
+import qualified Permutation.Perm as Perm
 
 spec :: Spec
 spec = describe "Permutation" $ do
@@ -41,7 +42,7 @@ spec = describe "Permutation" $ do
     it "iota (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.iota sha3Consts roundIdx input
-      let actual = pack $ Perm.iotaF1600 roundIdx input
+      let actual = pack $ Perm.iotaF1600Reversed roundIdx (pack input)
       actual `shouldBe` expected
 
     it "1 round (round 0)" $ do

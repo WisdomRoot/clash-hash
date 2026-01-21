@@ -6,7 +6,7 @@ module Permutation.Perm
     rhoF1600Reversed,
     piF1600Reversed,
     chiF1600Reversed,
-    iotaF1600,
+    iotaF1600Reversed,
 
     -- * Permutation
     keccakF1600Round,
@@ -80,16 +80,15 @@ piF1600Reversed bv = map (bv !) Constants.pi6Reversed
 rhoF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
 rhoF1600Reversed bv = map (bv !) Constants.rho6Reversed
 
--- Iota transformation: XOR lane 0 with round constant
--- Matches SHA3internal.iota implementation exactly
-iotaF1600 :: Index 24 -> Vec 1600 Bit -> Vec 1600 Bit
-iotaF1600 roundIdx v =
-  let lanes :: Vec 25 (Vec 64 Bit)
-      lanes = unconcatI v
-      rc :: Vec 64 Bit
-      rc = $(Constants.iota) !! roundIdx
-      lane0' = zipWith xor (head lanes) rc
-   in concat (lane0' :> tail lanes)
+-- Iota transformation: XOR lane 0 with round constant (pure BitVector version)
+iotaF1600Reversed :: Index 24 -> BitVector 1600 -> BitVector 1600
+iotaF1600Reversed roundIdx bv =
+  let lane0 :: BitVector 64
+      lane0 = slice (SNat @1599) (SNat @1536) bv
+      rc :: BitVector 64
+      rc = pack ($(Constants.iota) !! roundIdx)
+      lane0' = lane0 `xor` rc
+   in setSlice (SNat @1599) (SNat @1536) lane0' bv
 
 --------------------------------------------------------------------------------
 -- Permutation
@@ -103,8 +102,8 @@ iotaF1600 roundIdx v =
 {-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx =
-  pack
-    . iotaF1600 roundIdx
+  iotaF1600Reversed roundIdx
+    . pack
     . chiF1600Reversed
     . piF1600Reversed
     . rhoF1600Reversed

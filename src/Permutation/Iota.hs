@@ -29,4 +29,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (\(roundIdx, state) -> pack (Perm.iotaF1600 roundIdx (unpack state)))
+topEntity _clk _rst _en = fmap (uncurry Perm.iotaF1600Reversed)
