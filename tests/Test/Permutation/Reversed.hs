@@ -3,14 +3,13 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 
-module Test.Permutation (spec) where
+module Test.Permutation.Reversed (spec) where
 
 import Clash.Prelude
-import Permutation.Perm qualified as Perm
+import Permutation.Reversed qualified as Perm
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
-import qualified Permutation.Perm as Perm
 
 spec :: Spec
 spec = describe "Permutation" $ do
@@ -18,7 +17,7 @@ spec = describe "Permutation" $ do
   let inputBitVector = 0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF :: BitVector 1600
   let input = unpack (0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF :: BitVector 1600) :: Vec 1600 Bit
 
-  describe "Perm" $ do
+  describe "PermRev" $ do
     it "theta" $ do
       let expected = pack $ SHA3internal.theta sha3Consts input
       let actual = pack $ Perm.thetaF1600Reversed input
@@ -48,7 +47,7 @@ spec = describe "Permutation" $ do
     it "1 round (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.keccakf1Round roundIdx input
-      let actual = pack $ Perm.keccakF1600Round roundIdx inputBitVector
+      let actual = pack $ Perm.keccakF1600RoundReversed roundIdx inputBitVector
       actual `shouldBe` expected
 
     it "24 complete rounds" $ do

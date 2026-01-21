@@ -4,7 +4,7 @@ module Permutation.Chi
 where
 
 import Clash.Prelude
-import Permutation.Perm qualified as Perm
+import Permutation.Reversed qualified as Perm
 
 {-# ANN
   topEntity

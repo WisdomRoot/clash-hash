@@ -8,7 +8,7 @@
 module Hash.Combinational (pad, absorb, squeeze, truncate, hash, topEntity) where
 
 import Clash.Prelude hiding (truncate)
-import Permutation.Perm qualified as Perm
+import Permutation.Reversed qualified as Perm
 
 -- | Number of rate-blocks needed for padded message
 -- The message already has suffix (2 bits), so we need room for:

@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Permutation.Perm
+module Permutation.Reversed
   ( -- * Round primitives
     thetaF1600Reversed,
     rhoF1600Reversed,
@@ -9,7 +9,7 @@ module Permutation.Perm
     iotaF1600Reversed,
 
     -- * Permutation
-    keccakF1600Round,
+    keccakF1600RoundReversed,
     keccakF1600,
 
     -- * Top entity
@@ -99,9 +99,9 @@ iotaF1600Reversed roundIdx bv =
 --   - No inlining or specialization (keeps single definition)
 --   - Emits separate component once, wired to all callers
 --   - Enforces module boundary for potential blackbox override
-{-# OPAQUE keccakF1600Round #-}
-keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx =
+{-# OPAQUE keccakF1600RoundReversed #-}
+keccakF1600RoundReversed :: Index 24 -> BitVector 1600 -> BitVector 1600
+keccakF1600RoundReversed roundIdx =
   iotaF1600Reversed roundIdx
     . pack
     . chiF1600Reversed
@@ -114,7 +114,7 @@ keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
   foldl applyRound initialState (indicesI @24)
   where
-    applyRound state roundIdx = keccakF1600Round roundIdx state
+    applyRound state roundIdx = keccakF1600RoundReversed roundIdx state
 
 --------------------------------------------------------------------------------
 -- Top entity for hardware synthesis
@@ -152,4 +152,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (uncurry keccakF1600Round)
+topEntity _clk _rst _en = fmap (uncurry keccakF1600RoundReversed)

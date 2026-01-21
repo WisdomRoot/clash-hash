@@ -8,7 +8,7 @@ where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import Permutation.Perm qualified as Perm
+import Permutation.Reversed qualified as Perm
 import Sponge.NonPipelined.SHA3256 qualified
 
 --------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ type DigestBits = 64
 -- OPAQUE ensures module boundary; function name determines module name
 {-# OPAQUE spongeFSM #-}
 spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
-spongeFSM = Perm.keccakF1600Round
+spongeFSM = Perm.keccakF1600RoundReversed
 
 {-# ANN
   topEntity
