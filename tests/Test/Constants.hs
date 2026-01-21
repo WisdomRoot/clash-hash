@@ -1,10 +1,12 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.Constants (spec) where
 
-import Clash.Prelude (Bit, Vec)
+import Clash.Prelude (Bit, Index, Vec)
 import Permutation.Constants qualified
-import qualified Reference.SHA3internal as SHA3internal (_iota_constants)
+import qualified Reference.SHA3internal as SHA3internal
 import Test.Hspec
 import Prelude
 
@@ -13,6 +15,11 @@ spec = describe "Constants" $ do
   it "iota round constants match reference" $ do
     let expected = SHA3internal._iota_constants :: Vec 24 (Vec 64 Bit)
     let actual = $(Permutation.Constants.iota) :: Vec 24 (Vec 64 Bit)
+    actual `shouldBe` expected
+
+  it "theta 6 reversed matches reference" $ do
+    let expected = fmap (fmap (1599 -)) (SHA3internal.theta_constants (SHA3internal.sha3_constants @6 @64 @1600))
+    let actual = $(Permutation.Constants.thetaReversed 6) :: Vec 1600 (Vec 11 (Index 1600))
     actual `shouldBe` expected
 
   it "chi 6" $ do

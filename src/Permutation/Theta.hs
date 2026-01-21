@@ -27,4 +27,4 @@ topEntity ::
   Enable System ->
   Signal System (BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (pack . P3.thetaF1600 . unpack)
+topEntity _clk _rst _en = fmap (pack . P3.thetaF1600Reversed . unpack)

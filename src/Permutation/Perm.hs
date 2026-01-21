@@ -2,10 +2,10 @@
 
 module Permutation.Perm
   ( -- * Round primitives
-    thetaF1600,
-    rhoF1600,
-    piF1600,
-    chiF1600,
+    thetaF1600Reversed,
+    rhoF1600Reversed,
+    piF1600Reversed,
+    chiF1600Reversed,
     iotaF1600,
 
     -- * Permutation
@@ -27,22 +27,17 @@ import Permutation.Constants qualified as Constants
 
 infixr 7 ^^^ -- infixl 7 would generate inefficient verilog!!
 
-
-rotateRight1 :: KnownNat n => Vec n a -> Vec n a
+rotateRight1 :: (KnownNat n) => Vec n a -> Vec n a
 rotateRight1 x = rotateRightS x d1
 
 --------------------------------------------------------------------------------
 -- Round primitives
 --------------------------------------------------------------------------------
 
--- Helper: reverse index for bit ordering
-rev :: Index 1600 -> Index 1600
-rev i = 1599 - i
-
 -- Theta transformation: XOR with column parities
 -- Step 1: Just compute column parities (5 lanes of 64 bits = 320 bits)
-thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-thetaF1600 bv =
+thetaF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
+thetaF1600Reversed bv =
   let -- Unpack to 5×5×64: Vec 5 (Vec 5 (Vec 64 Bit))
       state :: Vec 25 (Vec 64 Bit)
       state = unconcatI bv
@@ -71,20 +66,19 @@ thetaF1600 bv =
       -- Apply to all 25 lanes based on their column (i mod 5)
       outputState :: Vec 25 (Vec 64 Bit)
       outputState = imap (applyX . resize . (`mod` 5)) state
-
    in concat outputState
 
 -- Chi transformation
-chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chi 6)
+chiF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
+chiF1600Reversed bv = map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) Constants.chi6Reversed
 
 -- Pi transformation: bit permutation
-piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600 bv = map ((bv !) . rev) Constants.pi6
+piF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
+piF1600Reversed bv = map (bv !) Constants.pi6Reversed
 
 -- Rho transformation: bit permutation (lane rotation)
-rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map (bv !) Constants.rho6Reversed
+rhoF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
+rhoF1600Reversed bv = map (bv !) Constants.rho6Reversed
 
 -- Iota transformation: XOR lane 0 with round constant
 -- Matches SHA3internal.iota implementation exactly
@@ -108,7 +102,14 @@ iotaF1600 roundIdx v =
 --   - Enforces module boundary for potential blackbox override
 {-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . thetaF1600 . unpack
+keccakF1600Round roundIdx =
+  pack
+    . iotaF1600 roundIdx
+    . chiF1600Reversed
+    . piF1600Reversed
+    . rhoF1600Reversed
+    . thetaF1600Reversed
+    . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =

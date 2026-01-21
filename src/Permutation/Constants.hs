@@ -28,7 +28,7 @@ module Permutation.Constants
     rho,
     rho6,
     rho6Reversed,
-    theta,
+    thetaReversed,
   )
 where
 
@@ -125,8 +125,8 @@ rho6Reversed = 1599 :> 1598 :> 1597 :> 1596 :> 1595 :> 1594 :> 1593 :> 1592 :> 1
 -- | Template Haskell generator for Theta transformation index lookup.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns
 -- @Vec (25*w) (Vec 11 (Index (25*w)))@ where each index i is reversed to (b-1-i).
-theta :: Int -> Q Exp
-theta l = do
+thetaReversed :: Int -> Q Exp
+thetaReversed l = do
   let allIndices = Indices.theta l
       b = stateSize l
 
