@@ -4,6 +4,7 @@
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
   "SampleNTT": "Component.SampleNTT.topEntity",
+  "Perm": "Permutation.topEntity",
   "PermRev": "Permutation.Reversed.topEntity",
   "Chi": "Permutation.Chi.topEntity",
   "Rho": "Permutation.Rho.topEntity",
