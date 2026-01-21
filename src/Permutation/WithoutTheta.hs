@@ -2,7 +2,7 @@
 
 module Permutation.WithoutTheta
   ( rhoF1600,
-    piF1600,
+    piF1600Reversed,
     chiF1600,
     iotaF1600,
     keccakF1600Round,
@@ -24,11 +24,11 @@ rev i = 1599 - i
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
 chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chiReversed 6)
 
-piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600 bv = map ((bv !) . rev) Constants.pi6Reversed
+piF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
+piF1600Reversed bv = map ((bv !) . rev) Constants.pi6
 
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map (bv !) Constants.rho6
+rhoF1600 bv = map (bv !) Constants.rho6Reversed
 
 iotaF1600 :: Index 24 -> Vec 1600 Bit -> Vec 1600 Bit
 iotaF1600 roundIdx v =
@@ -45,7 +45,7 @@ iotaF1600 roundIdx v =
 
 {-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600 . rhoF1600 . unpack
+keccakF1600Round roundIdx = pack . iotaF1600 roundIdx . chiF1600 . piF1600Reversed . rhoF1600 . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =

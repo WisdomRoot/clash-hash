@@ -32,11 +32,11 @@ chiF800 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i
 
 -- Pi transformation: bit permutation
 piF800 :: Vec 800 Bit -> Vec 800 Bit
-piF800 bv = map (bv !) $(Constants.piReversed 5)
+piF800 bv = map (bv !) $(Constants.pi 5)
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF800 :: Vec 800 Bit -> Vec 800 Bit
-rhoF800 bv = bitCoerce $ map (bv !) $(Constants.rhoReversed 5)
+rhoF800 bv = bitCoerce $ map (bv !) $(Constants.rho 5)
 
 -- Iota transformation: XOR lane 0 with round constant
 iotaF800 :: Index 24 -> Vec 800 Bit -> Vec 800 Bit

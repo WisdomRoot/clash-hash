@@ -38,11 +38,11 @@ chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) 
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600 bv = map ((bv !) . rev) Constants.pi6Reversed
+piF1600 bv = map ((bv !) . rev) Constants.pi6
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map ((bv !) . rev) Constants.rho6Reversed
+rhoF1600 bv = map ((bv !) . rev) Constants.rho6
 
 -- -- Rho transformation: bit permutation (lane rotation)
 -- rhoF1600BV :: BitVector 1600 -> BitVector 1600

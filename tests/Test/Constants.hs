@@ -25,22 +25,22 @@ spec = describe "Constants" $ do
     let actual = Permutation.Constants.chi6
     actual `shouldBe` expected
 
-  it "pi 6 reversed" $ do
-    let expected = $(Permutation.Constants.piReversed 6)
-    let actual = Permutation.Constants.pi6Reversed
-    actual `shouldBe` expected
-
   it "pi 6" $ do
-    let expected = fmap (1599 -) $(Permutation.Constants.piReversed 6)
+    let expected = $(Permutation.Constants.pi 6)
     let actual = Permutation.Constants.pi6
     actual `shouldBe` expected
 
-  it "rho 6 reversed" $ do
-    let expected = $(Permutation.Constants.rhoReversed 6)
-    let actual = Permutation.Constants.rho6Reversed
+  it "pi 6 reversed" $ do
+    let expected = fmap (1599 -) $(Permutation.Constants.pi 6)
+    let actual = Permutation.Constants.pi6Reversed
     actual `shouldBe` expected
 
   it "rho 6" $ do
-    let expected = fmap (1599 -) $(Permutation.Constants.rhoReversed 6)
+    let expected = $(Permutation.Constants.rho 6)
     let actual = Permutation.Constants.rho6
+    actual `shouldBe` expected
+
+  it "rho 6 reversed" $ do
+    let expected = fmap (1599 -) $(Permutation.Constants.rho 6)
+    let actual = Permutation.Constants.rho6Reversed
     actual `shouldBe` expected

@@ -80,11 +80,11 @@ chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) 
 
 -- Pi transformation: bit permutation
 piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600 bv = map ((bv !) . rev) Constants.pi6Reversed
+piF1600 bv = map ((bv !) . rev) Constants.pi6
 
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600 bv = map (bv !) Constants.rho6
+rhoF1600 bv = map (bv !) Constants.rho6Reversed
 
 -- Iota transformation: XOR lane 0 with round constant
 -- Matches SHA3internal.iota implementation exactly
