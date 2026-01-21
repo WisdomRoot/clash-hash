@@ -28,7 +28,7 @@ thetaF400 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 4)
 
 -- Chi transformation
 chiF400 :: Vec 400 Bit -> Vec 400 Bit
-chiF400 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chiReversed 4)
+chiF400 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 4)
 
 -- Pi transformation: bit permutation
 piF400 :: Vec 400 Bit -> Vec 400 Bit

@@ -22,7 +22,7 @@ rev :: Index 1600 -> Index 1600
 rev i = 1599 - i
 
 chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
-chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chiReversed 6)
+chiF1600 bv = map (\(i0, i1, i2) -> bv ! rev i0 `xor` (complement (bv ! rev i1) .&. bv ! rev i2)) $(Constants.chi 6)
 
 piF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
 piF1600Reversed bv = map ((bv !) . rev) Constants.pi6

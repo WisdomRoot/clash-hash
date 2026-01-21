@@ -15,14 +15,14 @@ spec = describe "Constants" $ do
     let actual = $(Permutation.Constants.iota) :: Vec 24 (Vec 64 Bit)
     actual `shouldBe` expected
 
-  it "chi 6 reversed" $ do
-    let expected = $(Permutation.Constants.chiReversed 6)
-    let actual = Permutation.Constants.chi6Reversed
+  it "chi 6" $ do
+    let expected = $(Permutation.Constants.chi 6)
+    let actual = Permutation.Constants.chi6
     actual `shouldBe` expected
 
-  it "chi 6" $ do
-    let expected = fmap (\(i, j, k) -> (1599 - i, 1599 - j, 1599 - k)) $(Permutation.Constants.chiReversed 6)
-    let actual = Permutation.Constants.chi6
+  it "chi 6 reversed" $ do
+    let expected = fmap (\(i, j, k) -> (1599 - i, 1599 - j, 1599 - k)) $(Permutation.Constants.chi 6)
+    let actual = Permutation.Constants.chi6Reversed
     actual `shouldBe` expected
 
   it "pi 6" $ do

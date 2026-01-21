@@ -22,7 +22,7 @@ thetaF200 bv = bitCoerce $ map (fold xor . map (bv !)) $(Constants.theta 3)
 
 -- Chi transformation expressed directly on BitVector
 chiF200 :: Vec 200 Bit -> Vec 200 Bit
-chiF200 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chiReversed 3)
+chiF200 bv = bitCoerce $ map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) $(Constants.chi 3)
 
 -- Pi transformation: bit permutation on BitVector
 piF200 :: Vec 200 Bit -> Vec 200 Bit
