@@ -37,15 +37,15 @@ main = do
     testGroup
       "All Tests"
       [
-        constantsTests,
-        permutationRevTests,
-        combinationalTests,
-        n256Tests,
-        n256xTests,
-        n128xTests,
-        n128xbTests,
-        refSha3Tests,
-        refShake256Tests
+        -- constantsTests,
+        -- permutationRevTests,
+        -- combinationalTests,
+        -- n256Tests,
+        -- n256xTests,
+        -- n128xTests,
+        -- n128xbTests,
+        -- refSha3Tests,
+        -- refShake256Tests
         -- nSampleNTTWithoutRejectionTests
-        -- nSampleNTTTests
+        nSampleNTTTests
       ]

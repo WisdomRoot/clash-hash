@@ -93,8 +93,12 @@ bsToBV272 :: ByteString -> BitVector 272
 bsToBV272 bs =
   let padded = BS.take 34 (bs P.<> BS.replicate 34 0)
       bytes = BS.unpack padded
-      step acc w = (acc `shiftL` 8) .|. resize (pack (fromIntegral w :: BitVector 8))
+      -- Bit-reverse each byte to match the Reversed permutation's expectations
+      step acc w = (acc `shiftL` 8) .|. resize (reverseBits8 (pack (fromIntegral w :: BitVector 8)))
    in P.foldl step (0 :: BitVector 272) bytes
+
+reverseBits8 :: BitVector 8 -> BitVector 8
+reverseBits8 bv = pack (reverse (unpack bv :: Vec 8 Bit))
 
 reverseBits12Word :: Word16 -> Word16
 reverseBits12Word w =
