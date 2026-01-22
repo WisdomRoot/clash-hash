@@ -6,13 +6,11 @@ module Main (main) where
 import Test.Combinational qualified
 import Test.Constants qualified
 import Test.NonPipelined.SHA3256 qualified
-import Test.NonPipelined.SHA3256Reversed qualified
 import Test.NonPipelined.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
 import Test.NonPipelined.SampleNTTWithoutRejection qualified
 import Test.SampleNTT qualified
-import Test.Permutation qualified
 import Test.Permutation.Reversed qualified
 import Test.Reference.SHA3 qualified
 import Test.Reference.SHAKE256 qualified
@@ -23,11 +21,9 @@ import Prelude
 main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
-  permutationTests <- testSpec "Permutation" Test.Permutation.spec
   permutationRevTests <- testSpec "Permutation.Reversed" Test.Permutation.Reversed.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
-  n256RevTests <- testSpec "NonPipelined SHA3-256 Reversed" Test.NonPipelined.SHA3256Reversed.spec
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
@@ -41,19 +37,15 @@ main = do
     testGroup
       "All Tests"
       [
-        permutationTests
-        -- n256Tests
-        -- constantsTests,
-        -- permutationTests,
-        -- permutationRevTests
-        -- combinationalTests,
-        -- n256Tests,
-        -- n256RevTests,
-        -- n256xTests,
-        -- n128xTests,
-        -- n128xbTests,
-        -- refSha3Tests,
-        -- refShake256Tests
+        constantsTests,
+        permutationRevTests,
+        combinationalTests,
+        n256Tests,
+        n256xTests,
+        n128xTests,
+        n128xbTests,
+        refSha3Tests,
+        refShake256Tests
         -- nSampleNTTWithoutRejectionTests
         -- nSampleNTTTests
       ]

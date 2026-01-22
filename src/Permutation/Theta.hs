@@ -4,7 +4,7 @@ module Permutation.Theta
 where
 
 import Clash.Prelude
-import Permutation.Reversed qualified as P3
+import Permutation qualified
 
 {-# ANN
   topEntity
@@ -27,4 +27,4 @@ topEntity ::
   Enable System ->
   Signal System (BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (pack . P3.thetaF1600Reversed . unpack)
+topEntity _clk _rst _en = fmap (pack . Permutation.thetaF1600Reversed . unpack)

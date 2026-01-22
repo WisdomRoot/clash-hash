@@ -4,7 +4,7 @@ module Permutation.Iota
 where
 
 import Clash.Prelude
-import Permutation.Reversed qualified as Perm
+import Permutation qualified
 
 {-# ANN
   topEntity
@@ -29,4 +29,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (uncurry Perm.iotaF1600Reversed)
+topEntity _clk _rst _en = fmap (uncurry Permutation.iotaF1600Reversed)

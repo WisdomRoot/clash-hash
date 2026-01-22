@@ -4,7 +4,7 @@ module Permutation.Pi
 where
 
 import Clash.Prelude
-import Permutation.Reversed qualified as Perm
+import Permutation qualified
 
 {-# ANN
   topEntity
@@ -27,4 +27,4 @@ topEntity ::
   Enable System ->
   Signal System (BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (pack . Perm.piF1600Reversed . unpack)
+topEntity _clk _rst _en = fmap (pack . Permutation.piF1600Reversed . unpack)

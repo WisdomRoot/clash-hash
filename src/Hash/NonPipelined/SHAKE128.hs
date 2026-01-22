@@ -9,7 +9,7 @@ where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import Permutation.Reversed qualified as Perm
+import Permutation qualified
 import Sponge.NonPipelined.SHAKE128 qualified
 
 --------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ type DigestBits = 64
 
 {-# OPAQUE spongeFSM #-}
 spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
-spongeFSM = Perm.keccakF1600RoundReversed
+spongeFSM = Permutation.keccakF1600RoundReversed
 
 {-# ANN
   topEntity

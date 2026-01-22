@@ -8,9 +8,8 @@ where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import Permutation qualified
 import Sponge.NonPipelined.SHA3256 qualified
-import qualified Permutation.Reversed as Permutation
+import Permutation qualified
 
 --------------------------------------------------------------------------------
 -- NonPipelined SHA3-256 Top Entity
@@ -64,4 +63,4 @@ topEntity ::
 topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig
-       in Sponge.NonPipelined.SHA3256.sponge' @System spongeFSM (bundle (msgSig, treadySig, flushSig))
+       in Sponge.NonPipelined.SHA3256.sponge @System spongeFSM (bundle (msgSig, treadySig, flushSig))

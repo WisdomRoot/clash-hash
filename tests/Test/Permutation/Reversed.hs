@@ -6,7 +6,7 @@
 module Test.Permutation.Reversed (spec) where
 
 import Clash.Prelude
-import Permutation.Reversed qualified as Perm
+import Permutation qualified
 import Reference.SHA3 qualified as SHA3
 import Reference.SHA3internal qualified as SHA3internal
 import Test.Hspec
@@ -20,37 +20,37 @@ spec = describe "Permutation" $ do
   describe "PermRev" $ do
     it "theta" $ do
       let expected = pack $ SHA3internal.theta sha3Consts input
-      let actual = pack $ Perm.thetaF1600Reversed input
+      let actual = pack $ Permutation.thetaF1600Reversed input
       actual `shouldBe` expected
 
     it "rho" $ do
       let expected = pack $ SHA3internal.rho sha3Consts input
-      let actual = pack $ Perm.rhoF1600Reversed input
+      let actual = pack $ Permutation.rhoF1600Reversed input
       actual `shouldBe` expected
 
     it "pi" $ do
       let expected = pack $ SHA3internal.pi sha3Consts input
-      let actual = pack $ Perm.piF1600Reversed input
+      let actual = pack $ Permutation.piF1600Reversed input
       actual `shouldBe` expected
 
     it "chi" $ do
       let expected = pack $ SHA3internal.chi sha3Consts input
-      let actual = pack $ Perm.chiF1600Reversed input
+      let actual = pack $ Permutation.chiF1600Reversed input
       actual `shouldBe` expected
 
     it "iota (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.iota sha3Consts roundIdx input
-      let actual = pack $ Perm.iotaF1600Reversed roundIdx (pack input)
+      let actual = pack $ Permutation.iotaF1600Reversed roundIdx (pack input)
       actual `shouldBe` expected
 
     it "1 round (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.keccakf1Round roundIdx input
-      let actual = pack $ Perm.keccakF1600RoundReversed roundIdx inputBitVector
+      let actual = pack $ Permutation.keccakF1600RoundReversed roundIdx inputBitVector
       actual `shouldBe` expected
 
     it "24 complete rounds" $ do
       let expected = pack $ SHA3.keccakf @6 @64 @1600 input
-      let actual = Perm.keccakF1600 inputBitVector
+      let actual = Permutation.keccakF1600 inputBitVector
       actual `shouldBe` expected

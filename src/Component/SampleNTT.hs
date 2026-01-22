@@ -7,7 +7,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Permutation.Reversed qualified as Perm
+import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 
 {-# ANN
@@ -66,7 +66,7 @@ hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
           let initState = absorb34 inputMsg
            in (Permute 0 initState, (idleAXI4Stream, True))
         Permute roundIdx state ->
-          let state' = Perm.keccakF1600RoundReversed roundIdx state
+          let state' = Permutation.keccakF1600RoundReversed roundIdx state
            in if roundIdx == maxBound
                 then (Squeeze 0 state', (idleAXI4Stream, False))
                 else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
