@@ -1,5 +1,6 @@
 {
   "N256": "Hash.NonPipelined.SHA3256.topEntity",
+  "N256Rev": "Hash.NonPipelined.SHA3256Reversed.topEntity",
   "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
