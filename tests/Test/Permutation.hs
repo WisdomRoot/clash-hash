@@ -20,34 +20,34 @@ spec = describe "Permutation" $ do
   describe "Perm" $ do
     it "theta" $ do
       let expected = pack $ SHA3internal.theta sha3Consts input
-      let actual = pack $ Perm.thetaF1600Reversed input
+      let actual = pack $ Perm.thetaF1600 input
       actual `shouldBe` expected
 
     it "rho" $ do
       let expected = pack $ SHA3internal.rho sha3Consts input
-      let actual = pack $ Perm.rhoF1600Reversed input
+      let actual = pack $ Perm.rhoF1600 (reverse input)
       actual `shouldBe` expected
 
     it "pi" $ do
       let expected = pack $ SHA3internal.pi sha3Consts input
-      let actual = pack $ Perm.piF1600Reversed input
+      let actual = pack $ Perm.piF1600 (reverse input)
       actual `shouldBe` expected
 
     it "chi" $ do
       let expected = pack $ SHA3internal.chi sha3Consts input
-      let actual = pack $ Perm.chiF1600Reversed input
+      let actual = pack $ Perm.chiF1600 (reverse input)
       actual `shouldBe` expected
 
     it "iota (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.iota sha3Consts roundIdx input
-      let actual = pack $ Perm.iotaF1600Reversed roundIdx (pack input)
+      let actual = pack $ Perm.iotaF1600 roundIdx (pack input)
       actual `shouldBe` expected
 
     it "1 round (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.keccakf1Round roundIdx input
-      let actual = pack $ Perm.keccakF1600RoundReversed roundIdx inputBitVector
+      let actual = pack $ Perm.keccakF1600Round roundIdx inputBitVector
       actual `shouldBe` expected
 
     it "24 complete rounds" $ do

@@ -2,6 +2,7 @@
 
 module Sponge.NonPipelined.SHA3256
   ( sponge,
+    sponge',
   )
 where
 
@@ -30,12 +31,39 @@ pad 14 = complementAt 512 . complementAt 637 . complementAt 638
 pad 15 = complementAt 512 . complementAt 573 . complementAt 574
 pad _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- special case for a whole 1088-bit padding
 
+-- | Pad with all indices mirrored by (1599 - i)
+pad' :: Index 17 -> BitVector 1600 -> BitVector 1600
+pad' 0 = complementAt 1087 . complementAt 66 . complementAt 65
+pad' 1 = complementAt 1087 . complementAt 130 . complementAt 129
+pad' 2 = complementAt 1087 . complementAt 194 . complementAt 193
+pad' 3 = complementAt 1087 . complementAt 258 . complementAt 257
+pad' 4 = complementAt 1087 . complementAt 322 . complementAt 321
+pad' 5 = complementAt 1087 . complementAt 386 . complementAt 385
+pad' 6 = complementAt 1087 . complementAt 450 . complementAt 449
+pad' 7 = complementAt 1087 . complementAt 514 . complementAt 513
+pad' 8 = complementAt 1087 . complementAt 578 . complementAt 577
+pad' 9 = complementAt 1087 . complementAt 642 . complementAt 641
+pad' 10 = complementAt 1087 . complementAt 706 . complementAt 705
+pad' 11 = complementAt 1087 . complementAt 770 . complementAt 769
+pad' 12 = complementAt 1087 . complementAt 834 . complementAt 833
+pad' 13 = complementAt 1087 . complementAt 898 . complementAt 897
+pad' 14 = complementAt 1087 . complementAt 962 . complementAt 961
+pad' 15 = complementAt 1087 . complementAt 1026 . complementAt 1025
+pad' _ = complementAt 1087 . complementAt 2 . complementAt 1 -- special case for a whole 1088-bit padding
+
 -- | Squeeze phase bit slicing helper: extracts 64-bit chunks from the Keccak state
 squeezeSlice :: Index 4 -> BitVector 1600 -> BitVector 64
 squeezeSlice 0 state = slice (SNat @1599) (SNat @1536) state
 squeezeSlice 1 state = slice (SNat @1535) (SNat @1472) state
 squeezeSlice 2 state = slice (SNat @1471) (SNat @1408) state
 squeezeSlice _ state = slice (SNat @1407) (SNat @1344) state
+
+-- | Squeeze slice with indices mirrored by (1599 - i)
+squeezeSlice' :: Index 4 -> BitVector 1600 -> BitVector 64
+squeezeSlice' 0 state = slice (SNat @63) (SNat @0) state
+squeezeSlice' 1 state = slice (SNat @127) (SNat @64) state
+squeezeSlice' 2 state = slice (SNat @191) (SNat @128) state
+squeezeSlice' _ state = slice (SNat @255) (SNat @192) state
 
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
@@ -55,6 +83,34 @@ sponge permModule = mealy step (State (Absorb 0) 0)
     step :: State 17 (Index 4) -> (AXI4Stream MsgBits, Bool, Bool) -> (State 17 (Index 4), (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR256 counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
+    step (State (Squeeze counter) state) (_msg, tready, _flush)
+      | counter == 3 =
+          let outStream = AXI4Stream {tdata = squeezeSlice 3 state, tvalid = True, tlast = True}
+              nextState = if tready then State (Absorb 0) 0 else State (Squeeze 3) state
+           in (nextState, (outStream, False))
+      | otherwise =
+          let outStream = AXI4Stream {tdata = squeezeSlice counter state, tvalid = True, tlast = False}
+              nextState = if tready then State (Squeeze (counter + 1)) state else State (Squeeze counter) state
+           in (nextState, (outStream, False))
+
+-- | Stateful sponge with reversed pad/squeeze indices
+{-# OPAQUE sponge' #-}
+sponge' ::
+  forall dom n.
+  ( HiddenClockResetEnable dom,
+    KnownNat n,
+    n ~ DivRU (MsgBits + 2) 1088,
+    MsgBits + 2 <= n * 1088,
+    MsgBits + 4 <= n * 1088
+  ) =>
+  (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
+  Signal dom (AXI4Stream MsgBits, Bool, Bool) -> -- Input message, output tready, flush signal
+  Signal dom (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
+sponge' permModule = mealy step (State (Absorb 0) 0)
+  where
+    step :: State 17 (Index 4) -> (AXI4Stream MsgBits, Bool, Bool) -> (State 17 (Index 4), (AXI4Stream DigestBits, Bool))
+    step (State (Absorb counter) state) (input, _tready, flush) = absorb' pad' XOR.staticXOR256' counter state input flush
+    step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute' permModule pad' counter seenTLAST state tready
     step (State (Squeeze counter) state) (_msg, tready, _flush)
       | counter == 3 =
           let outStream = AXI4Stream {tdata = squeezeSlice 3 state, tvalid = True, tlast = True}

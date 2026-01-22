@@ -17,7 +17,9 @@ module Sponge.NonPipelined
     SeenTLAST (..),
     complementAt,
     absorb,
+    absorb',
     permute,
+    permute',
   )
 where
 
@@ -115,3 +117,67 @@ permute permModule pad counter seenTLAST state tready =
              in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
           NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True)) -- go back to absorb phase
         else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
+
+rev :: BitVector 1600 -> BitVector 1600
+rev = pack . (reverse :: Vec 1600 Bit -> Vec 1600 Bit) . unpack
+
+
+rev64 :: BitVector 64 -> BitVector 64
+rev64 = pack . (reverse :: Vec 64 Bit -> Vec 64 Bit) . unpack
+
+
+-- | Permute with reversed initial squeeze slice (indices mirrored by 1599 - i)
+permute' ::
+  (KnownNat k, KnownNat n) =>
+  (Index 24 -> BitVector 1600 -> BitVector 1600) ->
+  (Index k -> BitVector 1600 -> BitVector 1600) ->
+  Index 24 ->
+  SeenTLAST ->
+  BitVector 1600 ->
+  Bool ->
+  (State k (Index n), (AXI4Stream 64, Bool))
+permute' permModule pad counter seenTLAST state tready =
+  let state' = permModule counter state
+  -- let state' = rev $ permModule counter (rev state)
+   in if counter == 23
+        then case seenTLAST of
+          SeenTLASTAndPadded ->
+            let outStream = AXI4Stream {tdata = rev64 $ slice (SNat @63) (SNat @0) (rev state'), tvalid = True, tlast = False}
+                nextState = if tready then State (Squeeze 1) state' else State (Squeeze 0) state'
+             in (nextState, (outStream, False))
+          SeenTLASTNotPadded ->
+            let padded = rev $ pad maxBound (rev state')
+             in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False)) -- apply 1088-bit padding, and then permute again
+          NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True)) -- go back to absorb phase
+        else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
+
+absorb' ::
+  (KnownNat k) =>
+  (Index k -> BitVector 1600 -> BitVector 1600) ->
+  (BitVector 1600 -> BitVector MsgBits -> Index k -> BitVector 1600) ->
+  Index k ->
+  BitVector 1600 ->
+  AXI4Stream MsgBits ->
+  Bool ->
+  (State k n, (AXI4Stream DigestBits, Bool))
+absorb' pad xorFn counter state input flush
+  | flush && counter == 0 =
+      -- Empty input: use wildcard padding (whole 1088-bit padding)
+      let padded = rev $ pad maxAbsorbBeat (rev state) -- wildcard case for SHAKE
+       in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
+  | not (tvalid input) = (State (Absorb counter) state, (idleAXI4Stream, True)) -- wait for valid input
+  | tlast input && counter < maxAbsorbBeat =
+      let state' = rev $ xorFn (rev state) (rev64 (tdata input)) counter
+          padded = rev $ pad counter (rev state')
+       in (State (Permute 0 SeenTLASTAndPadded) padded, (idleAXI4Stream, False))
+  | tlast input && otherwise =
+      let state' = rev $ xorFn (rev state) (rev64 (tdata input)) counter
+       in (State (Permute 0 SeenTLASTNotPadded) state', (idleAXI4Stream, False))
+  | counter < maxAbsorbBeat =
+      let state' = rev $ xorFn (rev state) (rev64 (tdata input)) counter
+       in (State (Absorb (counter + 1)) state', (idleAXI4Stream, True))
+  | otherwise =
+      let state' = rev $ xorFn (rev state) (rev64 (tdata input)) counter
+       in (State (Permute 0 NotSeenTLAST) state', (idleAXI4Stream, False))
+  where
+    maxAbsorbBeat = maxBound

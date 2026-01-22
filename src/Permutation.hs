@@ -2,14 +2,14 @@
 
 module Permutation
   ( -- * Round primitives
-    thetaF1600Reversed,
-    rhoF1600Reversed,
-    piF1600Reversed,
-    chiF1600Reversed,
-    iotaF1600Reversed,
+    thetaF1600,
+    rhoF1600,
+    piF1600,
+    chiF1600,
+    iotaF1600,
 
     -- * Permutation
-    keccakF1600RoundReversed,
+    keccakF1600Round,
     keccakF1600,
 
     -- * Top entity
@@ -36,8 +36,8 @@ rotateRight1 x = rotateRightS x d1
 
 -- Theta transformation: XOR with column parities
 -- Step 1: Just compute column parities (5 lanes of 64 bits = 320 bits)
-thetaF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
-thetaF1600Reversed bv =
+thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+thetaF1600 bv =
   let -- Unpack to 5×5×64: Vec 5 (Vec 5 (Vec 64 Bit))
       state :: Vec 25 (Vec 64 Bit)
       state = unconcatI bv
@@ -69,20 +69,20 @@ thetaF1600Reversed bv =
    in concat outputState
 
 -- Chi transformation
-chiF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
-chiF1600Reversed bv = map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) Constants.chi6Reversed
+chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+chiF1600 bv = map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) Constants.chi6
 
 -- Pi transformation: bit permutation
-piF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
-piF1600Reversed bv = map (bv !) Constants.pi6Reversed
+piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+piF1600 bv = map (bv !) Constants.pi6
 
 -- Rho transformation: bit permutation (lane rotation)
-rhoF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
-rhoF1600Reversed bv = map (bv !) Constants.rho6Reversed
+rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+rhoF1600 bv = map (bv !) Constants.rho6
 
 -- Iota transformation: XOR lane 0 with round constant (pure BitVector version)
-iotaF1600Reversed :: Index 24 -> BitVector 1600 -> BitVector 1600
-iotaF1600Reversed roundIdx bv =
+iotaF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
+iotaF1600 roundIdx bv =
   let lane0 :: BitVector 64
       lane0 = slice (SNat @1599) (SNat @1536) bv
       rc :: BitVector 64
@@ -99,22 +99,25 @@ iotaF1600Reversed roundIdx bv =
 --   - No inlining or specialization (keeps single definition)
 --   - Emits separate component once, wired to all callers
 --   - Enforces module boundary for potential blackbox override
-{-# OPAQUE keccakF1600RoundReversed #-}
-keccakF1600RoundReversed :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600RoundReversed roundIdx =
-  iotaF1600Reversed roundIdx
+{-# OPAQUE keccakF1600Round #-}
+keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
+keccakF1600Round roundIdx =
+  iotaF1600 roundIdx
     . pack
-    . chiF1600Reversed
-    . piF1600Reversed
-    . rhoF1600Reversed
-    . thetaF1600Reversed
+    . chiF1600
+    . reverse
+    . piF1600
+    . reverse
+    . rhoF1600
+    . reverse
+    . thetaF1600
     . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
   foldl applyRound initialState (indicesI @24)
   where
-    applyRound state roundIdx = keccakF1600RoundReversed roundIdx state
+    applyRound state roundIdx = keccakF1600Round roundIdx state
 
 --------------------------------------------------------------------------------
 -- Top entity for hardware synthesis
@@ -152,4 +155,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (uncurry keccakF1600RoundReversed)
+topEntity _clk _rst _en = fmap (uncurry keccakF1600Round)

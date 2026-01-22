@@ -8,8 +8,9 @@ where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
-import Permutation.Reversed qualified as Perm
+import Permutation qualified
 import Sponge.NonPipelined.SHA3256 qualified
+import qualified Permutation.Reversed as Permutation
 
 --------------------------------------------------------------------------------
 -- NonPipelined SHA3-256 Top Entity
@@ -23,7 +24,7 @@ type DigestBits = 64
 -- OPAQUE ensures module boundary; function name determines module name
 {-# OPAQUE spongeFSM #-}
 spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
-spongeFSM = Perm.keccakF1600RoundReversed
+spongeFSM = Permutation.keccakF1600RoundReversed
 
 {-# ANN
   topEntity
@@ -63,4 +64,4 @@ topEntity ::
 topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig
-       in Sponge.NonPipelined.SHA3256.sponge @System spongeFSM (bundle (msgSig, treadySig, flushSig))
+       in Sponge.NonPipelined.SHA3256.sponge' @System spongeFSM (bundle (msgSig, treadySig, flushSig))
