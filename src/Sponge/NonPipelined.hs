@@ -121,7 +121,6 @@ permute permModule pad counter seenTLAST state tready =
 rev :: BitVector 1600 -> BitVector 1600
 rev = pack . (reverse :: Vec 1600 Bit -> Vec 1600 Bit) . unpack
 
-
 rev64 :: BitVector 64 -> BitVector 64
 rev64 = pack . (reverse :: Vec 64 Bit -> Vec 64 Bit) . unpack
 

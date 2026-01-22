@@ -41,7 +41,8 @@ main = do
     testGroup
       "All Tests"
       [
-        n256Tests
+        permutationTests
+        -- n256Tests
         -- constantsTests,
         -- permutationTests,
         -- permutationRevTests

@@ -19,6 +19,7 @@ where
 
 import Clash.Prelude
 import Permutation.Constants qualified as Constants
+import Permutation.Reversed (chiF1600Reversed, piF1600Reversed, rhoF1600Reversed)
 
 -- Element-wise XOR for bit vectors
 -- NOTE: defining it as an left-associative operator would generate inefficient verilog!!
@@ -102,16 +103,18 @@ iotaF1600 roundIdx bv =
 {-# OPAQUE keccakF1600Round #-}
 keccakF1600Round :: Index 24 -> BitVector 1600 -> BitVector 1600
 keccakF1600Round roundIdx =
-  iotaF1600 roundIdx
+  rev
+    . iotaF1600 roundIdx
     . pack
-    . chiF1600
-    . reverse
-    . piF1600
-    . reverse
-    . rhoF1600
-    . reverse
+    . chiF1600Reversed
+    . piF1600Reversed
+    . rhoF1600Reversed
     . thetaF1600
     . unpack
+    . rev
+
+rev :: BitVector 1600 -> BitVector 1600
+rev = pack . (reverse :: Vec 1600 Bit -> Vec 1600 Bit) . unpack
 
 keccakF1600 :: BitVector 1600 -> BitVector 1600
 keccakF1600 initialState =
