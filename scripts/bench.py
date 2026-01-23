@@ -2,8 +2,8 @@
 """
 Manifest-driven bench script (single target only).
 
-Given a target name (directory under ./verilog), it will:
-  - Read verilog/<target>/clash-manifest.json
+Given a target name (directory under ./systemverilog or ./verilog), it will:
+  - Read systemverilog/<target>/clash-manifest.json (fallback to verilog/<target>)
   - Synthesise the target using scripts/synth.py
   - Parse the target's yosys.log to report total and per-module area/seq%
 
@@ -20,7 +20,9 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SYSTEMVERILOG_ROOT = PROJECT_ROOT / "systemverilog"
 VERILOG_ROOT = PROJECT_ROOT / "verilog"
+CLASH_HDL_ROOTS = [SYSTEMVERILOG_ROOT, VERILOG_ROOT]
 CLASH_TARGETS_FILE = PROJECT_ROOT / "clash.json"
 VHDL_TARGETS_FILE = PROJECT_ROOT / "vhdl.json"
 
@@ -161,9 +163,15 @@ def parse_clash_timings(text: str):
 
 
 def load_manifest(label: str) -> dict:
-    path = VERILOG_ROOT / label / "clash-manifest.json"
-    if not path.is_file():
-        sys.exit(f"[bench] ERROR: manifest not found at {path}")
+    path = None
+    for root in CLASH_HDL_ROOTS:
+        candidate = root / label / "clash-manifest.json"
+        if candidate.is_file():
+            path = candidate
+            break
+    if path is None:
+        searched = ", ".join(str(root / label / "clash-manifest.json") for root in CLASH_HDL_ROOTS)
+        sys.exit(f"[bench] ERROR: manifest not found (searched: {searched})")
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
@@ -270,8 +278,20 @@ def bench(target_label: str):
     # Rebuild only this package so Clash sees fresh sources without a full stack build
     run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
 
-    # (Re)generate Verilog for the target and capture Clash timings
+    # (Re)generate SystemVerilog for the target and capture Clash timings
     clash_output = run_cmd(
+        [
+            "stack",
+            "exec",
+            "clash",
+            "--",
+            "--systemverilog",
+            module_name,
+        ],
+        f"SystemVerilog gen for {module_name}",
+    )
+    # Also emit Verilog for tool compatibility
+    run_cmd(
         [
             "stack",
             "exec",

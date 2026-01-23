@@ -124,15 +124,22 @@ def _resolve_netlist_path(target: str) -> tuple[Path, str, Path | None]:
     try:
         from pathlib import Path as PathType
 
-        verilog_root = PROJECT_ROOT / "verilog"
-        manifest_path = verilog_root / label / "clash-manifest.json"
-        if manifest_path.is_file():
+        clash_roots = [PROJECT_ROOT / "systemverilog", PROJECT_ROOT / "verilog"]
+        manifest_path = None
+        manifest_root = None
+        for root in clash_roots:
+            candidate = root / label / "clash-manifest.json"
+            if candidate.is_file():
+                manifest_path = candidate
+                manifest_root = root
+                break
+        if manifest_path is not None and manifest_root is not None:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             top = manifest.get("top_component", {}).get("name")
             if top:
                 netlist = BUILD_DIR / "synth" / label / "netlist" / f"{top}.mapped.v"
                 # Check for Clash-generated SDC file
-                clash_sdc = verilog_root / label / f"{top}.sdc"
+                clash_sdc = manifest_root / label / f"{top}.sdc"
                 if clash_sdc.exists():
                     return (netlist, top, clash_sdc)
                 return (netlist, top, None)

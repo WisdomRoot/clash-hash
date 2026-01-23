@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
 Minimal Yosys wrapper that synthesizes either:
-  * Clash-generated Verilog targets (via clash-manifest.json), or
+  * Clash-generated SystemVerilog/Verilog targets (via clash-manifest.json), or
   * Plain VHDL designs described in vhdl.json and stored under ./vhdl
 
-Verilog usage (existing behaviour):
+SystemVerilog usage (existing behaviour; also emits Verilog):
     python3 scripts/synth.py Hash.Stateful4.topEntity
 
 VHDL usage (new):
@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shlex
 import shutil
 import subprocess
@@ -22,7 +23,9 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SYSTEMVERILOG_ROOT = PROJECT_ROOT / "systemverilog"
 VERILOG_ROOT = PROJECT_ROOT / "verilog"
+CLASH_HDL_ROOTS = [SYSTEMVERILOG_ROOT, VERILOG_ROOT]
 VHDL_ROOT = PROJECT_ROOT / "vhdl"
 CLASH_TARGETS_FILE = PROJECT_ROOT / "clash.json"
 VHDL_TARGETS_FILE = PROJECT_ROOT / "vhdl.json"
@@ -76,53 +79,111 @@ def load_vhdl_targets(path: Path) -> dict[str, dict]:
     return targets
 
 
-def _auto_generate_verilog(module_name: str) -> bool:
-    """Attempt to auto-generate Verilog from Clash source."""
-    print(f"[synth] Verilog not found, generating from Clash: {module_name}", flush=True)
+def _module_base_name(label: str) -> str:
+    return label[: -len(".topEntity")] if label.endswith(".topEntity") else label
 
-    # Convert module name to file path: Hash.NonPipelined.topEntity -> src/Hash/NonPipelined.hs
-    parts = module_name.split(".")
-    if parts[-1] == "topEntity":
-        parts = parts[:-1]  # Remove topEntity suffix
-    file_path = PROJECT_ROOT / "src" / "/".join(parts[:-1]) / f"{parts[-1]}.hs"
 
-    if not file_path.exists():
-        print(f"[synth] Source file not found: {file_path}", flush=True)
-        return False
-
-    # Use: stack exec clash -- --verilog <file.hs>
+def _run_clash_codegen(flag: str, module_name: str) -> tuple[bool, str]:
+    cmd = ["stack", "exec", "clash", "--", flag, module_name]
     result = subprocess.run(
-        ["stack", "exec", "clash", "--", "--verilog", str(file_path)],
+        cmd,
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
     )
+    output = f"{result.stdout}{result.stderr}"
+    if result.returncode == 0:
+        return True, output
 
-    if result.returncode != 0:
+    if "Relocation target for PAGE21 out of range" in output:
+        print("[synth] Clash hit GHC relocation bug; retrying once...", flush=True)
+        result = subprocess.run(
+            cmd,
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        output = f"{result.stdout}{result.stderr}"
+        if result.returncode == 0:
+            return True, output
+
+    return False, output
+
+
+def _auto_generate_systemverilog(label: str) -> bool:
+    """Attempt to auto-generate SystemVerilog from Clash source."""
+    module_name = _module_base_name(label)
+    print(f"[synth] SystemVerilog not found, generating from Clash: {label}", flush=True)
+
+    ok, output = _run_clash_codegen("--systemverilog", module_name)
+    if not ok:
+        print(f"[synth] Failed to generate SystemVerilog:", flush=True)
+        print(output, flush=True)
+        return False
+
+    print(f"[synth] ✓ SystemVerilog generated successfully", flush=True)
+    return True
+
+
+def _auto_generate_verilog(label: str) -> bool:
+    """Attempt to auto-generate Verilog from Clash source (fallback)."""
+    module_name = _module_base_name(label)
+    print(f"[synth] Verilog not found, generating from Clash: {label}", flush=True)
+
+    ok, output = _run_clash_codegen("--verilog", module_name)
+    if not ok:
         print(f"[synth] Failed to generate Verilog:", flush=True)
-        print(result.stdout, flush=True)
-        print(result.stderr, flush=True)
+        print(output, flush=True)
         return False
 
     print(f"[synth] ✓ Verilog generated successfully", flush=True)
     return True
 
 
-def load_manifest(arg: str) -> tuple[Path, dict]:
-    manifest_path = VERILOG_ROOT / arg / "clash-manifest.json"
+def _find_manifest_path(arg: str) -> Path | None:
+    for root in CLASH_HDL_ROOTS:
+        candidate = root / arg / "clash-manifest.json"
+        if candidate.is_file():
+            return candidate
+    return None
 
-    # Auto-generate if missing
-    if not manifest_path.is_file():
-        # Try to resolve alias first
+
+def _find_manifest_in_root(root: Path, arg: str) -> Path | None:
+    candidate = root / arg / "clash-manifest.json"
+    return candidate if candidate.is_file() else None
+
+
+def _ensure_clash_outputs(label: str) -> None:
+    sv_manifest = _find_manifest_in_root(SYSTEMVERILOG_ROOT, label)
+    if sv_manifest is None:
+        if not _auto_generate_systemverilog(label):
+            sys.exit(f"error: could not generate SystemVerilog for {label}")
+
+    v_manifest = _find_manifest_in_root(VERILOG_ROOT, label)
+    if v_manifest is None:
+        if not _auto_generate_verilog(label):
+            sys.exit(f"error: could not generate Verilog for {label}")
+
+
+def load_manifest(arg: str) -> tuple[Path, dict]:
+    manifest_path = _find_manifest_in_root(SYSTEMVERILOG_ROOT, arg)
+
+    # Auto-generate SystemVerilog if missing
+    if manifest_path is None:
         clash_aliases = load_simple_aliases(CLASH_TARGETS_FILE, required=False)
         module_name = clash_aliases.get(arg, arg)
 
-        if not _auto_generate_verilog(module_name):
-            sys.exit(f"error: could not generate Verilog for {arg}")
+        if not _auto_generate_systemverilog(module_name):
+            sys.exit(f"error: could not generate SystemVerilog for {arg}")
 
-        # Check again after generation
-        if not manifest_path.is_file():
-            sys.exit(f"error: manifest not found at {manifest_path} even after generation")
+        manifest_path = _find_manifest_in_root(SYSTEMVERILOG_ROOT, arg)
+
+    # Fallback to Verilog if SystemVerilog still missing
+    if manifest_path is None:
+        manifest_path = _find_manifest_in_root(VERILOG_ROOT, arg)
+        if manifest_path is None:
+            searched = ", ".join(str(root / arg / "clash-manifest.json") for root in CLASH_HDL_ROOTS)
+            sys.exit(f"error: manifest not found after generation (searched: {searched})")
 
     try:
         data = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -140,6 +201,108 @@ def verilog_files_from_manifest(manifest_path: Path, manifest: dict) -> list[Pat
     if not files:
         sys.exit(f"error: manifest at {manifest_path} lists no Verilog/SystemVerilog files")
     return files
+
+
+_PACKED_2D_RE = re.compile(r"\blogic\s+(?:signed\s+)?\[(?P<outer>[^\]]+)\]\s*\[(?P<inner>[^\]]+)\]")
+_UNPACKED_ARG_RE = re.compile(
+    r"\b[A-Za-z_][A-Za-z0-9_]*\s+(?:\[[^\]]+\]\s+)?[A-Za-z_][A-Za-z0-9_]*\s*\[[^\]]+\]"
+)
+
+
+def _collapse_single_bit_packed_dims(text: str) -> str:
+    def repl(match: re.Match[str]) -> str:
+        outer = match.group("outer")
+        inner = match.group("inner").replace(" ", "")
+        prefix = match.group(0).split("[", 1)[0].rstrip()
+        if inner in ("0:0", "0"):
+            return f"{prefix} [{outer}]"
+        return match.group(0)
+
+    return _PACKED_2D_RE.sub(repl, text)
+
+
+def _strip_unused_packed2d_functions(text: str, other_text: str) -> str:
+    lines = text.splitlines()
+    out_lines: list[str] = []
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.lstrip()
+        if stripped.startswith("function"):
+            header_lines = [line]
+            j = i
+            if ");" not in line:
+                j = i + 1
+                while j < len(lines):
+                    header_lines.append(lines[j])
+                    if ");" in lines[j]:
+                        break
+                    j += 1
+            header = " ".join(h.strip() for h in header_lines)
+            m_name = re.search(
+                r"function\s+automatic\s+.*?\b([A-Za-z_][A-Za-z0-9_]*)\s*\(",
+                header,
+            )
+            func_name = m_name.group(1) if m_name else None
+
+            packed2d = _PACKED_2D_RE.findall(header)
+            has_packed2d = bool(packed2d)
+            has_non_single = any(inner.replace(" ", "") not in ("0:0", "0") for _, inner in packed2d)
+            args_text = ""
+            m_args = re.search(r"\((.*)\)", header)
+            if m_args:
+                args_text = m_args.group(1)
+            has_unpacked_arg = _UNPACKED_ARG_RE.search(args_text) is not None
+
+            if (has_packed2d and has_non_single and func_name) or (has_unpacked_arg and func_name):
+                used = re.search(rf"\b{re.escape(func_name)}\b", other_text) is not None
+                if used:
+                    sys.exit(
+                        "error: Yosys can't parse some SystemVerilog function signatures "
+                        "(packed multi-dimensional arrays or unpacked array arguments). "
+                        f"Function '{func_name}' is referenced. "
+                        "Consider synthesizing from Verilog output or add an SV-to-Verilog conversion step."
+                    )
+                # Skip entire function block
+                i = j + 1
+                while i < len(lines) and "endfunction" not in lines[i]:
+                    i += 1
+                if i < len(lines):
+                    i += 1
+                continue
+
+        out_lines.append(line)
+        i += 1
+
+    return "\n".join(out_lines) + ("\n" if text.endswith("\n") else "")
+
+
+def sanitize_systemverilog_files(files: list[Path], label: str) -> list[Path]:
+    out_root = (PROJECT_ROOT / "build" / "sv_yosys" / label).resolve()
+    out_root.mkdir(parents=True, exist_ok=True)
+
+    other_text_parts: list[str] = []
+    for path in files:
+        if path.suffix.lower() == ".sv" and not path.name.endswith("_types.sv"):
+            other_text_parts.append(path.read_text(encoding="utf-8"))
+    other_text = "\n".join(other_text_parts)
+
+    sanitized: list[Path] = []
+    for path in files:
+        out_path = out_root / path.name
+        if path.suffix.lower() != ".sv":
+            shutil.copy2(path, out_path)
+            sanitized.append(out_path)
+            continue
+
+        text = path.read_text(encoding="utf-8")
+        if path.name.endswith("_types.sv"):
+            text = _strip_unused_packed2d_functions(text, other_text)
+        text = _collapse_single_bit_packed_dims(text)
+        out_path.write_text(text, encoding="utf-8")
+        sanitized.append(out_path)
+
+    return sanitized
 
 
 def collect_vhdl_files(base_dir: Path, file_list: list[str]) -> list[Path]:
@@ -292,7 +455,9 @@ def ensure_liberty() -> None:
 
 def run_clash_target(label: str) -> None:
     ensure_liberty()
+    _ensure_clash_outputs(label)
     manifest_path, manifest = load_manifest(label)
+    using_systemverilog = SYSTEMVERILOG_ROOT in manifest_path.parents
     top = manifest.get("top_component", {}).get("name")
     if not top:
         sys.exit("error: manifest missing top_component.name")
@@ -307,6 +472,21 @@ def run_clash_target(label: str) -> None:
                 seen_files.add(resolved)
                 verilog_files.append(resolved)
 
+    if using_systemverilog:
+        verilog_manifest = _find_manifest_in_root(VERILOG_ROOT, label)
+        if verilog_manifest is None:
+            _auto_generate_verilog(label)
+            verilog_manifest = _find_manifest_in_root(VERILOG_ROOT, label)
+
+        if verilog_manifest is not None:
+            print("[synth] SystemVerilog generated; using Verilog for Yosys compatibility.", flush=True)
+            manifest_path = verilog_manifest
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                sys.exit(f"error: failed to read manifest {manifest_path}: {exc}")
+            using_systemverilog = False
+
     add_files(verilog_files_from_manifest(manifest_path, manifest))
 
     dep_entries = manifest.get("dependencies", {})
@@ -320,6 +500,9 @@ def run_clash_target(label: str) -> None:
                 add_files(verilog_files_from_manifest(dep_manifest_path, dep_manifest))
 
     label_name = manifest_path.parent.name
+    if any(path.suffix.lower() == ".sv" and SYSTEMVERILOG_ROOT in path.parents for path in verilog_files):
+        verilog_files = sanitize_systemverilog_files(verilog_files, label_name)
+
     out_root = DEFAULT_OUTPUT_ROOT / label_name
     netlist_dir = out_root / "netlist"
     report_dir = out_root / "reports"
@@ -382,7 +565,7 @@ def run_vhdl_target(name: str, entry: dict) -> None:
 
 
 def main(argv: list[str]) -> None:
-    parser = argparse.ArgumentParser(description="Synthesize a Clash (Verilog) or VHDL target with Yosys.")
+    parser = argparse.ArgumentParser(description="Synthesize a Clash (SystemVerilog) or VHDL target with Yosys.")
     parser.add_argument(
         "target",
         help="Alias in clash.json or vhdl.json, or raw verilog directory name under ./verilog",
