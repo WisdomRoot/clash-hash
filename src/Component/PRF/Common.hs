@@ -1,5 +1,6 @@
 module Component.PRF.Common
   ( hash,
+    Eta (..),
   )
 where
 
@@ -8,56 +9,59 @@ import Clash.Prelude hiding (tlast)
 import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 
+-- | Eta parameter for PRF: 2 or 3.
+data Eta = Eta2 | Eta3 deriving (Show, Eq, Generic, NFDataX)
+
 data State
   = Absorb
-  | Permute (Index 24) (Unsigned 5) (Unsigned 5) (BitVector 1600)
-  | Squeeze (Unsigned 5) (Unsigned 5) (BitVector 1600)
+  | Permute (Index 24) (Unsigned 5) (BitVector 1600)
+  | Squeeze (Unsigned 5) (BitVector 1600)
   | Done
   deriving (Show, Eq, Generic, NFDataX)
 
 hash ::
   forall dom.
   (HiddenClockResetEnable dom) =>
-  Signal dom (Unsigned 2) ->
+  Eta ->
   Signal dom (BitVector 264) ->
   Signal dom Bool ->
   Signal dom (AXI4Stream 64, Bool)
-hash etaSig msgSig treadySig = mealy step Absorb (bundle (etaSig, msgSig, treadySig))
+hash eta msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
   where
     step ::
       State ->
-      (Unsigned 2, BitVector 264, Bool) ->
+      (BitVector 264, Bool) ->
       (State, (AXI4Stream 64, Bool))
-    step st (eta, msg, tready) =
+    step st (msg, tready) =
       case st of
         Absorb ->
-          let totalWords = if eta == 3 then 24 else 16 :: Unsigned 5
-              initState = absorb33 msg
-           in (Permute 0 0 totalWords initState, (idleAXI4Stream, True))
-        Permute roundIdx wordIdx totalWords state ->
+          let initState = absorb33 msg
+           in (Permute 0 0 initState, (idleAXI4Stream, True))
+        Permute roundIdx wordIdx state ->
           let state' = Permutation.keccakF1600 roundIdx state
            in if roundIdx == maxBound
-                then (Squeeze wordIdx totalWords state', (idleAXI4Stream, False))
-                else (Permute (roundIdx + 1) wordIdx totalWords state', (idleAXI4Stream, False))
-        Squeeze wordIdx totalWords state ->
-          let inBlockIdx = fromIntegral (wordIdx `mod` 17) :: Index 17
+                then (Squeeze wordIdx state', (idleAXI4Stream, False))
+                else (Permute (roundIdx + 1) wordIdx state', (idleAXI4Stream, False))
+        Squeeze wordIdx state ->
+          let lastWord = wordIdx == (if eta == Eta3 then 23 else 15)
+              inBlockIdx = fromIntegral (wordIdx `mod` 17) :: Index 17
               outStream =
                 AXI4Stream
                   { tdata = squeezeSlice inBlockIdx state,
                     tvalid = True,
-                    tlast = wordIdx == totalWords - 1
+                    tlast = lastWord
                   }
               nextState =
                 if tready
                   then
-                    if wordIdx == totalWords - 1
+                    if lastWord
                       then Done
                       else
                         let nextWord = wordIdx + 1
                          in if inBlockIdx == 16
-                              then Permute 0 nextWord totalWords state
-                              else Squeeze nextWord totalWords state
-                  else Squeeze wordIdx totalWords state
+                              then Permute 0 nextWord state
+                              else Squeeze nextWord state
+                  else Squeeze wordIdx state
            in (nextState, (outStream, False))
         Done -> (Done, (idleAXI4Stream, False))
 

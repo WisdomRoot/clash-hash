@@ -5,17 +5,16 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (tlast)
-import Component.PRF.Common (hash)
+import Component.PRF.Common
 
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "Component_PRF",
+      { t_name = "Component_PRF3",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
-            PortName "ETA",
             PortName "MSG_33B",
             PortName "DIGEST_TREADY"
           ],
@@ -34,9 +33,8 @@ topEntity ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System (Unsigned 2) ->
   Signal System (BitVector 264) ->
   Signal System Bool ->
   Signal System (AXI4Stream 64, Bool)
-topEntity clk rst en etaSig msgSig treadySig =
-  withClockResetEnable clk rst en (hash etaSig msgSig treadySig)
+topEntity clk rst en msgSig treadySig =
+  withClockResetEnable clk rst en (hash Eta3 msgSig treadySig)
