@@ -9,6 +9,7 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Word (Word8)
 import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.QuickCheck (Arbitrary (..), elements, property, vectorOf)
 import Test.TestHarness.PRF (prfReference)
 import Test.TestHarness.StreamCommon (bitListToBSHW, wordToBits)
 import Prelude qualified as P
@@ -30,6 +31,29 @@ spec = describe "PRF" $ do
         expected = prfReference eta s b
         actual = runHardware eta s b
     actual `shouldBe` expected
+
+  it "QuickCheck matches kyber-py reference" $
+    property prop_prf
+
+data PRFInput = PRFInput
+  { piEta :: Word8,
+    piSeed :: ByteString,
+    piByte :: Word8
+  }
+  deriving (Show)
+
+instance Arbitrary PRFInput where
+  arbitrary = do
+    eta <- elements [2, 3]
+    seed <- BS.pack <$> vectorOf 32 arbitrary
+    b <- arbitrary
+    pure (PRFInput eta seed b)
+
+prop_prf :: PRFInput -> Bool
+prop_prf (PRFInput eta s b) =
+  let expected = prfReference eta s b
+      actual = runHardware eta s b
+   in actual == expected
 
 runHardware :: Word8 -> ByteString -> Word8 -> ByteString
 runHardware eta s b =
