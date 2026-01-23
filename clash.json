@@ -3,6 +3,7 @@
   "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
+  "PRF": "Component.PRF.topEntity",
   "SampleNTT": "Component.SampleNTT.topEntity",
   "Perm": "Permutation.topEntity",
   "PermRev": "Permutation.Reversed.topEntity",

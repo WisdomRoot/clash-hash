@@ -1,0 +1,124 @@
+{
+    "components": [
+        "Component_PRF_topEntity_keccakF1600",
+        "Component_PRF"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "Component_PRF_shim.cpp",
+            "sha256": "018904bccdb76b022fba28273fcee89aea7504a2ead0e9f536fc00020015d1a0"
+        },
+        {
+            "name": "Component_PRF.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "Component_PRF_types.sv",
+            "sha256": "7f2dd65a59b2c44318d785a53c6ed58d8ad1882b1190416b34a68332fa62cf4d"
+        },
+        {
+            "name": "Component_PRF_topEntity_keccakF1600.sv",
+            "sha256": "f148d2d9b085ef06145e2e5f42c971865d64a2a1f9a98546584b5852c9645d9e"
+        },
+        {
+            "name": "Component_PRF.sv",
+            "sha256": "3c7de51ddfeed9a58bde3d8f42cbc64263dc0d5bcc6bc75deeda64b5777ce3b4"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "af78569c1d1e4e2bef81e37ad5e031777f633117689377c4c80c1a77a1e515f3",
+    "top_component": {
+        "name": "Component_PRF",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "ETA",
+                "type_name": "logic [1:0]",
+                "width": 2
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_33B",
+                "type_name": "logic [263:0]",
+                "width": 264
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "DIGEST_TREADY",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
+            }
+        ]
+    },
+    "version": "unstable"
+}
