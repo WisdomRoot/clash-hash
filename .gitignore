@@ -40,7 +40,6 @@ cabal.config
 
 # HDL directories often created during development cycle
 /verilog
-/systemverilog
 /build
 
 .vscode
