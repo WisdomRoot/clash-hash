@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.PRF (spec) where
+module Test.PRF2 (spec) where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
-import Component.PRF qualified as PRF
+import Component.PRF2 qualified as PRF2
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Word (Word8)
@@ -15,7 +15,7 @@ import Test.TestHarness.StreamCommon (bitListToBSHW, wordToBits)
 import Prelude qualified as P
 
 spec :: Spec
-spec = describe "PRF" $ do
+spec = describe "PRF2" $ do
   it "eta=2 matches kyber-py reference" $ do
     let eta = 2 :: Word8
         s = BS.pack [0 .. 31]
@@ -61,7 +61,7 @@ runHardware eta s b =
       etaSig = pure (fromIntegral eta :: Unsigned 2)
       msgSig = pure msgBV
       treadySig = pure True
-      output = PRF.topEntity clockGen resetGen enableGen etaSig msgSig treadySig
+      output = PRF2.topEntity clockGen resetGen enableGen etaSig msgSig treadySig
       wordsNeeded = 8 P.* P.fromIntegral eta
       outputBytes = 64 P.* P.fromIntegral eta
       sampleCount = 24 P.+ 24 P.+ wordsNeeded P.+ 200
