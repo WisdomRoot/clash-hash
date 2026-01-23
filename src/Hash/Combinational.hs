@@ -62,7 +62,7 @@ absorb msg =
     g s block =
       let xorState = zipWith xor s (block ++ repeat @512 0)
           stateAsBitVector = pack xorState :: BitVector 1600
-          permuted = Permutation.keccakF1600 stateAsBitVector
+          permuted = Permutation.keccakF160024 stateAsBitVector
        in unpack permuted
 
 -- ============================================================================
@@ -89,7 +89,7 @@ squeeze msg =
     keccakF1600Wrapper :: Vec 1600 Bit -> Vec 1600 Bit
     keccakF1600Wrapper s =
       let stateAsBitVector = pack s :: BitVector 1600
-          permuted = Permutation.keccakF1600 stateAsBitVector
+          permuted = Permutation.keccakF160024 stateAsBitVector
        in unpack permuted
 
 -- ============================================================================

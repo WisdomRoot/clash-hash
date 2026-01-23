@@ -11,7 +11,7 @@ import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
 import Test.NonPipelined.SampleNTTWithoutRejection qualified
 import Test.SampleNTT qualified
-import Test.Permutation.Reversed qualified
+import Test.Permutation qualified
 import Test.Reference.SHA3 qualified
 import Test.Reference.SHAKE256 qualified
 import Test.Tasty
@@ -21,7 +21,7 @@ import Prelude
 main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
-  permutationRevTests <- testSpec "Permutation.Reversed" Test.Permutation.Reversed.spec
+  permutationRevTests <- testSpec "Permutation" Test.Permutation.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec

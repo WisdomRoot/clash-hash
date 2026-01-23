@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unused-imports #-}
 
-module Test.Permutation.Reversed (spec) where
+module Test.Permutation (spec) where
 
 import Clash.Prelude
 import Permutation qualified
@@ -47,10 +47,10 @@ spec = describe "Permutation" $ do
     it "1 round (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.keccakf1Round roundIdx input
-      let actual = pack $ Permutation.keccakF1600RoundReversed roundIdx inputBitVector
+      let actual = pack $ Permutation.keccakF1600 roundIdx inputBitVector
       actual `shouldBe` expected
 
     it "24 complete rounds" $ do
       let expected = pack $ SHA3.keccakf @6 @64 @1600 input
-      let actual = Permutation.keccakF1600 inputBitVector
+      let actual = Permutation.keccakF160024 inputBitVector
       actual `shouldBe` expected

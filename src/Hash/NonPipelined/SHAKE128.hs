@@ -22,7 +22,7 @@ type DigestBits = 64
 
 {-# OPAQUE spongeFSM #-}
 spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
-spongeFSM = Permutation.keccakF1600RoundReversed
+spongeFSM = Permutation.keccakF1600
 
 {-# ANN
   topEntity
