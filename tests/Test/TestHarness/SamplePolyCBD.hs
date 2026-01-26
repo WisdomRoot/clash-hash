@@ -3,6 +3,8 @@
 
 module Test.TestHarness.SamplePolyCBD
   ( SamplePolyCBDTopEntity,
+    UpstreamStall (..),
+    DownstreamBackpressure (..),
     samplePolyCBDReference,
     unpackPython512Bytes,
     runSamplePolyCBDHardware,
@@ -14,10 +16,10 @@ import Clash.Prelude hiding (tlast)
 import Component.PRF.Common (Eta (..))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Bits ((.&.))
 import Data.Word (Word16, Word8)
 import System.FilePath ((</>))
 import Test.TestHarness.ExternalReference (callPythonReference)
+import Test.TestHarness.StreamCommon (DownstreamBackpressure (..), UpstreamStall (..), makeBackpressureSignal)
 import Prelude qualified as P
 
 type SamplePolyCBDTopEntity =
@@ -51,11 +53,12 @@ runSamplePolyCBDHardware ::
   SamplePolyCBDTopEntity ->
   ByteString ->
   Word8 ->
+  DownstreamBackpressure ->
   [Word16]
-runSamplePolyCBDHardware topEntity s b =
+runSamplePolyCBDHardware topEntity s b backpressure =
   let msgBV = bsToBV264 (s <> BS.singleton b)
       msgSig = pure msgBV
-      treadySignal = pure True
+      treadySignal = makeBackpressureSignal backpressure
       output =
         topEntity
           clockGen
