@@ -54,13 +54,9 @@ module Component_PRF2
   logic lastWord;
   logic [1611:0] c$ds_case_alt_15;
   logic [1599:0] state_0;
-  logic [4:0] c$ds_app_arg_2;
-  logic [4:0] inBlockIdx;
-  logic signed [63:0] c$inBlockIdx_app_arg;
   logic [4:0] wordIdx;
   Component_PRF2_types::Tuple2 result_7;
   logic [4:0] wordIdx_0;
-  logic [4:0] c$i_25;
   Component_PRF2_types::Tuple2_0 result;
   Component_PRF2_types::AXI4Stream DIGEST_TDATA_0;
 
@@ -157,37 +153,37 @@ module Component_PRF2
 
   assign c$app_arg_4 = ({MSG_33B,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
 
-  assign c$ds_app_arg = (inBlockIdx == 5'd0) ? (c$ds_app_arg_0[1599 : 1536]) : c$ds_case_alt;
+  assign c$ds_app_arg = (wordIdx == 5'd0) ? (c$ds_app_arg_0[1599 : 1536]) : c$ds_case_alt;
 
-  assign c$ds_case_alt = (inBlockIdx == 5'd1) ? (c$ds_app_arg_0[1535 : 1472]) : c$ds_case_alt_0;
+  assign c$ds_case_alt = (wordIdx == 5'd1) ? (c$ds_app_arg_0[1535 : 1472]) : c$ds_case_alt_0;
 
-  assign c$ds_case_alt_0 = (inBlockIdx == 5'd2) ? (c$ds_app_arg_0[1471 : 1408]) : c$ds_case_alt_1;
+  assign c$ds_case_alt_0 = (wordIdx == 5'd2) ? (c$ds_app_arg_0[1471 : 1408]) : c$ds_case_alt_1;
 
-  assign c$ds_case_alt_1 = (inBlockIdx == 5'd3) ? (c$ds_app_arg_0[1407 : 1344]) : c$ds_case_alt_2;
+  assign c$ds_case_alt_1 = (wordIdx == 5'd3) ? (c$ds_app_arg_0[1407 : 1344]) : c$ds_case_alt_2;
 
-  assign c$ds_case_alt_2 = (inBlockIdx == 5'd4) ? (c$ds_app_arg_0[1343 : 1280]) : c$ds_case_alt_3;
+  assign c$ds_case_alt_2 = (wordIdx == 5'd4) ? (c$ds_app_arg_0[1343 : 1280]) : c$ds_case_alt_3;
 
-  assign c$ds_case_alt_3 = (inBlockIdx == 5'd5) ? (c$ds_app_arg_0[1279 : 1216]) : c$ds_case_alt_4;
+  assign c$ds_case_alt_3 = (wordIdx == 5'd5) ? (c$ds_app_arg_0[1279 : 1216]) : c$ds_case_alt_4;
 
-  assign c$ds_case_alt_4 = (inBlockIdx == 5'd6) ? (c$ds_app_arg_0[1215 : 1152]) : c$ds_case_alt_5;
+  assign c$ds_case_alt_4 = (wordIdx == 5'd6) ? (c$ds_app_arg_0[1215 : 1152]) : c$ds_case_alt_5;
 
-  assign c$ds_case_alt_5 = (inBlockIdx == 5'd7) ? (c$ds_app_arg_0[1151 : 1088]) : c$ds_case_alt_6;
+  assign c$ds_case_alt_5 = (wordIdx == 5'd7) ? (c$ds_app_arg_0[1151 : 1088]) : c$ds_case_alt_6;
 
-  assign c$ds_case_alt_6 = (inBlockIdx == 5'd8) ? (c$ds_app_arg_0[1087 : 1024]) : c$ds_case_alt_7;
+  assign c$ds_case_alt_6 = (wordIdx == 5'd8) ? (c$ds_app_arg_0[1087 : 1024]) : c$ds_case_alt_7;
 
-  assign c$ds_case_alt_7 = (inBlockIdx == 5'd9) ? (c$ds_app_arg_0[1023 : 960]) : c$ds_case_alt_8;
+  assign c$ds_case_alt_7 = (wordIdx == 5'd9) ? (c$ds_app_arg_0[1023 : 960]) : c$ds_case_alt_8;
 
-  assign c$ds_case_alt_8 = (inBlockIdx == 5'd10) ? (c$ds_app_arg_0[959 : 896]) : c$ds_case_alt_9;
+  assign c$ds_case_alt_8 = (wordIdx == 5'd10) ? (c$ds_app_arg_0[959 : 896]) : c$ds_case_alt_9;
 
-  assign c$ds_case_alt_9 = (inBlockIdx == 5'd11) ? (c$ds_app_arg_0[895 : 832]) : c$ds_case_alt_10;
+  assign c$ds_case_alt_9 = (wordIdx == 5'd11) ? (c$ds_app_arg_0[895 : 832]) : c$ds_case_alt_10;
 
-  assign c$ds_case_alt_10 = (inBlockIdx == 5'd12) ? (c$ds_app_arg_0[831 : 768]) : c$ds_case_alt_11;
+  assign c$ds_case_alt_10 = (wordIdx == 5'd12) ? (c$ds_app_arg_0[831 : 768]) : c$ds_case_alt_11;
 
-  assign c$ds_case_alt_11 = (inBlockIdx == 5'd13) ? (c$ds_app_arg_0[767 : 704]) : c$ds_case_alt_12;
+  assign c$ds_case_alt_11 = (wordIdx == 5'd13) ? (c$ds_app_arg_0[767 : 704]) : c$ds_case_alt_12;
 
-  assign c$ds_case_alt_12 = (inBlockIdx == 5'd14) ? (c$ds_app_arg_0[703 : 640]) : c$ds_case_alt_13;
+  assign c$ds_case_alt_12 = (wordIdx == 5'd14) ? (c$ds_app_arg_0[703 : 640]) : c$ds_case_alt_13;
 
-  assign c$ds_case_alt_13 = (inBlockIdx == 5'd15) ? (c$ds_app_arg_0[639 : 576]) : (c$ds_app_arg_0[575 : 512]);
+  assign c$ds_case_alt_13 = lastWord ? (c$ds_app_arg_0[639 : 576]) : (c$ds_app_arg_0[575 : 512]);
 
   assign c$ds_app_arg_0 = state_0;
 
@@ -197,17 +193,9 @@ module Component_PRF2
 
   assign lastWord = wordIdx == 5'd15;
 
-  assign c$ds_case_alt_15 = (inBlockIdx == 5'd16) ? {2'b01,5'd0,c$ds_app_arg_2,state_0} : {2'b10,c$ds_app_arg_2,state_0,5'bxxxxx};
+  assign c$ds_case_alt_15 = (wordIdx == 5'd16) ? {2'b01,5'd0,5'd17,state_0} : {2'b10,wordIdx + 5'd1,state_0,5'bxxxxx};
 
   assign state_0 = st[1604:5];
-
-  assign c$ds_app_arg_2 = wordIdx + 5'd1;
-
-  assign inBlockIdx = $unsigned(c$inBlockIdx_app_arg[0+:5]);
-
-  assign c$i_25 = (wordIdx % 5'd17);
-
-  assign c$inBlockIdx_app_arg = $unsigned({{(64-5) {1'b0}},c$i_25});
 
   assign wordIdx = st[1609:1605];
 
