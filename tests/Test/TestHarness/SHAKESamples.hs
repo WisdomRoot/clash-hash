@@ -4,6 +4,7 @@ module Test.TestHarness.SHAKESamples
   ( msg576,
     msg1024,
     msg1088,
+    msg1152,
     msg1344,
     msg1408,
     msg1600,
@@ -64,6 +65,10 @@ msg576 = BS8.replicate (9 * 8) 'z'
 
 msg1088 :: ByteString
 msg1088 = BS8.replicate (17 * 8) 'w'
+
+-- | 1152 bits = 144 bytes = 18 beats (exactly two SHA3-512 blocks)
+msg1152 :: ByteString
+msg1152 = BS8.replicate (18 * 8) 'x'
 
 msg1344 :: ByteString
 msg1344 = BS8.replicate (21 * 8) 'a'
@@ -189,22 +194,33 @@ sha3BackpressureCases =
 
 sha3512BasicCases :: [ShakeTest]
 sha3512BasicCases =
-  [ makeBasicTest msg8 64,
-    makeBasicTest msg576 64,
-    makeBasicTest msg1600 64,
-    makeBasicTest msg3200 64
+  [ makeBasicTest BS8.empty 64,       -- empty input
+    makeBasicTest msg8 64,            -- minimal input (8 bytes)
+    makeBasicTest msg576 64,          -- exactly one block (72 bytes)
+    makeBasicTest msg1152 64,         -- exactly two blocks (144 bytes)
+    makeBasicTest msg1600 64,         -- multi-block
+    makeBasicTest msg3200 64          -- large multi-block
   ]
 
 sha3512StallCases :: [ShakeTest]
 sha3512StallCases =
-  [ makeStallTest msg576 64 stallPatternAggressive
+  [ makeStallTest msg576 64 stallPatternAggressive,
+    makeStallTest msg1152 64 stallPatternModerate,
+    makeStallTest msg1600 64 stallPatternSimple
   ]
 
 sha3512BackpressureCases :: [ShakeTest]
 sha3512BackpressureCases =
-  [ makeCombinedTest
+  [ makeBackpressureTest msg576 64 backpressurePatternSimple,
+    makeBackpressureTest msg1152 64 backpressurePatternModerate,
+    makeCombinedTest
       msg576
       64
       stallPatternAggressive
-      backpressurePatternAggressive
+      backpressurePatternAggressive,
+    makeCombinedTest
+      msg1600
+      64
+      stallPatternModerate
+      backpressurePatternSimple
   ]

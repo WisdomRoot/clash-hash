@@ -29,5 +29,5 @@ spec = describe "NonPipelined SHA3-512 Tests" $ do
 
   describe "QuickCheck property tests" $
     it "correctly handles random test cases" $
-      withMaxSuccess 10 $
+      withMaxSuccess 30 $
         forAll sha3512Gen runTest
