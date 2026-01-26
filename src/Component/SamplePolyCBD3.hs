@@ -5,8 +5,13 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (tlast)
+import Component.SamplePolyCBD.Common
+  ( absorb33,
+    cbd3,
+    extractTop6,
+    squeezeSlice,
+  )
 import Permutation qualified
-import Sponge.NonPipelined (complementAt)
 
 {-# ANN
   topEntity
@@ -138,64 +143,3 @@ samplePolyCBD3 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
                 | otherwise = Squeeze coeffIdx' wordIdx blockIdx buffer' validBits' state
            in (nextState, (outStream, False))
         Done -> (Done, (idleAXI4Stream, False))
-
--- | Absorb 33 bytes: place message into the first 5 beats and apply SHAKE256 padding.
-absorb33 :: BitVector 264 -> BitVector 1600
-absorb33 = pad33Bytes . placeMsg
-  where
-    placeMsg :: BitVector 264 -> BitVector 1600
-    placeMsg msg = msg ++# (0 :: BitVector 1336)
-
-    pad33Bytes :: BitVector 1600 -> BitVector 1600
-    pad33Bytes =
-      complementAt 512
-        . complementAt 1331
-        . complementAt 1332
-        . complementAt 1333
-        . complementAt 1334
-        . complementAt 1335
-
--- | Extract 64-bit output words in SHAKE256 order.
-squeezeSlice :: Index 17 -> BitVector 1600 -> BitVector 64
-squeezeSlice 0 state = slice (SNat @1599) (SNat @1536) state
-squeezeSlice 1 state = slice (SNat @1535) (SNat @1472) state
-squeezeSlice 2 state = slice (SNat @1471) (SNat @1408) state
-squeezeSlice 3 state = slice (SNat @1407) (SNat @1344) state
-squeezeSlice 4 state = slice (SNat @1343) (SNat @1280) state
-squeezeSlice 5 state = slice (SNat @1279) (SNat @1216) state
-squeezeSlice 6 state = slice (SNat @1215) (SNat @1152) state
-squeezeSlice 7 state = slice (SNat @1151) (SNat @1088) state
-squeezeSlice 8 state = slice (SNat @1087) (SNat @1024) state
-squeezeSlice 9 state = slice (SNat @1023) (SNat @960) state
-squeezeSlice 10 state = slice (SNat @959) (SNat @896) state
-squeezeSlice 11 state = slice (SNat @895) (SNat @832) state
-squeezeSlice 12 state = slice (SNat @831) (SNat @768) state
-squeezeSlice 13 state = slice (SNat @767) (SNat @704) state
-squeezeSlice 14 state = slice (SNat @703) (SNat @640) state
-squeezeSlice 15 state = slice (SNat @639) (SNat @576) state
-squeezeSlice _ state = slice (SNat @575) (SNat @512) state
-
--- | Extract top 6 bits from the 128-bit buffer
-extractTop6 :: BitVector 128 -> BitVector 6
-extractTop6 buf = slice (SNat @127) (SNat @122) buf
-
--- | CBD(eta=3): Convert 6 bits to a coefficient in [-3, 3] mod 3329
--- After extraction from MSB side, the 6-bit chunk has:
---   bit 5 = original b0, bit 4 = b1, bit 3 = b2, bit 2 = b3, bit 1 = b4, bit 0 = b5
--- Formula:
---   a = popcount(b2, b1, b0) = b0 + b1 + b2  (values 0, 1, 2, or 3)
---   b = popcount(b5, b4, b3) = b3 + b4 + b5  (values 0, 1, 2, or 3)
---   result = (a - b) mod 3329
-cbd3 :: BitVector 6 -> BitVector 12
-cbd3 bits =
-  let b0 = resize (unpack (slice d5 d5 bits) :: Unsigned 1) :: Unsigned 3
-      b1 = resize (unpack (slice d4 d4 bits) :: Unsigned 1) :: Unsigned 3
-      b2 = resize (unpack (slice d3 d3 bits) :: Unsigned 1) :: Unsigned 3
-      b3 = resize (unpack (slice d2 d2 bits) :: Unsigned 1) :: Unsigned 3
-      b4 = resize (unpack (slice d1 d1 bits) :: Unsigned 1) :: Unsigned 3
-      b5 = resize (unpack (slice d0 d0 bits) :: Unsigned 1) :: Unsigned 3
-      a = b0 + b1 + b2 -- 0, 1, 2, or 3
-      b = b3 + b4 + b5 -- 0, 1, 2, or 3
-   in if a >= b
-        then resize (pack (a - b))
-        else 3329 - resize (pack (b - a))
