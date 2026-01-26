@@ -68,7 +68,7 @@ extractBits4 _ w = slice (SNat @3) (SNat @0) w
 
 -- | Extract top 6 bits from the 128-bit buffer.
 extractTop6 :: BitVector 128 -> BitVector 6
-extractTop6 buf = slice (SNat @127) (SNat @122) buf
+extractTop6 = slice (SNat @127) (SNat @122)
 
 -- | CBD(eta=2): Convert 4 bits to a coefficient in [-2, 2] mod 3329.
 cbd2 :: BitVector 4 -> BitVector 12

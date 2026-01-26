@@ -9,6 +9,7 @@ module Sponge.XOR
     chunkBasedXOR,
     staticXOR256,
     staticXOR256',
+    staticXOR512,
     staticXOR128,
     staticXOR128B,
   )
@@ -128,6 +129,21 @@ staticXOR256' state block beatCounter =
     14 -> setSlice (SNat @959) (SNat @896) (slice (SNat @959) (SNat @896) state `xor` block) state
     15 -> setSlice (SNat @1023) (SNat @960) (slice (SNat @1023) (SNat @960) state `xor` block) state
     16 -> setSlice (SNat @1087) (SNat @1024) (slice (SNat @1087) (SNat @1024) state `xor` block) state
+    _ -> state
+
+-- | Static case-based XOR covering SHA3-512 rate (9 beats).
+staticXOR512 :: BitVector 1600 -> BitVector 64 -> Index 9 -> BitVector 1600
+staticXOR512 state block beatCounter =
+  case beatCounter of
+    0 -> setSlice (SNat @1599) (SNat @1536) (slice (SNat @1599) (SNat @1536) state `xor` block) state
+    1 -> setSlice (SNat @1535) (SNat @1472) (slice (SNat @1535) (SNat @1472) state `xor` block) state
+    2 -> setSlice (SNat @1471) (SNat @1408) (slice (SNat @1471) (SNat @1408) state `xor` block) state
+    3 -> setSlice (SNat @1407) (SNat @1344) (slice (SNat @1407) (SNat @1344) state `xor` block) state
+    4 -> setSlice (SNat @1343) (SNat @1280) (slice (SNat @1343) (SNat @1280) state `xor` block) state
+    5 -> setSlice (SNat @1279) (SNat @1216) (slice (SNat @1279) (SNat @1216) state `xor` block) state
+    6 -> setSlice (SNat @1215) (SNat @1152) (slice (SNat @1215) (SNat @1152) state `xor` block) state
+    7 -> setSlice (SNat @1151) (SNat @1088) (slice (SNat @1151) (SNat @1088) state `xor` block) state
+    8 -> setSlice (SNat @1087) (SNat @1024) (slice (SNat @1087) (SNat @1024) state `xor` block) state
     _ -> state
 
 -- | XOR helper covering the full SHAKE128 rate (21 beats).
