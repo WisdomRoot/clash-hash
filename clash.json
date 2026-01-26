@@ -7,6 +7,7 @@
   "PRF3": "Component.PRF3.topEntity",
   "SampleNTT": "Component.SampleNTT.topEntity",
   "SamplePolyCBD2": "Component.SamplePolyCBD2.topEntity",
+  "SamplePolyCBD3": "Component.SamplePolyCBD3.topEntity",
   "Perm": "Permutation.topEntity",
   "PermRev": "Permutation.Reversed.topEntity",
   "Chi": "Permutation.Chi.topEntity",
