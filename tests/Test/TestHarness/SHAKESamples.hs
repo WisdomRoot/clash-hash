@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Test.TestHarness.SHAKESamples
-  ( msg1024,
+  ( msg576,
+    msg1024,
     msg1088,
     msg1344,
     msg1408,
@@ -20,6 +21,9 @@ module Test.TestHarness.SHAKESamples
     sha3BasicCases,
     sha3StallCases,
     sha3BackpressureCases,
+    sha3512BasicCases,
+    sha3512StallCases,
+    sha3512BackpressureCases,
     basicCases,
     variableOutputCases,
     stallCases,
@@ -54,6 +58,9 @@ import Prelude
 
 msg1024 :: ByteString
 msg1024 = BS8.replicate (16 * 8) 'q'
+
+msg576 :: ByteString
+msg576 = BS8.replicate (9 * 8) 'z'
 
 msg1088 :: ByteString
 msg1088 = BS8.replicate (17 * 8) 'w'
@@ -172,6 +179,32 @@ sha3BackpressureCases =
   [ makeCombinedTest
       msg1088
       32
+      stallPatternAggressive
+      backpressurePatternAggressive
+  ]
+
+--------------------------------------------------------------------------------
+-- SHA3-512 deterministic cases
+--------------------------------------------------------------------------------
+
+sha3512BasicCases :: [ShakeTest]
+sha3512BasicCases =
+  [ makeBasicTest msg8 64,
+    makeBasicTest msg576 64,
+    makeBasicTest msg1600 64,
+    makeBasicTest msg3200 64
+  ]
+
+sha3512StallCases :: [ShakeTest]
+sha3512StallCases =
+  [ makeStallTest msg576 64 stallPatternAggressive
+  ]
+
+sha3512BackpressureCases :: [ShakeTest]
+sha3512BackpressureCases =
+  [ makeCombinedTest
+      msg576
+      64
       stallPatternAggressive
       backpressurePatternAggressive
   ]

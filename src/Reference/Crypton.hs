@@ -4,6 +4,7 @@
 -- | Runtime software implementation from the crypton library
 module Reference.Crypton
   ( sha3,
+    sha3_512,
     shake128,
     shake256,
   )
@@ -11,7 +12,7 @@ where
 
 import Clash.Prelude hiding (fromList)
 import Crypto.Hash (Digest, hash)
-import Crypto.Hash.Algorithms (SHA3_256, SHAKE128 (..), SHAKE256 (..))
+import Crypto.Hash.Algorithms (SHA3_256, SHA3_512, SHAKE128 (..), SHAKE256 (..))
 import Data.ByteArray (convert)
 import Data.ByteString (ByteString)
 import Data.Maybe (fromJust)
@@ -23,6 +24,12 @@ import Prelude qualified as P
 -- >>> sha3 "test"  -- 32 bytes (256 bits) output
 sha3 :: ByteString -> ByteString
 sha3 input = convert (hash input :: Digest SHA3_256)
+
+-- | Compute SHA3-512 hash (using crypton library)
+--
+-- >>> sha3_512 "test"  -- 64 bytes (512 bits) output
+sha3_512 :: ByteString -> ByteString
+sha3_512 input = convert (hash input :: Digest SHA3_512)
 
 -- | Compute SHAKE128 hash with variable output length (using crypton library)
 --

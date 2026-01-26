@@ -1,0 +1,129 @@
+{
+    "components": [
+        "Hash_NonPipelined_SHA3512_topEntity_pad",
+        "Hash_NonPipelined_SHA3512_topEntity_spongeFSM",
+        "SHA3_512_NonPipelined"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "SHA3_512_NonPipelined_shim.cpp",
+            "sha256": "99b38a684d2b180fc4cdbd0ebe1f3208d519e4a8aecfa3fefb775b359a309489"
+        },
+        {
+            "name": "SHA3_512_NonPipelined.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "SHA3_512_NonPipelined_types.sv",
+            "sha256": "ea887ee63b5d5f18ec5587c113323efb22b6a83fdc813608f58eff5606058f9c"
+        },
+        {
+            "name": "Hash_NonPipelined_SHA3512_topEntity_pad.sv",
+            "sha256": "aa8978b70bd8ba987c1ebdefb66416e7c3a7c0240a1d7d1c0f5815d84083ff16"
+        },
+        {
+            "name": "Hash_NonPipelined_SHA3512_topEntity_spongeFSM.sv",
+            "sha256": "dba067bd4e7c3eb65d9261bc5fb7812b6a0b0ba8ed77acb2a5b583e93588c80f"
+        },
+        {
+            "name": "SHA3_512_NonPipelined.sv",
+            "sha256": "2925d317de82498eeace056d19f9f4959629d07e11fa13a98191ad1ce79b2661"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "97bab2ec7c53104f63bcf48c8e20100c4dc1c899cb803b670deff2b1c04bcb87",
+    "top_component": {
+        "name": "SHA3_512_NonPipelined",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "TREADY",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_MSG_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_MSG_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
+            }
+        ]
+    },
+    "version": "unstable"
+}

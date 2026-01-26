@@ -30,6 +30,18 @@
 
 [bench] Time/Mem: load 2.90s | compile 3.37s | synth 13.12s | mem 2400.42 MB
 
+## SHA3-512
+
+* 20260126: baseline
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Hash_NonPipelined_SHA3512_topEntity_pad             9527.056            0.000     0.00%
+  Hash_NonPipelined_SHA3512_topEntity_spongeFSM      15366.554         8559.880    55.70%
+  SHA3_512_NonPipelined                              24893.610         8559.880    34.39%
+
+[bench] Time/Mem: load 2.58s | compile 3.36s | synth 10.99s | mem 2064.12 MB
+
 ## SHAKE256
 
 * 20260105: baseline
