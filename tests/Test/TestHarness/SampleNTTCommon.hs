@@ -41,11 +41,11 @@ type SampleNTTTopEntity =
   Enable System ->
   Signal System (BitVector 272) ->
   Signal System Bool ->
-  Signal System (AXI4Stream 12, Bool)
+  Signal System Bool ->
+  Signal System (Bool, AXI4Stream 12)
 
 data SampleNTTParams = SampleNTTParams
-  { spBeatsPerBlock :: Int,
-    spReference :: ByteString -> [Word16],
+  { spReference :: ByteString -> [Word16],
     spTopEntity :: SampleNTTTopEntity
   }
 
@@ -64,7 +64,9 @@ runSampleNTTTest params test = do
 runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
 runSampleNTTHardware params test =
   let msgBV = bsToBV272 (testMessage test)
-      msgSig = pure msgBV
+      msgDataSig = pure msgBV
+      -- MSG_TVALID is True from the start (can be delayed with upstream stall pattern)
+      msgValidSig = makeUpstreamValidSignal (testUpstreamStall test)
       treadySignal = makeBackpressureSignal (testDownstreamBackpressure test)
       output =
         spTopEntity
@@ -72,22 +74,40 @@ runSampleNTTHardware params test =
           clockGen
           resetGen
           enableGen
-          msgSig
+          msgDataSig
+          msgValidSig
           treadySignal
       outputsPerBlock = 112
       squeezesNeeded = (256 P.+ outputsPerBlock - 1) `P.div` outputsPerBlock
+      -- Add extra cycles for upstream stalls
+      stallCycles = case testUpstreamStall test of
+        NoUpstreamStall -> 0
+        UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
       sampleCount =
-        24
+        stallCycles
+          P.+ 1 -- Idle -> Absorb transition
+          P.+ 1 -- Absorb -> Permute transition
+          P.+ 24
           P.+ squeezesNeeded P.* (outputsPerBlock P.+ 24)
           P.+ 200
       samples = sampleN @System sampleCount (bundle (output, treadySignal))
       validOutputs =
         [ tdata stream
-          | ((stream, _), ready) <- samples,
+          | ((_, stream), ready) <- samples,
             tvalid stream P.&& ready
         ]
       coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
    in coeffs
+
+-- | Generate MSG_TVALID signal based on upstream stall pattern
+-- NoUpstreamStall: MSG_TVALID is True from the start
+-- UpstreamStall pattern: MSG_TVALID is False during stall (True in pattern), then True forever
+makeUpstreamValidSignal :: UpstreamStall -> Signal System Bool
+makeUpstreamValidSignal NoUpstreamStall = pure True
+makeUpstreamValidSignal (UpstreamStall pattern) =
+  -- Pattern: True means stall (don't send valid), False means ready to send
+  -- After pattern is exhausted, default to True (always valid)
+  fromList (P.map P.not pattern P.++ P.repeat True)
 
 bsToBV272 :: ByteString -> BitVector 272
 bsToBV272 bs =

@@ -27,8 +27,7 @@ import Prelude
 sampleNTTParams :: SampleNTTParams
 sampleNTTParams =
   SampleNTTParams
-    { spBeatsPerBlock = 21, -- SHAKE128 rate: 21 beats/absorb block (21*64 = 1344 bits)
-      spReference = unpackPython384Bytes . externalSampleNTTPacked,
+    { spReference = unpackPython384Bytes . externalSampleNTTPacked,
       spTopEntity = SampleNTT.topEntity
     }
 

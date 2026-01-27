@@ -16,13 +16,15 @@ import Sponge.NonPipelined (complementAt)
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
-            PortName "MSG_34B",
+            PortName "MSG_TDATA",
+            PortName "MSG_TVALID",
             PortName "DIGEST_TREADY"
           ],
         t_output =
           PortProduct
             ""
-            [ PortName "DIGEST_TDATA",
+            [ PortName "MSG_TREADY",
+              PortName "DIGEST_TDATA",
               PortName "DIGEST_TVALID",
               PortName "DIGEST_TLAST"
             ]
@@ -36,38 +38,48 @@ topEntity ::
   Enable System ->
   Signal System (BitVector 272) ->
   Signal System Bool ->
-  Signal System (AXI4Stream 12, Bool)
-topEntity clk rst en msgSig treadySig = withClockResetEnable clk rst en (hash msgSig treadySig)
+  Signal System Bool ->
+  Signal System (Bool, AXI4Stream 12)
+topEntity clk rst en msgDataSig msgValidSig treadySig =
+  withClockResetEnable clk rst en (hash msgDataSig msgValidSig treadySig)
 
 data State
-  = Absorb
+  = Idle
+  | Absorb (BitVector 272)
   | Permute (Index 24) (BitVector 1600)
   | Squeeze (Index 112) (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
 
--- | Clean hash function for fixed 34-byte input
+-- | Clean hash function for fixed 34-byte input with AXI4-Stream input handshaking
 hash ::
   forall dom.
   (HiddenClockResetEnable dom) =>
   Signal dom (BitVector 272) ->
   Signal dom Bool ->
-  Signal dom (AXI4Stream 12, Bool)
-hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
+  Signal dom Bool ->
+  Signal dom (Bool, AXI4Stream 12)
+hash msgDataSig msgValidSig treadySig =
+  mealy step Idle (bundle (msgDataSig, msgValidSig, treadySig))
   where
     step ::
       State ->
-      (BitVector 272, Bool) ->
-      (State, (AXI4Stream 12, Bool))
-    step st (inputMsg, tready) =
+      (BitVector 272, Bool, Bool) ->
+      (State, (Bool, AXI4Stream 12))
+    step st (inputMsg, msgValid, tready) =
       case st of
-        Absorb ->
-          let initState = absorb34 inputMsg
-           in (Permute 0 initState, (idleAXI4Stream, True))
+        Idle ->
+          -- MSG_TREADY is True, waiting for MSG_TVALID
+          if msgValid
+            then (Absorb inputMsg, (True, idleAXI4Stream))
+            else (Idle, (True, idleAXI4Stream))
+        Absorb latchedMsg ->
+          let initState = absorb34 latchedMsg
+           in (Permute 0 initState, (False, idleAXI4Stream))
         Permute roundIdx state ->
           let state' = Permutation.keccakF1600 roundIdx state
            in if roundIdx == maxBound
-                then (Squeeze 0 state', (idleAXI4Stream, False))
-                else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
+                then (Squeeze 0 state', (False, idleAXI4Stream))
+                else (Permute (roundIdx + 1) state', (False, idleAXI4Stream))
         Squeeze index state ->
           let coeff = squeezeCoeff12 index state
               coeffRev = pack (reverse (unpack coeff :: Vec 12 Bit))
@@ -80,7 +92,7 @@ hash msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
                       then Permute 0 state
                       else Squeeze (index + 1) state
                   else Squeeze index state
-           in (nextState, (outStream, False))
+           in (nextState, (False, outStream))
 
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600
