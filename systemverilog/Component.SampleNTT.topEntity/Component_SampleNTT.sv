@@ -8,22 +8,27 @@ module Component_SampleNTT
       input wire logic CLK  // clock
     , input wire logic RST  // reset
     , input wire logic EN  // enable
-    , input wire logic [271:0] MSG_TDATA
-    , input wire logic MSG_TVALID
-    , input wire logic DIGEST_TREADY
+    , input wire logic [271:0] SEED_TDATA
+    , input wire logic SEED_TVALID
+    , input wire logic SEED_TLAST
+    , input wire logic COEFF_TREADY
 
       // Outputs
-    , output logic MSG_TREADY
-    , output logic [13:0] DIGEST_TDATA
+    , output logic [11:0] COEFF_TDATA
+    , output logic COEFF_TVALID
+    , output logic COEFF_TLAST
+    , output logic SEED_TREADY
     );
   logic [1608:0] c$ds_app_arg = {2'b00,1607'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
   Component_SampleNTT_types::Tuple2 c$case_alt;
   Component_SampleNTT_types::Tuple2 c$case_alt_0;
+  logic msgValid;
   Component_SampleNTT_types::array_of_12_logic_vector_1 c$app_arg;
   Component_SampleNTT_types::array_of_12_logic c$app_arg_0;
   Component_SampleNTT_types::array_of_12_logic c$app_arg_1;
   logic [11:0] coeff;
   logic [1608:0] c$app_arg_2;
+  logic tready;
   logic [1608:0] c$case_alt_1;
   logic [11:0] c$coeff_case_alt;
   logic [11:0] c$coeff_case_alt_0;
@@ -151,12 +156,19 @@ module Component_SampleNTT
   logic [1599:0] c$app_arg_7;
   logic [1599:0] result_6;
   logic [1599:0] c$app_arg_8;
+  logic [271:0] inputMsg;
   logic [1599:0] c$keccakF1600_out;
   logic [1599:0] state_0;
   logic [4:0] roundIdx;
+  Component_SampleNTT_types::Tuple2_0 inputSig;
   Component_SampleNTT_types::array_of_12_logic_vector_1 c$vec;
-  Component_SampleNTT_types::Tuple2_0 result;
-  Component_SampleNTT_types::AXI4Stream DIGEST_TDATA_0;
+  Component_SampleNTT_types::Tuple2_1 result;
+  Component_SampleNTT_types::AXI4Stream COEFF;
+
+  assign inputSig = {{SEED_TDATA
+                     ,SEED_TVALID
+                     ,SEED_TLAST}
+                    ,COEFF_TREADY};
 
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
@@ -175,19 +187,19 @@ module Component_SampleNTT
       2'b00 : c$case_alt = c$case_alt_0;
       2'b01 : c$case_alt = result_0;
       default : c$case_alt = {c$app_arg_2
-                             ,{1'b0
-                              ,{coeff
+                             ,{{coeff
                                ,((({Component_SampleNTT_types::array_of_12_logic_vector_1_to_lv(c$app_arg)}))) < 12'd3329
-                               ,1'b0}}};
+                               ,1'b0}
+                              ,1'b0}};
     endcase
   end
 
-  assign c$case_alt_0 = MSG_TVALID ? {{2'b01,5'd0,result_1,2'bxx}
-                                     ,{1'b0
-                                      ,{12'b000000000000
-                                       ,1'b0
-                                       ,1'b0}}} : {{2'b00,1607'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                  ,{1'b1,{12'b000000000000,1'b0,1'b0}}};
+  assign c$case_alt_0 = msgValid ? {{2'b01,5'd0,result_1,2'bxx}
+                                   ,{{12'b000000000000,1'b0,1'b0}
+                                    ,1'b0}} : {{2'b00,1607'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                              ,{{12'b000000000000,1'b0,1'b0},1'b1}};
+
+  assign msgValid = inputSig[2:2];
 
   // map begin
   genvar n;
@@ -232,7 +244,9 @@ module Component_SampleNTT
 
   assign coeff = (index == 7'd0) ? (c$coeff_app_arg[1599 : 1588]) : c$coeff_case_alt;
 
-  assign c$app_arg_2 = DIGEST_TREADY ? c$case_alt_1 : c$ds_app_arg;
+  assign c$app_arg_2 = tready ? c$case_alt_1 : c$ds_app_arg;
+
+  assign tready = inputSig.Tuple2_0_sel1;
 
   assign c$case_alt_1 = (index == 7'd111) ? {2'b01,5'd0,state,2'bxx} : {2'b10,index + 7'd1,state};
 
@@ -463,11 +477,9 @@ module Component_SampleNTT
   assign state = c$ds_app_arg[1599:0];
 
   assign result_0 = (roundIdx == 5'd23) ? {{2'b10,7'd0,c$keccakF1600_out}
-                                          ,{1'b0
-                                           ,{12'b000000000000
-                                            ,1'b0
-                                            ,1'b0}}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600_out,2'bxx}
-                                                       ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
+                                          ,{{12'b000000000000,1'b0,1'b0}
+                                           ,1'b0}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600_out,2'bxx}
+                                                     ,{{12'b000000000000,1'b0,1'b0},1'b0}};
 
   // replaceBit start
   always_comb begin
@@ -521,7 +533,9 @@ module Component_SampleNTT
   end
   // replaceBit end
 
-  assign c$app_arg_8 = ({MSG_TDATA,1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
+  assign c$app_arg_8 = ({inputMsg,1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
+
+  assign inputMsg = inputSig[274:3];
 
   Component_SampleNTT_topEntity_keccakF1600 Component_SampleNTT_topEntity_keccakF1600_c$keccakF1600_out
     ( .result (c$keccakF1600_out)
@@ -532,11 +546,15 @@ module Component_SampleNTT
 
   assign roundIdx = c$ds_app_arg[1606:1602];
 
-  assign MSG_TREADY = result.Tuple2_0_sel0;
+  assign COEFF = result.Tuple2_1_sel0;
 
-  assign DIGEST_TDATA_0 = result.Tuple2_0_sel1;
+  assign SEED_TREADY = result.Tuple2_1_sel1;
 
-  assign DIGEST_TDATA = DIGEST_TDATA_0;
+  assign COEFF_TDATA = COEFF.AXI4Stream_sel0;
+
+  assign COEFF_TVALID = COEFF.AXI4Stream_sel1;
+
+  assign COEFF_TLAST = COEFF.AXI4Stream_sel2;
 
 
 endmodule

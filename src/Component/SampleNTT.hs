@@ -18,15 +18,15 @@ import Sponge.NonPipelined (complementAt)
             PortName "EN",
             PortProduct
               ""
-              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
-                PortName "DIGEST_TREADY"
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
               ]
           ],
         t_output =
           PortProduct
             ""
-            [ PortProduct "DIGEST" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
-              PortName "MSG_TREADY"
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
             ]
       }
   )
