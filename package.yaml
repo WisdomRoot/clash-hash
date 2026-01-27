@@ -135,3 +135,4 @@ tests:
       - vector
       - process
       - filepath
+      - aeson

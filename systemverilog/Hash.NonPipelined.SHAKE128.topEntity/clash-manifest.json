@@ -1,7 +1,8 @@
 {
     "components": [
-        "Component_SampleNTT_topEntity_keccakF1600",
-        "Component_SampleNTT"
+        "Hash_NonPipelined_SHAKE128_topEntity_pad",
+        "Hash_NonPipelined_SHAKE128_topEntity_spongeFSM",
+        "SHAKE_128_NonPipelined"
     ],
     "dependencies": {
         "transitive": []
@@ -31,33 +32,37 @@
     },
     "files": [
         {
-            "name": "Component_SampleNTT_shim.cpp",
-            "sha256": "49e68333fefd48c51a91a220a3562fc9485fff5e1e20f5729f597556a238d600"
+            "name": "SHAKE_128_NonPipelined_shim.cpp",
+            "sha256": "1a11989331d4ff3a30d3a453072c36d35828c534cb00bb5e6ce379b16325a7a9"
         },
         {
-            "name": "Component_SampleNTT.sdc",
+            "name": "SHAKE_128_NonPipelined.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "Component_SampleNTT_types.sv",
-            "sha256": "dd2f8da38a8c3c59daed3b8fcc6f6584708bec2ce29d0b774f82d49c9ac435c0"
+            "name": "SHAKE_128_NonPipelined_types.sv",
+            "sha256": "7da05fbf3c88010f6fc40f7ae10c5f044fe59263c05da91731a558196ec3c8fd"
         },
         {
-            "name": "Component_SampleNTT_topEntity_keccakF1600.sv",
-            "sha256": "ec59a1efdf31167d3f9129146fe1208a04ee8393a8721f69b0fa41c9824648a7"
+            "name": "Hash_NonPipelined_SHAKE128_topEntity_pad.sv",
+            "sha256": "f906a1894ac1b9fb418f3f413d2b086b47120019b4b188da6afa9be3439bf62e"
         },
         {
-            "name": "Component_SampleNTT.sv",
-            "sha256": "49c6eb63276e9db62a6599c580919aa8e4c8a4fe4138964db1855bfca0f175e3"
+            "name": "Hash_NonPipelined_SHAKE128_topEntity_spongeFSM.sv",
+            "sha256": "f3f4ddafa005036ca11a15c62f4ce7a585222577203fb4b9f1ed94a508602bcf"
+        },
+        {
+            "name": "SHAKE_128_NonPipelined.sv",
+            "sha256": "b852ef410859704b32546a0e8f176f32780b88aeb31abcf98ad1965db61b96d5"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "17b4f2411c468f691b809ff586e69b4ca8cc1ee14f0d1919d7fc837edf3d61ab",
+    "hash": "2434a361170e6ad265a68993ca0e39cada680ba82851aab527088238bf60d153",
     "top_component": {
-        "name": "Component_SampleNTT",
+        "name": "SHAKE_128_NonPipelined",
         "ports_flat": [
             {
                 "direction": "in",
@@ -86,28 +91,21 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_TDATA",
-                "type_name": "logic [271:0]",
-                "width": 272
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "MSG_TVALID",
+                "name": "TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "DIGEST_TREADY",
-                "type_name": "logic",
-                "width": 1
+                "name": "MSG_MSG_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
             },
             {
-                "direction": "out",
+                "direction": "in",
                 "is_clock": false,
-                "name": "MSG_TREADY",
+                "name": "MSG_MSG_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
@@ -115,8 +113,15 @@
                 "direction": "out",
                 "is_clock": false,
                 "name": "DIGEST_TDATA",
-                "type_name": "logic [13:0]",
-                "width": 14
+                "type_name": "logic [65:0]",
+                "width": 66
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
             }
         ]
     },

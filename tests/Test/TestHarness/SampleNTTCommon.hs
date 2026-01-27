@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Test.TestHarness.SampleNTTCommon
@@ -18,14 +19,22 @@ module Test.TestHarness.SampleNTTCommon
     runSampleNTTTest,
     runSampleNTTHardware,
     unpackPython384Bytes,
+    -- Timing functions
+    getTimingInfo,
+    simulateTiming,
   )
 where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
+import Data.Aeson (eitherDecode)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Word (Word16)
+import System.IO (hClose)
+import System.IO.Unsafe (unsafePerformIO)
+import System.Process (CreateProcess (..), StdStream (..), createProcess, proc, waitForProcess)
 import Test.Hspec (Expectation, shouldBe)
 import Test.TestHarness.SHAKECommon (DownstreamBackpressure (..), ShakeTest (..), UpstreamStall (..), makeBackpressureTest, makeBasicTest, makeCombinedTest, makeStallTest, makeVariableOutputTest, testLabel)
 import Test.TestHarness.StreamCommon (makeBackpressureSignal)
@@ -77,19 +86,13 @@ runSampleNTTHardware params test =
           msgDataSig
           msgValidSig
           treadySignal
-      outputsPerBlock = 112
-      squeezesNeeded = (256 P.+ outputsPerBlock - 1) `P.div` outputsPerBlock
-      -- Add extra cycles for upstream stalls
-      stallCycles = case testUpstreamStall test of
-        NoUpstreamStall -> 0
-        UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
+      -- Get exact timing from Python reference
+      validityPattern = getTimingInfo (testMessage test)
       sampleCount =
-        stallCycles
-          P.+ 1 -- Idle -> Absorb transition
-          P.+ 1 -- Absorb -> Permute transition
-          P.+ 24
-          P.+ squeezesNeeded P.* (outputsPerBlock P.+ 24)
-          P.+ 200
+        simulateTiming
+          validityPattern
+          (testUpstreamStall test)
+          (testDownstreamBackpressure test)
       samples = sampleN @System sampleCount (bundle (output, treadySignal))
       validOutputs =
         [ tdata stream
@@ -143,3 +146,102 @@ unpackPython384Bytes bs = go (BS.unpack bs)
        in c0 : c1 : go rest
     go [] = []
     go _ = P.error "unpackPython384Bytes: Expected 384 bytes (multiple of 3)"
+
+--------------------------------------------------------------------------------
+-- Timing functions for exact cycle count verification
+--------------------------------------------------------------------------------
+
+-- | Get validity pattern from Python reference script
+-- Returns which coefficients pass rejection sampling (< 3329)
+getTimingInfo :: ByteString -> [Bool]
+getTimingInfo input = unsafePerformIO $ do
+  (Just hIn, Just hOut, _, ph) <-
+    createProcess
+      (proc "python3" ["reference/kyber/sample_ntt_timing.py"])
+        { std_in = CreatePipe,
+          std_out = CreatePipe
+        }
+  BS.hPut hIn input
+  hClose hIn
+  output <- LBS.hGetContents hOut
+  _ <- waitForProcess ph
+  case eitherDecode output of
+    Left err -> P.error $ "Failed to parse validity pattern: " P.++ err
+    Right vp -> P.return vp
+{-# NOINLINE getTimingInfo #-}
+
+-- | Simulate exact timing based on validity pattern and stall/backpressure
+-- Returns the exact number of cycles needed to collect 256 valid coefficients
+simulateTiming ::
+  [Bool] -> -- validity pattern from Python
+  UpstreamStall ->
+  DownstreamBackpressure ->
+  Int -- exact cycle count
+simulateTiming validityPattern upstreamStall backpressure =
+  let -- Count upstream stall cycles
+      -- Note: The first element of the pattern corresponds to the reset cycle,
+      -- which is wasted (state can't transition during reset). So we skip it.
+      -- Pattern semantics: True = stall (msgValid=False), False = ready (msgValid=True)
+      upstreamStallCycles = case upstreamStall of
+        NoUpstreamStall -> 0
+        UpstreamStall pattern -> P.length (P.takeWhile P.id (P.drop 1 pattern))
+
+      -- Backpressure pattern (True = ready, False = not ready)
+      bpPattern = case backpressure of
+        NoDownstreamBackpressure -> P.repeat True
+        DownstreamBackpressure pattern -> pattern P.++ P.repeat True
+
+      -- Simulate squeeze phases
+      -- Returns: (cycles, validCount, remainingBpPattern, remainingValidityPattern)
+      simulateSqueeze ::
+        Int -> -- valid count so far
+        [Bool] -> -- remaining validity pattern
+        [Bool] -> -- remaining backpressure pattern
+        (Int, Int, [Bool], [Bool]) -- (cycles, validCount, bpPattern, validityPattern)
+      simulateSqueeze  = go (0 :: Int) (0 :: Int)
+        where
+          go cycles squeezeIdx validCnt val bpPat
+            -- Reached 256 valid coefficients - done
+            | validCnt P.>= 256 = (cycles, validCnt, bpPat, val)
+            -- Exhausted 112 coefficients in this squeeze block - need another permute
+            | squeezeIdx P.>= 112 = (cycles, validCnt, bpPat, val)
+            | P.otherwise =
+                let (tready, bpPat') = case bpPat of
+                      [] -> (True, [])
+                      (b : bs) -> (b, bs)
+                 in if tready
+                      then
+                        -- Advance: capture coefficient if valid, move to next
+                        let (isValid, val') = case val of
+                              [] -> P.error "simulateTiming: validity pattern exhausted"
+                              (v : vs) -> (v, vs)
+                            validCnt' = if isValid then validCnt P.+ 1 else validCnt
+                         in go (cycles P.+ 1) (squeezeIdx P.+ 1) validCnt' val' bpPat'
+                      else
+                        -- Stall: stay at same coefficient, consume backpressure cycle
+                        go (cycles P.+ 1) squeezeIdx validCnt val bpPat'
+
+      -- Simulate full operation: permute blocks + squeeze blocks until 256 valid
+      simulateBlocks ::
+        Int -> -- total cycles so far
+        Int -> -- valid count so far
+        [Bool] -> -- remaining validity pattern
+        [Bool] -> -- remaining backpressure pattern
+        Int -- final cycle count
+      simulateBlocks totalCycles validCount validity bp
+        | validCount P.>= 256 = totalCycles
+        | P.otherwise =
+            let -- Permute phase: 24 cycles
+                afterPermute = totalCycles P.+ 24
+                -- Squeeze phase: simulate until 112 coefficients or 256 valid
+                (squeezeCycles, newValidCount, newBp, newValidity) =
+                  simulateSqueeze validCount validity bp
+             in simulateBlocks (afterPermute P.+ squeezeCycles) newValidCount newValidity newBp
+
+      -- Start simulation:
+      -- 1. Reset cycle (Clash resetGen is active for first cycle)
+      -- 2. Upstream stall cycles (waiting for msgValid)
+      -- 3. Idle→Permute transition (1 cycle when msgValid becomes True)
+      -- 4. Permute/Squeeze blocks until 256 valid
+      initialCycles = 1 P.+ upstreamStallCycles P.+ 1 -- reset + stalls + transition
+   in simulateBlocks initialCycles 0 validityPattern bpPattern
