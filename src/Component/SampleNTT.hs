@@ -45,7 +45,6 @@ topEntity clk rst en msgDataSig msgValidSig treadySig =
 
 data State
   = Idle
-  | Absorb (BitVector 272)
   | Permute (Index 24) (BitVector 1600)
   | Squeeze (Index 112) (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
@@ -70,11 +69,8 @@ hash msgDataSig msgValidSig treadySig =
         Idle ->
           -- MSG_TREADY is True, waiting for MSG_TVALID
           if msgValid
-            then (Absorb inputMsg, (True, idleAXI4Stream))
+            then (Permute 0 (absorb34 inputMsg), (False, idleAXI4Stream))
             else (Idle, (True, idleAXI4Stream))
-        Absorb latchedMsg ->
-          let initState = absorb34 latchedMsg
-           in (Permute 0 initState, (False, idleAXI4Stream))
         Permute roundIdx state ->
           let state' = Permutation.keccakF1600 roundIdx state
            in if roundIdx == maxBound
