@@ -45,19 +45,19 @@ main = do
     testGroup
       "All Tests"
       [
-        -- constantsTests,
-        -- permutationRevTests,
-        -- prf2Tests,
-        -- prf3Tests,
-        -- samplePolyCBD2Tests,
-        -- samplePolyCBD3Tests,
-        -- combinationalTests,
-        -- n256Tests,
-        -- n512Tests,
-        -- n256xTests,
-        -- n128xTests,
-        -- n128xbTests,
-        -- refSha3Tests,
-        -- refShake256Tests,
+        constantsTests,
+        permutationRevTests,
+        prf2Tests,
+        prf3Tests,
+        samplePolyCBD2Tests,
+        samplePolyCBD3Tests,
+        combinationalTests,
+        n256Tests,
+        n512Tests,
+        n256xTests,
+        n128xTests,
+        n128xbTests,
+        refSha3Tests,
+        refShake256Tests,
         nSampleNTTTests
       ]

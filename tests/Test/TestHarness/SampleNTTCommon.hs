@@ -37,7 +37,6 @@ import System.IO.Unsafe (unsafePerformIO)
 import System.Process (CreateProcess (..), StdStream (..), createProcess, proc, waitForProcess)
 import Test.Hspec (Expectation, shouldBe)
 import Test.TestHarness.SHAKECommon (DownstreamBackpressure (..), ShakeTest (..), UpstreamStall (..), makeBackpressureTest, makeBasicTest, makeCombinedTest, makeStallTest, makeVariableOutputTest, testLabel)
-import Test.TestHarness.StreamCommon (makeBackpressureSignal)
 import Prelude qualified as P
 
 --------------------------------------------------------------------------------
@@ -74,9 +73,8 @@ runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
 runSampleNTTHardware params test =
   let msgBV = bsToBV272 (testMessage test)
       msgDataSig = pure msgBV
-      -- MSG_TVALID is True from the start (can be delayed with upstream stall pattern)
-      msgValidSig = makeUpstreamValidSignal (testUpstreamStall test)
-      treadySignal = makeBackpressureSignal (testDownstreamBackpressure test)
+      treadyPattern = backpressurePattern (testDownstreamBackpressure test)
+      treadySignal = makeBackpressureSignalRepeat treadyPattern
       output =
         spTopEntity
           params
@@ -86,6 +84,12 @@ runSampleNTTHardware params test =
           msgDataSig
           msgValidSig
           treadySignal
+      msgReadySig = fmap fst output
+      (msgValidSig, msgReadyPrevSig) =
+        withClockResetEnable clockGen resetGen enableGen $
+          let msgReadyPrevSig' = register True msgReadySig
+              msgValidSig' = makeUpstreamValidSignal (testUpstreamStall test) msgReadyPrevSig'
+           in (msgValidSig', msgReadyPrevSig')
       -- Get exact timing from Python reference
       validityPattern = getTimingInfo (testMessage test)
       sampleCount =
@@ -93,6 +97,7 @@ runSampleNTTHardware params test =
           validityPattern
           (testUpstreamStall test)
           (testDownstreamBackpressure test)
+          P.+ 5
       samples = sampleN @System sampleCount (bundle (output, treadySignal))
       validOutputs =
         [ tdata stream
@@ -100,17 +105,46 @@ runSampleNTTHardware params test =
             tvalid stream P.&& ready
         ]
       coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
-   in coeffs
+      readySamples = sampleN @System sampleCount (bundle (msgValidSig, msgReadyPrevSig))
+      readyViolations = [() | (valid, readyPrev) <- readySamples, valid P.&& P.not readyPrev]
+      handshakes = [() | (valid, readyPrev) <- readySamples, valid P.&& readyPrev]
+   in if P.null readyViolations
+        then
+          if P.null handshakes
+            then P.error "SampleNTT: MSG_TVALID never asserted after MSG_TREADY"
+            else coeffs
+        else P.error "SampleNTT: MSG_TVALID asserted without MSG_TREADY in previous cycle"
 
--- | Generate MSG_TVALID signal based on upstream stall pattern
--- NoUpstreamStall: MSG_TVALID is True from the start
--- UpstreamStall pattern: MSG_TVALID is False during stall (True in pattern), then True forever
-makeUpstreamValidSignal :: UpstreamStall -> Signal System Bool
-makeUpstreamValidSignal NoUpstreamStall = pure True
-makeUpstreamValidSignal (UpstreamStall pattern) =
-  -- Pattern: True means stall (don't send valid), False means ready to send
-  -- After pattern is exhausted, default to True (always valid)
-  fromList (P.map P.not pattern P.++ P.repeat True)
+-- | Generate MSG_TVALID signal based on upstream stall pattern.
+-- The signal is asserted once, after MSG_TREADY was observed high and stalls are done.
+makeUpstreamValidSignal :: (HiddenClockResetEnable dom) => UpstreamStall -> Signal dom Bool -> Signal dom Bool
+makeUpstreamValidSignal control readyPrevSig =
+  mealy step (False, stallPattern) readyPrevSig
+  where
+    stallPattern = case control of
+      NoUpstreamStall -> []
+      UpstreamStall xs -> xs
+    step (sent, pattern) readyPrev =
+      if sent
+        then ((sent, pattern), False)
+        else
+          let (stallNow, pattern') = case pattern of
+                [] -> (False, [])
+                b : bs -> (b, bs)
+              canSend = readyPrev P.&& P.not stallNow
+           in if canSend
+                then ((True, pattern'), True)
+                else ((False, pattern'), False)
+
+makeBackpressureSignalRepeat :: [Bool] -> Signal System Bool
+makeBackpressureSignalRepeat pattern =
+  fromList (P.cycle pattern)
+
+backpressurePattern :: DownstreamBackpressure -> [Bool]
+backpressurePattern NoDownstreamBackpressure = [True]
+backpressurePattern (DownstreamBackpressure pattern) =
+  let hasReady = P.any P.id pattern
+   in if hasReady then pattern else pattern P.++ [True]
 
 bsToBV272 :: ByteString -> BitVector 272
 bsToBV272 bs =
@@ -179,17 +213,13 @@ simulateTiming ::
   Int -- exact cycle count
 simulateTiming validityPattern upstreamStall backpressure =
   let -- Count upstream stall cycles
-      -- Note: The first element of the pattern corresponds to the reset cycle,
-      -- which is wasted (state can't transition during reset). So we skip it.
       -- Pattern semantics: True = stall (msgValid=False), False = ready (msgValid=True)
       upstreamStallCycles = case upstreamStall of
         NoUpstreamStall -> 0
-        UpstreamStall pattern -> P.length (P.takeWhile P.id (P.drop 1 pattern))
+        UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
 
       -- Backpressure pattern (True = ready, False = not ready)
-      bpPattern = case backpressure of
-        NoDownstreamBackpressure -> P.repeat True
-        DownstreamBackpressure pattern -> pattern P.++ P.repeat True
+      bpPattern = P.cycle (backpressurePattern backpressure)
 
       -- Simulate squeeze phases
       -- Returns: (cycles, validCount, remainingBpPattern, remainingValidityPattern)
@@ -244,4 +274,5 @@ simulateTiming validityPattern upstreamStall backpressure =
       -- 3. Idle→Permute transition (1 cycle when msgValid becomes True)
       -- 4. Permute/Squeeze blocks until 256 valid
       initialCycles = 1 P.+ upstreamStallCycles P.+ 1 -- reset + stalls + transition
-   in simulateBlocks initialCycles 0 validityPattern bpPattern
+      bpAfterInit = P.drop initialCycles bpPattern
+   in simulateBlocks initialCycles 0 validityPattern bpAfterInit
