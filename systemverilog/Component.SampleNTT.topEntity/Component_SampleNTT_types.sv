@@ -5,9 +5,13 @@ package Component_SampleNTT_types;
     logic AXI4Stream_sel2;
   } AXI4Stream;
   typedef struct packed {
-    AXI4Stream Tuple2_0_sel0;
-    logic Tuple2_0_sel1;
+    logic Tuple2_0_sel0;
+    AXI4Stream Tuple2_0_sel1;
   } Tuple2_0;
+  typedef struct packed {
+    logic [1608:0] Tuple2_sel0;
+    Tuple2_0 Tuple2_sel1;
+  } Tuple2;
   typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
   typedef struct packed {
@@ -23,10 +27,6 @@ package Component_SampleNTT_types;
   typedef logic  array_of_64_logic [0:63];
   typedef logic [0:63] array_of_25_array_of_64_logic [0:24];
   typedef logic [0:63] array_of_24_array_of_64_logic [0:23];
-  typedef struct packed {
-    logic [1608:0] Tuple2_sel0;
-    Tuple2_0 Tuple2_sel1;
-  } Tuple2;
   function automatic logic [0:63][0:0] array_of_64_logic_vector_1_to_lv(array_of_64_logic_vector_1 i);
     for (int n = 0; n < 64; n=n+1)
       array_of_64_logic_vector_1_to_lv[n] = i[n];

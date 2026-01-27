@@ -22,34 +22,32 @@ module Component_SamplePolyCBD3
   logic [2:0] a;
   logic [2:0] b;
   logic [5:0] c$b_app_arg;
-  logic [5:0] bits;
   logic [1757:0] c$app_arg_0;
   logic [1757:0] result_1;
   logic [1757:0] c$case_alt_0;
   logic signed [63:0] ds2;
   logic signed [63:0] c$ds2_app_arg;
   logic [63:0] result_2;
-  logic [63:0] c$karg_case_alt;
-  logic [63:0] c$karg_case_alt_0;
-  logic [63:0] c$karg_case_alt_1;
-  logic [63:0] c$karg_case_alt_2;
-  logic [63:0] c$karg_case_alt_3;
-  logic [63:0] c$karg_case_alt_4;
-  logic [63:0] c$karg_case_alt_5;
-  logic [63:0] c$karg_case_alt_6;
-  logic [63:0] c$karg_case_alt_7;
-  logic [63:0] c$karg_case_alt_8;
-  logic [63:0] c$karg_case_alt_9;
-  logic [63:0] c$karg_case_alt_10;
-  logic [63:0] c$karg_case_alt_11;
-  logic [63:0] c$karg_case_alt_12;
-  logic [63:0] c$karg_case_alt_13;
-  logic [4:0] ds2_0;
-  logic [1599:0] c$karg_app_arg;
+  logic [63:0] c$case_alt_1;
+  logic [63:0] c$case_alt_2;
+  logic [63:0] c$case_alt_3;
+  logic [63:0] c$case_alt_4;
+  logic [63:0] c$case_alt_5;
+  logic [63:0] c$case_alt_6;
+  logic [63:0] c$case_alt_7;
+  logic [63:0] c$case_alt_8;
+  logic [63:0] c$case_alt_9;
+  logic [63:0] c$case_alt_10;
+  logic [63:0] c$case_alt_11;
+  logic [63:0] c$case_alt_12;
+  logic [63:0] c$case_alt_13;
+  logic [63:0] c$case_alt_14;
+  logic [63:0] c$case_alt_15;
+  logic [1599:0] c$app_arg_1;
   logic [1599:0] state;
-  logic signed [63:0] c$ds2_app_arg_0;
-  logic signed [63:0] c$ds2_case_alt;
-  logic signed [63:0] c$ds2_case_alt_0;
+  logic signed [63:0] c$karg_app_arg;
+  logic signed [63:0] c$karg_case_alt;
+  logic signed [63:0] c$karg_case_alt_0;
   logic needLoad;
   logic [0:0] blockIdx;
   logic [4:0] wordIdx;
@@ -67,17 +65,17 @@ module Component_SamplePolyCBD3
   logic [4:0] wordIdx_0;
   logic [8:0] coeffIdx_0;
   logic [1599:0] result_4;
-  logic [1599:0] c$app_arg_1;
-  logic [1599:0] result_5;
   logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_6;
+  logic [1599:0] result_5;
   logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_7;
+  logic [1599:0] result_6;
   logic [1599:0] c$app_arg_4;
-  logic [1599:0] result_8;
+  logic [1599:0] result_7;
   logic [1599:0] c$app_arg_5;
-  logic [1599:0] result_9;
+  logic [1599:0] result_8;
   logic [1599:0] c$app_arg_6;
+  logic [1599:0] result_9;
+  logic [1599:0] c$app_arg_7;
   logic [1599:0] c$keccakF1600_out;
   logic [1599:0] state_0;
   logic [4:0] roundIdx;
@@ -107,7 +105,7 @@ module Component_SamplePolyCBD3
 
   always_comb begin
     case(c$ds_app_arg[1757:1756])
-      2'b00 : c$case_alt = {{2'b01,5'd0,9'd0,5'd0,1'd0,128'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,8'd0,result_4}
+      2'b00 : c$case_alt = {{2'b01,5'd0,9'd0,5'd0,1'd0,128'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,8'd0,result_9}
                            ,{{12'b000000000000,1'b0,1'b0},1'b1}};
       2'b01 : c$case_alt = result_3;
       2'b10 : c$case_alt = {c$app_arg_0
@@ -139,11 +137,9 @@ module Component_SamplePolyCBD3
 
   assign b = (({{(3-1) {1'b0}},((c$b_app_arg[2 : 2]))}) + ({{(3-1) {1'b0}},((c$b_app_arg[1 : 1]))})) + ({{(3-1) {1'b0}},((c$b_app_arg[0 : 0]))});
 
-  assign c$b_app_arg = bits;
-
   assign c$bv_5 = (buffer);
 
-  assign bits = c$bv_5[127 : 122];
+  assign c$b_app_arg = (c$bv_5[127 : 122]);
 
   assign c$app_arg_0 = (canOutput & (DIGEST_TREADY & isLast)) ? {2'b11,1756'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : result_1;
 
@@ -157,51 +153,49 @@ module Component_SamplePolyCBD3
 
   assign c$ds2_app_arg = $unsigned({{(64-8) {1'b0}},c$i_19});
 
-  assign result_2 = (ds2_0 == 5'd0) ? (c$karg_app_arg[1599 : 1536]) : c$karg_case_alt;
+  assign result_2 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd0) ? (c$app_arg_1[1599 : 1536]) : c$case_alt_1;
 
-  assign c$karg_case_alt = (ds2_0 == 5'd1) ? (c$karg_app_arg[1535 : 1472]) : c$karg_case_alt_0;
+  assign c$case_alt_1 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd1) ? (c$app_arg_1[1535 : 1472]) : c$case_alt_2;
 
-  assign c$karg_case_alt_0 = (ds2_0 == 5'd2) ? (c$karg_app_arg[1471 : 1408]) : c$karg_case_alt_1;
+  assign c$case_alt_2 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd2) ? (c$app_arg_1[1471 : 1408]) : c$case_alt_3;
 
-  assign c$karg_case_alt_1 = (ds2_0 == 5'd3) ? (c$karg_app_arg[1407 : 1344]) : c$karg_case_alt_2;
+  assign c$case_alt_3 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd3) ? (c$app_arg_1[1407 : 1344]) : c$case_alt_4;
 
-  assign c$karg_case_alt_2 = (ds2_0 == 5'd4) ? (c$karg_app_arg[1343 : 1280]) : c$karg_case_alt_3;
+  assign c$case_alt_4 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd4) ? (c$app_arg_1[1343 : 1280]) : c$case_alt_5;
 
-  assign c$karg_case_alt_3 = (ds2_0 == 5'd5) ? (c$karg_app_arg[1279 : 1216]) : c$karg_case_alt_4;
+  assign c$case_alt_5 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd5) ? (c$app_arg_1[1279 : 1216]) : c$case_alt_6;
 
-  assign c$karg_case_alt_4 = (ds2_0 == 5'd6) ? (c$karg_app_arg[1215 : 1152]) : c$karg_case_alt_5;
+  assign c$case_alt_6 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd6) ? (c$app_arg_1[1215 : 1152]) : c$case_alt_7;
 
-  assign c$karg_case_alt_5 = (ds2_0 == 5'd7) ? (c$karg_app_arg[1151 : 1088]) : c$karg_case_alt_6;
+  assign c$case_alt_7 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd7) ? (c$app_arg_1[1151 : 1088]) : c$case_alt_8;
 
-  assign c$karg_case_alt_6 = (ds2_0 == 5'd8) ? (c$karg_app_arg[1087 : 1024]) : c$karg_case_alt_7;
+  assign c$case_alt_8 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd8) ? (c$app_arg_1[1087 : 1024]) : c$case_alt_9;
 
-  assign c$karg_case_alt_7 = (ds2_0 == 5'd9) ? (c$karg_app_arg[1023 : 960]) : c$karg_case_alt_8;
+  assign c$case_alt_9 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd9) ? (c$app_arg_1[1023 : 960]) : c$case_alt_10;
 
-  assign c$karg_case_alt_8 = (ds2_0 == 5'd10) ? (c$karg_app_arg[959 : 896]) : c$karg_case_alt_9;
+  assign c$case_alt_10 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd10) ? (c$app_arg_1[959 : 896]) : c$case_alt_11;
 
-  assign c$karg_case_alt_9 = (ds2_0 == 5'd11) ? (c$karg_app_arg[895 : 832]) : c$karg_case_alt_10;
+  assign c$case_alt_11 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd11) ? (c$app_arg_1[895 : 832]) : c$case_alt_12;
 
-  assign c$karg_case_alt_10 = (ds2_0 == 5'd12) ? (c$karg_app_arg[831 : 768]) : c$karg_case_alt_11;
+  assign c$case_alt_12 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd12) ? (c$app_arg_1[831 : 768]) : c$case_alt_13;
 
-  assign c$karg_case_alt_11 = (ds2_0 == 5'd13) ? (c$karg_app_arg[767 : 704]) : c$karg_case_alt_12;
+  assign c$case_alt_13 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd13) ? (c$app_arg_1[767 : 704]) : c$case_alt_14;
 
-  assign c$karg_case_alt_12 = (ds2_0 == 5'd14) ? (c$karg_app_arg[703 : 640]) : c$karg_case_alt_13;
+  assign c$case_alt_14 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd14) ? (c$app_arg_1[703 : 640]) : c$case_alt_15;
 
-  assign c$karg_case_alt_13 = (ds2_0 == 5'd15) ? (c$karg_app_arg[639 : 576]) : (c$karg_app_arg[575 : 512]);
+  assign c$case_alt_15 = (($unsigned(c$karg_app_arg[0+:5])) == 5'd15) ? (c$app_arg_1[639 : 576]) : (c$app_arg_1[575 : 512]);
 
-  assign ds2_0 = $unsigned(c$ds2_app_arg_0[0+:5]);
-
-  assign c$karg_app_arg = state;
+  assign c$app_arg_1 = state;
 
   assign state = c$ds_app_arg[1604:5];
 
-  assign c$ds2_app_arg_0 = (wordIdx < 5'd17) ? c$ds2_case_alt : c$ds2_case_alt_0;
+  assign c$karg_app_arg = (wordIdx < 5'd17) ? c$karg_case_alt : c$karg_case_alt_0;
 
-  assign c$ds2_case_alt = $unsigned({{(64-5) {1'b0}},wordIdx});
+  assign c$karg_case_alt = $unsigned({{(64-5) {1'b0}},wordIdx});
 
   assign c$i_38 = (wordIdx - 5'd17);
 
-  assign c$ds2_case_alt_0 = $unsigned({{(64-5) {1'b0}},c$i_38});
+  assign c$karg_case_alt_0 = $unsigned({{(64-5) {1'b0}},c$i_38});
 
   assign needLoad = (\validBits'  <= 8'd64) & (wordIdx < 5'd24);
 
@@ -244,57 +238,57 @@ module Component_SamplePolyCBD3
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg_1;
-    result_4[64'sd512] = (~ (c$app_arg_1[64'sd512]));
+    result_4 = c$app_arg_2;
+    result_4[64'sd1331] = (~ (c$app_arg_2[64'sd1331]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_5;
+  assign c$app_arg_2 = result_5;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_2;
-    result_5[64'sd1331] = (~ (c$app_arg_2[64'sd1331]));
+    result_5 = c$app_arg_3;
+    result_5[64'sd1332] = (~ (c$app_arg_3[64'sd1332]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_6;
+  assign c$app_arg_3 = result_6;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_3;
-    result_6[64'sd1332] = (~ (c$app_arg_3[64'sd1332]));
+    result_6 = c$app_arg_4;
+    result_6[64'sd1333] = (~ (c$app_arg_4[64'sd1333]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_7;
+  assign c$app_arg_4 = result_7;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_4;
-    result_7[64'sd1333] = (~ (c$app_arg_4[64'sd1333]));
+    result_7 = c$app_arg_5;
+    result_7[64'sd1334] = (~ (c$app_arg_5[64'sd1334]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = result_8;
+  assign c$app_arg_5 = result_8;
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_5;
-    result_8[64'sd1334] = (~ (c$app_arg_5[64'sd1334]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_5 = result_9;
-
-  // replaceBit start
-  always_comb begin
-    result_9 = c$app_arg_6;
-    result_9[64'sd1335] = (~ (c$app_arg_6[64'sd1335]));
+    result_8 = c$app_arg_6;
+    result_8[64'sd1335] = (~ (c$app_arg_6[64'sd1335]));
   end
   // replaceBit end
 
   assign c$app_arg_6 = ({MSG_33B,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
+
+  // replaceBit start
+  always_comb begin
+    result_9 = c$app_arg_7;
+    result_9[64'sd512] = (~ (c$app_arg_7[64'sd512]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_7 = result_4;
 
   Component_SamplePolyCBD3_topEntity_keccakF1600 Component_SamplePolyCBD3_topEntity_keccakF1600_c$keccakF1600_out
     ( .result (c$keccakF1600_out)

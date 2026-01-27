@@ -22,58 +22,59 @@ module Component_SamplePolyCBD2
   logic [1:0] b;
   logic [3:0] c$b_app_arg;
   logic [3:0] result_1;
-  logic [3:0] c$bits_case_alt;
-  logic [3:0] c$bits_case_alt_0;
-  logic [3:0] c$bits_case_alt_1;
-  logic [3:0] c$bits_case_alt_2;
-  logic [3:0] c$bits_case_alt_3;
-  logic [3:0] c$bits_case_alt_4;
-  logic [3:0] c$bits_case_alt_5;
-  logic [3:0] c$bits_case_alt_6;
-  logic [3:0] c$bits_case_alt_7;
-  logic [3:0] c$bits_case_alt_8;
-  logic [3:0] c$bits_case_alt_9;
-  logic [3:0] c$bits_case_alt_10;
-  logic [3:0] c$bits_case_alt_11;
-  logic [3:0] c$bits_case_alt_12;
-  logic [63:0] c$bits_app_arg;
-  logic [63:0] w;
-  logic [63:0] c$w_case_alt;
-  logic [63:0] c$w_case_alt_0;
-  logic [63:0] c$w_case_alt_1;
-  logic [63:0] c$w_case_alt_2;
-  logic [63:0] c$w_case_alt_3;
-  logic [63:0] c$w_case_alt_4;
-  logic [63:0] c$w_case_alt_5;
-  logic [63:0] c$w_case_alt_6;
-  logic [63:0] c$w_case_alt_7;
-  logic [63:0] c$w_case_alt_8;
-  logic [63:0] c$w_case_alt_9;
-  logic [63:0] c$w_case_alt_10;
-  logic [63:0] c$w_case_alt_11;
-  logic [63:0] c$w_case_alt_12;
-  logic [1599:0] c$w_app_arg;
-  logic [1609:0] c$app_arg;
-  logic [1609:0] c$case_alt_0;
+  logic [3:0] c$case_alt_0;
+  logic [3:0] c$case_alt_1;
+  logic [3:0] c$case_alt_2;
+  logic [3:0] c$case_alt_3;
+  logic [3:0] c$case_alt_4;
+  logic [3:0] c$case_alt_5;
+  logic [3:0] c$case_alt_6;
+  logic [3:0] c$case_alt_7;
+  logic [3:0] c$case_alt_8;
+  logic [3:0] c$case_alt_9;
+  logic [3:0] c$case_alt_10;
+  logic [3:0] c$case_alt_11;
+  logic [3:0] c$case_alt_12;
+  logic [3:0] c$case_alt_13;
+  logic [63:0] c$app_arg;
+  logic [63:0] result_2;
+  logic [63:0] c$case_alt_14;
+  logic [63:0] c$case_alt_15;
+  logic [63:0] c$case_alt_16;
+  logic [63:0] c$case_alt_17;
+  logic [63:0] c$case_alt_18;
+  logic [63:0] c$case_alt_19;
+  logic [63:0] c$case_alt_20;
+  logic [63:0] c$case_alt_21;
+  logic [63:0] c$case_alt_22;
+  logic [63:0] c$case_alt_23;
+  logic [63:0] c$case_alt_24;
+  logic [63:0] c$case_alt_25;
+  logic [63:0] c$case_alt_26;
+  logic [63:0] c$case_alt_27;
+  logic [63:0] c$case_alt_28;
+  logic [1599:0] c$app_arg_0;
+  logic [1609:0] c$app_arg_1;
+  logic [1609:0] c$case_alt_29;
   logic isLast;
-  logic [1609:0] c$case_alt_1;
+  logic [1609:0] c$case_alt_30;
   logic [1599:0] state;
   logic c$isLast_app_arg;
   logic [3:0] coeffIdx;
   logic [3:0] wordIdx;
-  Component_SamplePolyCBD2_types::Tuple2 result_2;
-  logic [1599:0] result_3;
-  logic [1599:0] c$app_arg_0;
+  Component_SamplePolyCBD2_types::Tuple2 result_3;
   logic [1599:0] result_4;
-  logic [1599:0] c$app_arg_1;
-  logic [1599:0] result_5;
   logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_6;
+  logic [1599:0] result_5;
   logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_7;
+  logic [1599:0] result_6;
   logic [1599:0] c$app_arg_4;
-  logic [1599:0] result_8;
+  logic [1599:0] result_7;
   logic [1599:0] c$app_arg_5;
+  logic [1599:0] result_8;
+  logic [1599:0] c$app_arg_6;
+  logic [1599:0] result_9;
+  logic [1599:0] c$app_arg_7;
   logic [1599:0] c$keccakF1600_out;
   logic [1599:0] state_0;
   logic [4:0] roundIdx;
@@ -98,10 +99,10 @@ module Component_SamplePolyCBD2
 
   always_comb begin
     case(c$ds_app_arg[1609:1608])
-      2'b00 : c$case_alt = {{2'b01,5'd0,result_3,3'bxxx}
+      2'b00 : c$case_alt = {{2'b01,5'd0,result_9,3'bxxx}
                            ,{{12'b000000000000,1'b0,1'b0},1'b1}};
-      2'b01 : c$case_alt = result_2;
-      2'b10 : c$case_alt = {c$app_arg
+      2'b01 : c$case_alt = result_3;
+      2'b10 : c$case_alt = {c$app_arg_1
                            ,{{result_0,1'b1,isLast},1'b0}};
       default : c$case_alt = {{2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                              ,{{12'b000000000000,1'b0,1'b0},1'b0}};
@@ -124,77 +125,79 @@ module Component_SamplePolyCBD2
 
   assign c$b_app_arg = result_1;
 
-  assign result_1 = (coeffIdx == 4'd0) ? (c$bits_app_arg[63 : 60]) : c$bits_case_alt;
+  assign result_1 = (coeffIdx == 4'd0) ? (c$app_arg[63 : 60]) : c$case_alt_0;
 
-  assign c$bits_case_alt = (coeffIdx == 4'd1) ? (c$bits_app_arg[59 : 56]) : c$bits_case_alt_0;
+  assign c$case_alt_0 = (coeffIdx == 4'd1) ? (c$app_arg[59 : 56]) : c$case_alt_1;
 
-  assign c$bits_case_alt_0 = (coeffIdx == 4'd2) ? (c$bits_app_arg[55 : 52]) : c$bits_case_alt_1;
+  assign c$case_alt_1 = (coeffIdx == 4'd2) ? (c$app_arg[55 : 52]) : c$case_alt_2;
 
-  assign c$bits_case_alt_1 = (coeffIdx == 4'd3) ? (c$bits_app_arg[51 : 48]) : c$bits_case_alt_2;
+  assign c$case_alt_2 = (coeffIdx == 4'd3) ? (c$app_arg[51 : 48]) : c$case_alt_3;
 
-  assign c$bits_case_alt_2 = (coeffIdx == 4'd4) ? (c$bits_app_arg[47 : 44]) : c$bits_case_alt_3;
+  assign c$case_alt_3 = (coeffIdx == 4'd4) ? (c$app_arg[47 : 44]) : c$case_alt_4;
 
-  assign c$bits_case_alt_3 = (coeffIdx == 4'd5) ? (c$bits_app_arg[43 : 40]) : c$bits_case_alt_4;
+  assign c$case_alt_4 = (coeffIdx == 4'd5) ? (c$app_arg[43 : 40]) : c$case_alt_5;
 
-  assign c$bits_case_alt_4 = (coeffIdx == 4'd6) ? (c$bits_app_arg[39 : 36]) : c$bits_case_alt_5;
+  assign c$case_alt_5 = (coeffIdx == 4'd6) ? (c$app_arg[39 : 36]) : c$case_alt_6;
 
-  assign c$bits_case_alt_5 = (coeffIdx == 4'd7) ? (c$bits_app_arg[35 : 32]) : c$bits_case_alt_6;
+  assign c$case_alt_6 = (coeffIdx == 4'd7) ? (c$app_arg[35 : 32]) : c$case_alt_7;
 
-  assign c$bits_case_alt_6 = (coeffIdx == 4'd8) ? (c$bits_app_arg[31 : 28]) : c$bits_case_alt_7;
+  assign c$case_alt_7 = (coeffIdx == 4'd8) ? (c$app_arg[31 : 28]) : c$case_alt_8;
 
-  assign c$bits_case_alt_7 = (coeffIdx == 4'd9) ? (c$bits_app_arg[27 : 24]) : c$bits_case_alt_8;
+  assign c$case_alt_8 = (coeffIdx == 4'd9) ? (c$app_arg[27 : 24]) : c$case_alt_9;
 
-  assign c$bits_case_alt_8 = (coeffIdx == 4'd10) ? (c$bits_app_arg[23 : 20]) : c$bits_case_alt_9;
+  assign c$case_alt_9 = (coeffIdx == 4'd10) ? (c$app_arg[23 : 20]) : c$case_alt_10;
 
-  assign c$bits_case_alt_9 = (coeffIdx == 4'd11) ? (c$bits_app_arg[19 : 16]) : c$bits_case_alt_10;
+  assign c$case_alt_10 = (coeffIdx == 4'd11) ? (c$app_arg[19 : 16]) : c$case_alt_11;
 
-  assign c$bits_case_alt_10 = (coeffIdx == 4'd12) ? (c$bits_app_arg[15 : 12]) : c$bits_case_alt_11;
+  assign c$case_alt_11 = (coeffIdx == 4'd12) ? (c$app_arg[15 : 12]) : c$case_alt_12;
 
-  assign c$bits_case_alt_11 = (coeffIdx == 4'd13) ? (c$bits_app_arg[11 : 8]) : c$bits_case_alt_12;
+  assign c$case_alt_12 = (coeffIdx == 4'd13) ? (c$app_arg[11 : 8]) : c$case_alt_13;
 
-  assign c$bits_case_alt_12 = (coeffIdx == 4'd14) ? (c$bits_app_arg[7 : 4]) : (c$bits_app_arg[3 : 0]);
+  assign c$case_alt_13 = (coeffIdx == 4'd14) ? (c$app_arg[7 : 4]) : (c$app_arg[3 : 0]);
 
-  assign c$bits_app_arg = w;
+  assign c$app_arg = result_2;
 
-  assign w = (wordIdx == 4'd0) ? (c$w_app_arg[1599 : 1536]) : c$w_case_alt;
+  assign result_2 = (({{(5-4) {1'b0}},wordIdx}) == 5'd0) ? (c$app_arg_0[1599 : 1536]) : c$case_alt_14;
 
-  assign c$w_case_alt = (wordIdx == 4'd1) ? (c$w_app_arg[1535 : 1472]) : c$w_case_alt_0;
+  assign c$case_alt_14 = (({{(5-4) {1'b0}},wordIdx}) == 5'd1) ? (c$app_arg_0[1535 : 1472]) : c$case_alt_15;
 
-  assign c$w_case_alt_0 = (wordIdx == 4'd2) ? (c$w_app_arg[1471 : 1408]) : c$w_case_alt_1;
+  assign c$case_alt_15 = (({{(5-4) {1'b0}},wordIdx}) == 5'd2) ? (c$app_arg_0[1471 : 1408]) : c$case_alt_16;
 
-  assign c$w_case_alt_1 = (wordIdx == 4'd3) ? (c$w_app_arg[1407 : 1344]) : c$w_case_alt_2;
+  assign c$case_alt_16 = (({{(5-4) {1'b0}},wordIdx}) == 5'd3) ? (c$app_arg_0[1407 : 1344]) : c$case_alt_17;
 
-  assign c$w_case_alt_2 = (wordIdx == 4'd4) ? (c$w_app_arg[1343 : 1280]) : c$w_case_alt_3;
+  assign c$case_alt_17 = (({{(5-4) {1'b0}},wordIdx}) == 5'd4) ? (c$app_arg_0[1343 : 1280]) : c$case_alt_18;
 
-  assign c$w_case_alt_3 = (wordIdx == 4'd5) ? (c$w_app_arg[1279 : 1216]) : c$w_case_alt_4;
+  assign c$case_alt_18 = (({{(5-4) {1'b0}},wordIdx}) == 5'd5) ? (c$app_arg_0[1279 : 1216]) : c$case_alt_19;
 
-  assign c$w_case_alt_4 = (wordIdx == 4'd6) ? (c$w_app_arg[1215 : 1152]) : c$w_case_alt_5;
+  assign c$case_alt_19 = (({{(5-4) {1'b0}},wordIdx}) == 5'd6) ? (c$app_arg_0[1215 : 1152]) : c$case_alt_20;
 
-  assign c$w_case_alt_5 = (wordIdx == 4'd7) ? (c$w_app_arg[1151 : 1088]) : c$w_case_alt_6;
+  assign c$case_alt_20 = (({{(5-4) {1'b0}},wordIdx}) == 5'd7) ? (c$app_arg_0[1151 : 1088]) : c$case_alt_21;
 
-  assign c$w_case_alt_6 = (wordIdx == 4'd8) ? (c$w_app_arg[1087 : 1024]) : c$w_case_alt_7;
+  assign c$case_alt_21 = (({{(5-4) {1'b0}},wordIdx}) == 5'd8) ? (c$app_arg_0[1087 : 1024]) : c$case_alt_22;
 
-  assign c$w_case_alt_7 = (wordIdx == 4'd9) ? (c$w_app_arg[1023 : 960]) : c$w_case_alt_8;
+  assign c$case_alt_22 = (({{(5-4) {1'b0}},wordIdx}) == 5'd9) ? (c$app_arg_0[1023 : 960]) : c$case_alt_23;
 
-  assign c$w_case_alt_8 = (wordIdx == 4'd10) ? (c$w_app_arg[959 : 896]) : c$w_case_alt_9;
+  assign c$case_alt_23 = (({{(5-4) {1'b0}},wordIdx}) == 5'd10) ? (c$app_arg_0[959 : 896]) : c$case_alt_24;
 
-  assign c$w_case_alt_9 = (wordIdx == 4'd11) ? (c$w_app_arg[895 : 832]) : c$w_case_alt_10;
+  assign c$case_alt_24 = (({{(5-4) {1'b0}},wordIdx}) == 5'd11) ? (c$app_arg_0[895 : 832]) : c$case_alt_25;
 
-  assign c$w_case_alt_10 = (wordIdx == 4'd12) ? (c$w_app_arg[831 : 768]) : c$w_case_alt_11;
+  assign c$case_alt_25 = (({{(5-4) {1'b0}},wordIdx}) == 5'd12) ? (c$app_arg_0[831 : 768]) : c$case_alt_26;
 
-  assign c$w_case_alt_11 = (wordIdx == 4'd13) ? (c$w_app_arg[767 : 704]) : c$w_case_alt_12;
+  assign c$case_alt_26 = (({{(5-4) {1'b0}},wordIdx}) == 5'd13) ? (c$app_arg_0[767 : 704]) : c$case_alt_27;
 
-  assign c$w_case_alt_12 = (wordIdx == 4'd14) ? (c$w_app_arg[703 : 640]) : (c$w_app_arg[639 : 576]);
+  assign c$case_alt_27 = (({{(5-4) {1'b0}},wordIdx}) == 5'd14) ? (c$app_arg_0[703 : 640]) : c$case_alt_28;
 
-  assign c$w_app_arg = state;
+  assign c$case_alt_28 = (({{(5-4) {1'b0}},wordIdx}) == 5'd15) ? (c$app_arg_0[639 : 576]) : (c$app_arg_0[575 : 512]);
 
-  assign c$app_arg = DIGEST_TREADY ? c$case_alt_0 : c$ds_app_arg;
+  assign c$app_arg_0 = state;
 
-  assign c$case_alt_0 = isLast ? {2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_1;
+  assign c$app_arg_1 = DIGEST_TREADY ? c$case_alt_29 : c$ds_app_arg;
+
+  assign c$case_alt_29 = isLast ? {2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_30;
 
   assign isLast = (wordIdx == 4'd15) & c$isLast_app_arg;
 
-  assign c$case_alt_1 = c$isLast_app_arg ? {2'b10,wordIdx + 4'd1,4'd0,state} : {2'b10,wordIdx,coeffIdx + 4'd1,state};
+  assign c$case_alt_30 = c$isLast_app_arg ? {2'b10,wordIdx + 4'd1,4'd0,state} : {2'b10,wordIdx,coeffIdx + 4'd1,state};
 
   assign state = c$ds_app_arg[1599:0];
 
@@ -204,64 +207,64 @@ module Component_SamplePolyCBD2
 
   assign wordIdx = c$ds_app_arg[1607:1604];
 
-  assign result_2 = (roundIdx == 5'd23) ? {{2'b10,4'd0,4'd0,c$keccakF1600_out}
+  assign result_3 = (roundIdx == 5'd23) ? {{2'b10,4'd0,4'd0,c$keccakF1600_out}
                                           ,{{12'b000000000000,1'b0,1'b0}
                                            ,1'b0}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600_out,3'bxxx}
                                                      ,{{12'b000000000000,1'b0,1'b0},1'b0}};
 
   // replaceBit start
   always_comb begin
-    result_3 = c$app_arg_0;
-    result_3[64'sd512] = (~ (c$app_arg_0[64'sd512]));
+    result_4 = c$app_arg_2;
+    result_4[64'sd1331] = (~ (c$app_arg_2[64'sd1331]));
   end
   // replaceBit end
 
-  assign c$app_arg_0 = result_4;
+  assign c$app_arg_2 = result_5;
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg_1;
-    result_4[64'sd1331] = (~ (c$app_arg_1[64'sd1331]));
+    result_5 = c$app_arg_3;
+    result_5[64'sd1332] = (~ (c$app_arg_3[64'sd1332]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_5;
+  assign c$app_arg_3 = result_6;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_2;
-    result_5[64'sd1332] = (~ (c$app_arg_2[64'sd1332]));
+    result_6 = c$app_arg_4;
+    result_6[64'sd1333] = (~ (c$app_arg_4[64'sd1333]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_6;
+  assign c$app_arg_4 = result_7;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_3;
-    result_6[64'sd1333] = (~ (c$app_arg_3[64'sd1333]));
+    result_7 = c$app_arg_5;
+    result_7[64'sd1334] = (~ (c$app_arg_5[64'sd1334]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_7;
+  assign c$app_arg_5 = result_8;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_4;
-    result_7[64'sd1334] = (~ (c$app_arg_4[64'sd1334]));
+    result_8 = c$app_arg_6;
+    result_8[64'sd1335] = (~ (c$app_arg_6[64'sd1335]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = result_8;
+  assign c$app_arg_6 = ({MSG_33B,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_5;
-    result_8[64'sd1335] = (~ (c$app_arg_5[64'sd1335]));
+    result_9 = c$app_arg_7;
+    result_9[64'sd512] = (~ (c$app_arg_7[64'sd512]));
   end
   // replaceBit end
 
-  assign c$app_arg_5 = ({MSG_33B,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
+  assign c$app_arg_7 = result_4;
 
   Component_SamplePolyCBD2_topEntity_keccakF1600 Component_SamplePolyCBD2_topEntity_keccakF1600_c$keccakF1600_out
     ( .result (c$keccakF1600_out)

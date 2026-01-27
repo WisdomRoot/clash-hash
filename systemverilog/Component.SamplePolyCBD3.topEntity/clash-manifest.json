@@ -35,10 +35,6 @@
             "sha256": "4547f50345a7b71f7774379e26b63b52303d87398a479b03271a86f0f36f23c0"
         },
         {
-            "name": "Component_SamplePolyCBD3_shim.cpp",
-            "sha256": "4547f50345a7b71f7774379e26b63b52303d87398a479b03271a86f0f36f23c0"
-        },
-        {
             "name": "Component_SamplePolyCBD3.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -52,14 +48,14 @@
         },
         {
             "name": "Component_SamplePolyCBD3.sv",
-            "sha256": "454978b09049aa4b99b2deab4f2d5c1dc949d01b396c03b9bbeb933930a43853"
+            "sha256": "81fb3d5ee19812c184a31063ae9b5e09a7827e99ffb2db0026ff1a5e70792c11"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "85f109ef4d83eee6c300574dc734caddd9049ef197a2a6a6db088ec43e2e31d1",
+    "hash": "908f0979d299c164da3a607432e4b539a10de72cf01823d326bcac0402e00a98",
     "top_component": {
         "name": "Component_SamplePolyCBD3",
         "ports_flat": [
