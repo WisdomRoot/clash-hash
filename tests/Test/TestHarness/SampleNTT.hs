@@ -63,10 +63,8 @@ type SampleNTTTopEntity =
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System (BitVector 272) ->
-  Signal System Bool ->
-  Signal System Bool ->
-  Signal System (Bool, AXI4Stream 12)
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 12, Bool)
 
 data SampleNTTParams = SampleNTTParams
   { spReference :: ByteString -> [Word16],
@@ -110,19 +108,19 @@ runSampleNTTTest params test = do
 runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
 runSampleNTTHardware params test =
   let msgBV = bsToBV272 (testMessage test)
-      msgDataSig = pure msgBV
       treadyPattern = backpressurePattern (testDownstreamBackpressure test)
       treadySignal = makeBackpressureSignalRepeat treadyPattern
+      -- Build input AXI4Stream signal from msgBV and msgValidSig
+      msgStreamSig = fmap (\v -> AXI4Stream msgBV v False) msgValidSig
+      inputSig = bundle (msgStreamSig, treadySignal)
       output =
         spTopEntity
           params
           clockGen
           resetGen
           enableGen
-          msgDataSig
-          msgValidSig
-          treadySignal
-      msgReadySig = fmap fst output
+          inputSig
+      msgReadySig = fmap snd output
       (msgValidSig, msgReadyPrevSig) =
         withClockResetEnable clockGen resetGen enableGen $
           let msgReadyPrevSig' = register True msgReadySig
@@ -139,7 +137,7 @@ runSampleNTTHardware params test =
       samples = sampleN @System sampleCount (bundle (output, treadySignal))
       validOutputs =
         [ tdata stream
-          | ((_, stream), ready) <- samples,
+          | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
       coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
