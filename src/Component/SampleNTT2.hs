@@ -43,8 +43,8 @@ topEntity clk rst en inputSig =
 
 data State
   = Idle
-  | Permute (Index 24) (BitVector 1600)
-  | Squeeze (Index 56) (BitVector 1600)
+  | Permute (Index 24) (BitVector 1600) (Maybe (BitVector 12))
+  | Squeeze (Index 112) (BitVector 1600) (Maybe (BitVector 12))
   deriving (Show, Eq, Generic, NFDataX)
 
 -- | Clean hash function for fixed 34-byte input with AXI4-Stream input handshaking
@@ -64,34 +64,51 @@ hash = mealy step Idle
         Idle ->
           -- SEED_TREADY is True, waiting for SEED_TVALID
           if msgValid
-            then (Permute 0 (absorb34 inputMsg), (idleAXI4Stream, False))
+            then (Permute 0 (absorb34 inputMsg) Nothing, (idleAXI4Stream, False))
             else (Idle, (idleAXI4Stream, True))
-        Permute roundIdx state ->
+        Permute roundIdx state buffer ->
           let state' = Permutation.keccakF1600 roundIdx state
            in if roundIdx == maxBound
-                then (Squeeze 0 state', (idleAXI4Stream, False))
-                else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
-        Squeeze index state ->
-          let baseIdx = fromIntegral index * 2 :: Index 112
-              coeff0 = squeezeCoeff12 baseIdx state
-              coeff1 = squeezeCoeff12 (baseIdx + 1) state
-              coeff0Rev = pack (reverse (unpack coeff0 :: Vec 12 Bit))
-              coeff1Rev = pack (reverse (unpack coeff1 :: Vec 12 Bit))
-              coeff0Val = unpack coeff0Rev :: Unsigned 12
-              coeff1Val = unpack coeff1Rev :: Unsigned 12
+                then (Squeeze 0 state' buffer, (idleAXI4Stream, False))
+                else (Permute (roundIdx + 1) state' buffer, (idleAXI4Stream, False))
+        Squeeze index state buffer ->
+          let coeff = squeezeCoeff12 index state
+              coeffRev = pack (reverse (unpack coeff :: Vec 12 Bit))
+              coeffVal = unpack coeffRev :: Unsigned 12
+              coeffValid = coeffVal < (3329 :: Unsigned 12)
+              (pairReady, tdataOut) = case buffer of
+                Just coeff0 ->
+                  if coeffValid
+                    then (True, coeff ++# coeff0)
+                    else (False, 0)
+                Nothing -> (False, 0)
               outStream =
                 AXI4Stream
-                  { tdata = coeff1 ++# coeff0,
-                    tvalid = coeff0Val < (3329 :: Unsigned 12) && coeff1Val < (3329 :: Unsigned 12),
+                  { tdata = tdataOut,
+                    tvalid = pairReady,
                     tlast = False
                   }
+              (nextIndex, nextPhase) =
+                if index == maxBound
+                  then (0, True)
+                  else (index + 1, False)
               nextState =
                 if tready
                   then
-                    if index == maxBound
-                      then Permute 0 state
-                      else Squeeze (index + 1) state
-                  else Squeeze index state
+                    let nextBuffer =
+                          case buffer of
+                            Just _ ->
+                              if coeffValid
+                                then Nothing
+                                else buffer
+                            Nothing ->
+                              if coeffValid
+                                then Just coeff
+                                else Nothing
+                     in if nextPhase
+                          then Permute 0 state nextBuffer
+                          else Squeeze nextIndex state nextBuffer
+                  else Squeeze index state buffer
            in (nextState, (outStream, False))
 
 -- | Absorb 34 bytes: place message and apply padding
