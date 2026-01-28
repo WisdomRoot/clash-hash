@@ -2,11 +2,11 @@
 
 ## Components
 
-### SampleNTT
+### SampleNTT2
 
 Implements FIPS 203 Algorithm 6 (SampleNTT) - rejection sampling for ML-KEM polynomial coefficients.
 
-Module location: `systemverilog/Component.SampleNTT.topEntity/Component_SampleNTT.sv`
+Module location: `systemverilog/Component.SampleNTT2.topEntity/Component_SampleNTT2.sv`
 
 #### Interface
 
@@ -15,15 +15,18 @@ Module location: `systemverilog/Component.SampleNTT.topEntity/Component_SampleNT
 | CLK | in | 1 | Clock |
 | RST | in | 1 | Reset |
 | EN | in | 1 | Enable |
-| MSG_34B | in | 272 | Input: 32-byte ρ + i + j indices (bit-reversed bytes) |
-| DIGEST_TREADY | in | 1 | AXI4-Stream ready (downstream) |
-| DIGEST_TDATA | out | 12 | Coefficient value (bit-reversed) |
-| DIGEST_TVALID | out | 1 | Valid when coefficient < 3329 |
-| DIGEST_TLAST | out | 1 | Last signal (unused, always 0) |
+| SEED_TDATA | in | 272 | 32-byte ρ + i + j indices (bit-reversed bytes) |
+| SEED_TVALID | in | 1 | Input valid |
+| SEED_TLAST | in | 1 | Input last (unused) |
+| COEFF_TREADY | in | 1 | Downstream ready |
+| COEFF_TDATA | out | 24 | Coefficient pair (2 × 12-bit, bit-reversed) |
+| COEFF_TVALID | out | 1 | Valid when coefficient < 3329 |
+| COEFF_TLAST | out | 1 | Last signal (unused, always 0) |
+| SEED_TREADY | out | 1 | Ready to accept input |
 
 #### Input
 
-Fixed-size 272-bit input. No AXI4-Stream interface.
+AXI4-Stream interface with 272-bit data.
 
 | Field | Bits | Description |
 |-------|------|-------------|
@@ -31,7 +34,7 @@ Fixed-size 272-bit input. No AXI4-Stream interface.
 | i     | 8    | Row index |
 | j     | 8    | Column index |
 
-**Bit ordering (REVERSED)** `MSG_34B[271:0]`:
+**Bit ordering (REVERSED)** `SEED_TDATA[271:0]`:
 
 ```
 index: 271    ...  264    263   ... 23     ...  16     15   ...  8     7    ...  0
@@ -42,22 +45,23 @@ data:  ρ₀[0]  ...  ρ₀[7]  ρ₁[0] ... ρ₃₁[0] ...  ρ₃₁[7] i[0] .
 
 #### Output
 
-AXI4-Stream interface with 12-bit data. Produces infinite coefficients via rejection sampling.
+AXI4-Stream interface with 24-bit data (2 × 12-bit coefficient pairs). Produces infinite coefficient pairs via rejection sampling.
 
-| Coefficient | `TVALID` | Action |
-|-------------|----------|--------|
-| 0 – 3328    | 1        | Valid, consume |
-| 3329 – 4095 | 0        | Rejected, ignore |
+| Coefficient | `COEFF_TVALID` | Action |
+|-------------|----------------|--------|
+| 0 – 3328    | 1              | Valid, consume |
+| 3329 – 4095 | 0              | Rejected, ignore |
 
-> **Note**: `TLAST` is always 0. It is the downstream module's responsibility to count and stop after receiving 256 valid coefficients.
+> **Note**: `COEFF_TLAST` is always 0. It is the downstream module's responsibility to count and stop after receiving 256 valid coefficients.
 
-**Bit ordering (REVERSED)** `DIGEST_TDATA[11:0]`:
+**Bit ordering (REVERSED)** `COEFF_TDATA[23:0]`:
 
 ```
-index:  11     10     9      8      7      6      5      4      3      2      1      0
-data:   c[0]   c[1]   c[2]   c[3]   c[4]   c[5]   c[6]   c[7]   c[8]   c[9]   c[10]  c[11]
+index:  23-12 (newer)                                         11-0 (older)
+data:   c_new[0] c_new[1] ... c_new[10] c_new[11]             c_old[0] c_old[1] ... c_old[10] c_old[11]
 ```
 
+> bits 23:12 = newer valid coefficient, bits 11:0 = older valid coefficient (buffered or first of pair)
 > `c[0]` = LSB of coefficient, `c[11]` = MSB of coefficient
 
 ## Scripts / Commands
