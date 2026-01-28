@@ -161,6 +161,22 @@ simulateTimingN coeffsPerBeat validityPattern upstreamStall backpressure =
         NoUpstreamStall -> 0
         UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
       bpPattern = P.cycle (backpressurePattern backpressure)
+      beatsPerBlock =
+        case 112 `P.mod` coeffsPerBeat of
+          0 -> 112 `P.div` coeffsPerBeat
+          _ -> P.error "simulateTimingN: coeffsPerBeat must divide 112"
+      consumeVals :: Int -> [Bool] -> (Int, Bool)
+      consumeVals bufferLen vals = go bufferLen False vals
+        where
+          go bl emitted [] = (bl, emitted)
+          go bl emitted (v : vs) =
+            let bl' = if v then bl P.+ 1 else bl
+             in if emitted
+                  then go bl' True vs
+                  else
+                    if bl' P.>= coeffsPerBeat
+                      then go (bl' P.- coeffsPerBeat) True vs
+                      else go bl' False vs
       simulateSqueeze ::
         Int ->
         Int ->
@@ -171,23 +187,20 @@ simulateTimingN coeffsPerBeat validityPattern upstreamStall backpressure =
         where
           go cycles squeezeIdx validCnt bufferLen val bpPat
             | validCnt P.>= 256 = (cycles, validCnt, bufferLen, bpPat, val)
-            | squeezeIdx P.>= 112 = (cycles, validCnt, bufferLen, bpPat, val)
+            | squeezeIdx P.>= beatsPerBlock = (cycles, validCnt, bufferLen, bpPat, val)
             | P.otherwise =
                 let (tready, bpPat') = case bpPat of
                       [] -> (True, [])
                       (b : bs) -> (b, bs)
                  in if P.not tready
                       then go (cycles P.+ 1) squeezeIdx validCnt bufferLen val bpPat'
-                      else case val of
-                        [] -> P.error "simulateTimingN: validity pattern exhausted"
-                        (v : vs) ->
-                          let bufferLen' = if v then bufferLen P.+ 1 else bufferLen
-                              (bufferLen'', emitted) =
-                                if bufferLen' P.>= coeffsPerBeat
-                                  then (bufferLen' P.- coeffsPerBeat, coeffsPerBeat)
-                                  else (bufferLen', 0)
-                              validCnt' = validCnt P.+ emitted
-                           in go (cycles P.+ 1) (squeezeIdx P.+ 1) validCnt' bufferLen'' vs bpPat'
+                      else
+                        let (vals, val') = P.splitAt coeffsPerBeat val
+                            (bufferLen', emitted) = consumeVals bufferLen vals
+                            validCnt' = if emitted then validCnt P.+ coeffsPerBeat else validCnt
+                         in if P.length vals P.< coeffsPerBeat P.&& validCnt' P.< 256
+                              then P.error "simulateTimingN: validity pattern exhausted"
+                              else go (cycles P.+ 1) (squeezeIdx P.+ 1) validCnt' bufferLen' val' bpPat'
       simulateBlocks ::
         Int ->
         Int ->
