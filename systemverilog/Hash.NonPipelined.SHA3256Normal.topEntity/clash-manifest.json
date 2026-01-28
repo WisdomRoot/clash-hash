@@ -1,0 +1,129 @@
+{
+    "components": [
+        "Hash_NonPipelined_SHA3256Normal_topEntity_pad",
+        "Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM",
+        "SHA3_256_NonPipelined_Normal"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "SHA3_256_NonPipelined_Normal_shim.cpp",
+            "sha256": "f3502e6df5dd82c7f82a8c442b1c6f6dcbc1965e51dcf97bb98c165f4dc33854"
+        },
+        {
+            "name": "SHA3_256_NonPipelined_Normal.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "SHA3_256_NonPipelined_Normal_types.sv",
+            "sha256": "9a8896e059310fad82d445370b9bc911b382bba8dfc0d248bf33fffa7f352698"
+        },
+        {
+            "name": "Hash_NonPipelined_SHA3256Normal_topEntity_pad.sv",
+            "sha256": "6f15c0e938de57aa26b3f568b0c4bb057d85c473112645afe18bd699e76340de"
+        },
+        {
+            "name": "Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM.sv",
+            "sha256": "cd8ca2c9d06beb2ae9eeff44e867382131a75cd95c30e5f81e97cee13b10c873"
+        },
+        {
+            "name": "SHA3_256_NonPipelined_Normal.sv",
+            "sha256": "6c65817fcb18647cab6aa086e92f19cff797a81161062fbf626e808624794deb"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "c32ac670601381eef893df0abc0985a515d0f9b0802a4b8902f176d65719928f",
+    "top_component": {
+        "name": "SHA3_256_NonPipelined_Normal",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "TREADY",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_MSG_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_MSG_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
+            }
+        ]
+    },
+    "version": "unstable"
+}

@@ -6,6 +6,7 @@ module Main (main) where
 import Test.Combinational qualified
 import Test.Constants qualified
 import Test.NonPipelined.SHA3256 qualified
+import Test.NonPipelined.SHA3256Normal qualified
 import Test.NonPipelined.SHA3512 qualified
 import Test.NonPipelined.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
@@ -33,6 +34,7 @@ main = do
   samplePolyCBD3Tests <- testSpec "SamplePolyCBD3" Test.SamplePolyCBD3.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
+  n256NormalTests <- testSpec "NonPipelined SHA3-256 Normal" Test.NonPipelined.SHA3256Normal.spec
   n512Tests <- testSpec "NonPipelined SHA3-512" Test.NonPipelined.SHA3512.spec
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
@@ -55,6 +57,7 @@ main = do
         samplePolyCBD3Tests,
         combinationalTests,
         n256Tests,
+        n256NormalTests,
         n512Tests,
         n256xTests,
         n128xTests,
