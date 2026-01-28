@@ -1,62 +1,82 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.TestHarness.SampleNTT2
-  ( ShakeTest,
+module Test.TestHarness.SampleNTT.Harness
+  ( UpstreamStall (..),
+    DownstreamBackpressure (..),
+    ShakeTest (..),
+    testLabel,
+    makeBasicTest,
+    makeVariableOutputTest,
+    makeStallTest,
+    makeBackpressureTest,
+    makeCombinedTest,
+    SampleNTTParams (..),
+    SampleNTTTopEntity,
+    runSampleNTTTest,
+    runSampleNTTHardware,
+    unpackPython384Bytes,
+    getTimingInfo,
+    simulateTiming,
     runTest,
     runHardware,
-    testLabel,
   )
 where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
-import Component.SampleNTT2 qualified as SampleNTT2
+import Component.SampleNTT qualified as SampleNTT
 import Data.ByteString (ByteString)
 import Data.Word (Word16)
 import Test.Hspec (Expectation, shouldBe)
 import Test.TestHarness.SampleNTT.Common
-  ( ShakeTest (..),
+  ( DownstreamBackpressure (..),
+    ShakeTest (..),
+    UpstreamStall (..),
     backpressurePattern,
     bsToBV272,
     externalSampleNTTPacked,
     getTimingInfo,
     makeBackpressureSignalRepeat,
+    makeBackpressureTest,
+    makeBasicTest,
+    makeCombinedTest,
+    makeStallTest,
     makeUpstreamValidSignal,
+    makeVariableOutputTest,
     reverseBits12Word,
     sampleCountMargin,
-    simulateTiming2,
-    splitCoeffsN,
+    simulateTiming,
     testLabel,
     unpackPython384Bytes,
   )
 import Prelude qualified as P
 
 --------------------------------------------------------------------------------
--- SampleNTT2-specific types
+-- SampleNTT-specific types
 --------------------------------------------------------------------------------
 
-type SampleNTT2TopEntity =
+type SampleNTTTopEntity =
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
-  Signal System (AXI4Stream 24, Bool)
+  Signal System (AXI4Stream 12, Bool)
 
-data SampleNTT2Params = SampleNTT2Params
+data SampleNTTParams = SampleNTTParams
   { spReference :: ByteString -> [Word16],
-    spTopEntity :: SampleNTT2TopEntity
+    spTopEntity :: SampleNTTTopEntity
   }
 
 --------------------------------------------------------------------------------
 -- Default harness configuration
 --------------------------------------------------------------------------------
 
-sampleNTT2Params :: SampleNTT2Params
-sampleNTT2Params =
-  SampleNTT2Params
+sampleNTTParams :: SampleNTTParams
+sampleNTTParams =
+  SampleNTTParams
     { spReference = unpackPython384Bytes . externalSampleNTTPacked,
-      spTopEntity = SampleNTT2.topEntity
+      spTopEntity = SampleNTT.topEntity
     }
 
 --------------------------------------------------------------------------------
@@ -64,24 +84,26 @@ sampleNTT2Params =
 --------------------------------------------------------------------------------
 
 runTest :: ShakeTest -> Expectation
-runTest = runSampleNTT2Test sampleNTT2Params
+runTest = runSampleNTTTest sampleNTTParams
 
 runHardware :: ShakeTest -> [Word16]
-runHardware = runSampleNTT2Hardware sampleNTT2Params
+runHardware = runSampleNTTHardware sampleNTTParams
 
-runSampleNTT2Test :: SampleNTT2Params -> ShakeTest -> Expectation
-runSampleNTT2Test params test = do
+runSampleNTTTest :: SampleNTTParams -> ShakeTest -> Expectation
+runSampleNTTTest params test = do
   let expected = P.map reverseBits12Word (spReference params (testMessage test))
-      actual = runSampleNTT2Hardware params test
+      actual = runSampleNTTHardware params test
   P.length actual `shouldBe` 256
   P.length expected `shouldBe` 256
   actual `shouldBe` expected
 
-runSampleNTT2Hardware :: SampleNTT2Params -> ShakeTest -> [Word16]
-runSampleNTT2Hardware params test =
+runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
+runSampleNTTHardware params test =
   let msgBV = bsToBV272 (testMessage test)
       treadyPattern = backpressurePattern (testDownstreamBackpressure test)
       treadySignal = makeBackpressureSignalRepeat treadyPattern
+      msgStreamSig = fmap (\v -> AXI4Stream msgBV v False) msgValidSig
+      inputSig = bundle (msgStreamSig, treadySignal)
       output =
         spTopEntity
           params
@@ -89,8 +111,6 @@ runSampleNTT2Hardware params test =
           resetGen
           enableGen
           inputSig
-      msgStreamSig = fmap (\v -> AXI4Stream msgBV v False) msgValidSig
-      inputSig = bundle (msgStreamSig, treadySignal)
       msgReadySig = fmap snd output
       (msgValidSig, msgReadyPrevSig) =
         withClockResetEnable clockGen resetGen enableGen $
@@ -99,7 +119,7 @@ runSampleNTT2Hardware params test =
            in (msgValidSig', msgReadyPrevSig')
       validityPattern = getTimingInfo (testMessage test)
       sampleCount =
-        simulateTiming2
+        simulateTiming
           validityPattern
           (testUpstreamStall test)
           (testDownstreamBackpressure test)
@@ -110,13 +130,13 @@ runSampleNTT2Hardware params test =
           | ((stream, _), ready) <- samples,
             tvalid stream P.&& ready
         ]
-      coeffs = P.take 256 (P.concatMap (splitCoeffsN @2) validOutputs)
+      coeffs = P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
       readySamples = sampleN @System sampleCount (bundle (msgValidSig, msgReadyPrevSig))
       readyViolations = [() | (valid, readyPrev) <- readySamples, valid P.&& P.not readyPrev]
       handshakes = [() | (valid, readyPrev) <- readySamples, valid P.&& readyPrev]
    in if P.null readyViolations
         then
           if P.null handshakes
-            then P.error "SampleNTT2: MSG_TVALID never asserted after MSG_TREADY"
+            then P.error "SampleNTT: MSG_TVALID never asserted after MSG_TREADY"
             else coeffs
-        else P.error "SampleNTT2: MSG_TVALID asserted without MSG_TREADY in previous cycle"
+        else P.error "SampleNTT: MSG_TVALID asserted without MSG_TREADY in previous cycle"

@@ -4,7 +4,7 @@ import Data.Foldable (for_)
 import Prelude
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (forAll, withMaxSuccess)
-import Test.TestHarness.SampleNTT (runTest, testLabel)
+import Test.TestHarness.SampleNTT.Harness (runTest, testLabel)
 import Test.TestHarness.SampleNTTSamples qualified as Samples
 
 spec :: Spec
