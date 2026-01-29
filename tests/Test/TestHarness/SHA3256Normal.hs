@@ -193,9 +193,7 @@ bitListToWords1088 n bits =
     accumBit acc (i, b) = if b == 1 then Bits.setBit acc i else acc
 
 wordToBits1088 :: BitVector 1088 -> [Bit]
-wordToBits1088 w = 
-    [if Bits.testBit w i then 1 else 0 | i <- [1087, 1086 .. 0]]
-    -- [if Bits.testBit w i then 1 else 0 | i <- [0 .. 1087]]
+wordToBits1088 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 1087]]
 
 testLabel :: SHA3256NormalTest -> String
 testLabel = Common.testLabel

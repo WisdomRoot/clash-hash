@@ -10,6 +10,7 @@ module Sponge.NonPipelinedN
     complementAt,
     absorb,
     permute,
+    rev
   )
 where
 
@@ -85,6 +86,9 @@ absorb pad xorFn counter state input flush
   where
     maxAbsorbBeat = maxBound
 
+rev :: KnownNat n => BitVector n -> BitVector n
+rev = (pack :: KnownNat n => Vec n Bit -> BitVector n) . reverse . (unpack :: KnownNat n => BitVector n -> Vec n Bit)
+
 permute ::
   (KnownNat k, KnownNat n) =>
   (Index 24 -> BitVector 1600 -> BitVector 1600) ->
@@ -100,7 +104,7 @@ permute permModule pad counter seenTLAST state tready =
    in if counter == 23
         then case seenTLAST of
           SeenTLASTAndPadded ->
-            let outStream = AXI4Stream {tdata = outData, tvalid = True, tlast = True}
+            let outStream = AXI4Stream {tdata = rev outData, tvalid = True, tlast = True}
                 nextState = if tready then State (Absorb 0) 0 else State (Squeeze 0) state'
              in (nextState, (outStream, False))
           SeenTLASTNotPadded ->

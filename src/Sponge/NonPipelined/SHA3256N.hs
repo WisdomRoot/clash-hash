@@ -42,6 +42,6 @@ sponge permModule = mealy step (State (Absorb 0) 0)
     step (State (Absorb counter) state) (input, _tready, flush) = absorb pad xorFullRate counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
     step (State (Squeeze _counter) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = squeezeSlice state, tvalid = True, tlast = True}
+      let outStream = AXI4Stream {tdata = rev (squeezeSlice state), tvalid = True, tlast = True}
           nextState = if tready then State (Absorb 0) 0 else State (Squeeze 0) state
        in (nextState, (outStream, False))
