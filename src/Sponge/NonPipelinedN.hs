@@ -99,12 +99,12 @@ permute ::
   Bool ->
   (State k (Index n), (AXI4Stream DigestBits, Bool))
 permute permModule pad counter seenTLAST state tready =
-  let state' = permModule counter state
-      outData = slice (SNat @1599) (SNat @1056) state'
+  let state' = rev $ permModule counter (rev state)
+      outData = slice (SNat @543) (SNat @0) state'
    in if counter == 23
         then case seenTLAST of
           SeenTLASTAndPadded ->
-            let outStream = AXI4Stream {tdata = rev outData, tvalid = True, tlast = False}
+            let outStream = AXI4Stream {tdata = outData, tvalid = True, tlast = False}
                 nextState = if tready then State (Squeeze 1) state' else State (Squeeze 0) state'
              in (nextState, (outStream, False))
           SeenTLASTNotPadded ->

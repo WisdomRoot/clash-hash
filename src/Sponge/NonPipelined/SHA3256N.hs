@@ -11,18 +11,18 @@ import Sponge.NonPipelinedN
 
 -- | Padding function + XOR, flips 3 bits depending on the current beatCounter
 pad :: Index 1 -> BitVector 1600 -> BitVector 1600
-pad _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- whole 1088-bit padding
+pad _ = complementAt (1599 - 512) . complementAt (1599 - 1597) . complementAt (1599 - 1598) -- whole 1088-bit padding
 
 -- | Squeeze phase bit slicing helper: extracts 544-bit chunks from the Keccak state
 squeezeSlice :: Index 2 -> BitVector 1600 -> BitVector 544
-squeezeSlice 0 state = rev $ slice (SNat @1599) (SNat @1056) state
-squeezeSlice _ state = rev $ slice (SNat @1055) (SNat @512) state
+squeezeSlice 0 state = slice (SNat @543) (SNat @0) state
+squeezeSlice _ state = slice (SNat @1087) (SNat @544) state
 
 xorFullRate :: BitVector 1600 -> BitVector 1088 -> Index 1 -> BitVector 1600
 xorFullRate state block _ =
-  let sliceState = rev (slice (SNat @1599) (SNat @512) state)
+  let sliceState = slice (SNat @1087) (SNat @0) state
       updated = sliceState `xor` block
-   in setSlice (SNat @1599) (SNat @512) (rev updated) state
+   in setSlice (SNat @1087) (SNat @0) updated state
 
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
