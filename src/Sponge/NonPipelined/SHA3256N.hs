@@ -19,9 +19,9 @@ squeezeSlice = slice (SNat @1599) (SNat @512)
 
 xorFullRate :: BitVector 1600 -> BitVector 1088 -> Index 1 -> BitVector 1600
 xorFullRate state block _ =
-  let sliceState = slice (SNat @1599) (SNat @512) state
+  let sliceState = rev (slice (SNat @1599) (SNat @512) state)
       updated = sliceState `xor` block
-   in setSlice (SNat @1599) (SNat @512) updated state
+   in setSlice (SNat @1599) (SNat @512) (rev updated) state
 
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}

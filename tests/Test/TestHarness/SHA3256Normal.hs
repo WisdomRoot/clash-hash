@@ -187,8 +187,8 @@ bitListToWords1088 n bits =
     chunksOf m xs = P.take m xs : chunksOf m (P.drop m xs)
     bitsToWord bs =
       let paddedBits = P.take 1088 (bs P.++ P.repeat 0)
-          word = P.foldl accumBit 0 (P.zip [1087, 1086 .. 0] paddedBits)
-          -- word = P.foldl accumBit 0 (P.zip [0 .. 1087] paddedBits)
+          -- word = P.foldl accumBit 0 (P.zip [1087, 1086 .. 0] paddedBits)
+          word = P.foldl accumBit 0 (P.zip [0 .. 1087] paddedBits)
        in word
     accumBit acc (i, b) = if b == 1 then Bits.setBit acc i else acc
 
