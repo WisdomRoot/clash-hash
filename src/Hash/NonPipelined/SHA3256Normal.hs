@@ -23,7 +23,7 @@ type DigestBits = 544
 -- OPAQUE ensures module boundary; function name determines module name
 {-# OPAQUE spongeFSM #-}
 spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
-spongeFSM = Permutation.keccakF1600
+spongeFSM = Permutation.keccakF1600Normal
 
 {-# ANN
   topEntity

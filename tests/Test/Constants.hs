@@ -14,7 +14,7 @@ spec :: Spec
 spec = describe "Constants" $ do
   it "iota round constants match reference" $ do
     let expected = SHA3internal._iota_constants :: Vec 24 (Vec 64 Bit)
-    let actual = $(Permutation.Constants.iota) :: Vec 24 (Vec 64 Bit)
+    let actual = $(Permutation.Constants.iotaReversed) :: Vec 24 (Vec 64 Bit)
     actual `shouldBe` expected
 
   it "theta 6 reversed matches reference" $ do

@@ -10,6 +10,7 @@ module Permutation
 
     -- * Permutation
     keccakF1600,
+    keccakF1600Normal,
     keccakF160024,
 
     -- * Top entity
@@ -29,6 +30,9 @@ infixr 7 ^^^ -- infixl 7 would generate inefficient verilog!!
 
 rotateRight1 :: (KnownNat n) => Vec n a -> Vec n a
 rotateRight1 x = rotateRightS x d1
+
+rotateLeft1 :: (KnownNat n) => Vec n a -> Vec n a
+rotateLeft1 x = rotateLeftS x d1
 
 --------------------------------------------------------------------------------
 -- Round primitives
@@ -68,17 +72,61 @@ thetaF1600Reversed bv =
       outputState = imap (applyX . resize . (`mod` 5)) state
    in concat outputState
 
+thetaF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+thetaF1600 bv =
+  let -- Unpack to 5×5×64: Vec 5 (Vec 5 (Vec 64 Bit))
+      state :: Vec 25 (Vec 64 Bit)
+      state = unconcatI bv
+
+      -- Helper: get lane at index i
+      lane :: Index 25 -> Vec 64 Bit
+      lane i = state !! (24 - i)
+
+      -- Stage 1: Compute column parity for each column: XOR all 5 lanes
+      parity0 = lane 0 ^^^ lane 5 ^^^ lane 10 ^^^ lane 15 ^^^ lane 20
+      parity1 = lane 1 ^^^ lane 6 ^^^ lane 11 ^^^ lane 16 ^^^ lane 21
+      parity2 = lane 2 ^^^ lane 7 ^^^ lane 12 ^^^ lane 17 ^^^ lane 22
+      parity3 = lane 3 ^^^ lane 8 ^^^ lane 13 ^^^ lane 18 ^^^ lane 23
+      parity4 = lane 4 ^^^ lane 9 ^^^ lane 14 ^^^ lane 19 ^^^ lane 24
+
+      -- Stage 2: Apply theta to each lane
+      -- For each lane, we need to XOR with two column parities
+      -- output[y][x][z] = state[y][x][z] XOR parity[(x-1) mod 5][z] XOR parity[(x+1) mod 5][(z-1) mod 64]
+      applyX :: Index 5 -> Vec 64 Bit -> Vec 64 Bit
+      applyX 0 x = reverse x ^^^ parity4 ^^^ rotateLeft1 parity1
+      applyX 1 x = reverse x ^^^ parity0 ^^^ rotateLeft1 parity2
+      applyX 2 x = reverse x ^^^ parity1 ^^^ rotateLeft1 parity3
+      applyX 3 x = reverse x ^^^ parity2 ^^^ rotateLeft1 parity4
+      applyX _ x = reverse x ^^^ parity3 ^^^ rotateLeft1 parity0
+
+      f :: Index 25 -> Vec 64 Bit -> Vec 64 Bit
+      f i = (applyX . resize . (`mod` 5) . (24 - )) i . reverse
+
+      -- Apply to all 25 lanes based on their column (i mod 5)
+      outputState :: Vec 25 (Vec 64 Bit)
+      outputState = imap f state
+   in concat outputState
+
 -- Chi transformation
 chiF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
 chiF1600Reversed bv = map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) Constants.chi6Reversed
+
+chiF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+chiF1600 bv = map (\(i0, i1, i2) -> bv ! i0 `xor` (complement (bv ! i1) .&. bv ! i2)) Constants.chi6
 
 -- Pi transformation: bit permutation
 piF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
 piF1600Reversed bv = map (bv !) Constants.pi6Reversed
 
+piF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+piF1600 bv = map (bv !) Constants.pi6
+
 -- Rho transformation: bit permutation (lane rotation)
 rhoF1600Reversed :: Vec 1600 Bit -> Vec 1600 Bit
 rhoF1600Reversed bv = map (bv !) Constants.rho6Reversed
+
+rhoF1600 :: Vec 1600 Bit -> Vec 1600 Bit
+rhoF1600 bv = map (bv !) Constants.rho6
 
 -- Iota transformation: XOR lane 0 with round constant (pure BitVector version)
 iotaF1600Reversed :: Index 24 -> BitVector 1600 -> BitVector 1600
@@ -86,9 +134,18 @@ iotaF1600Reversed roundIdx bv =
   let lane0 :: BitVector 64
       lane0 = slice (SNat @1599) (SNat @1536) bv
       rc :: BitVector 64
-      rc = pack ($(Constants.iota) !! roundIdx)
+      rc = pack ($(Constants.iotaReversed) !! roundIdx)
       lane0' = lane0 `xor` rc
    in setSlice (SNat @1599) (SNat @1536) lane0' bv
+
+iotaF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
+iotaF1600 roundIdx bv =
+  let lane0 :: BitVector 64
+      lane0 = slice (SNat @63) (SNat @0) bv
+      rc :: BitVector 64
+      rc = pack ($(Constants.iota) !! roundIdx)
+      lane0' = lane0 `xor` rc
+   in setSlice (SNat @63) (SNat @0) lane0' bv
 
 --------------------------------------------------------------------------------
 -- Permutation
@@ -108,6 +165,20 @@ keccakF1600 roundIdx =
     . piF1600Reversed
     . rhoF1600Reversed
     . thetaF1600Reversed
+    . unpack
+
+rev :: KnownNat n => BitVector n -> BitVector n
+rev = (pack :: KnownNat n => Vec n Bit -> BitVector n) . reverse . (unpack :: KnownNat n => BitVector n -> Vec n Bit)
+
+{-# OPAQUE keccakF1600Normal #-}
+keccakF1600Normal :: Index 24 -> BitVector 1600 -> BitVector 1600
+keccakF1600Normal roundIdx =
+  iotaF1600 roundIdx
+    . pack
+    . chiF1600
+    . piF1600
+    . rhoF1600
+    . thetaF1600
     . unpack
 
 keccakF160024 :: BitVector 1600 -> BitVector 1600

@@ -9,8 +9,7 @@ module Sponge.NonPipelinedN
     SeenTLAST (..),
     complementAt,
     absorb,
-    permute,
-    rev
+    permute
   )
 where
 
@@ -86,9 +85,6 @@ absorb pad xorFn counter state input flush
   where
     maxAbsorbBeat = maxBound
 
-rev :: KnownNat n => BitVector n -> BitVector n
-rev = (pack :: KnownNat n => Vec n Bit -> BitVector n) . reverse . (unpack :: KnownNat n => BitVector n -> Vec n Bit)
-
 permute ::
   (KnownNat k, KnownNat n) =>
   (Index 24 -> BitVector 1600 -> BitVector 1600) ->
@@ -99,7 +95,7 @@ permute ::
   Bool ->
   (State k (Index n), (AXI4Stream DigestBits, Bool))
 permute permModule pad counter seenTLAST state tready =
-  let state' = rev $ permModule counter (rev state)
+  let state' = permModule counter state
       outData = slice (SNat @543) (SNat @0) state'
    in if counter == 23
         then case seenTLAST of
