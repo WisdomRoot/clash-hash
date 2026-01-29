@@ -9,8 +9,10 @@ module Test.TestHarness.SHAKESamples
     msg1408,
     msg1600,
     msg2016,
+    msg2176,
     msg2688,
     msg3200,
+    msg3264,
     stallPatternSimple,
     stallPatternModerate,
     stallPatternAggressive,
@@ -82,11 +84,17 @@ msg1600 = BS8.pack $ take 200 (cycle "0123456789")
 msg2016 :: ByteString
 msg2016 = BS8.pack $ take 256 (cycle "0123456789abcdef")  -- 256 bytes = 32 * 8 (multiple of 8)
 
+msg2176 :: ByteString
+msg2176 = BS8.pack $ take 272 (cycle "abcdef0123456789")
+
 msg2688 :: ByteString
 msg2688 = BS8.pack $ take 336 (cycle "qwertyuiopasdfgh")
 
 msg3200 :: ByteString
 msg3200 = BS8.pack $ take 400 (cycle "abcdef0123456789")
+
+msg3264 :: ByteString
+msg3264 = BS8.pack $ take 408 (cycle "0123456789abcdef")
 
 msg8 :: ByteString
 msg8 = "qwertyui"

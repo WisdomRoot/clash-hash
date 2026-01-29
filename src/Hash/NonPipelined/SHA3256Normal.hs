@@ -15,9 +15,9 @@ import Sponge.NonPipelined.SHA3256N qualified
 -- NonPipelined SHA3-256 Top Entity
 --------------------------------------------------------------------------------
 
-type MsgBits = 64
+type MsgBits = 1088
 
-type DigestBits = 64
+type DigestBits = 1088
 
 -- Wrapper function for module naming control
 -- OPAQUE ensures module boundary; function name determines module name
