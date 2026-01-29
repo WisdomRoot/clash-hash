@@ -19,7 +19,7 @@ import Clash.Prelude hiding (permute, tlast)
 
 type MsgBits = 1088
 
-type DigestBits = 1088
+type DigestBits = 544
 
 data SeenTLAST
   = SeenTLASTAndPadded -- final block has been absorbed and padded
@@ -100,12 +100,12 @@ permute ::
   (State k (Index n), (AXI4Stream DigestBits, Bool))
 permute permModule pad counter seenTLAST state tready =
   let state' = permModule counter state
-      outData = slice (SNat @1599) (SNat @512) state'
+      outData = slice (SNat @1599) (SNat @1056) state'
    in if counter == 23
         then case seenTLAST of
           SeenTLASTAndPadded ->
-            let outStream = AXI4Stream {tdata = rev outData, tvalid = True, tlast = True}
-                nextState = if tready then State (Absorb 0) 0 else State (Squeeze 0) state'
+            let outStream = AXI4Stream {tdata = rev outData, tvalid = True, tlast = False}
+                nextState = if tready then State (Squeeze 1) state' else State (Squeeze 0) state'
              in (nextState, (outStream, False))
           SeenTLASTNotPadded ->
             let padded = pad maxBound state'

@@ -13,9 +13,10 @@ import Sponge.NonPipelinedN
 pad :: Index 1 -> BitVector 1600 -> BitVector 1600
 pad _ = complementAt 512 . complementAt 1597 . complementAt 1598 -- whole 1088-bit padding
 
--- | Squeeze phase bit slicing helper: extracts 64-bit chunks from the Keccak state
-squeezeSlice :: BitVector 1600 -> BitVector 1088
-squeezeSlice = slice (SNat @1599) (SNat @512)
+-- | Squeeze phase bit slicing helper: extracts 544-bit chunks from the Keccak state
+squeezeSlice :: Index 2 -> BitVector 1600 -> BitVector 544
+squeezeSlice 0 state = rev $ slice (SNat @1599) (SNat @1056) state
+squeezeSlice _ state = rev $ slice (SNat @1055) (SNat @512) state
 
 xorFullRate :: BitVector 1600 -> BitVector 1088 -> Index 1 -> BitVector 1600
 xorFullRate state block _ =
@@ -38,10 +39,15 @@ sponge ::
   Signal dom (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
 sponge permModule = mealy step (State (Absorb 0) 0)
   where
-    step :: State 1 (Index 1) -> (AXI4Stream MsgBits, Bool, Bool) -> (State 1 (Index 1), (AXI4Stream DigestBits, Bool))
+    step :: State 1 (Index 2) -> (AXI4Stream MsgBits, Bool, Bool) -> (State 1 (Index 2), (AXI4Stream DigestBits, Bool))
     step (State (Absorb counter) state) (input, _tready, flush) = absorb pad xorFullRate counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
-    step (State (Squeeze _counter) state) (_msg, tready, _flush) =
-      let outStream = AXI4Stream {tdata = rev (squeezeSlice state), tvalid = True, tlast = True}
-          nextState = if tready then State (Absorb 0) 0 else State (Squeeze 0) state
-       in (nextState, (outStream, False))
+    step (State (Squeeze counter) state) (_msg, tready, _flush)
+      | counter == maxBound =
+          let outStream = AXI4Stream {tdata = squeezeSlice counter state, tvalid = True, tlast = True}
+              nextState = if tready then State (Absorb 0) 0 else State (Squeeze counter) state
+           in (nextState, (outStream, False))
+      | otherwise =
+          let outStream = AXI4Stream {tdata = squeezeSlice counter state, tvalid = True, tlast = False}
+              nextState = if tready then State (Squeeze (counter + 1)) state else State (Squeeze counter) state
+           in (nextState, (outStream, False))

@@ -36,7 +36,7 @@ type SHA3256NormalTopEntity =
   Enable System ->
   Signal System Bool ->
   Signal System (AXI4Stream 1088, Bool) ->
-  Signal System (AXI4Stream 1088, Bool)
+  Signal System (AXI4Stream 544, Bool)
 
 data SHA3256NormalParams = SHA3256NormalParams
   { spBeatsPerBlock :: Int,
@@ -112,16 +112,17 @@ runHardwareKnown params test beats beatsPerBlock =
           treadySignal
           inputStream
       outputBits = testOutputBytes test P.* 8
-      outputBeats = (outputBits P.+ 1087) `P.div` 1088
-      squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
+      outputBeats = (outputBits P.+ 543) `P.div` 544
+      outputBeatsPerBlock = 2
+      squeezesNeeded = (outputBeats P.+ outputBeatsPerBlock - 1) `P.div` outputBeatsPerBlock
       sampleCount =
         beats P.* 2
           P.+ 24
-          P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
+          P.+ squeezesNeeded P.* (outputBeatsPerBlock P.+ 24)
           P.+ 200
       samples = sampleN @System sampleCount output
       validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
-      outputWordBits = P.concatMap wordToBits1088 (P.take outputBeats validOutputs)
+      outputWordBits = P.concatMap wordToBits544 (P.take outputBeats validOutputs)
       resultBits = P.take outputBits outputWordBits
    in bitListToBSHW resultBits
 
@@ -192,8 +193,8 @@ bitListToWords1088 n bits =
        in word
     accumBit acc (i, b) = if b == 1 then Bits.setBit acc i else acc
 
-wordToBits1088 :: BitVector 1088 -> [Bit]
-wordToBits1088 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 1087]]
+wordToBits544 :: BitVector 544 -> [Bit]
+wordToBits544 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 543]]
 
 testLabel :: SHA3256NormalTest -> String
 testLabel = Common.testLabel

@@ -17,7 +17,7 @@ import Sponge.NonPipelined.SHA3256N qualified
 
 type MsgBits = 1088
 
-type DigestBits = 1088
+type DigestBits = 544
 
 -- Wrapper function for module naming control
 -- OPAQUE ensures module boundary; function name determines module name
