@@ -80,31 +80,28 @@ thetaF1600 bv =
 
       -- Helper: get lane at index i
       lane :: Index 25 -> Vec 64 Bit
-      lane i = state !! (24 - i)
+      lane i = state !! i
 
       -- Stage 1: Compute column parity for each column: XOR all 5 lanes
-      parity0 = lane 0 ^^^ lane 5 ^^^ lane 10 ^^^ lane 15 ^^^ lane 20
-      parity1 = lane 1 ^^^ lane 6 ^^^ lane 11 ^^^ lane 16 ^^^ lane 21
+      parity0 = lane 4 ^^^ lane 9 ^^^ lane 14 ^^^ lane 19 ^^^ lane 24
+      parity1 = lane 3 ^^^ lane 8 ^^^ lane 13 ^^^ lane 18 ^^^ lane 23
       parity2 = lane 2 ^^^ lane 7 ^^^ lane 12 ^^^ lane 17 ^^^ lane 22
-      parity3 = lane 3 ^^^ lane 8 ^^^ lane 13 ^^^ lane 18 ^^^ lane 23
-      parity4 = lane 4 ^^^ lane 9 ^^^ lane 14 ^^^ lane 19 ^^^ lane 24
+      parity3 = lane 1 ^^^ lane 6 ^^^ lane 11 ^^^ lane 16 ^^^ lane 21
+      parity4 = lane 0 ^^^ lane 5 ^^^ lane 10 ^^^ lane 15 ^^^ lane 20
 
       -- Stage 2: Apply theta to each lane
       -- For each lane, we need to XOR with two column parities
       -- output[y][x][z] = state[y][x][z] XOR parity[(x-1) mod 5][z] XOR parity[(x+1) mod 5][(z-1) mod 64]
       applyX :: Index 5 -> Vec 64 Bit -> Vec 64 Bit
-      applyX 0 x = reverse x ^^^ parity4 ^^^ rotateLeft1 parity1
-      applyX 1 x = reverse x ^^^ parity0 ^^^ rotateLeft1 parity2
-      applyX 2 x = reverse x ^^^ parity1 ^^^ rotateLeft1 parity3
-      applyX 3 x = reverse x ^^^ parity2 ^^^ rotateLeft1 parity4
-      applyX _ x = reverse x ^^^ parity3 ^^^ rotateLeft1 parity0
-
-      f :: Index 25 -> Vec 64 Bit -> Vec 64 Bit
-      f i = (applyX . resize . (`mod` 5) . (24 - )) i . reverse
+      applyX 0 x = x ^^^ parity3 ^^^ rotateLeft1 parity0
+      applyX 1 x = x ^^^ parity2 ^^^ rotateLeft1 parity4
+      applyX 2 x = x ^^^ parity1 ^^^ rotateLeft1 parity3
+      applyX 3 x = x ^^^ parity0 ^^^ rotateLeft1 parity2
+      applyX _ x = x ^^^ parity4 ^^^ rotateLeft1 parity1
 
       -- Apply to all 25 lanes based on their column (i mod 5)
       outputState :: Vec 25 (Vec 64 Bit)
-      outputState = imap f state
+      outputState = imap (applyX . resize . (`mod` 5)) state
    in concat outputState
 
 -- Chi transformation
@@ -166,9 +163,6 @@ keccakF1600 roundIdx =
     . rhoF1600Reversed
     . thetaF1600Reversed
     . unpack
-
-rev :: KnownNat n => BitVector n -> BitVector n
-rev = (pack :: KnownNat n => Vec n Bit -> BitVector n) . reverse . (unpack :: KnownNat n => BitVector n -> Vec n Bit)
 
 {-# OPAQUE keccakF1600Normal #-}
 keccakF1600Normal :: Index 24 -> BitVector 1600 -> BitVector 1600
