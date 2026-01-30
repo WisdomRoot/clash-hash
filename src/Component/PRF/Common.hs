@@ -38,7 +38,7 @@ hash eta msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
           let initState = absorb33 msg
            in (Permute 0 0 initState, (idleAXI4Stream, True))
         Permute roundIdx wordIdx state ->
-          let state' = Permutation.keccakF1600 roundIdx state
+          let state' = Permutation.keccakF1600Reversed roundIdx state
            in if roundIdx == maxBound
                 then (Squeeze wordIdx state', (idleAXI4Stream, False))
                 else (Permute (roundIdx + 1) wordIdx state', (idleAXI4Stream, False))

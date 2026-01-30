@@ -74,7 +74,7 @@ samplePolyCBD2 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
           let initState = absorb33 msg
            in (Permute 0 initState, (idleAXI4Stream, True))
         Permute roundIdx state ->
-          let state' = Permutation.keccakF1600 roundIdx state
+          let state' = Permutation.keccakF1600Reversed roundIdx state
            in if roundIdx == maxBound
                 then (Squeeze 0 0 state', (idleAXI4Stream, False))
                 else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))

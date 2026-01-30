@@ -47,10 +47,10 @@ spec = describe "Permutation" $ do
     it "1 round (round 0)" $ do
       let roundIdx = 0 :: Index 24
       let expected = pack $ SHA3internal.keccakf1Round roundIdx input
-      let actual = pack $ Permutation.keccakF1600 roundIdx inputBitVector
+      let actual = pack $ Permutation.keccakF1600Reversed roundIdx inputBitVector
       actual `shouldBe` expected
 
     it "24 complete rounds" $ do
       let expected = pack $ SHA3.keccakf @6 @64 @1600 input
-      let actual = Permutation.keccakF160024 inputBitVector
+      let actual = Permutation.keccakF1600Reversed24 inputBitVector
       actual `shouldBe` expected

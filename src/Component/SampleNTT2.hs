@@ -67,7 +67,7 @@ hash = mealy step Idle
             then (Permute 0 (absorb34 inputMsg) Nothing, (idleAXI4Stream, False))
             else (Idle, (idleAXI4Stream, True))
         Permute roundIdx state buffer ->
-          let state' = Permutation.keccakF1600 roundIdx state
+          let state' = Permutation.keccakF1600Reversed roundIdx state
            in if roundIdx == maxBound
                 then (Squeeze 0 state' buffer, (idleAXI4Stream, False))
                 else (Permute (roundIdx + 1) state' buffer, (idleAXI4Stream, False))

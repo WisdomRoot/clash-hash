@@ -9,9 +9,9 @@ module Permutation
     iotaF1600Reversed,
 
     -- * Permutation
+    keccakF1600Reversed,
     keccakF1600,
-    keccakF1600Normal,
-    keccakF160024,
+    keccakF1600Reversed24,
 
     -- * Top entity
     topEntity,
@@ -153,9 +153,9 @@ iotaF1600 roundIdx bv =
 --   - No inlining or specialization (keeps single definition)
 --   - Emits separate component once, wired to all callers
 --   - Enforces module boundary for potential blackbox override
-{-# OPAQUE keccakF1600 #-}
-keccakF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600 roundIdx =
+{-# OPAQUE keccakF1600Reversed #-}
+keccakF1600Reversed :: Index 24 -> BitVector 1600 -> BitVector 1600
+keccakF1600Reversed roundIdx =
   iotaF1600Reversed roundIdx
     . pack
     . chiF1600Reversed
@@ -164,9 +164,9 @@ keccakF1600 roundIdx =
     . thetaF1600Reversed
     . unpack
 
-{-# OPAQUE keccakF1600Normal #-}
-keccakF1600Normal :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600Normal roundIdx =
+{-# OPAQUE keccakF1600 #-}
+keccakF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
+keccakF1600 roundIdx =
   iotaF1600 roundIdx
     . pack
     . chiF1600
@@ -175,11 +175,11 @@ keccakF1600Normal roundIdx =
     . thetaF1600
     . unpack
 
-keccakF160024 :: BitVector 1600 -> BitVector 1600
-keccakF160024 initialState =
+keccakF1600Reversed24 :: BitVector 1600 -> BitVector 1600
+keccakF1600Reversed24 initialState =
   foldl applyRound initialState (indicesI @24)
   where
-    applyRound state roundIdx = keccakF1600 roundIdx state
+    applyRound state roundIdx = keccakF1600Reversed roundIdx state
 
 --------------------------------------------------------------------------------
 -- Top entity for hardware synthesis
@@ -217,4 +217,4 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (uncurry keccakF1600)
+topEntity _clk _rst _en = fmap (uncurry keccakF1600Reversed)
