@@ -11,142 +11,50 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
     , input wire SHA3_256_NonPipelined_Normal_types::Tuple3_0 eta1
 
       // Outputs
-    , output SHA3_256_NonPipelined_Normal_types::Tuple2_1 result
+    , output SHA3_256_NonPipelined_Normal_types::Tuple2_3 result
     );
-  logic [1:0] c$squeezeSlice_arg0;
-  logic [1:0] counter;
-  SHA3_256_NonPipelined_Normal_types::State ds1 = {{2'b00,5'd0,2'bxx}
+  logic [543:0] result_0;
+  logic [1599:0] c$app_arg;
+  logic [1599:0] state;
+  SHA3_256_NonPipelined_Normal_types::State ds1 = {{2'b00,7'bxxxxxxx}
 ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
   SHA3_256_NonPipelined_Normal_types::Tuple2 c$ds_case_alt;
-  SHA3_256_NonPipelined_Normal_types::Tuple2 result_0;
+  SHA3_256_NonPipelined_Normal_types::Tuple2 result_1;
   SHA3_256_NonPipelined_Normal_types::State c$ds_app_arg;
-  logic [63:0] result_1;
-  logic [63:0] c$case_alt;
-  logic [63:0] c$case_alt_0;
-  logic [1599:0] c$app_arg;
   SHA3_256_NonPipelined_Normal_types::State c$ds_app_arg_0;
-  logic c$ds_case_scrut;
+  logic [0:0] counter;
   SHA3_256_NonPipelined_Normal_types::Tuple2 c$ds_case_alt_0;
   logic tready;
   logic [1:0] seenTLAST;
   logic [4:0] counter_0;
   SHA3_256_NonPipelined_Normal_types::Tuple2 result_2;
-  SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_1;
-  SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_2;
+  SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt;
   SHA3_256_NonPipelined_Normal_types::Tuple2 result_3;
-  SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_3;
-  logic c$app_arg_0;
   logic [1599:0] result_4;
-  logic [1599:0] c$app_arg_1;
+  logic [1599:0] c$app_arg_0;
   logic [1599:0] result_5;
-  logic signed [63:0] c$app_arg_2;
-  logic [1599:0] c$app_arg_3;
+  logic [1599:0] c$app_arg_1;
   logic [1599:0] result_6;
-  logic signed [63:0] c$app_arg_4;
-  logic [1599:0] c$app_arg_5;
-  logic [10:0] c$complementAt1_arg0;
-  logic [10:0] c$complementAt1_arg0_case_alt;
-  logic [10:0] c$complementAt1_arg0_case_alt_0;
-  logic [10:0] c$complementAt1_arg0_case_alt_1;
-  logic [10:0] c$complementAt1_arg0_case_alt_2;
-  logic [10:0] c$complementAt1_arg0_case_alt_3;
-  logic [10:0] c$complementAt1_arg0_case_alt_4;
-  logic [10:0] c$complementAt1_arg0_case_alt_5;
-  logic [10:0] c$complementAt1_arg0_case_alt_6;
-  logic [10:0] c$complementAt1_arg0_case_alt_7;
-  logic [10:0] c$complementAt1_arg0_case_alt_8;
-  logic [10:0] c$complementAt1_arg0_case_alt_9;
-  logic [10:0] c$complementAt1_arg0_case_alt_10;
-  logic [10:0] c$complementAt1_arg0_case_alt_11;
-  logic [10:0] c$complementAt1_arg0_case_alt_12;
-  logic [10:0] c$complementAt1_arg0_case_alt_13;
-  logic [10:0] c$complementAt1_arg0_case_alt_14;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn;
-  logic c$complementAt1_tupIn_case_scrut;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 result_7;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_0;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_1;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_2;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_3;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_4;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_5;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_6;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_7;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_8;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_9;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_10;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_11;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_12;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_0 c$complementAt1_tupIn_case_alt_13;
-  logic [1599:0] result_8;
-  logic [1599:0] c$case_alt_4;
-  logic [1599:0] c$case_alt_5;
-  logic [1599:0] c$case_alt_6;
-  logic [1599:0] c$case_alt_7;
-  logic [1599:0] c$case_alt_8;
-  logic [1599:0] c$case_alt_9;
-  logic [1599:0] c$case_alt_10;
-  logic [1599:0] c$case_alt_11;
-  logic [1599:0] c$case_alt_12;
-  logic [1599:0] c$case_alt_13;
-  logic [1599:0] c$case_alt_14;
-  logic [1599:0] c$case_alt_15;
-  logic [1599:0] c$case_alt_16;
-  logic [1599:0] c$case_alt_17;
-  logic [1599:0] c$case_alt_18;
-  logic [1599:0] c$case_alt_19;
-  logic [1599:0] c$case_alt_20;
-  logic [1599:0] c$case_alt_21;
-  logic [1599:0] c$case_alt_22;
-  logic [1599:0] c$case_alt_23;
-  logic [1599:0] c$case_alt_24;
-  logic [1599:0] c$case_alt_25;
-  logic [1599:0] c$case_alt_26;
-  logic [1599:0] c$case_alt_27;
-  logic [1599:0] c$case_alt_28;
-  logic [1599:0] c$case_alt_29;
-  logic [1599:0] c$case_alt_30;
-  logic [1599:0] c$case_alt_31;
-  logic [1599:0] c$case_alt_32;
-  logic [1599:0] c$case_alt_33;
-  logic [1599:0] c$case_alt_34;
-  logic [1599:0] c$case_alt_35;
-  logic [1599:0] c$case_alt_36;
-  logic [1599:0] c$app_arg_6;
-  logic c$complementAt1_tupIn_case_scrut_0;
-  logic c$complementAt1_tupIn_case_scrut_1;
-  logic c$complementAt1_tupIn_case_scrut_2;
-  logic c$complementAt1_tupIn_case_scrut_3;
-  logic c$complementAt1_tupIn_case_scrut_4;
-  logic c$complementAt1_tupIn_case_scrut_5;
-  logic c$complementAt1_tupIn_case_scrut_6;
-  logic c$complementAt1_tupIn_case_scrut_7;
-  logic c$complementAt1_tupIn_case_scrut_8;
-  logic c$complementAt1_tupIn_case_scrut_9;
-  logic c$complementAt1_tupIn_case_scrut_10;
-  logic c$complementAt1_tupIn_case_scrut_11;
-  logic c$complementAt1_tupIn_case_scrut_12;
-  logic c$complementAt1_tupIn_case_scrut_13;
-  logic c$complementAt1_tupIn_case_scrut_14;
-  logic c$complementAt1_tupIn_case_scrut_15;
+  logic [1599:0] c$app_arg_2;
+  logic [1599:0] c$complementAt1_arg1;
+  logic [1599:0] result_7;
+  logic [1599:0] c$app_arg_3;
   logic flush;
   SHA3_256_NonPipelined_Normal_types::AXI4Stream \input ;
-  logic [4:0] counter_1;
-  logic [1599:0] state;
   logic [8:0] c$ds_case_alt_selection_1;
-  logic [10:0] c$i_24;
 
   assign result = c$ds_case_alt.Tuple2_sel1;
 
-  assign c$squeezeSlice_arg0 = c$ds_case_scrut ? 2'd3 : counter;
+  assign result_0 = (counter == 1'd0) ? (c$app_arg[543 : 0]) : (c$app_arg[1087 : 544]);
 
-  assign counter = ds1[1606:1605];
+  assign c$app_arg = state;
+
+  assign state = ds1.State_sel1;
 
   // register begin
   always_ff @(posedge c$bindCsr or  posedge  c$bindCsr_0) begin : ds1_register
     if ( c$bindCsr_0) begin
-      ds1 <= {{2'b00,5'd0,2'bxx}
+      ds1 <= {{2'b00,7'bxxxxxxx}
   ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
     end else  if (c$bindCsr_1)  begin
       ds1 <= c$ds_case_alt.Tuple2_sel0;
@@ -160,32 +68,23 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
     case(c$ds_case_alt_selection_1[8:7])
       2'b00 : c$ds_case_alt = result_2;
       2'b01 : c$ds_case_alt = c$ds_case_alt_0;
-      default : c$ds_case_alt = result_0;
+      default : c$ds_case_alt = result_1;
     endcase
   end
 
-  assign result_0 = c$ds_case_scrut ? {c$ds_app_arg
-                                      ,{{result_1,1'b1,1'b1},1'b0}} : {c$ds_app_arg_0
-                                                                      ,{{result_1,1'b1,1'b0},1'b0}};
+  assign result_1 = (counter == 1'd1) ? {c$ds_app_arg
+                                        ,{{result_0,1'b1,1'b1},1'b0}} : {c$ds_app_arg_0
+                                                                        ,{{result_0,1'b1,1'b0},1'b0}};
 
-  assign c$ds_app_arg = tready ? {{2'b00,5'd0,2'bxx}
-                                 ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000} : {{2'b10,2'd3,5'bxxxxx}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ,state};
+  assign c$ds_app_arg = tready ? {{2'b00,7'bxxxxxxx}
+                                 ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000} : ds1;
 
-  assign result_1 = (c$squeezeSlice_arg0 == 2'd0) ? (c$app_arg[1599 : 1536]) : c$case_alt;
-
-  assign c$case_alt = (c$squeezeSlice_arg0 == 2'd1) ? (c$app_arg[1535 : 1472]) : c$case_alt_0;
-
-  assign c$case_alt_0 = (c$squeezeSlice_arg0 == 2'd2) ? (c$app_arg[1471 : 1408]) : (c$app_arg[1407 : 1344]);
-
-  assign c$app_arg = state;
-
-  assign c$ds_app_arg_0 = tready ? {{2'b10,counter + 2'd1,5'bxxxxx}
+  assign c$ds_app_arg_0 = tready ? {{2'b10,counter + 1'd1,6'bxxxxxx}
                                    ,state} : ds1;
 
-  assign c$ds_case_scrut = counter == 2'd3;
+  assign counter = ds1[1606:1606];
 
-  Hash_NonPipelined_SHA3256Normal_topEntity_pad Hash_NonPipelined_SHA3256Normal_topEntity_pad_c$ds_case_alt_0
+  Hash_NonPipelined_SHA3256Normal_topEntity_sponge30 Hash_NonPipelined_SHA3256Normal_topEntity_sponge30_c$ds_case_alt_0
     ( .result (c$ds_case_alt_0)
     , .eta2 (counter_0)
     , .eta3 (seenTLAST)
@@ -198,361 +97,72 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
 
   assign counter_0 = ds1[1606:1602];
 
-  assign result_2 = c$complementAt1_tupIn_case_scrut ? {{{2'b01,5'd0,2'd0}
-                                                        ,result_4}
-                                                       ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
-                                                         ,1'b0
-                                                         ,1'b0}
-                                                        ,1'b0}} : c$case_alt_1;
+  assign result_2 = flush ? {{{2'b01,5'd0,2'd0}
+                             ,result_4}
+                            ,{{544'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                              ,1'b0
+                              ,1'b0}
+                             ,1'b0}} : c$case_alt;
 
-  assign c$case_alt_1 = (~ \input .AXI4Stream_sel1) ? {{{2'b00,counter_1,2'bxx}
-                                                       ,state}
-                                                      ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
-                                                        ,1'b0
-                                                        ,1'b0}
-                                                       ,1'b1}} : c$case_alt_2;
-
-  assign c$case_alt_2 = (\input .AXI4Stream_sel2 & c$app_arg_0) ? {{{2'b01,5'd0,2'd0}
-                                                                   ,result_4}
-                                                                  ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
-                                                                    ,1'b0
-                                                                    ,1'b0}
-                                                                   ,1'b0}} : result_3;
+  assign c$case_alt = (~ \input .AXI4Stream_sel1) ? {{{2'b00,7'bxxxxxxx}
+                                                     ,state}
+                                                    ,{{544'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                      ,1'b0
+                                                      ,1'b0}
+                                                     ,1'b1}} : result_3;
 
   assign result_3 = \input .AXI4Stream_sel2 ? {{{2'b01,5'd0,2'd1}
-                                               ,result_8}
-                                              ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
+                                               ,result_7}
+                                              ,{{544'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
                                                 ,1'b0
                                                 ,1'b0}
-                                               ,1'b0}} : c$case_alt_3;
-
-  assign c$case_alt_3 = c$app_arg_0 ? {{{2'b00,counter_1 + 5'd1,2'bxx}
-                                       ,result_8}
-                                      ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
-                                        ,1'b0
-                                        ,1'b0}
-                                       ,1'b1}} : {{{2'b01,5'd0,2'd2},result_8}
-                                                 ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
-                                                   ,1'b0
-                                                   ,1'b0}
-                                                  ,1'b0}};
-
-  assign c$app_arg_0 = counter_1 < 5'd16;
+                                               ,1'b0}} : {{{2'b01,5'd0,2'd2},result_7}
+                                                         ,{{544'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                           ,1'b0
+                                                           ,1'b0}
+                                                          ,1'b0}};
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg_1;
-    result_4[64'sd512] = (~ (c$app_arg_1[64'sd512]));
+    result_4 = c$app_arg_0;
+    result_4[64'sd1087] = (~ (c$app_arg_0[64'sd1087]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_5;
+  assign c$app_arg_0 = result_5;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_3;
-    result_5[c$app_arg_2] = (~ (c$app_arg_3[c$app_arg_2]));
+    result_5 = c$app_arg_1;
+    result_5[64'sd2] = (~ (c$app_arg_1[64'sd2]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0});
-
-  assign c$app_arg_3 = result_6;
+  assign c$app_arg_1 = result_6;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_5;
-    result_6[c$app_arg_4] = (~ (c$app_arg_5[c$app_arg_4]));
+    result_6 = c$app_arg_2;
+    result_6[64'sd1] = (~ (c$app_arg_2[64'sd1]));
   end
   // replaceBit end
 
-  assign c$i_24 = c$complementAt1_tupIn.Tuple2_0_sel0;
+  assign c$app_arg_2 = c$complementAt1_arg1;
 
-  assign c$app_arg_4 = $unsigned({{(64-11) {1'b0}},c$i_24});
-
-  assign c$app_arg_5 = c$complementAt1_tupIn.Tuple2_0_sel1;
-
-  assign c$complementAt1_arg0 = c$complementAt1_tupIn_case_scrut ? 11'd1597 : c$complementAt1_arg0_case_alt;
-
-  assign c$complementAt1_arg0_case_alt = c$complementAt1_tupIn_case_scrut_15 ? 11'd1533 : c$complementAt1_arg0_case_alt_0;
-
-  assign c$complementAt1_arg0_case_alt_0 = c$complementAt1_tupIn_case_scrut_14 ? 11'd1469 : c$complementAt1_arg0_case_alt_1;
-
-  assign c$complementAt1_arg0_case_alt_1 = c$complementAt1_tupIn_case_scrut_13 ? 11'd1405 : c$complementAt1_arg0_case_alt_2;
-
-  assign c$complementAt1_arg0_case_alt_2 = c$complementAt1_tupIn_case_scrut_12 ? 11'd1341 : c$complementAt1_arg0_case_alt_3;
-
-  assign c$complementAt1_arg0_case_alt_3 = c$complementAt1_tupIn_case_scrut_11 ? 11'd1277 : c$complementAt1_arg0_case_alt_4;
-
-  assign c$complementAt1_arg0_case_alt_4 = c$complementAt1_tupIn_case_scrut_10 ? 11'd1213 : c$complementAt1_arg0_case_alt_5;
-
-  assign c$complementAt1_arg0_case_alt_5 = c$complementAt1_tupIn_case_scrut_9 ? 11'd1149 : c$complementAt1_arg0_case_alt_6;
-
-  assign c$complementAt1_arg0_case_alt_6 = c$complementAt1_tupIn_case_scrut_8 ? 11'd1085 : c$complementAt1_arg0_case_alt_7;
-
-  assign c$complementAt1_arg0_case_alt_7 = c$complementAt1_tupIn_case_scrut_7 ? 11'd1021 : c$complementAt1_arg0_case_alt_8;
-
-  assign c$complementAt1_arg0_case_alt_8 = c$complementAt1_tupIn_case_scrut_6 ? 11'd957 : c$complementAt1_arg0_case_alt_9;
-
-  assign c$complementAt1_arg0_case_alt_9 = c$complementAt1_tupIn_case_scrut_5 ? 11'd893 : c$complementAt1_arg0_case_alt_10;
-
-  assign c$complementAt1_arg0_case_alt_10 = c$complementAt1_tupIn_case_scrut_4 ? 11'd829 : c$complementAt1_arg0_case_alt_11;
-
-  assign c$complementAt1_arg0_case_alt_11 = c$complementAt1_tupIn_case_scrut_3 ? 11'd765 : c$complementAt1_arg0_case_alt_12;
-
-  assign c$complementAt1_arg0_case_alt_12 = c$complementAt1_tupIn_case_scrut_2 ? 11'd701 : c$complementAt1_arg0_case_alt_13;
-
-  assign c$complementAt1_arg0_case_alt_13 = c$complementAt1_tupIn_case_scrut_1 ? 11'd637 : c$complementAt1_arg0_case_alt_14;
-
-  assign c$complementAt1_arg0_case_alt_14 = c$complementAt1_tupIn_case_scrut_0 ? 11'd573 : 11'd1597;
-
-  assign c$complementAt1_tupIn = c$complementAt1_tupIn_case_scrut ? {11'd1598
-                                                                    ,state} : result_7;
-
-  assign c$complementAt1_tupIn_case_scrut = flush & (counter_1 == 5'd0);
-
-  assign result_7 = c$complementAt1_tupIn_case_scrut_15 ? {11'd1534
-                                                          ,result_8} : c$complementAt1_tupIn_case_alt;
-
-  assign c$complementAt1_tupIn_case_alt = c$complementAt1_tupIn_case_scrut_14 ? {11'd1470
-                                                                                ,result_8} : c$complementAt1_tupIn_case_alt_0;
-
-  assign c$complementAt1_tupIn_case_alt_0 = c$complementAt1_tupIn_case_scrut_13 ? {11'd1406
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_1;
-
-  assign c$complementAt1_tupIn_case_alt_1 = c$complementAt1_tupIn_case_scrut_12 ? {11'd1342
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_2;
-
-  assign c$complementAt1_tupIn_case_alt_2 = c$complementAt1_tupIn_case_scrut_11 ? {11'd1278
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_3;
-
-  assign c$complementAt1_tupIn_case_alt_3 = c$complementAt1_tupIn_case_scrut_10 ? {11'd1214
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_4;
-
-  assign c$complementAt1_tupIn_case_alt_4 = c$complementAt1_tupIn_case_scrut_9 ? {11'd1150
-                                                                                 ,result_8} : c$complementAt1_tupIn_case_alt_5;
-
-  assign c$complementAt1_tupIn_case_alt_5 = c$complementAt1_tupIn_case_scrut_8 ? {11'd1086
-                                                                                 ,result_8} : c$complementAt1_tupIn_case_alt_6;
-
-  assign c$complementAt1_tupIn_case_alt_6 = c$complementAt1_tupIn_case_scrut_7 ? {11'd1022
-                                                                                 ,result_8} : c$complementAt1_tupIn_case_alt_7;
-
-  assign c$complementAt1_tupIn_case_alt_7 = c$complementAt1_tupIn_case_scrut_6 ? {11'd958
-                                                                                 ,result_8} : c$complementAt1_tupIn_case_alt_8;
-
-  assign c$complementAt1_tupIn_case_alt_8 = c$complementAt1_tupIn_case_scrut_5 ? {11'd894
-                                                                                 ,result_8} : c$complementAt1_tupIn_case_alt_9;
-
-  assign c$complementAt1_tupIn_case_alt_9 = c$complementAt1_tupIn_case_scrut_4 ? {11'd830
-                                                                                 ,result_8} : c$complementAt1_tupIn_case_alt_10;
-
-  assign c$complementAt1_tupIn_case_alt_10 = c$complementAt1_tupIn_case_scrut_3 ? {11'd766
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_11;
-
-  assign c$complementAt1_tupIn_case_alt_11 = c$complementAt1_tupIn_case_scrut_2 ? {11'd702
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_12;
-
-  assign c$complementAt1_tupIn_case_alt_12 = c$complementAt1_tupIn_case_scrut_1 ? {11'd638
-                                                                                  ,result_8} : c$complementAt1_tupIn_case_alt_13;
-
-  assign c$complementAt1_tupIn_case_alt_13 = c$complementAt1_tupIn_case_scrut_0 ? {11'd574
-                                                                                  ,result_8} : {11'd1598,result_8};
-
-  assign result_8 = (counter_1 == 5'd0) ? c$case_alt_4 : c$case_alt_5;
+  assign c$complementAt1_arg1 = flush ? state : result_7;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_4 = c$app_arg_6;
-    c$case_alt_4[1599 : 1536] = ((c$app_arg_6[1599 : 1536]) ^ \input .AXI4Stream_sel0);
+    result_7 = c$app_arg_3;
+    result_7[1087 : 0] = ((c$app_arg_3[1087 : 0]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_5 = (counter_1 == 5'd1) ? c$case_alt_6 : c$case_alt_7;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_6 = c$app_arg_6;
-    c$case_alt_6[1535 : 1472] = ((c$app_arg_6[1535 : 1472]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_7 = (counter_1 == 5'd2) ? c$case_alt_8 : c$case_alt_9;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_8 = c$app_arg_6;
-    c$case_alt_8[1471 : 1408] = ((c$app_arg_6[1471 : 1408]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_9 = (counter_1 == 5'd3) ? c$case_alt_10 : c$case_alt_11;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_10 = c$app_arg_6;
-    c$case_alt_10[1407 : 1344] = ((c$app_arg_6[1407 : 1344]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_11 = (counter_1 == 5'd4) ? c$case_alt_12 : c$case_alt_13;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_12 = c$app_arg_6;
-    c$case_alt_12[1343 : 1280] = ((c$app_arg_6[1343 : 1280]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_13 = (counter_1 == 5'd5) ? c$case_alt_14 : c$case_alt_15;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_14 = c$app_arg_6;
-    c$case_alt_14[1279 : 1216] = ((c$app_arg_6[1279 : 1216]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_15 = (counter_1 == 5'd6) ? c$case_alt_16 : c$case_alt_17;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_16 = c$app_arg_6;
-    c$case_alt_16[1215 : 1152] = ((c$app_arg_6[1215 : 1152]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_17 = (counter_1 == 5'd7) ? c$case_alt_18 : c$case_alt_19;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_18 = c$app_arg_6;
-    c$case_alt_18[1151 : 1088] = ((c$app_arg_6[1151 : 1088]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_19 = (counter_1 == 5'd8) ? c$case_alt_20 : c$case_alt_21;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_20 = c$app_arg_6;
-    c$case_alt_20[1087 : 1024] = ((c$app_arg_6[1087 : 1024]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_21 = (counter_1 == 5'd9) ? c$case_alt_22 : c$case_alt_23;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_22 = c$app_arg_6;
-    c$case_alt_22[1023 : 960] = ((c$app_arg_6[1023 : 960]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_23 = (counter_1 == 5'd10) ? c$case_alt_24 : c$case_alt_25;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_24 = c$app_arg_6;
-    c$case_alt_24[959 : 896] = ((c$app_arg_6[959 : 896]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_25 = (counter_1 == 5'd11) ? c$case_alt_26 : c$case_alt_27;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_26 = c$app_arg_6;
-    c$case_alt_26[895 : 832] = ((c$app_arg_6[895 : 832]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_27 = (counter_1 == 5'd12) ? c$case_alt_28 : c$case_alt_29;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_28 = c$app_arg_6;
-    c$case_alt_28[831 : 768] = ((c$app_arg_6[831 : 768]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_29 = (counter_1 == 5'd13) ? c$case_alt_30 : c$case_alt_31;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_30 = c$app_arg_6;
-    c$case_alt_30[767 : 704] = ((c$app_arg_6[767 : 704]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_31 = (counter_1 == 5'd14) ? c$case_alt_32 : c$case_alt_33;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_32 = c$app_arg_6;
-    c$case_alt_32[703 : 640] = ((c$app_arg_6[703 : 640]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_33 = (counter_1 == 5'd15) ? c$case_alt_34 : c$case_alt_35;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_34 = c$app_arg_6;
-    c$case_alt_34[639 : 576] = ((c$app_arg_6[639 : 576]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_35 = (counter_1 == 5'd16) ? c$case_alt_36 : state;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_36 = c$app_arg_6;
-    c$case_alt_36[575 : 512] = ((c$app_arg_6[575 : 512]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$app_arg_6 = state;
-
-  assign c$complementAt1_tupIn_case_scrut_0 = counter_1 == 5'd15;
-
-  assign c$complementAt1_tupIn_case_scrut_1 = counter_1 == 5'd14;
-
-  assign c$complementAt1_tupIn_case_scrut_2 = counter_1 == 5'd13;
-
-  assign c$complementAt1_tupIn_case_scrut_3 = counter_1 == 5'd12;
-
-  assign c$complementAt1_tupIn_case_scrut_4 = counter_1 == 5'd11;
-
-  assign c$complementAt1_tupIn_case_scrut_5 = counter_1 == 5'd10;
-
-  assign c$complementAt1_tupIn_case_scrut_6 = counter_1 == 5'd9;
-
-  assign c$complementAt1_tupIn_case_scrut_7 = counter_1 == 5'd8;
-
-  assign c$complementAt1_tupIn_case_scrut_8 = counter_1 == 5'd7;
-
-  assign c$complementAt1_tupIn_case_scrut_9 = counter_1 == 5'd6;
-
-  assign c$complementAt1_tupIn_case_scrut_10 = counter_1 == 5'd5;
-
-  assign c$complementAt1_tupIn_case_scrut_11 = counter_1 == 5'd4;
-
-  assign c$complementAt1_tupIn_case_scrut_12 = counter_1 == 5'd3;
-
-  assign c$complementAt1_tupIn_case_scrut_13 = counter_1 == 5'd2;
-
-  assign c$complementAt1_tupIn_case_scrut_14 = counter_1 == 5'd1;
-
-  assign c$complementAt1_tupIn_case_scrut_15 = counter_1 == 5'd0;
+  assign c$app_arg_3 = state;
 
   assign flush = eta1.Tuple3_0_sel2;
 
   assign \input  = eta1.Tuple3_0_sel0;
-
-  assign counter_1 = ds1[1606:1602];
-
-  assign state = ds1.State_sel1;
 
 
 endmodule

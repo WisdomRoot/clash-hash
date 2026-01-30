@@ -33,7 +33,7 @@ module Permutation.Constants
   )
 where
 
-import Clash.Prelude (Bit, Bits (..), Index, Vec (Nil, (:>)), head, ifoldl, last, repeat, replace, reverse, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
+import Clash.Prelude (Bit, Bits (..), Index, Vec (Nil, (:>)), errorX, head, ifoldl, last, repeat, replace, reverse, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
 import qualified Permutation.Indices as Indices
 import Language.Haskell.TH
 import Prelude hiding (head, last, pi, repeat, reverse, zipWith, (!!))
@@ -68,7 +68,17 @@ iotaConstants = fmap (ifoldl g (repeat 0)) lfsr
 
     -- Place bit at reversed position: 64 - 2^j instead of 2^j - 1
     g :: Vec 64 Bit -> Index 7 -> Bit -> Vec 64 Bit
-    g t j b = replace (64 - ((2 :: Integer) ^ (fromIntegral j :: Integer))) b t
+    g t j b =
+      let idx :: Index 64
+          idx = case j of
+            0 -> 63
+            1 -> 62
+            2 -> 60
+            3 -> 56
+            4 -> 48
+            5 -> 32
+            _ -> 0
+       in replace idx b t
 
 -- | Template Haskell generator for Chi transformation index triples.
 -- Takes Keccak parameter @l@ (lane width w = 2^l) and returns

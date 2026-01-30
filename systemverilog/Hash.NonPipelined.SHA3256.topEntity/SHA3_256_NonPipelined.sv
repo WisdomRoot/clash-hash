@@ -3,23 +3,23 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module SHA3_256_NonPipelined_Normal
+module SHA3_256_NonPipelined
     ( // Inputs
       input wire logic CLK  // clock
     , input wire logic RST  // reset
     , input wire logic EN  // enable
     , input wire logic TREADY
-    , input wire logic [1089:0] MSG_MSG_TDATA
+    , input wire logic [65:0] MSG_MSG_TDATA
     , input wire logic MSG_MSG_TVALID
 
       // Outputs
-    , output logic [545:0] DIGEST_TDATA
+    , output logic [65:0] DIGEST_TDATA
     , output logic DIGEST_TVALID
     );
-  SHA3_256_NonPipelined_Normal_types::Tuple2_4 MSG;
-  SHA3_256_NonPipelined_Normal_types::Tuple3_0 result_fun_arg;
-  SHA3_256_NonPipelined_Normal_types::Tuple2_3 result;
-  SHA3_256_NonPipelined_Normal_types::AXI4Stream_0 DIGEST_TDATA_0;
+  SHA3_256_NonPipelined_types::Tuple2_4 MSG;
+  SHA3_256_NonPipelined_types::Tuple3_0 result_fun_arg;
+  SHA3_256_NonPipelined_types::Tuple2_4 result;
+  SHA3_256_NonPipelined_types::AXI4Stream DIGEST_TDATA_0;
 
   assign MSG = {MSG_MSG_TDATA,MSG_MSG_TVALID};
 
@@ -27,16 +27,16 @@ module SHA3_256_NonPipelined_Normal
                           ,TREADY
                           ,MSG.Tuple2_4_sel1};
 
-  Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM_result
+  Hash_NonPipelined_SHA3256_topEntity_spongeFSM Hash_NonPipelined_SHA3256_topEntity_spongeFSM_result
     ( .result (result)
     , .c$bindCsr (CLK)
     , .c$bindCsr_0 (RST)
     , .c$bindCsr_1 (EN)
     , .eta1 (result_fun_arg) );
 
-  assign DIGEST_TDATA_0 = result.Tuple2_3_sel0;
+  assign DIGEST_TDATA_0 = result.Tuple2_4_sel0;
 
-  assign DIGEST_TVALID = result.Tuple2_3_sel1;
+  assign DIGEST_TVALID = result.Tuple2_4_sel1;
 
   assign DIGEST_TDATA = DIGEST_TDATA_0;
 
