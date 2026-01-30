@@ -1,0 +1,112 @@
+{
+    "components": [
+        "Component_Dev"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "Component_Dev_shim.cpp",
+            "sha256": "155d41a8513b2de85d946440af4b2a2ce28359293f12f73906951d0ff1fdfe78"
+        },
+        {
+            "name": "Component_Dev.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "Component_Dev_types.sv",
+            "sha256": "77dc9047ee5f0476e7089aa50e75c27683863149573112144a6982077b3cb7fe"
+        },
+        {
+            "name": "Component_Dev.sv",
+            "sha256": "6f54cd4a67a287c33c75449a310e2df2af6814c3d5a36cddfae58d96a009bbf1"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "217ec1423d62b5f360f39c45b661d77a6ab1221327e5b2a817dc2f6cfaa9fe50",
+    "top_component": {
+        "name": "Component_Dev",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "STATE",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "BLOCK",
+                "type_name": "logic [63:0]",
+                "width": 64
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "BEAT",
+                "type_name": "logic [4:0]",
+                "width": 5
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "STATE_OUT",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            }
+        ]
+    },
+    "version": "unstable"
+}
