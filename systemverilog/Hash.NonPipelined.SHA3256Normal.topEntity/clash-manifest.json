@@ -1,6 +1,6 @@
 {
     "components": [
-        "Hash_NonPipelined_SHA3256Normal_topEntity_sponge30",
+        "Hash_NonPipelined_SHA3256Normal_topEntity_pad",
         "Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM",
         "SHA3_256_NonPipelined_Normal"
     ],
@@ -41,26 +41,26 @@
         },
         {
             "name": "SHA3_256_NonPipelined_Normal_types.sv",
-            "sha256": "7e79d6b5a1f57cc93218e257b0fdb56f2be74f6b9c4d3fcc7e4580a934cea790"
+            "sha256": "bbbe28e1b80a50a8863b66c4e45b7947cd3122fb6315faf90f3a29f13ee9bd79"
         },
         {
-            "name": "Hash_NonPipelined_SHA3256Normal_topEntity_sponge30.sv",
-            "sha256": "ea498aada78391b26f14e1858896c35fa6d26a9f38fe7ee14d57f358df73c56d"
+            "name": "Hash_NonPipelined_SHA3256Normal_topEntity_pad.sv",
+            "sha256": "2b7fdbe8622b53f07cfe3b4efbb598e63f9e83d6fdb439edbf2976654c06f314"
         },
         {
             "name": "Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM.sv",
-            "sha256": "41c2657f114de47e08d7741ca699d965ad54934844fd9ca8cae50727cfa19377"
+            "sha256": "6eab9b37271091b0a83d8501ff622216af90411d2f89d51b0ebd6aac37ce4b01"
         },
         {
             "name": "SHA3_256_NonPipelined_Normal.sv",
-            "sha256": "8e80fc1184f1b259ad7dbf7278afa8b179c08c74510797c8e41bc2280b90867c"
+            "sha256": "2d13cb409894377e21dc49b55702aaa2eead581d9990ffb0b6e7494582e8fb39"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "96f83daafd63b595fca4a7407eefd5ef29c3aa6e51a960dfa6e99cbc29ba5c31",
+    "hash": "eb80ad38d3d9f125ea0f00883d93225071e768ba161cc86f132c2451848330eb",
     "top_component": {
         "name": "SHA3_256_NonPipelined_Normal",
         "ports_flat": [
@@ -99,8 +99,8 @@
                 "direction": "in",
                 "is_clock": false,
                 "name": "MSG_MSG_TDATA",
-                "type_name": "logic [1089:0]",
-                "width": 1090
+                "type_name": "logic [65:0]",
+                "width": 66
             },
             {
                 "direction": "in",
@@ -113,8 +113,8 @@
                 "direction": "out",
                 "is_clock": false,
                 "name": "DIGEST_TDATA",
-                "type_name": "logic [545:0]",
-                "width": 546
+                "type_name": "logic [65:0]",
+                "width": 66
             },
             {
                 "direction": "out",

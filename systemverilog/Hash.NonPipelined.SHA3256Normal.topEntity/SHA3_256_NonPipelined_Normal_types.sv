@@ -11,9 +11,13 @@ package SHA3_256_NonPipelined_Normal_types;
     logic [10:0] Tuple3_sel2;
   } Tuple3;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
+  typedef struct packed {
+    logic [10:0] Tuple2_3_sel0;
+    logic [1599:0] Tuple2_3_sel1;
+  } Tuple2_3;
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
-    logic [1087:0] AXI4Stream_sel0;
+    logic [63:0] AXI4Stream_sel0;
     logic AXI4Stream_sel1;
     logic AXI4Stream_sel2;
   } AXI4Stream;
@@ -27,17 +31,8 @@ package SHA3_256_NonPipelined_Normal_types;
     logic Tuple2_4_sel1;
   } Tuple2_4;
   typedef struct packed {
-    logic [543:0] AXI4Stream_0_sel0;
-    logic AXI4Stream_0_sel1;
-    logic AXI4Stream_0_sel2;
-  } AXI4Stream_0;
-  typedef struct packed {
-    AXI4Stream_0 Tuple2_3_sel0;
-    logic Tuple2_3_sel1;
-  } Tuple2_3;
-  typedef struct packed {
     State Tuple2_sel0;
-    Tuple2_3 Tuple2_sel1;
+    Tuple2_4 Tuple2_sel1;
   } Tuple2;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];

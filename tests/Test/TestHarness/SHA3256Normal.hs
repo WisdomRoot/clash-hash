@@ -21,7 +21,7 @@ import Test.QuickCheck (Gen, arbitrary, frequency, vector)
 import Test.TestHarness.SHAKECommon (ShakeTest (..))
 import Test.TestHarness.SHAKECommon qualified as Common
 import Test.TestHarness.StreamCommon
-  ( UpstreamStall (..),
+  ( feedInput,
     bitListToBSHW,
     bsToBitListHW,
     makeBackpressureSignal,
@@ -35,8 +35,8 @@ type SHA3256NormalTopEntity =
   Reset System ->
   Enable System ->
   Signal System Bool ->
-  Signal System (AXI4Stream 1088, Bool) ->
-  Signal System (AXI4Stream 544, Bool)
+  Signal System (AXI4Stream 64, Bool) ->
+  Signal System (AXI4Stream 64, Bool)
 
 data SHA3256NormalParams = SHA3256NormalParams
   { spBeatsPerBlock :: Int,
@@ -47,7 +47,7 @@ data SHA3256NormalParams = SHA3256NormalParams
 sha3256NormalParams :: SHA3256NormalParams
 sha3256NormalParams =
   SHA3256NormalParams
-    { spBeatsPerBlock = 1,
+    { spBeatsPerBlock = 17,
       spReference = \_ msg -> Crypton.sha3 msg,
       spTopEntity = SHA3256Normal.topEntity
     }
@@ -78,14 +78,12 @@ runHardware = runSHA3256NormalHardware sha3256NormalParams
 runSHA3256NormalHardware :: SHA3256NormalParams -> SHA3256NormalTest -> ByteString
 runSHA3256NormalHardware params test =
   let inputBytes = BS.length (testMessage test)
-      (beats, remBytes) = inputBytes `P.divMod` 136
       beatsPerBlock = spBeatsPerBlock params
-   in if remBytes /= 0
-        then P.error "SHA3256Normal: input length must be a multiple of 136 bytes"
-        else case someNatVal (P.fromIntegral beats) of
-          Just (SomeNat (_ :: Proxy beats')) ->
-            runHardwareKnown @beats' params test beats beatsPerBlock
-          Nothing -> P.error "SHA3256Normal: invalid beat count"
+      beats = (inputBytes P.+ 7) `P.div` 8
+   in case someNatVal (P.fromIntegral beats) of
+        Just (SomeNat (_ :: Proxy beats')) ->
+          runHardwareKnown @beats' params test beats beatsPerBlock
+        Nothing -> P.error "SHA3256Normal: invalid beat count"
 
 runHardwareKnown ::
   forall beats.
@@ -97,11 +95,11 @@ runHardwareKnown ::
   ByteString
 runHardwareKnown params test beats beatsPerBlock =
   let inputBits = bsToBitListHW (testMessage test)
-      paddedBits = P.take (beats P.* 1088) (inputBits P.++ P.repeat 0)
-      messageWords = bitListToWords1088 @beats beats paddedBits
+      paddedBits = P.take (beats P.* 64) (inputBits P.++ P.repeat 0)
+      messageWords = bitListToWords64 @beats beats paddedBits
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
-          $ feedInput1088 @beats beatsPerBlock (testUpstreamStall test) messageWords
+          $ feedInput @beats beatsPerBlock (testUpstreamStall test) messageWords
       treadySignal = makeBackpressureSignal (testDownstreamBackpressure test)
       output =
         spTopEntity
@@ -112,89 +110,35 @@ runHardwareKnown params test beats beatsPerBlock =
           treadySignal
           inputStream
       outputBits = testOutputBytes test P.* 8
-      outputBeats = (outputBits P.+ 543) `P.div` 544
-      outputBeatsPerBlock = 2
-      squeezesNeeded = (outputBeats P.+ outputBeatsPerBlock - 1) `P.div` outputBeatsPerBlock
+      outputBeats = (outputBits P.+ 63) `P.div` 64
+      squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
       sampleCount =
         beats P.* 2
           P.+ 24
-          P.+ squeezesNeeded P.* (outputBeatsPerBlock P.+ 24)
+          P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
           P.+ 200
       samples = sampleN @System sampleCount output
       validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
-      outputWordBits = P.concatMap wordToBits544 (P.take outputBeats validOutputs)
+      outputWordBits = P.concatMap wordToBits64 (P.take outputBeats validOutputs)
       resultBits = P.take outputBits outputWordBits
    in bitListToBSHW resultBits
 
-feedInput1088 ::
-  forall beats dom.
-  ( KnownNat beats,
-    HiddenClockResetEnable dom
-  ) =>
-  Int ->
-  UpstreamStall ->
-  Vec beats (BitVector 1088) ->
-  Signal dom (AXI4Stream 1088, Bool)
-feedInput1088 beatsPerBlock control messageWords =
-  mealy step (toList messageWords, 0 :: Int, 0 :: Int, stallPattern, P.null messageWords) (pure ())
-  where
-    stallPattern = case control of
-      NoUpstreamStall -> []
-      UpstreamStall xs -> xs
-    permuteLatency = 24 :: Int
-    step (xs, waitCount, emittedInBlock, ctrl, wasEmpty) _ =
-      if waitCount P.> 0
-        then ((xs, waitCount P.- 1, emittedInBlock, ctrl, wasEmpty), (idleBeat, False))
-        else
-          let (canSend, ctrl') = case ctrl of
-                [] -> (True, [])
-                b : bs -> (b, bs)
-           in if P.not canSend
-                then ((xs, waitCount, emittedInBlock, ctrl', wasEmpty), (idleBeat, False))
-                else case xs of
-                  []
-                    | wasEmpty ->
-                        (([], 0, 0, ctrl', False), (idleBeat, True))
-                  [] -> (([], 0, 0, ctrl', False), (idleBeat, False))
-                  y : ys ->
-                    let isLast = P.null ys
-                        emittedNow = emittedInBlock P.+ 1
-                        blockCompleted = emittedNow == beatsPerBlock
-                        needGap = blockCompleted P.&& P.not isLast
-                        nextWait = if needGap then permuteLatency else 0
-                        nextEmitted = if blockCompleted then 0 else emittedNow
-                        nextState = (ys, nextWait, nextEmitted, ctrl', False)
-                        outBeat =
-                          AXI4Stream
-                            { tdata = y,
-                              tvalid = True,
-                              tlast = isLast
-                            }
-                     in (nextState, (outBeat, False))
-    idleBeat =
-      AXI4Stream
-        { tdata = 0,
-          tvalid = False,
-          tlast = False
-        }
-
-bitListToWords1088 :: forall beats. (KnownNat beats) => Int -> [Bit] -> Vec beats (BitVector 1088)
-bitListToWords1088 n bits =
-  let chunks = chunksOf 1088 bits
+bitListToWords64 :: forall beats. (KnownNat beats) => Int -> [Bit] -> Vec beats (BitVector 64)
+bitListToWords64 n bits =
+  let chunks = chunksOf 64 bits
       wordsList = P.map bitsToWord (P.take n chunks)
    in V.unsafeFromList wordsList
   where
     chunksOf _ [] = []
     chunksOf m xs = P.take m xs : chunksOf m (P.drop m xs)
     bitsToWord bs =
-      let paddedBits = P.take 1088 (bs P.++ P.repeat 0)
-          -- word = P.foldl accumBit 0 (P.zip [1087, 1086 .. 0] paddedBits)
-          word = P.foldl accumBit 0 (P.zip [0 .. 1087] paddedBits)
+      let paddedBits = P.take 64 (bs P.++ P.repeat 0)
+          word = P.foldl accumBit 0 (P.zip [0 .. 63] paddedBits)
        in word
     accumBit acc (i, b) = if b == 1 then Bits.setBit acc i else acc
 
-wordToBits544 :: BitVector 544 -> [Bit]
-wordToBits544 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 543]]
+wordToBits64 :: BitVector 64 -> [Bit]
+wordToBits64 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 63]]
 
 testLabel :: SHA3256NormalTest -> String
 testLabel = Common.testLabel

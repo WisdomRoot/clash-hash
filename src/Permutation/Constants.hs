@@ -33,7 +33,7 @@ module Permutation.Constants
   )
 where
 
-import Clash.Prelude (Bit, Bits (..), Index, Vec (Nil, (:>)), errorX, head, ifoldl, last, repeat, replace, reverse, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
+import Clash.Prelude (Bit, Bits (..), Index, Vec (Nil, (:>)), head, ifoldl, last, repeat, replace, reverse, unconcatI, unfoldrI, xor, zipWith, (.&.), (+>>))
 import qualified Permutation.Indices as Indices
 import Language.Haskell.TH
 import Prelude hiding (head, last, pi, repeat, reverse, zipWith, (!!))

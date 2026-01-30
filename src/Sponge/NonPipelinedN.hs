@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
--- | 1088-bit streaming variant of the non-pipelined sponge.
+-- | 64-bit streaming variant of the non-pipelined sponge (normal bit order).
 module Sponge.NonPipelinedN
   ( MsgBits,
     DigestBits,
@@ -16,9 +16,9 @@ where
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
 
-type MsgBits = 1088
+type MsgBits = 64
 
-type DigestBits = 544
+type DigestBits = 64
 
 data SeenTLAST
   = SeenTLASTAndPadded -- final block has been absorbed and padded
@@ -96,7 +96,7 @@ permute ::
   (State k (Index n), (AXI4Stream DigestBits, Bool))
 permute permModule pad counter seenTLAST state tready =
   let state' = permModule counter state
-      outData = slice (SNat @543) (SNat @0) state'
+      outData = slice (SNat @63) (SNat @0) state'
    in if counter == 23
         then case seenTLAST of
           SeenTLASTAndPadded ->
