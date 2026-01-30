@@ -11,57 +11,28 @@ import Prelude
 import Test.Hspec
 import Test.QuickCheck
 import Test.TestHarness.SHA3256Normal
-import Test.TestHarness.SHAKECommon (makeBasicTest, makeCombinedTest, makeStallTest)
 import Test.TestHarness.SHAKESamples qualified as Samples
-import Test.TestHarness.StreamCommon (bsToBitListHW)
+import Test.TestHarness.SHAKECommon (makeBasicTest)
 
 spec :: Spec
 spec = describe "NonPipelined SHA3-256 (Normal) Tests" $ do
-  let emptyCase = makeBasicTest BS.empty 32
-      zeroCase = makeBasicTest (BS.replicate 136 0) 32
-      basicCases =
-        [ emptyCase,
-          makeBasicTest Samples.msg1088 32,
-          makeBasicTest Samples.msg2176 32,
-          makeBasicTest Samples.msg3264 32
-        ]
-      stallCases =
-        [ makeStallTest Samples.msg1088 32 Samples.stallPatternAggressive
-        ]
-      backpressureCases =
-        [ makeCombinedTest
-            Samples.msg1088
-            32
-            Samples.stallPatternAggressive
-            Samples.backpressurePatternAggressive
-        ]
+  let emptyFlushCase = makeBasicTest BS.empty 32
 
-  describe "Basic functionality tests" $ do
-    -- it "0-bit (flush-only) input digest (prints)" $ do
-    --   let actual = runHardware emptyCase
-    --   putStrLn ("N256N empty digest (bits): " <> toBits actual)
-    --   runTest emptyCase
-    -- it "1088-bit all-zero input digest (prints)" $ do
-    --   let actual = runHardware zeroCase
-    --   putStrLn ("N256N zero digest: " <> toBits actual)
-    --   runTest zeroCase
-    for_ basicCases $
+  it "0-bit input, 256-bit output (flush-only)" $ runTest emptyFlushCase
+
+  describe "Basic functionality tests" $
+    for_ Samples.sha3BasicCases $
       \testCase -> it (testLabel testCase) $ runTest testCase
 
   describe "Upstream stall handling" $
-    for_ stallCases $
+    for_ Samples.sha3StallCases $
       \testCase -> it (testLabel testCase) $ runTest testCase
 
   describe "Downstream backpressure handling" $
-    for_ backpressureCases $
+    for_ Samples.sha3BackpressureCases $
       \testCase -> it (testLabel testCase) $ runTest testCase
 
   describe "QuickCheck property tests" $
     it "correctly handles random test cases" $
       withMaxSuccess 10 $
         forAll sha3256NormalGen runTest
-
-toBits :: BS.ByteString -> String
-toBits bs =
-  let bits = bsToBitListHW bs
-   in map (\b -> if b == 1 then '1' else '0') bits
