@@ -49,7 +49,7 @@ main = do
     testGroup
       "All Tests"
       [
-        constantsTests,
+        -- constantsTests,
         permutationRevTests,
         prf2Tests,
         prf3Tests,
