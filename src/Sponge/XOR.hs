@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
@@ -16,6 +17,7 @@ module Sponge.XOR
 where
 
 import Clash.Prelude hiding (permute)
+import Slicer.TH (mkMap)
 
 type MsgBits = 64
 
@@ -109,27 +111,14 @@ staticXOR256 state block beatCounter =
     _ -> state
 
 -- | Static case-based XOR with indices mirrored by (1599 - i).
-staticXOR256' :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
-staticXOR256' state block beatCounter =
-  case beatCounter of
-    0 -> setSlice (SNat @63) (SNat @0) (slice (SNat @63) (SNat @0) state `xor` block) state
-    1 -> setSlice (SNat @127) (SNat @64) (slice (SNat @127) (SNat @64) state `xor` block) state
-    2 -> setSlice (SNat @191) (SNat @128) (slice (SNat @191) (SNat @128) state `xor` block) state
-    3 -> setSlice (SNat @255) (SNat @192) (slice (SNat @255) (SNat @192) state `xor` block) state
-    4 -> setSlice (SNat @319) (SNat @256) (slice (SNat @319) (SNat @256) state `xor` block) state
-    5 -> setSlice (SNat @383) (SNat @320) (slice (SNat @383) (SNat @320) state `xor` block) state
-    6 -> setSlice (SNat @447) (SNat @384) (slice (SNat @447) (SNat @384) state `xor` block) state
-    7 -> setSlice (SNat @511) (SNat @448) (slice (SNat @511) (SNat @448) state `xor` block) state
-    8 -> setSlice (SNat @575) (SNat @512) (slice (SNat @575) (SNat @512) state `xor` block) state
-    9 -> setSlice (SNat @639) (SNat @576) (slice (SNat @639) (SNat @576) state `xor` block) state
-    10 -> setSlice (SNat @703) (SNat @640) (slice (SNat @703) (SNat @640) state `xor` block) state
-    11 -> setSlice (SNat @767) (SNat @704) (slice (SNat @767) (SNat @704) state `xor` block) state
-    12 -> setSlice (SNat @831) (SNat @768) (slice (SNat @831) (SNat @768) state `xor` block) state
-    13 -> setSlice (SNat @895) (SNat @832) (slice (SNat @895) (SNat @832) state `xor` block) state
-    14 -> setSlice (SNat @959) (SNat @896) (slice (SNat @959) (SNat @896) state `xor` block) state
-    15 -> setSlice (SNat @1023) (SNat @960) (slice (SNat @1023) (SNat @960) state `xor` block) state
-    16 -> setSlice (SNat @1087) (SNat @1024) (slice (SNat @1087) (SNat @1024) state `xor` block) state
-    _ -> state
+-- Generated via Template Haskell
+$(mkMap "staticXOR256'" "xor" 1600
+    [ (0, 0, 64), (1, 64, 64), (2, 128, 64), (3, 192, 64)
+    , (4, 256, 64), (5, 320, 64), (6, 384, 64), (7, 448, 64)
+    , (8, 512, 64), (9, 576, 64), (10, 640, 64), (11, 704, 64)
+    , (12, 768, 64), (13, 832, 64), (14, 896, 64), (15, 960, 64)
+    , (16, 1024, 64)
+    ])
 
 -- | Static case-based XOR covering SHA3-512 rate (9 beats).
 staticXOR512 :: BitVector 1600 -> BitVector 64 -> Index 9 -> BitVector 1600

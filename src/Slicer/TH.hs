@@ -52,16 +52,42 @@ mkWrite funcName laneSize numLanes = do
   pure [typeSig, FunD writeName clauses]
 
 -- | Generate a map function that applies an operation to a slice of a BitVector
--- Usage: $(mkMap "staticXOR256'" "xor" 1600 [(0, 0, 64), (1, 64, 64), ...])
+--
 -- Parameters:
 --   funcName  - Name of the generated function
 --   opName    - Name of the binary operation (e.g., "xor")
 --   stateSize - Total bit width of the state (e.g., 1600)
 --   slices    - List of (index, start, laneSize) tuples
--- Generates:
---   staticXOR256' :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
---   staticXOR256' state block 0 = setSlice (SNat @63) (SNat @0) (slice (SNat @63) (SNat @0) state `xor` block) state
---   ...
+--
+-- Example 1: Normal bit order (3 lanes for brevity)
+--
+--   $(mkMap "xorNormal" "xor" 192 [(0, 0, 64), (1, 64, 64), (2, 128, 64)])
+--
+--   -- Generates:
+--   xorNormal :: BitVector 192 -> BitVector 64 -> Index 3 -> BitVector 192
+--   xorNormal state block 0 = setSlice (SNat @63) (SNat @0) (slice (SNat @63) (SNat @0) state `xor` block) state
+--   xorNormal state block 1 = setSlice (SNat @127) (SNat @64) (slice (SNat @127) (SNat @64) state `xor` block) state
+--   xorNormal state block 2 = setSlice (SNat @191) (SNat @128) (slice (SNat @191) (SNat @128) state `xor` block) state
+--   xorNormal state _ _ = state
+--
+-- Example 2: Reversed bit order (3 lanes for brevity)
+--
+--   $(mkMap "xorReversed" "xor" 192 [(0, 128, 64), (1, 64, 64), (2, 0, 64)])
+--
+--   -- Generates:
+--   xorReversed :: BitVector 192 -> BitVector 64 -> Index 3 -> BitVector 192
+--   xorReversed state block 0 = setSlice (SNat @191) (SNat @128) (slice (SNat @191) (SNat @128) state `xor` block) state
+--   xorReversed state block 1 = setSlice (SNat @127) (SNat @64) (slice (SNat @127) (SNat @64) state `xor` block) state
+--   xorReversed state block 2 = setSlice (SNat @63) (SNat @0) (slice (SNat @63) (SNat @0) state `xor` block) state
+--   xorReversed state _ _ = state
+--
+-- IMPORTANT - Synthesis consideration (verified with bench N256N):
+--
+--   Must have explicit "_ -> state" wildcard fallback that returns state UNCHANGED.
+--   BAD:  making the last index use WildP while still applying the operation
+--   GOOD: all indices use LitP, then add separate "_ -> state" at the end
+--   Reason: The wildcard fallback must return state unchanged, not apply the operation.
+--           Getting this wrong causes ~3% area bloat (25574 -> 26332 µm²).
 mkMap :: String -> String -> Integer -> [(Integer, Integer, Integer)] -> Q [Dec]
 mkMap funcName opName stateSize slices = do
   let stateName = mkName "state"
@@ -88,26 +114,26 @@ mkMap funcName opName stateSize slices = do
       funcTy = foldr1 (\a b -> AppT (AppT ArrowT a) b) [bvState, bvLane, idxCases, bvState]
       typeSig = SigD funcNameN funcTy
 
-      -- Generate clause for each tuple
-      mkClause :: Bool -> (Integer, Integer, Integer) -> Q Clause
-      mkClause isLast (idx, start, ls) = do
+      -- Generate a function clause for each tuple
+      mkClause :: (Integer, Integer, Integer) -> Clause
+      mkClause (idx, start, ls) =
         let upper = start + ls - 1
             upperTy = LitT (NumTyLit upper)
             lowerTy = LitT (NumTyLit start)
             snatUpper = AppTypeE (ConE snatName) upperTy
             snatLower = AppTypeE (ConE snatName) lowerTy
-            -- Pattern: use WildP for last case, LitP for others
-            pat = if isLast then WildP else LitP (IntegerL idx)
+            pat = LitP (IntegerL idx)
             -- slice (SNat @upper) (SNat @lower) state
             sliceExpr = foldl AppE (VarE sliceName) [snatUpper, snatLower, VarE stateName]
             -- (slice ... state) `op` block
             opExpr = InfixE (Just sliceExpr) (VarE opNameN) (Just (VarE blockName))
             -- setSlice (SNat @upper) (SNat @lower) (... `op` block) state
             body = foldl AppE (VarE setSliceName) [snatUpper, snatLower, opExpr, VarE stateName]
-        pure $ Clause [VarP stateName, VarP blockName, pat] (NormalB body) []
+        in Clause [VarP stateName, VarP blockName, pat] (NormalB body) []
 
-      -- Mark the last element
-      taggedSlices = zip (replicate (length slices - 1) False ++ [True]) slices
+      -- Wildcard fallback clause: func state _ _ = state
+      wildcardClause = Clause [VarP stateName, WildP, WildP] (NormalB (VarE stateName)) []
 
-  clauses <- mapM (uncurry mkClause) taggedSlices
-  pure [typeSig, FunD funcNameN clauses]
+      allClauses = map mkClause slices ++ [wildcardClause]
+
+  pure [typeSig, FunD funcNameN allClauses]
