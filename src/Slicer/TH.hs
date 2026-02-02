@@ -1,6 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
-
-module Slicer.TH (mkWrite, mkMap) where
+module Slicer.TH (mkWrite, mkRead, mkMap) where
 
 import Language.Haskell.TH
 import Prelude
@@ -30,7 +28,7 @@ mkWrite funcName laneSize numLanes = do
       bvLane = AppT (ConT bitVectorName) (LitT (NumTyLit laneSize))
       idxLanes = AppT (ConT indexName) (LitT (NumTyLit numLanes))
       bvTotal = AppT (ConT bitVectorName) (LitT (NumTyLit totalSize))
-      writeTy = foldr1 (\a b -> AppT (AppT ArrowT a) b) [bvLane, idxLanes, bvTotal, bvTotal]
+      writeTy = foldr1 (AppT . AppT ArrowT) [bvLane, idxLanes, bvTotal, bvTotal]
       typeSig = SigD writeName writeTy
 
       -- Generate clause for index i: write lane i bv = setSlice (SNat @upper) (SNat @lower) lane bv
@@ -50,6 +48,71 @@ mkWrite funcName laneSize numLanes = do
 
   clauses <- mapM mkClause [0..numLanes-1]
   pure [typeSig, FunD writeName clauses]
+
+-- | Generate a read function that slices out a lane from a BitVector.
+--
+-- Parameters:
+--   funcName  - Name of the generated function
+--   stateSize - Total bit width of the state (e.g., 1600)
+--   slices    - List of (index, start, laneSize) tuples
+--
+-- Example (3 lanes, normal order):
+--
+--   $(mkRead "readNormal" 192 [(0, 0, 64), (1, 64, 64), (2, 128, 64)])
+--
+--   -- Generates:
+--   readNormal :: BitVector 192 -> Index 3 -> BitVector 64
+--   readNormal state 0 = slice (SNat @63) (SNat @0) state
+--   readNormal state 1 = slice (SNat @127) (SNat @64) state
+--   readNormal state 2 = slice (SNat @191) (SNat @128) state
+--
+-- Example (3 lanes, reversed order):
+--
+--   $(mkRead "readReversed" 192 [(0, 128, 64), (1, 64, 64), (2, 0, 64)])
+--
+--   -- Generates:
+--   readReversed :: BitVector 192 -> Index 3 -> BitVector 64
+--   readReversed state 0 = slice (SNat @191) (SNat @128) state
+--   readReversed state 1 = slice (SNat @127) (SNat @64) state
+--   readReversed state 2 = slice (SNat @63) (SNat @0) state
+--
+-- NOTE: The slices list should cover all indices [0..n-1] for Index n.
+mkRead :: String -> Integer -> [(Integer, Integer, Integer)] -> Q [Dec]
+mkRead funcName stateSize slices = do
+  let stateName = mkName "state"
+      funcNameN = mkName funcName
+      sliceName = mkName "slice"
+      snatName = mkName "SNat"
+      bitVectorName = mkName "BitVector"
+      indexName = mkName "Index"
+
+      laneSize = case slices of
+        ((_, _, ls):_) -> ls
+        [] -> error "mkRead: empty slices list"
+
+      numCases = toInteger (length slices)
+
+      -- Build type: BitVector stateSize -> Index numCases -> BitVector laneSize
+      bvState = AppT (ConT bitVectorName) (LitT (NumTyLit stateSize))
+      bvLane = AppT (ConT bitVectorName) (LitT (NumTyLit laneSize))
+      idxCases = AppT (ConT indexName) (LitT (NumTyLit numCases))
+      funcTy = foldr1 (AppT . AppT ArrowT) [bvState, idxCases, bvLane]
+      typeSig = SigD funcNameN funcTy
+
+      mkClause :: (Integer, Integer, Integer) -> Clause
+      mkClause (idx, start, ls) =
+        let upper = start + ls - 1
+            upperTy = LitT (NumTyLit upper)
+            lowerTy = LitT (NumTyLit start)
+            snatUpper = AppTypeE (ConE snatName) upperTy
+            snatLower = AppTypeE (ConE snatName) lowerTy
+            pat = LitP (IntegerL idx)
+            body = foldl AppE (VarE sliceName) [snatUpper, snatLower, VarE stateName]
+         in Clause [VarP stateName, pat] (NormalB body) []
+
+      allClauses = map mkClause slices
+
+  pure [typeSig, FunD funcNameN allClauses]
 
 -- | Generate a map function that applies an operation to a slice of a BitVector
 --
@@ -111,7 +174,7 @@ mkMap funcName opName stateSize slices = do
       bvState = AppT (ConT bitVectorName) (LitT (NumTyLit stateSize))
       bvLane = AppT (ConT bitVectorName) (LitT (NumTyLit laneSize))
       idxCases = AppT (ConT indexName) (LitT (NumTyLit numCases))
-      funcTy = foldr1 (\a b -> AppT (AppT ArrowT a) b) [bvState, bvLane, idxCases, bvState]
+      funcTy = foldr1 (AppT . AppT ArrowT) [bvState, bvLane, idxCases, bvState]
       typeSig = SigD funcNameN funcTy
 
       -- Generate a function clause for each tuple
