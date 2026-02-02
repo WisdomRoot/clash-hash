@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Slicer.TH (mkWrite) where
+module Slicer.TH (mkWrite, mkMap) where
 
 import Language.Haskell.TH
 import Prelude
@@ -50,3 +50,64 @@ mkWrite funcName laneSize numLanes = do
 
   clauses <- mapM mkClause [0..numLanes-1]
   pure [typeSig, FunD writeName clauses]
+
+-- | Generate a map function that applies an operation to a slice of a BitVector
+-- Usage: $(mkMap "staticXOR256'" "xor" 1600 [(0, 0, 64), (1, 64, 64), ...])
+-- Parameters:
+--   funcName  - Name of the generated function
+--   opName    - Name of the binary operation (e.g., "xor")
+--   stateSize - Total bit width of the state (e.g., 1600)
+--   slices    - List of (index, start, laneSize) tuples
+-- Generates:
+--   staticXOR256' :: BitVector 1600 -> BitVector 64 -> Index 17 -> BitVector 1600
+--   staticXOR256' state block 0 = setSlice (SNat @63) (SNat @0) (slice (SNat @63) (SNat @0) state `xor` block) state
+--   ...
+mkMap :: String -> String -> Integer -> [(Integer, Integer, Integer)] -> Q [Dec]
+mkMap funcName opName stateSize slices = do
+  let stateName = mkName "state"
+      blockName = mkName "block"
+      funcNameN = mkName funcName
+      opNameN = mkName opName
+      setSliceName = mkName "setSlice"
+      sliceName = mkName "slice"
+      snatName = mkName "SNat"
+      bitVectorName = mkName "BitVector"
+      indexName = mkName "Index"
+
+      -- Extract laneSize from first tuple (assumed uniform)
+      laneSize = case slices of
+        ((_, _, ls):_) -> ls
+        [] -> error "mkMap: empty slices list"
+
+      numCases = toInteger (length slices)
+
+      -- Build type: BitVector stateSize -> BitVector laneSize -> Index numCases -> BitVector stateSize
+      bvState = AppT (ConT bitVectorName) (LitT (NumTyLit stateSize))
+      bvLane = AppT (ConT bitVectorName) (LitT (NumTyLit laneSize))
+      idxCases = AppT (ConT indexName) (LitT (NumTyLit numCases))
+      funcTy = foldr1 (\a b -> AppT (AppT ArrowT a) b) [bvState, bvLane, idxCases, bvState]
+      typeSig = SigD funcNameN funcTy
+
+      -- Generate clause for each tuple
+      mkClause :: Bool -> (Integer, Integer, Integer) -> Q Clause
+      mkClause isLast (idx, start, ls) = do
+        let upper = start + ls - 1
+            upperTy = LitT (NumTyLit upper)
+            lowerTy = LitT (NumTyLit start)
+            snatUpper = AppTypeE (ConE snatName) upperTy
+            snatLower = AppTypeE (ConE snatName) lowerTy
+            -- Pattern: use WildP for last case, LitP for others
+            pat = if isLast then WildP else LitP (IntegerL idx)
+            -- slice (SNat @upper) (SNat @lower) state
+            sliceExpr = foldl AppE (VarE sliceName) [snatUpper, snatLower, VarE stateName]
+            -- (slice ... state) `op` block
+            opExpr = InfixE (Just sliceExpr) (VarE opNameN) (Just (VarE blockName))
+            -- setSlice (SNat @upper) (SNat @lower) (... `op` block) state
+            body = foldl AppE (VarE setSliceName) [snatUpper, snatLower, opExpr, VarE stateName]
+        pure $ Clause [VarP stateName, VarP blockName, pat] (NormalB body) []
+
+      -- Mark the last element
+      taggedSlices = zip (replicate (length slices - 1) False ++ [True]) slices
+
+  clauses <- mapM (uncurry mkClause) taggedSlices
+  pure [typeSig, FunD funcNameN clauses]
