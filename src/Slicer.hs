@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Slicer
   ( read,
@@ -8,6 +9,7 @@ module Slicer
 where
 
 import Clash.Prelude hiding (map, read)
+import Slicer.TH (mkWrite)
 
 -- | Read one of the 25 64-bit lanes from a 1600-bit state
 read :: Index 25 -> BitVector 1600 -> BitVector 64
@@ -38,32 +40,8 @@ read 23 bv = slice (SNat @1535) (SNat @1472) bv
 read _ bv = slice (SNat @1599) (SNat @1536) bv
 
 -- | Write a 64-bit lane into a 1600-bit state at the given index
-write :: BitVector 64 -> Index 25 -> BitVector 1600 -> BitVector 1600
-write lane 0 bv = setSlice (SNat @63) (SNat @0) lane bv
-write lane 1 bv = setSlice (SNat @127) (SNat @64) lane bv
-write lane 2 bv = setSlice (SNat @191) (SNat @128) lane bv
-write lane 3 bv = setSlice (SNat @255) (SNat @192) lane bv
-write lane 4 bv = setSlice (SNat @319) (SNat @256) lane bv
-write lane 5 bv = setSlice (SNat @383) (SNat @320) lane bv
-write lane 6 bv = setSlice (SNat @447) (SNat @384) lane bv
-write lane 7 bv = setSlice (SNat @511) (SNat @448) lane bv
-write lane 8 bv = setSlice (SNat @575) (SNat @512) lane bv
-write lane 9 bv = setSlice (SNat @639) (SNat @576) lane bv
-write lane 10 bv = setSlice (SNat @703) (SNat @640) lane bv
-write lane 11 bv = setSlice (SNat @767) (SNat @704) lane bv
-write lane 12 bv = setSlice (SNat @831) (SNat @768) lane bv
-write lane 13 bv = setSlice (SNat @895) (SNat @832) lane bv
-write lane 14 bv = setSlice (SNat @959) (SNat @896) lane bv
-write lane 15 bv = setSlice (SNat @1023) (SNat @960) lane bv
-write lane 16 bv = setSlice (SNat @1087) (SNat @1024) lane bv
-write lane 17 bv = setSlice (SNat @1151) (SNat @1088) lane bv
-write lane 18 bv = setSlice (SNat @1215) (SNat @1152) lane bv
-write lane 19 bv = setSlice (SNat @1279) (SNat @1216) lane bv
-write lane 20 bv = setSlice (SNat @1343) (SNat @1280) lane bv
-write lane 21 bv = setSlice (SNat @1407) (SNat @1344) lane bv
-write lane 22 bv = setSlice (SNat @1471) (SNat @1408) lane bv
-write lane 23 bv = setSlice (SNat @1535) (SNat @1472) lane bv
-write lane _ bv = setSlice (SNat @1599) (SNat @1536) lane bv
+-- Generated via Template Haskell
+$(mkWrite)
 
 -- | Apply a function to a specific 64-bit lane
 map :: (BitVector 64 -> BitVector 64) -> Index 25 -> BitVector 1600 -> BitVector 1600
