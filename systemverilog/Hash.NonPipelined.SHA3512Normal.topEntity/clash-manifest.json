@@ -1,8 +1,8 @@
 {
     "components": [
-        "Hash_NonPipelined_SHA3512_topEntity_pad",
-        "Hash_NonPipelined_SHA3512_topEntity_spongeFSM",
-        "SHA3_512_NonPipelined"
+        "Hash_NonPipelined_SHA3512Normal_topEntity_pad",
+        "Hash_NonPipelined_SHA3512Normal_topEntity_spongeFSM",
+        "SHA3_512_NonPipelined_Normal"
     ],
     "dependencies": {
         "transitive": []
@@ -32,37 +32,37 @@
     },
     "files": [
         {
-            "name": "SHA3_512_NonPipelined_shim.cpp",
-            "sha256": "99b38a684d2b180fc4cdbd0ebe1f3208d519e4a8aecfa3fefb775b359a309489"
+            "name": "SHA3_512_NonPipelined_Normal_shim.cpp",
+            "sha256": "1ad5a48b5a0f1950ac6c879bb659a1729b9738418d7d0562ff5ee28c149a78a4"
         },
         {
-            "name": "SHA3_512_NonPipelined.sdc",
+            "name": "SHA3_512_NonPipelined_Normal.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "SHA3_512_NonPipelined_types.sv",
-            "sha256": "bdafe526fee19a5d394e0c7eed30cfa832b070eb89bd1e04f9c0a8f9e74b77db"
+            "name": "SHA3_512_NonPipelined_Normal_types.sv",
+            "sha256": "2e35081b0cc5a4eb0d21ce4871308aa8ac65135bed5bd6d0dbdcfdc484d6cda6"
         },
         {
-            "name": "Hash_NonPipelined_SHA3512_topEntity_pad.sv",
-            "sha256": "0a6d85bae163a5441e5319c2c8a676dbab6e14bb368b9b2ce1eb669bb20993be"
+            "name": "Hash_NonPipelined_SHA3512Normal_topEntity_pad.sv",
+            "sha256": "ed1825286dc1cbf6509575ca05c954c56d9b8bd53056510c175d440e3087b31f"
         },
         {
-            "name": "Hash_NonPipelined_SHA3512_topEntity_spongeFSM.sv",
-            "sha256": "1c4eac5d139dd0b1ccb58e56dece950fe2c48f82d8987c90836739cb757d6374"
+            "name": "Hash_NonPipelined_SHA3512Normal_topEntity_spongeFSM.sv",
+            "sha256": "0bf99a4a5a177e41d10cb4cb28b60ed815c2bcef3b06b4822bbab81d385c8bd8"
         },
         {
-            "name": "SHA3_512_NonPipelined.sv",
-            "sha256": "3c906cfa3bb86fcaaf730f02a7725314b7fc0dd44cbc75203622d579b188574f"
+            "name": "SHA3_512_NonPipelined_Normal.sv",
+            "sha256": "9bfe8e846008c922773553de43b7699462a6b9cdcd757dbe9a7a4020d205fc05"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "b379e7d85a170eb5b86df6d977c7c4da542687c94bb029423729f8b110b1d628",
+    "hash": "be52bc53a1ac199ed6f3621c153d9c329e817ce45b4ac12d0e5f64e945523978",
     "top_component": {
-        "name": "SHA3_512_NonPipelined",
+        "name": "SHA3_512_NonPipelined_Normal",
         "ports_flat": [
             {
                 "direction": "in",

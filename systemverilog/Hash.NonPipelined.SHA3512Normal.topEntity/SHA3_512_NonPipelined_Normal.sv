@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module SHA3_512_NonPipelined
+module SHA3_512_NonPipelined_Normal
     ( // Inputs
       input wire logic CLK  // clock
     , input wire logic RST  // reset
@@ -16,10 +16,10 @@ module SHA3_512_NonPipelined
     , output logic [65:0] DIGEST_TDATA
     , output logic DIGEST_TVALID
     );
-  SHA3_512_NonPipelined_types::Tuple2_4 MSG;
-  SHA3_512_NonPipelined_types::Tuple3_0 result_fun_arg;
-  SHA3_512_NonPipelined_types::Tuple2_4 result;
-  SHA3_512_NonPipelined_types::AXI4Stream DIGEST_TDATA_0;
+  SHA3_512_NonPipelined_Normal_types::Tuple2_4 MSG;
+  SHA3_512_NonPipelined_Normal_types::Tuple3_0 result_fun_arg;
+  SHA3_512_NonPipelined_Normal_types::Tuple2_4 result;
+  SHA3_512_NonPipelined_Normal_types::AXI4Stream DIGEST_TDATA_0;
 
   assign MSG = {MSG_MSG_TDATA,MSG_MSG_TVALID};
 
@@ -27,7 +27,7 @@ module SHA3_512_NonPipelined
                           ,TREADY
                           ,MSG.Tuple2_4_sel1};
 
-  Hash_NonPipelined_SHA3512_topEntity_spongeFSM Hash_NonPipelined_SHA3512_topEntity_spongeFSM_result
+  Hash_NonPipelined_SHA3512Normal_topEntity_spongeFSM Hash_NonPipelined_SHA3512Normal_topEntity_spongeFSM_result
     ( .result (result)
     , .c$bindCsr (CLK)
     , .c$bindCsr_0 (RST)

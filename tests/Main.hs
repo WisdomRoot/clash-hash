@@ -8,6 +8,7 @@ import Test.Constants qualified
 import Test.NonPipelined.SHA3256 qualified
 import Test.NonPipelined.SHA3256Normal qualified
 import Test.NonPipelined.SHA3512 qualified
+import Test.NonPipelined.SHA3512Normal qualified
 import Test.NonPipelined.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
@@ -36,6 +37,7 @@ main = do
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
   n256NormalTests <- testSpec "NonPipelined SHA3-256 Normal" Test.NonPipelined.SHA3256Normal.spec
   n512Tests <- testSpec "NonPipelined SHA3-512" Test.NonPipelined.SHA3512.spec
+  n512NormalTests <- testSpec "NonPipelined SHA3-512 Normal" Test.NonPipelined.SHA3512Normal.spec
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
@@ -59,6 +61,7 @@ main = do
         n256Tests,
         n256NormalTests,
         n512Tests,
+        n512NormalTests,
         n256xTests,
         n128xTests,
         n128xbTests,
