@@ -1,5 +1,6 @@
 {
     "components": [
+        "Component_Dev_topEntity_read",
         "Component_Dev"
     ],
     "dependencies": {
@@ -42,15 +43,19 @@
             "sha256": "77dc9047ee5f0476e7089aa50e75c27683863149573112144a6982077b3cb7fe"
         },
         {
+            "name": "Component_Dev_topEntity_read.sv",
+            "sha256": "348549abce669ac671f324f0b4a77826819c67ed8aec9a1f7db486e9b99e90ba"
+        },
+        {
             "name": "Component_Dev.sv",
-            "sha256": "6f54cd4a67a287c33c75449a310e2df2af6814c3d5a36cddfae58d96a009bbf1"
+            "sha256": "4d480b75c6537c8f5c864bc2d8f7a5ee4eb01ed4aaf4c425eb96bf9c03f16e17"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "217ec1423d62b5f360f39c45b661d77a6ab1221327e5b2a817dc2f6cfaa9fe50",
+    "hash": "aad3c44e04fa540db32c998da414273ad9666b8a7732e6256ff8c1d217294442",
     "top_component": {
         "name": "Component_Dev",
         "ports_flat": [
