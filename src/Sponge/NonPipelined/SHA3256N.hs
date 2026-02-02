@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Sponge.NonPipelined.SHA3256N
@@ -7,6 +8,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
+import Slicer.TH (mkRead)
 import Sponge.NonPipelinedN
 import Sponge.XOR qualified as XOR
 
@@ -31,11 +33,7 @@ pad 15 = complementAt 1087 . complementAt 1026 . complementAt 1025
 pad _ = complementAt 1087 . complementAt 2 . complementAt 1 -- special case for a whole 1088-bit padding
 
 -- | Squeeze phase bit slicing helper: extracts 64-bit chunks from the Keccak state
-squeezeSlice :: Index 4 -> BitVector 1600 -> BitVector 64
-squeezeSlice 0 state = slice (SNat @63) (SNat @0) state
-squeezeSlice 1 state = slice (SNat @127) (SNat @64) state
-squeezeSlice 2 state = slice (SNat @191) (SNat @128) state
-squeezeSlice _ state = slice (SNat @255) (SNat @192) state
+$(mkRead "squeezeSlice" 1600 [(0, 0, 64), (1, 64, 64), (2, 128, 64), (3, 192, 64)])
 
 -- | Stateful sponge with AXI4-Stream backpressure support
 {-# OPAQUE sponge #-}
@@ -57,10 +55,10 @@ sponge permModule = mealy step (State (Absorb 0) 0)
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
     step (State (Squeeze counter) state) (_msg, tready, _flush)
       | counter == maxBound =
-          let outStream = AXI4Stream {tdata = squeezeSlice counter state, tvalid = True, tlast = True}
+          let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = True}
               nextState = if tready then State (Absorb 0) 0 else State (Squeeze counter) state
            in (nextState, (outStream, False))
       | otherwise =
-          let outStream = AXI4Stream {tdata = squeezeSlice counter state, tvalid = True, tlast = False}
+          let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = False}
               nextState = if tready then State (Squeeze (counter + 1)) state else State (Squeeze counter) state
            in (nextState, (outStream, False))

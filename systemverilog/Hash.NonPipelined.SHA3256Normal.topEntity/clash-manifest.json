@@ -36,14 +36,6 @@
             "sha256": "f3502e6df5dd82c7f82a8c442b1c6f6dcbc1965e51dcf97bb98c165f4dc33854"
         },
         {
-            "name": "SHA3_256_NonPipelined_Normal_shim.cpp",
-            "sha256": "f3502e6df5dd82c7f82a8c442b1c6f6dcbc1965e51dcf97bb98c165f4dc33854"
-        },
-        {
-            "name": "SHA3_256_NonPipelined_Normal_shim.cpp",
-            "sha256": "f3502e6df5dd82c7f82a8c442b1c6f6dcbc1965e51dcf97bb98c165f4dc33854"
-        },
-        {
             "name": "SHA3_256_NonPipelined_Normal.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -57,7 +49,7 @@
         },
         {
             "name": "Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM.sv",
-            "sha256": "6eab9b37271091b0a83d8501ff622216af90411d2f89d51b0ebd6aac37ce4b01"
+            "sha256": "27489ec5da6bf53fc38583dc61b4b5c4f3be716468c84aa1ef497051824b00ca"
         },
         {
             "name": "SHA3_256_NonPipelined_Normal.sv",
@@ -68,7 +60,7 @@
         20,
         20
     ],
-    "hash": "ab7d579e5677c018356fc73fd7b5cb60478e2c3be5a783c2d155e33a73b532af",
+    "hash": "bd88ec7fd2189829ba9ad946a3e7540cbbb1ff9e1603d3d280e3ce0bf6bcbb9e",
     "top_component": {
         "name": "SHA3_256_NonPipelined_Normal",
         "ports_flat": [

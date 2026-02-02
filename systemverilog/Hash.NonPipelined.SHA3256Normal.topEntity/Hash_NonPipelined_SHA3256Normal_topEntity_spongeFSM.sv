@@ -16,6 +16,7 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   logic [63:0] result_0;
   logic [63:0] c$case_alt;
   logic [63:0] c$case_alt_0;
+  logic [63:0] c$case_alt_1;
   logic [1599:0] c$app_arg;
   logic [1599:0] state;
   SHA3_256_NonPipelined_Normal_types::State ds1 = {{2'b00,5'd0,2'bxx}
@@ -30,10 +31,10 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   logic [1:0] seenTLAST;
   logic [4:0] counter_0;
   SHA3_256_NonPipelined_Normal_types::Tuple2 result_2;
-  SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_1;
   SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_2;
-  SHA3_256_NonPipelined_Normal_types::Tuple2 result_3;
   SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_3;
+  SHA3_256_NonPipelined_Normal_types::Tuple2 result_3;
+  SHA3_256_NonPipelined_Normal_types::Tuple2 c$case_alt_4;
   logic c$app_arg_0;
   logic [1599:0] result_4;
   logic [1599:0] c$app_arg_1;
@@ -79,7 +80,6 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   SHA3_256_NonPipelined_Normal_types::Tuple2_3 c$complementAt1_tupIn_case_alt_12;
   SHA3_256_NonPipelined_Normal_types::Tuple2_3 c$complementAt1_tupIn_case_alt_13;
   logic [1599:0] result_8;
-  logic [1599:0] c$case_alt_4;
   logic [1599:0] c$case_alt_5;
   logic [1599:0] c$case_alt_6;
   logic [1599:0] c$case_alt_7;
@@ -112,6 +112,7 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   logic [1599:0] c$case_alt_34;
   logic [1599:0] c$case_alt_35;
   logic [1599:0] c$case_alt_36;
+  logic [1599:0] c$case_alt_37;
   logic [1599:0] c$app_arg_6;
   logic c$complementAt1_tupIn_case_scrut_0;
   logic c$complementAt1_tupIn_case_scrut_1;
@@ -133,7 +134,7 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   SHA3_256_NonPipelined_Normal_types::AXI4Stream \input ;
   logic [4:0] counter_1;
   logic [8:0] c$ds_case_alt_selection_1;
-  logic [10:0] c$i_22;
+  logic [10:0] c$i_23;
 
   assign result = c$ds_case_alt.Tuple2_sel1;
 
@@ -141,7 +142,9 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
 
   assign c$case_alt = (counter == 2'd1) ? (c$app_arg[127 : 64]) : c$case_alt_0;
 
-  assign c$case_alt_0 = (counter == 2'd2) ? (c$app_arg[191 : 128]) : (c$app_arg[255 : 192]);
+  assign c$case_alt_0 = (counter == 2'd2) ? (c$app_arg[191 : 128]) : c$case_alt_1;
+
+  assign c$case_alt_1 = (counter == 2'd3) ? (c$app_arg[255 : 192]) : ({64 {1'bx}});
 
   assign c$app_arg = state;
 
@@ -198,16 +201,16 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
                                                        ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
                                                          ,1'b0
                                                          ,1'b0}
-                                                        ,1'b0}} : c$case_alt_1;
+                                                        ,1'b0}} : c$case_alt_2;
 
-  assign c$case_alt_1 = (~ \input .AXI4Stream_sel1) ? {{{2'b00,counter_1,2'bxx}
+  assign c$case_alt_2 = (~ \input .AXI4Stream_sel1) ? {{{2'b00,counter_1,2'bxx}
                                                        ,state}
                                                       ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
                                                         ,1'b0
                                                         ,1'b0}
-                                                       ,1'b1}} : c$case_alt_2;
+                                                       ,1'b1}} : c$case_alt_3;
 
-  assign c$case_alt_2 = (\input .AXI4Stream_sel2 & c$app_arg_0) ? {{{2'b01,5'd0,2'd0}
+  assign c$case_alt_3 = (\input .AXI4Stream_sel2 & c$app_arg_0) ? {{{2'b01,5'd0,2'd0}
                                                                    ,result_4}
                                                                   ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
                                                                     ,1'b0
@@ -219,9 +222,9 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
                                               ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
                                                 ,1'b0
                                                 ,1'b0}
-                                               ,1'b0}} : c$case_alt_3;
+                                               ,1'b0}} : c$case_alt_4;
 
-  assign c$case_alt_3 = c$app_arg_0 ? {{{2'b00,counter_1 + 5'd1,2'bxx}
+  assign c$case_alt_4 = c$app_arg_0 ? {{{2'b00,counter_1 + 5'd1,2'bxx}
                                        ,result_8}
                                       ,{{64'b0000000000000000000000000000000000000000000000000000000000000000
                                         ,1'b0
@@ -261,9 +264,9 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   end
   // replaceBit end
 
-  assign c$i_22 = c$complementAt1_tupIn.Tuple2_3_sel0;
+  assign c$i_23 = c$complementAt1_tupIn.Tuple2_3_sel0;
 
-  assign c$app_arg_4 = $unsigned({{(64-11) {1'b0}},c$i_22});
+  assign c$app_arg_4 = $unsigned({{(64-11) {1'b0}},c$i_23});
 
   assign c$app_arg_5 = c$complementAt1_tupIn.Tuple2_3_sel1;
 
@@ -354,156 +357,156 @@ module Hash_NonPipelined_SHA3256Normal_topEntity_spongeFSM
   assign c$complementAt1_tupIn_case_alt_13 = c$complementAt1_tupIn_case_scrut_0 ? {11'd1025
                                                                                   ,result_8} : {11'd1,result_8};
 
-  assign result_8 = (counter_1 == 5'd0) ? c$case_alt_4 : c$case_alt_5;
+  assign result_8 = (counter_1 == 5'd0) ? c$case_alt_5 : c$case_alt_6;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_4 = c$app_arg_6;
-    c$case_alt_4[63 : 0] = ((c$app_arg_6[63 : 0]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_5 = c$app_arg_6;
+    c$case_alt_5[63 : 0] = ((c$app_arg_6[63 : 0]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_5 = (counter_1 == 5'd1) ? c$case_alt_6 : c$case_alt_7;
+  assign c$case_alt_6 = (counter_1 == 5'd1) ? c$case_alt_7 : c$case_alt_8;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_6 = c$app_arg_6;
-    c$case_alt_6[127 : 64] = ((c$app_arg_6[127 : 64]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_7 = c$app_arg_6;
+    c$case_alt_7[127 : 64] = ((c$app_arg_6[127 : 64]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_7 = (counter_1 == 5'd2) ? c$case_alt_8 : c$case_alt_9;
+  assign c$case_alt_8 = (counter_1 == 5'd2) ? c$case_alt_9 : c$case_alt_10;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_8 = c$app_arg_6;
-    c$case_alt_8[191 : 128] = ((c$app_arg_6[191 : 128]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_9 = c$app_arg_6;
+    c$case_alt_9[191 : 128] = ((c$app_arg_6[191 : 128]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_9 = (counter_1 == 5'd3) ? c$case_alt_10 : c$case_alt_11;
+  assign c$case_alt_10 = (counter_1 == 5'd3) ? c$case_alt_11 : c$case_alt_12;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_10 = c$app_arg_6;
-    c$case_alt_10[255 : 192] = ((c$app_arg_6[255 : 192]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_11 = c$app_arg_6;
+    c$case_alt_11[255 : 192] = ((c$app_arg_6[255 : 192]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_11 = (counter_1 == 5'd4) ? c$case_alt_12 : c$case_alt_13;
+  assign c$case_alt_12 = (counter_1 == 5'd4) ? c$case_alt_13 : c$case_alt_14;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_12 = c$app_arg_6;
-    c$case_alt_12[319 : 256] = ((c$app_arg_6[319 : 256]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_13 = c$app_arg_6;
+    c$case_alt_13[319 : 256] = ((c$app_arg_6[319 : 256]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_13 = (counter_1 == 5'd5) ? c$case_alt_14 : c$case_alt_15;
+  assign c$case_alt_14 = (counter_1 == 5'd5) ? c$case_alt_15 : c$case_alt_16;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_14 = c$app_arg_6;
-    c$case_alt_14[383 : 320] = ((c$app_arg_6[383 : 320]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_15 = c$app_arg_6;
+    c$case_alt_15[383 : 320] = ((c$app_arg_6[383 : 320]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_15 = (counter_1 == 5'd6) ? c$case_alt_16 : c$case_alt_17;
+  assign c$case_alt_16 = (counter_1 == 5'd6) ? c$case_alt_17 : c$case_alt_18;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_16 = c$app_arg_6;
-    c$case_alt_16[447 : 384] = ((c$app_arg_6[447 : 384]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_17 = c$app_arg_6;
+    c$case_alt_17[447 : 384] = ((c$app_arg_6[447 : 384]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_17 = (counter_1 == 5'd7) ? c$case_alt_18 : c$case_alt_19;
+  assign c$case_alt_18 = (counter_1 == 5'd7) ? c$case_alt_19 : c$case_alt_20;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_18 = c$app_arg_6;
-    c$case_alt_18[511 : 448] = ((c$app_arg_6[511 : 448]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_19 = c$app_arg_6;
+    c$case_alt_19[511 : 448] = ((c$app_arg_6[511 : 448]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_19 = (counter_1 == 5'd8) ? c$case_alt_20 : c$case_alt_21;
+  assign c$case_alt_20 = (counter_1 == 5'd8) ? c$case_alt_21 : c$case_alt_22;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_20 = c$app_arg_6;
-    c$case_alt_20[575 : 512] = ((c$app_arg_6[575 : 512]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_21 = c$app_arg_6;
+    c$case_alt_21[575 : 512] = ((c$app_arg_6[575 : 512]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_21 = (counter_1 == 5'd9) ? c$case_alt_22 : c$case_alt_23;
+  assign c$case_alt_22 = (counter_1 == 5'd9) ? c$case_alt_23 : c$case_alt_24;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_22 = c$app_arg_6;
-    c$case_alt_22[639 : 576] = ((c$app_arg_6[639 : 576]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_23 = c$app_arg_6;
+    c$case_alt_23[639 : 576] = ((c$app_arg_6[639 : 576]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_23 = (counter_1 == 5'd10) ? c$case_alt_24 : c$case_alt_25;
+  assign c$case_alt_24 = (counter_1 == 5'd10) ? c$case_alt_25 : c$case_alt_26;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_24 = c$app_arg_6;
-    c$case_alt_24[703 : 640] = ((c$app_arg_6[703 : 640]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_25 = c$app_arg_6;
+    c$case_alt_25[703 : 640] = ((c$app_arg_6[703 : 640]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_25 = (counter_1 == 5'd11) ? c$case_alt_26 : c$case_alt_27;
+  assign c$case_alt_26 = (counter_1 == 5'd11) ? c$case_alt_27 : c$case_alt_28;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_26 = c$app_arg_6;
-    c$case_alt_26[767 : 704] = ((c$app_arg_6[767 : 704]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_27 = c$app_arg_6;
+    c$case_alt_27[767 : 704] = ((c$app_arg_6[767 : 704]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_27 = (counter_1 == 5'd12) ? c$case_alt_28 : c$case_alt_29;
+  assign c$case_alt_28 = (counter_1 == 5'd12) ? c$case_alt_29 : c$case_alt_30;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_28 = c$app_arg_6;
-    c$case_alt_28[831 : 768] = ((c$app_arg_6[831 : 768]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_29 = c$app_arg_6;
+    c$case_alt_29[831 : 768] = ((c$app_arg_6[831 : 768]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_29 = (counter_1 == 5'd13) ? c$case_alt_30 : c$case_alt_31;
+  assign c$case_alt_30 = (counter_1 == 5'd13) ? c$case_alt_31 : c$case_alt_32;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_30 = c$app_arg_6;
-    c$case_alt_30[895 : 832] = ((c$app_arg_6[895 : 832]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_31 = c$app_arg_6;
+    c$case_alt_31[895 : 832] = ((c$app_arg_6[895 : 832]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_31 = (counter_1 == 5'd14) ? c$case_alt_32 : c$case_alt_33;
+  assign c$case_alt_32 = (counter_1 == 5'd14) ? c$case_alt_33 : c$case_alt_34;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_32 = c$app_arg_6;
-    c$case_alt_32[959 : 896] = ((c$app_arg_6[959 : 896]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_33 = c$app_arg_6;
+    c$case_alt_33[959 : 896] = ((c$app_arg_6[959 : 896]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_33 = (counter_1 == 5'd15) ? c$case_alt_34 : c$case_alt_35;
+  assign c$case_alt_34 = (counter_1 == 5'd15) ? c$case_alt_35 : c$case_alt_36;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_34 = c$app_arg_6;
-    c$case_alt_34[1023 : 960] = ((c$app_arg_6[1023 : 960]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_35 = c$app_arg_6;
+    c$case_alt_35[1023 : 960] = ((c$app_arg_6[1023 : 960]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign c$case_alt_35 = (counter_1 == 5'd16) ? c$case_alt_36 : state;
+  assign c$case_alt_36 = (counter_1 == 5'd16) ? c$case_alt_37 : state;
 
   // setSlice begin
   always_comb begin
-    c$case_alt_36 = c$app_arg_6;
-    c$case_alt_36[1087 : 1024] = ((c$app_arg_6[1087 : 1024]) ^ \input .AXI4Stream_sel0);
+    c$case_alt_37 = c$app_arg_6;
+    c$case_alt_37[1087 : 1024] = ((c$app_arg_6[1087 : 1024]) ^ \input .AXI4Stream_sel0);
   end
   // setSlice end
 
