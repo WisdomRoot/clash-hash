@@ -41,7 +41,7 @@ read _ bv = slice (SNat @1599) (SNat @1536) bv
 
 -- | Write a 64-bit lane into a 1600-bit state at the given index
 -- Generated via Template Haskell
-$(mkWrite)
+$(mkWrite "write" 64 25)
 
 -- | Apply a function to a specific 64-bit lane
 map :: (BitVector 64 -> BitVector 64) -> Index 25 -> BitVector 1600 -> BitVector 1600
