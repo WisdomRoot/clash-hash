@@ -36,6 +36,10 @@
             "sha256": "1ad5a48b5a0f1950ac6c879bb659a1729b9738418d7d0562ff5ee28c149a78a4"
         },
         {
+            "name": "SHA3_512_NonPipelined_Normal_shim.cpp",
+            "sha256": "1ad5a48b5a0f1950ac6c879bb659a1729b9738418d7d0562ff5ee28c149a78a4"
+        },
+        {
             "name": "SHA3_512_NonPipelined_Normal.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },

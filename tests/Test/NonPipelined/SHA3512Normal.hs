@@ -21,15 +21,15 @@ spec = describe "NonPipelined SHA3-512 (Normal) Tests" $ do
   it "0-bit input, 512-bit output (flush-only)" $ runTest emptyFlushCase
 
   describe "Basic functionality tests" $
-    for_ Samples.sha3BasicCases $
+    for_ Samples.sha3512BasicCases $
       \testCase -> it (testLabel testCase) $ runTest testCase
 
   describe "Upstream stall handling" $
-    for_ Samples.sha3StallCases $
+    for_ Samples.sha3512StallCases $
       \testCase -> it (testLabel testCase) $ runTest testCase
 
   describe "Downstream backpressure handling" $
-    for_ Samples.sha3BackpressureCases $
+    for_ Samples.sha3512BackpressureCases $
       \testCase -> it (testLabel testCase) $ runTest testCase
 
   describe "QuickCheck property tests" $
