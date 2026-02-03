@@ -19,5 +19,5 @@ import Prelude
 -- Output: (rho, sigma) where each is 32 bytes
 gReference :: ByteString -> (ByteString, ByteString)
 gReference input =
-  let output = callPythonReference ("reference" </> "kyber" </> "g.py") input
+  let output = callPythonReference ("reference" </> "kyber" </> "g.py") (input <> BS.pack [2])
    in (BS.take 32 output, BS.drop 32 output)

@@ -22,6 +22,7 @@ import Component.G512 qualified as G512
 import Reference.Crypton qualified as Crypton
 import Test.Hspec (Expectation, shouldBe)
 import Test.QuickCheck (Gen)
+import Test.TestHarness.G (gReference)
 import Test.TestHarness.SHAKECommon
   ( ShakeGenConfig (..),
     ShakeTest (..),
@@ -76,9 +77,14 @@ sha3512NormalG512Gen = genShakeTest sha3512NormalG512GenConfig
 
 runTest :: SHA3512NormalG512Test -> Expectation
 runTest test = do
-  let expected = spReference sha3512NormalG512Params (Common.testOutputBytes test) (Common.testMessage test)
+  let outBytes = Common.testOutputBytes test
+      msg = Common.testMessage test
+      expectedCrypton = spReference sha3512NormalG512Params outBytes msg
+      (rho, _sigma) = gReference msg
+      expectedPython = BS.take outBytes rho
       actual = runHardware test
-  actual `shouldBe` expected
+  actual `shouldBe` expectedPython
+  actual `shouldBe` expectedCrypton
 
 runHardware :: SHA3512NormalG512Test -> ByteString
 runHardware test =

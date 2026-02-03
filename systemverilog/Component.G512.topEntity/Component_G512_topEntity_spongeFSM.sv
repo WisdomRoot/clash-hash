@@ -114,12 +114,12 @@ module Component_G512_topEntity_spongeFSM
 
   assign counter = ds1[1606:1606];
 
-  Component_G512_topEntity_pad Component_G512_topEntity_pad_c$ds_case_alt_0
+  Component_G512_topEntity_sponge28 Component_G512_topEntity_sponge28_c$ds_case_alt_0
     ( .result (c$ds_case_alt_0)
-    , .eta2 (counter_0)
-    , .eta3 (seenTLAST)
-    , .eta4 (state)
-    , .eta5 (tready) );
+    , .eta3 (counter_0)
+    , .eta4 (seenTLAST)
+    , .eta5 (state)
+    , .eta6 (tready) );
 
   assign tready = eta2.Tuple3_0_sel1;
 

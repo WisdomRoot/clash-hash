@@ -3,12 +3,12 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_G512_topEntity_pad
+module Component_G512_topEntity_sponge28
     ( // Inputs
-      input wire logic [4:0] eta2
-    , input wire logic [1:0] eta3
-    , input wire logic [1599:0] eta4
-    , input wire logic eta5
+      input wire logic [4:0] eta3
+    , input wire logic [1:0] eta4
+    , input wire logic [1599:0] eta5
+    , input wire logic eta6
 
       // Outputs
     , output Component_G_512_I256_O256_types::Tuple2 result
@@ -20,11 +20,12 @@ module Component_G512_topEntity_pad
   logic [1599:0] c$app_arg_0;
   logic [1599:0] result_2;
   logic [1599:0] c$app_arg_1;
-  Component_G_512_I256_O256_types::State c$app_arg_2;
+  logic [255:0] c$app_arg_2;
+  Component_G_512_I256_O256_types::State c$app_arg_3;
   logic [1599:0] result_3;
   logic [63:0] lvl;
   logic [1599:0] \c$state'_app_arg ;
-  Component_G_512_I256_O256_types::array_of_1600_logic_vector_1 c$app_arg_3;
+  Component_G_512_I256_O256_types::array_of_1600_logic_vector_1 c$app_arg_4;
   logic [1599:0] result_4;
   Component_G_512_I256_O256_types::array_of_1600_logic result_5;
   logic [1599:0] lvl1;
@@ -113,19 +114,17 @@ module Component_G512_topEntity_pad
   Component_G_512_I256_O256_types::array_of_8_logic c$vec1_19;
   Component_G_512_I256_O256_types::array_of_8_logic c$vec2_5;
 
-  assign result = (eta2 == 5'd23) ? c$case_alt : {{{2'b01,eta2 + 5'd1,eta3}
+  assign result = (eta3 == 5'd23) ? c$case_alt : {{{2'b01,eta3 + 5'd1,eta4}
                                                   ,result_3}
                                                  ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
                                                    ,1'b0
                                                    ,1'b0}
                                                   ,1'b0}};
 
-  assign c$bv = (result_3);
-
   always_comb begin
-    case(eta3)
-      2'b00 : c$case_alt = {c$app_arg_2
-                           ,{{c$bv[255 : 0],1'b1,1'b0},1'b0}};
+    case(eta4)
+      2'b00 : c$case_alt = {c$app_arg_3
+                           ,{{c$app_arg_2,1'b1,1'b0},1'b0}};
       2'b01 : c$case_alt = {{{2'b01,5'd0,2'd0}
                             ,result_0}
                            ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -168,7 +167,11 @@ module Component_G512_topEntity_pad
 
   assign c$app_arg_1 = result_3;
 
-  assign c$app_arg_2 = eta5 ? {{2'b10,1'd1,6'bxxxxxx}
+  assign c$bv = (result_3);
+
+  assign c$app_arg_2 = c$bv[255 : 0];
+
+  assign c$app_arg_3 = eta6 ? {{2'b10,1'd1,6'bxxxxxx}
                               ,result_3} : {{2'b10,1'd0,6'bxxxxxx},result_3};
 
   // setSlice begin
@@ -185,19 +188,19 @@ module Component_G512_topEntity_pad
   // map begin
   genvar n;
   generate
-  for (n=0; n < $size(c$app_arg_3); n = n + 1) begin : map
+  for (n=0; n < $size(c$app_arg_4); n = n + 1) begin : map
     logic map_in;
     assign map_in = result_5[n];
     logic [0:0] map_out;
     assign map_out = (map_in);
 
 
-    assign c$app_arg_3[n] = map_out;
+    assign c$app_arg_4[n] = map_out;
   end
   endgenerate
   // map end
 
-  assign result_4 = ({Component_G_512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_3)});
+  assign result_4 = ({Component_G_512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_4)});
 
   assign c$vec = '{0: {11'd1599,11'd1343,11'd1407}
                   ,1: {11'd1598,11'd1342,11'd1406}
@@ -5721,7 +5724,7 @@ module Component_G512_topEntity_pad
   endgenerate
   // unconcat end
 
-  assign c$vec_2 = (Component_G_512_I256_O256_types::array_of_1600_logic_vector_1_from_lv(eta4));
+  assign c$vec_2 = (Component_G_512_I256_O256_types::array_of_1600_logic_vector_1_from_lv(eta5));
 
   // map begin
   genvar n_35;
@@ -5738,7 +5741,7 @@ module Component_G512_topEntity_pad
   endgenerate
   // map end
 
-  assign c$vec_3 = (Component_G_512_I256_O256_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},eta2}))]));
+  assign c$vec_3 = (Component_G_512_I256_O256_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},eta3}))]));
 
   // map begin
   genvar n_36;

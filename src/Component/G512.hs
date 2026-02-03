@@ -15,10 +15,6 @@ import Sponge.NonPipelined.SHA3512N256 qualified
 -- Component G512 (MK-KEM-512 / 256-bit input / 256-bit output)
 --------------------------------------------------------------------------------
 
-type MsgBits = 256
-
-type DigestBits = 256
-
 -- Wrapper function for module naming control
 -- OPAQUE ensures module boundary; function name determines module name
 {-# OPAQUE spongeFSM #-}
@@ -58,8 +54,8 @@ topEntity ::
   Reset System ->
   Enable System ->
   Signal System Bool -> -- output tready
-  Signal System (AXI4Stream MsgBits, Bool) -> -- Input message with flush signal
-  Signal System (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
+  Signal System (AXI4Stream 256, Bool) -> -- Input message with flush signal
+  Signal System (AXI4Stream 256, Bool) -- Output digest (AXI4-Stream), input tready
 topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig

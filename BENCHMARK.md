@@ -1,3 +1,13 @@
+## G512-I256-O256
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Component_G512_topEntity_pad                        9743.580            0.000     0.00%
+  Component_G512_topEntity_spongeFSM                 14849.716         8559.880    57.64%
+  Component_G_512_I256_O256                          24593.296         8559.880    34.81%
+
+[bench] Time/Mem: load 2.41s | compile 2.68s | synth 18.59s | mem 2996.59 MB
+
 ## SHA3-256
 
 * 20260105: baseline
