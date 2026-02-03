@@ -1,8 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Hash.NonPipelined.SHA3512NormalG
-  ( -- * NonPipelined SHA3-512 Top Entity (256-bit output)
-    topEntity,
+module Component.G
+  ( topEntity,
   )
 where
 
@@ -12,7 +11,7 @@ import Permutation qualified
 import Sponge.NonPipelined.SHA3512N256 qualified
 
 --------------------------------------------------------------------------------
--- NonPipelined SHA3-512 Top Entity (256-bit output)
+-- Component G (SHA3-512, normal order, 256-bit output)
 --------------------------------------------------------------------------------
 
 type MsgBits = 64
@@ -28,7 +27,7 @@ spongeFSM = Permutation.keccakF1600
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "SHA3_512_NonPipelined_Normal_256",
+      { t_name = "Component_G",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",

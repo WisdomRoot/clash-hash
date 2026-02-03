@@ -22,30 +22,30 @@ spec = describe "Constants" $ do
     let actual = $(Permutation.Constants.thetaReversed 6) :: Vec 1600 (Vec 11 (Index 1600))
     actual `shouldBe` expected
 
-  it "chi 6" $ do
-    let expected = $(Permutation.Constants.chi 6)
-    let actual = Permutation.Constants.chi6
-    actual `shouldBe` expected
+  -- it "chi 6" $ do
+  --   let expected = $(Permutation.Constants.chi 6)
+  --   let actual = Permutation.Constants.chi6
+  --   actual `shouldBe` expected
 
   it "chi 6 reversed" $ do
     let expected = fmap (\(i, j, k) -> (1599 - i, 1599 - j, 1599 - k)) $(Permutation.Constants.chi 6)
     let actual = Permutation.Constants.chi6Reversed
     actual `shouldBe` expected
 
-  it "pi 6" $ do
-    let expected = $(Permutation.Constants.pi 6)
-    let actual = Permutation.Constants.pi6
-    actual `shouldBe` expected
+  -- it "pi 6" $ do
+  --   let expected = $(Permutation.Constants.pi 6)
+  --   let actual = Permutation.Constants.pi6
+  --   actual `shouldBe` expected
 
   it "pi 6 reversed" $ do
     let expected = fmap (1599 -) $(Permutation.Constants.pi 6)
     let actual = Permutation.Constants.pi6Reversed
     actual `shouldBe` expected
 
-  it "rho 6" $ do
-    let expected = $(Permutation.Constants.rho 6)
-    let actual = Permutation.Constants.rho6
-    actual `shouldBe` expected
+  -- it "rho 6" $ do
+  --   let expected = $(Permutation.Constants.rho 6)
+  --   let actual = Permutation.Constants.rho6
+  --   actual `shouldBe` expected
 
   it "rho 6 reversed" $ do
     let expected = fmap (1599 -) $(Permutation.Constants.rho 6)

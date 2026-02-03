@@ -3,7 +3,7 @@
   "N256N": "Hash.NonPipelined.SHA3256Normal.topEntity",
   "N512": "Hash.NonPipelined.SHA3512.topEntity",
   "N512N": "Hash.NonPipelined.SHA3512Normal.topEntity",
-  "G": "Hash.NonPipelined.SHA3512NormalG.topEntity",
+  "G": "Component.G.topEntity",
   "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",

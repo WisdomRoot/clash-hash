@@ -18,7 +18,7 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
-import Hash.NonPipelined.SHA3512NormalG qualified as SHA3512NormalG
+import Component.G qualified as G
 import Reference.Crypton qualified as Crypton
 import Test.Hspec (Expectation, shouldBe)
 import Test.QuickCheck (Gen)
@@ -58,7 +58,7 @@ sha3512NormalGParams =
   ShakeParams256
     { spBeatsPerBlock = 9,
       spReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 msg),
-      spTopEntity = SHA3512NormalG.topEntity
+      spTopEntity = G.topEntity
     }
 
 sha3512NormalGGenConfig :: ShakeGenConfig

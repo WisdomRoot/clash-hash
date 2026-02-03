@@ -48,7 +48,7 @@ backpressureCases =
   ]
 
 spec :: Spec
-spec = describe "NonPipelined SHA3-512 (Normal, 256-bit output) Tests" $ do
+spec = describe "Component G (256-bit output) Tests" $ do
   let emptyFlushCase = makeBasicTest BS.empty 32
 
   it "0-bit input, 256-bit output (flush-only)" $ runTest emptyFlushCase
