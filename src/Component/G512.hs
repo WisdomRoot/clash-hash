@@ -12,10 +12,10 @@ import Permutation qualified
 import Sponge.NonPipelined.SHA3512N256 qualified
 
 --------------------------------------------------------------------------------
--- Component G512 (SHA3-512, normal order, 256-bit output)
+-- Component G512 (MK-KEM-512 / 256-bit input / 256-bit output)
 --------------------------------------------------------------------------------
 
-type MsgBits = 64
+type MsgBits = 256
 
 type DigestBits = 256
 

@@ -32,7 +32,7 @@ import Test.TestHarness.SHAKECommon qualified as Common
 import Test.TestHarness.StreamCommon
   ( bitListToBSHW,
     bsToBitListHW,
-    feedInput,
+    feedInput256,
     makeBackpressureSignal
   )
 import Prelude qualified as P
@@ -44,7 +44,7 @@ type ShakeTopEntity256 =
   Reset System ->
   Enable System ->
   Signal System Bool ->
-  Signal System (AXI4Stream 64, Bool) ->
+  Signal System (AXI4Stream 256, Bool) ->
   Signal System (AXI4Stream 256, Bool)
 
 data ShakeParams256 = ShakeParams256
@@ -56,8 +56,8 @@ data ShakeParams256 = ShakeParams256
 sha3512NormalG512Params :: ShakeParams256
 sha3512NormalG512Params =
   ShakeParams256
-    { spBeatsPerBlock = 9,
-      spReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 msg),
+    { spBeatsPerBlock = 3,
+      spReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 (msg <> BS.pack [2])),
       spTopEntity = G512.topEntity
     }
 
@@ -65,15 +65,9 @@ sha3512NormalG512GenConfig :: ShakeGenConfig
 sha3512NormalG512GenConfig =
   defaultShakeGenConfig
     { sgBeatOptions =
-        [ (2, 1),
-          (1, 2),
-          (1, 8),
-          (2, 9),
-          (1, 10),
-          (2, 17),
-          (1, 18),
-          (1, 25)
+        [ (1, 4)
         ],
+      sgBeatRanges = [],
       sgOutputOptions = [(1, 32)]
     }
 
@@ -89,7 +83,7 @@ runTest test = do
 runHardware :: SHA3512NormalG512Test -> ByteString
 runHardware test =
   let inputBytes = BS.length (Common.testMessage test)
-      beats = (inputBytes P.+ 7) `P.div` 8
+      beats = (inputBytes P.+ 31) `P.div` 32
    in case fromJust (someNatVal (P.fromIntegral beats)) of
         SomeNat (_ :: Proxy beats') ->
           runHardwareKnown @beats' sha3512NormalG512Params test beats (spBeatsPerBlock sha3512NormalG512Params)
@@ -108,11 +102,11 @@ runHardwareKnown ::
 runHardwareKnown params test beats beatsPerBlock =
   let inputBS = Common.testMessage test
       inputBits = bsToBitListHW inputBS
-      paddedBits = P.take (beats P.* 64) (inputBits P.++ P.repeat 0)
-      messageWords = bitListToWordsNormal @beats beats paddedBits
+      paddedBits = P.take (beats P.* 256) (inputBits P.++ P.repeat 0)
+      messageWords = bitListToWordsNormal256 @beats beats paddedBits
       inputStream =
         withClockResetEnable clockGen resetGen enableGen
-          $ feedInput @beats beatsPerBlock (Common.testUpstreamStall test) messageWords
+          $ feedInput256 @beats beatsPerBlock (Common.testUpstreamStall test) messageWords
       treadySignal = makeBackpressureSignal (Common.testDownstreamBackpressure test)
       output =
         spTopEntity
@@ -136,17 +130,17 @@ runHardwareKnown params test beats beatsPerBlock =
       resultBits = P.take outputBits outputWordBits
    in bitListToBSHW resultBits
 
-bitListToWordsNormal :: forall beats. (KnownNat beats) => Int -> [Bit] -> Vec beats (BitVector 64)
-bitListToWordsNormal n bits =
-  let chunks = chunksOf 64 bits
+bitListToWordsNormal256 :: forall beats. (KnownNat beats) => Int -> [Bit] -> Vec beats (BitVector 256)
+bitListToWordsNormal256 n bits =
+  let chunks = chunksOf 256 bits
       wordsList = P.map bitsToWord (P.take n chunks)
    in V.unsafeFromList wordsList
   where
     chunksOf _ [] = []
     chunksOf m xs = P.take m xs : chunksOf m (P.drop m xs)
     bitsToWord bs =
-      let paddedBits = P.take 64 (bs P.++ P.repeat 0)
-          word = P.foldl accumBit 0 (P.zip [0 .. 63] paddedBits)
+      let paddedBits = P.take 256 (bs P.++ P.repeat 0)
+          word = P.foldl accumBit 0 (P.zip [0 .. 255] paddedBits)
        in word
     accumBit acc (i, b) = if b == 1 then Bits.setBit acc i else acc
 

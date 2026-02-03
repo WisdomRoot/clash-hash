@@ -16,32 +16,29 @@ import Test.TestHarness.SHAKECommon (makeBasicTest, makeBackpressureTest, makeCo
 
 basicCases :: [SHA3512NormalG512Test]
 basicCases =
-  [ makeBasicTest BS.empty 32,
-    makeBasicTest "qwertyui" 32,
-    makeBasicTest Samples.msg576 32,
-    makeBasicTest Samples.msg1152 32,
-    makeBasicTest Samples.msg1600 32,
-    makeBasicTest Samples.msg3200 32
+  [ makeBasicTest (BS.replicate 32 0x00) 32,
+    makeBasicTest (BS.replicate 32 0x61) 32,
+    makeBasicTest (BS.replicate 32 0xFF) 32
   ]
 
 stallCases :: [SHA3512NormalG512Test]
 stallCases =
-  [ makeStallTest Samples.msg576 32 Samples.stallPatternAggressive,
-    makeStallTest Samples.msg1152 32 Samples.stallPatternModerate,
-    makeStallTest Samples.msg1600 32 Samples.stallPatternSimple
+  [ makeStallTest (BS.replicate 32 0x7E) 32 Samples.stallPatternAggressive,
+    makeStallTest (BS.replicate 32 0x33) 32 Samples.stallPatternModerate,
+    makeStallTest (BS.replicate 32 0xAA) 32 Samples.stallPatternSimple
   ]
 
 backpressureCases :: [SHA3512NormalG512Test]
 backpressureCases =
-  [ makeBackpressureTest Samples.msg576 32 Samples.backpressurePatternSimple,
-    makeBackpressureTest Samples.msg1152 32 Samples.backpressurePatternModerate,
+  [ makeBackpressureTest (BS.replicate 32 0x10) 32 Samples.backpressurePatternSimple,
+    makeBackpressureTest (BS.replicate 32 0x22) 32 Samples.backpressurePatternModerate,
     makeCombinedTest
-      Samples.msg576
+      (BS.replicate 32 0x55)
       32
       Samples.stallPatternAggressive
       Samples.backpressurePatternAggressive,
     makeCombinedTest
-      Samples.msg1600
+      (BS.replicate 32 0x99)
       32
       Samples.stallPatternModerate
       Samples.backpressurePatternSimple
@@ -49,10 +46,6 @@ backpressureCases =
 
 spec :: Spec
 spec = describe "Component G512 (256-bit output) Tests" $ do
-  let emptyFlushCase = makeBasicTest BS.empty 32
-
-  it "0-bit input, 256-bit output (flush-only)" $ runTest emptyFlushCase
-
   describe "Basic functionality tests" $
     for_ basicCases $
       \testCase -> it (testLabel testCase) $ runTest testCase

@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
--- | 64-bit streaming variant of the non-pipelined sponge (normal bit order)
+-- | 256-bit streaming variant of the non-pipelined sponge (normal bit order)
 -- with 256-bit output beats.
 module Sponge.NonPipelinedN256
   ( MsgBits,
@@ -17,7 +17,7 @@ where
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
 
-type MsgBits = 64
+type MsgBits = 256
 
 type DigestBits = 256
 

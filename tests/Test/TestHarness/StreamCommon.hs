@@ -5,6 +5,7 @@ module Test.TestHarness.StreamCommon
   ( UpstreamStall (..),
     DownstreamBackpressure (..),
     feedInput,
+    feedInput256,
     makeBackpressureSignal,
     bsToBitListHW,
     bitListToBSHW,
@@ -65,6 +66,59 @@ feedInput ::
   Vec beats (BitVector 64) ->
   Signal dom (AXI4Stream 64, Bool)
 feedInput beatsPerBlock control messageWords =
+  let isEmpty = V.length messageWords == 0
+   in mealy step (toList messageWords, 0 :: Int, 0 :: Int, stallPattern, isEmpty) (pure ())
+  where
+    stallPattern = case control of
+      NoUpstreamStall -> []
+      UpstreamStall xs -> xs
+    permuteLatency = 24 :: Int
+    step (xs, waitCount, emittedInBlock, ctrl, wasEmpty) _ =
+      if waitCount P.> 0
+        then ((xs, waitCount P.- 1, emittedInBlock, ctrl, wasEmpty), (idleBeat, False))
+        else
+          let (canSend, ctrl') = case ctrl of
+                [] -> (True, [])
+                b : bs -> (b, bs)
+           in if P.not canSend
+                then ((xs, waitCount, emittedInBlock, ctrl', wasEmpty), (idleBeat, False))
+                else case xs of
+                  []
+                    | wasEmpty ->
+                        (([], 0, 0, ctrl', False), (idleBeat, True))
+                  [] -> (([], 0, 0, ctrl', False), (idleBeat, False))
+                  y : ys ->
+                    let isLast = P.null ys
+                        emittedNow = emittedInBlock P.+ 1
+                        blockCompleted = emittedNow == beatsPerBlock
+                        needGap = blockCompleted P.&& P.not isLast
+                        nextWait = if needGap then permuteLatency else 0
+                        nextEmitted = if blockCompleted then 0 else emittedNow
+                        nextState = (ys, nextWait, nextEmitted, ctrl', False)
+                        outBeat =
+                          AXI4Stream
+                            { tdata = y,
+                              tvalid = True,
+                              tlast = isLast
+                            }
+                     in (nextState, (outBeat, False))
+    idleBeat =
+      AXI4Stream
+        { tdata = 0,
+          tvalid = False,
+          tlast = False
+        }
+
+feedInput256 ::
+  forall beats dom.
+  ( KnownNat beats,
+    HiddenClockResetEnable dom
+  ) =>
+  Int ->
+  UpstreamStall ->
+  Vec beats (BitVector 256) ->
+  Signal dom (AXI4Stream 256, Bool)
+feedInput256 beatsPerBlock control messageWords =
   let isEmpty = V.length messageWords == 0
    in mealy step (toList messageWords, 0 :: Int, 0 :: Int, stallPattern, isEmpty) (pure ())
   where

@@ -20,8 +20,8 @@ module Component_SampleNTT2
     , output logic SEED_TREADY
     );
   logic [1620:0] c$ds_app_arg = {2'b00,1619'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-  Component_SampleNTT2_types::Tuple2 c$case_alt;
-  Component_SampleNTT2_types::Tuple2 c$case_alt_0;
+  Component_SampleNTT2_types::Tuple2_2 c$case_alt;
+  Component_SampleNTT2_types::Tuple2_2 c$case_alt_0;
   logic msgValid;
   logic [1620:0] c$app_arg;
   logic tready;
@@ -105,7 +105,7 @@ module Component_SampleNTT2
   logic [5:0] index;
   logic [1599:0] c$coeffPair_app_arg;
   logic [1599:0] state;
-  Component_SampleNTT2_types::Tuple2 result_1;
+  Component_SampleNTT2_types::Tuple2_2 result_1;
   logic [12:0] buffer_0;
   logic [1599:0] result_2;
   logic [1599:0] c$app_arg_0;
@@ -120,13 +120,13 @@ module Component_SampleNTT2
   logic [1599:0] result_7;
   logic [1599:0] c$app_arg_5;
   logic [271:0] inputMsg;
-  logic [1599:0] c$keccakF1600_out;
+  logic [1599:0] c$keccakF1600Reversed_out;
   logic [1599:0] state_0;
   logic [4:0] roundIdx;
-  Component_SampleNTT2_types::Tuple2_0 inputSig;
+  Component_SampleNTT2_types::Tuple2_3 inputSig;
   Component_SampleNTT2_types::array_of_12_logic_vector_1 c$vec;
   Component_SampleNTT2_types::array_of_12_logic_vector_1 c$vec_0;
-  Component_SampleNTT2_types::Tuple2_1 result;
+  Component_SampleNTT2_types::Tuple2_4 result;
   Component_SampleNTT2_types::AXI4Stream COEFF;
 
   assign inputSig = {{SEED_TDATA
@@ -139,12 +139,12 @@ module Component_SampleNTT2
     if ( RST) begin
       c$ds_app_arg <= {2'b00,1619'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
     end else  if (EN)  begin
-      c$ds_app_arg <= c$case_alt.Tuple2_sel0;
+      c$ds_app_arg <= c$case_alt.Tuple2_2_sel0;
     end
   end
   // register end
 
-  assign result = c$case_alt.Tuple2_sel1;
+  assign result = c$case_alt.Tuple2_2_sel1;
 
   always_comb begin
     case(c$ds_app_arg[1620:1619])
@@ -168,7 +168,7 @@ module Component_SampleNTT2
 
   assign c$app_arg = tready ? c$case_alt_1 : c$ds_app_arg;
 
-  assign tready = inputSig.Tuple2_0_sel1;
+  assign tready = inputSig.Tuple2_3_sel1;
 
   assign c$case_alt_1 = (index == 6'd55) ? {2'b01,5'd0,state,result_0.Tuple3_0_sel2,1'bx} : {2'b10,index + 6'd1,state,result_0.Tuple3_0_sel2};
 
@@ -416,9 +416,9 @@ module Component_SampleNTT2
 
   assign state = c$ds_app_arg[1612:13];
 
-  assign result_1 = (roundIdx == 5'd23) ? {{2'b10,6'd0,c$keccakF1600_out,buffer_0}
+  assign result_1 = (roundIdx == 5'd23) ? {{2'b10,6'd0,c$keccakF1600Reversed_out,buffer_0}
                                           ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                           ,1'b0}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600_out,buffer_0,1'bx}
+                                           ,1'b0}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600Reversed_out,buffer_0,1'bx}
                                                      ,{{24'b000000000000000000000000,1'b0,1'b0}
                                                       ,1'b0}};
 
@@ -480,8 +480,8 @@ module Component_SampleNTT2
 
   assign inputMsg = inputSig[274:3];
 
-  Component_SampleNTT2_topEntity_keccakF1600 Component_SampleNTT2_topEntity_keccakF1600_c$keccakF1600_out
-    ( .result (c$keccakF1600_out)
+  Component_SampleNTT2_topEntity_keccakF1600Reversed Component_SampleNTT2_topEntity_keccakF1600Reversed_c$keccakF1600Reversed_out
+    ( .result (c$keccakF1600Reversed_out)
     , .roundIdx (roundIdx)
     , .x (state_0) );
 
@@ -489,9 +489,9 @@ module Component_SampleNTT2
 
   assign roundIdx = c$ds_app_arg[1618:1614];
 
-  assign COEFF = result.Tuple2_1_sel0;
+  assign COEFF = result.Tuple2_4_sel0;
 
-  assign SEED_TREADY = result.Tuple2_1_sel1;
+  assign SEED_TREADY = result.Tuple2_4_sel1;
 
   assign COEFF_TDATA = COEFF.AXI4Stream_sel0;
 

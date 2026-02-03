@@ -13,20 +13,14 @@ import Sponge.NonPipelinedN256
 import Sponge.XOR qualified as XOR
 import Parameter
 
-type PadBeats = 9
+type PadBeats = 3
 
 type SqueezeBeats = 2
 
 -- | Padding function + XOR, flips 3 bits depending on the current beatCounter.
 pad :: Index PadBeats -> BitVector 1600 -> BitVector 1600
-pad 0 = complementAt 575 . complementAt 66 . complementAt 65
-pad 1 = complementAt 575 . complementAt 130 . complementAt 129
-pad 2 = complementAt 575 . complementAt 194 . complementAt 193
-pad 3 = complementAt 575 . complementAt 258 . complementAt 257
-pad 4 = complementAt 575 . complementAt 322 . complementAt 321
-pad 5 = complementAt 575 . complementAt 386 . complementAt 385
-pad 6 = complementAt 575 . complementAt 450 . complementAt 449
-pad 7 = complementAt 575 . complementAt 514 . complementAt 513
+pad 0 = complementAt 575 . complementAt 266 . complementAt 265 . complementAt 257
+pad 1 = complementAt 575 . complementAt 514 . complementAt 513
 pad _ = complementAt 575 . complementAt 2 . complementAt 1 -- special case for a whole 576-bit padding
 
 -- | Squeeze phase bit slicing helper: extracts 256-bit chunks from the Keccak state.
@@ -54,7 +48,7 @@ sponge mlkem permModule = mealy step (State (Absorb 0) 0)
       State PadBeats (Index SqueezeBeats) ->
       (AXI4Stream MsgBits, Bool, Bool) ->
       (State PadBeats (Index SqueezeBeats), (AXI4Stream DigestBits, Bool))
-    step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR512' counter state input flush
+    step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR512_256 counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
     step (State (Squeeze counter) state) (_msg, tready, _flush)
       | counter == maxBound =

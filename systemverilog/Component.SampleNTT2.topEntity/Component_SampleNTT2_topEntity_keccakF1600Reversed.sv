@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_SampleNTT2_topEntity_keccakF1600
+module Component_SampleNTT2_topEntity_keccakF1600Reversed
     ( // Inputs
       input wire logic [4:0] roundIdx
     , input wire logic [1599:0] x
@@ -57,7 +57,15 @@ module Component_SampleNTT2_topEntity_keccakF1600
   Component_SampleNTT2_types::array_of_64_logic c$parity0_app_arg_1;
   Component_SampleNTT2_types::array_of_1600_logic c$app_arg_1;
   Component_SampleNTT2_types::array_of_64_logic_vector_1 c$app_arg_2;
-  logic [1599:0] c$app_arg_3;
+  Component_SampleNTT2_types::array_of_24_array_of_64_logic c$app_arg_3;
+  Component_SampleNTT2_types::array_of_24_array_of_64_logic c$app_arg_4;
+  Component_SampleNTT2_types::array_of_24_array_of_7_logic c$app_arg_5;
+  Component_SampleNTT2_types::array_of_168_logic c$app_arg_6;
+  Component_SampleNTT2_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
+  Component_SampleNTT2_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
+  Component_SampleNTT2_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
+  Component_SampleNTT2_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
+  logic [1599:0] c$app_arg_7;
   Component_SampleNTT2_types::array_of_1600_Tuple3 c$vec;
   Component_SampleNTT2_types::array_of_1600_logic_vector_11 c$vec_0;
   Component_SampleNTT2_types::array_of_1600_logic_vector_11 c$vec_1;
@@ -87,8 +95,11 @@ module Component_SampleNTT2_topEntity_keccakF1600
   Component_SampleNTT2_types::array_of_64_logic c$vec1_18;
   Component_SampleNTT2_types::array_of_64_logic c$vec2_3;
   Component_SampleNTT2_types::array_of_1600_logic_vector_1 c$vec_2;
-  Component_SampleNTT2_types::array_of_24_array_of_64_logic c$vec_3;
-  Component_SampleNTT2_types::array_of_64_logic c$vec_4;
+  Component_SampleNTT2_types::array_of_64_logic c$vec_3;
+  Component_SampleNTT2_types::array_of_8_logic c$vec_4;
+  Component_SampleNTT2_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
+  Component_SampleNTT2_types::array_of_8_logic c$vec1_19;
+  Component_SampleNTT2_types::array_of_8_logic c$vec2_5;
 
   // map begin
   genvar n;
@@ -5648,1556 +5659,19 @@ module Component_SampleNTT2_topEntity_keccakF1600
 
   // setSlice begin
   always_comb begin
-    result = c$app_arg_3;
-    result[1599 : 1536] = ((c$app_arg_3[1599 : 1536]) ^ (({Component_SampleNTT2_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
+    result = c$app_arg_7;
+    result[1599 : 1536] = ((c$app_arg_7[1599 : 1536]) ^ (({Component_SampleNTT2_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
   end
   // setSlice end
 
-  assign c$vec_3 = '{0: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                              ,1: 1'b0
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b0
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b0
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b0
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b0})}
-                    ,1: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                              ,1: 1'b1
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b0
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b1
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b1
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b0})}
-                    ,2: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                              ,1: 1'b1
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b1
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b1
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b1
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b1})}
-                    ,3: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                              ,1: 1'b0
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b0
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b0
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b1
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b1
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b1})}
-                    ,4: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                              ,1: 1'b1
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b1
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b1
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b1
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b0})}
-                    ,5: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                              ,1: 1'b0
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b0
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b0
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b0
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b1
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b0})}
-                    ,6: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                              ,1: 1'b0
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b0
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b1
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b1
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b1
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b1})}
-                    ,7: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                              ,1: 1'b0
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b1
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b0
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b1
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b1})}
-                    ,8: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                              ,1: 1'b1
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b1
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b1
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b0
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b0})}
-                    ,9: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                              ,1: 1'b0
-                                                                              ,2: 1'b0
-                                                                              ,3: 1'b1
-                                                                              ,4: 1'b0
-                                                                              ,5: 1'b0
-                                                                              ,6: 1'b0
-                                                                              ,7: 1'b1
-                                                                              ,8: 1'b0
-                                                                              ,9: 1'b0
-                                                                              ,10: 1'b0
-                                                                              ,11: 1'b0
-                                                                              ,12: 1'b0
-                                                                              ,13: 1'b0
-                                                                              ,14: 1'b0
-                                                                              ,15: 1'b0
-                                                                              ,16: 1'b0
-                                                                              ,17: 1'b0
-                                                                              ,18: 1'b0
-                                                                              ,19: 1'b0
-                                                                              ,20: 1'b0
-                                                                              ,21: 1'b0
-                                                                              ,22: 1'b0
-                                                                              ,23: 1'b0
-                                                                              ,24: 1'b0
-                                                                              ,25: 1'b0
-                                                                              ,26: 1'b0
-                                                                              ,27: 1'b0
-                                                                              ,28: 1'b0
-                                                                              ,29: 1'b0
-                                                                              ,30: 1'b0
-                                                                              ,31: 1'b0
-                                                                              ,32: 1'b0
-                                                                              ,33: 1'b0
-                                                                              ,34: 1'b0
-                                                                              ,35: 1'b0
-                                                                              ,36: 1'b0
-                                                                              ,37: 1'b0
-                                                                              ,38: 1'b0
-                                                                              ,39: 1'b0
-                                                                              ,40: 1'b0
-                                                                              ,41: 1'b0
-                                                                              ,42: 1'b0
-                                                                              ,43: 1'b0
-                                                                              ,44: 1'b0
-                                                                              ,45: 1'b0
-                                                                              ,46: 1'b0
-                                                                              ,47: 1'b0
-                                                                              ,48: 1'b0
-                                                                              ,49: 1'b0
-                                                                              ,50: 1'b0
-                                                                              ,51: 1'b0
-                                                                              ,52: 1'b0
-                                                                              ,53: 1'b0
-                                                                              ,54: 1'b0
-                                                                              ,55: 1'b0
-                                                                              ,56: 1'b0
-                                                                              ,57: 1'b0
-                                                                              ,58: 1'b0
-                                                                              ,59: 1'b0
-                                                                              ,60: 1'b0
-                                                                              ,61: 1'b0
-                                                                              ,62: 1'b0
-                                                                              ,63: 1'b0})}
-                    ,10: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b0})}
-                    ,11: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b0
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b0})}
-                    ,12: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b1
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b0})}
-                    ,13: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b1
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b0
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,14: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b1
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,15: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b0
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,16: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b0
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,17: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b0
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b1
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b0
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,18: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b0})}
-                    ,19: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b1
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b0
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,20: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b0
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b1
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,21: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b0
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b1
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b0
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}
-                    ,22: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b1
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b0
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b0
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b0})}
-                    ,23: {Component_SampleNTT2_types::array_of_64_logic_to_lv('{0: 1'b0
-                                                                               ,1: 1'b0
-                                                                               ,2: 1'b0
-                                                                               ,3: 1'b1
-                                                                               ,4: 1'b0
-                                                                               ,5: 1'b0
-                                                                               ,6: 1'b0
-                                                                               ,7: 1'b0
-                                                                               ,8: 1'b0
-                                                                               ,9: 1'b0
-                                                                               ,10: 1'b0
-                                                                               ,11: 1'b0
-                                                                               ,12: 1'b0
-                                                                               ,13: 1'b0
-                                                                               ,14: 1'b0
-                                                                               ,15: 1'b1
-                                                                               ,16: 1'b0
-                                                                               ,17: 1'b0
-                                                                               ,18: 1'b0
-                                                                               ,19: 1'b0
-                                                                               ,20: 1'b0
-                                                                               ,21: 1'b0
-                                                                               ,22: 1'b0
-                                                                               ,23: 1'b0
-                                                                               ,24: 1'b0
-                                                                               ,25: 1'b0
-                                                                               ,26: 1'b0
-                                                                               ,27: 1'b0
-                                                                               ,28: 1'b0
-                                                                               ,29: 1'b0
-                                                                               ,30: 1'b0
-                                                                               ,31: 1'b1
-                                                                               ,32: 1'b0
-                                                                               ,33: 1'b0
-                                                                               ,34: 1'b0
-                                                                               ,35: 1'b0
-                                                                               ,36: 1'b0
-                                                                               ,37: 1'b0
-                                                                               ,38: 1'b0
-                                                                               ,39: 1'b0
-                                                                               ,40: 1'b0
-                                                                               ,41: 1'b0
-                                                                               ,42: 1'b0
-                                                                               ,43: 1'b0
-                                                                               ,44: 1'b0
-                                                                               ,45: 1'b0
-                                                                               ,46: 1'b0
-                                                                               ,47: 1'b0
-                                                                               ,48: 1'b0
-                                                                               ,49: 1'b0
-                                                                               ,50: 1'b0
-                                                                               ,51: 1'b0
-                                                                               ,52: 1'b0
-                                                                               ,53: 1'b0
-                                                                               ,54: 1'b0
-                                                                               ,55: 1'b0
-                                                                               ,56: 1'b0
-                                                                               ,57: 1'b0
-                                                                               ,58: 1'b0
-                                                                               ,59: 1'b0
-                                                                               ,60: 1'b0
-                                                                               ,61: 1'b0
-                                                                               ,62: 1'b0
-                                                                               ,63: 1'b1})}};
-
-  assign c$vec_4 = (Component_SampleNTT2_types::array_of_64_logic_from_lv(c$vec_3[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
+  assign c$vec_3 = (Component_SampleNTT2_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
 
   // map begin
   genvar n_36;
   generate
   for (n_36=0; n_36 < $size(c$app_arg_2); n_36 = n_36 + 1) begin : map_7
     logic map_in_7;
-    assign map_in_7 = c$vec_4[n_36];
+    assign map_in_7 = c$vec_3[n_36];
     logic [0:0] map_out_7;
     assign map_out_7 = (map_in_7);
 
@@ -7207,7 +5681,324 @@ module Component_SampleNTT2_topEntity_keccakF1600
   endgenerate
   // map end
 
-  assign c$app_arg_3 = result_0;
+  // map begin
+  genvar n_38;
+  generate
+  for (n_38=0; n_38 < $size(c$app_arg_3); n_38 = n_38 + 1) begin : map_8
+    Component_SampleNTT2_types::array_of_64_logic map_in_8;
+    assign map_in_8 = Component_SampleNTT2_types::array_of_64_logic_from_lv(c$app_arg_4[n_38]);
+    Component_SampleNTT2_types::array_of_64_logic map_out_8;
+    // reverse begin
+    genvar n_37_0;
+
+      for (n_37_0 = 0; n_37_0 < $size(map_in_8); n_37_0 = n_37_0 + 1) begin : reverse_0
+        assign map_out_8[$high(map_in_8) - n_37_0] = map_in_8[n_37_0];
+      end
+
+    // reverse end
+    assign c$app_arg_3[n_38] = {Component_SampleNTT2_types::array_of_64_logic_to_lv(map_out_8)};
+  end
+  endgenerate
+  // map end
+
+  // map begin
+  genvar n_41;
+  generate
+  for (n_41=0; n_41 < $size(c$app_arg_4); n_41 = n_41 + 1) begin : map_9
+    Component_SampleNTT2_types::array_of_7_logic map_in_9;
+    assign map_in_9 = Component_SampleNTT2_types::array_of_7_logic_from_lv(c$app_arg_5[n_41]);
+    Component_SampleNTT2_types::array_of_64_logic map_out_9;
+    Component_SampleNTT2_types::array_of_8_array_of_64_logic ws;
+    Component_SampleNTT2_types::array_of_7_array_of_64_logic ws1;
+    Component_SampleNTT2_types::array_of_64_logic result_6;
+    Component_SampleNTT2_types::array_of_7_Tuple2_0 c$ws1_app_arg;
+    Component_SampleNTT2_types::array_of_7_array_of_64_logic c$vec2_4;
+    assign map_out_9 = result_6;
+
+    assign ws = Component_SampleNTT2_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
+
+    // imap begin
+    genvar n_39;
+
+    for (n_39=0; n_39 < $size(ws1); n_39 = n_39 + 1) begin : imap_0
+      logic [2:0] i_0;
+      assign i_0 = n_39;
+      Component_SampleNTT2_types::Tuple2_0 imap_in_0;
+      assign imap_in_0 = c$ws1_app_arg[n_39];
+      Component_SampleNTT2_types::array_of_64_logic imap_out_0;
+      Component_SampleNTT2_types::array_of_64_logic y;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_0;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_1;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_2;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_3;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_4;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_5;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_6;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_7;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_8;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_9;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_10;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_11;
+    Component_SampleNTT2_types::array_of_64_logic c$case_alt_12;
+    assign imap_out_0 = c$case_alt_0;
+
+    assign y = Component_SampleNTT2_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
+
+    assign c$case_alt_0 = (i_0 == 3'd0) ? c$case_alt_1 : c$case_alt_2;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_1 = y;
+      c$case_alt_1[64'sd63] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+    assign c$case_alt_2 = (i_0 == 3'd1) ? c$case_alt_3 : c$case_alt_4;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_3 = y;
+      c$case_alt_3[64'sd62] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+    assign c$case_alt_4 = (i_0 == 3'd2) ? c$case_alt_5 : c$case_alt_6;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_5 = y;
+      c$case_alt_5[64'sd60] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+    assign c$case_alt_6 = (i_0 == 3'd3) ? c$case_alt_7 : c$case_alt_8;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_7 = y;
+      c$case_alt_7[64'sd56] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+    assign c$case_alt_8 = (i_0 == 3'd4) ? c$case_alt_9 : c$case_alt_10;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_9 = y;
+      c$case_alt_9[64'sd48] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+    assign c$case_alt_10 = (i_0 == 3'd5) ? c$case_alt_11 : c$case_alt_12;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_11 = y;
+      c$case_alt_11[64'sd32] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_12 = y;
+      c$case_alt_12[64'sd0] = imap_in_0.Tuple2_0_sel0;
+    end
+    // replaceVec end
+
+
+      assign ws1[n_39] = {Component_SampleNTT2_types::array_of_64_logic_to_lv(imap_out_0)};
+    end
+
+    // imap end
+
+    assign result_6 = Component_SampleNTT2_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+
+    assign c$vec2_4 = (ws[0 : $high(ws) - 1]);
+
+    // zipWith begin
+    genvar n_40;
+
+    for (n_40 = 0; n_40 < $size(c$ws1_app_arg); n_40 = n_40 + 1) begin : zipWith_25
+      logic zipWith_in1_25;
+      assign zipWith_in1_25 = map_in_9[n_40];
+      Component_SampleNTT2_types::array_of_64_logic zipWith_in2_25;
+      assign zipWith_in2_25 = Component_SampleNTT2_types::array_of_64_logic_from_lv(c$vec2_4[n_40]);
+      Component_SampleNTT2_types::Tuple2_0 zipWith_out_25;
+      assign zipWith_out_25 = {zipWith_in1_25
+                     ,{Component_SampleNTT2_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
+
+
+      assign c$ws1_app_arg[n_40] = zipWith_out_25;
+    end
+
+    // zipWith end
+
+
+    assign c$app_arg_4[n_41] = {Component_SampleNTT2_types::array_of_64_logic_to_lv(map_out_9)};
+  end
+  endgenerate
+  // map end
+
+  // unconcat begin
+  genvar n_42;
+  generate
+    for (n_42 = 0; n_42 < $size(c$app_arg_5); n_42 = n_42 + 1) begin : unconcat_0
+      assign c$app_arg_5[n_42] = {Component_SampleNTT2_types::array_of_7_logic_to_lv(c$app_arg_6[(n_42 * 7) : ((n_42 * 7) + 7 - 1)])};
+    end
+  endgenerate
+  // unconcat end
+
+  // map begin
+  genvar n_43;
+  generate
+  for (n_43=0; n_43 < $size(c$app_arg_6); n_43 = n_43 + 1) begin : map_10
+    Component_SampleNTT2_types::Tuple2 map_in_10;
+    assign map_in_10 = \Permutation.Constants.iotaConstants_xs [n_43];
+    logic map_out_10;
+    assign map_out_10 = map_in_10.Tuple2_sel0;
+
+
+    assign c$app_arg_6[n_43] = map_out_10;
+  end
+  endgenerate
+  // map end
+
+  assign \Permutation.Constants.iotaConstants_xs  = \Permutation.Constants.iotaConstants3 [0 : $high(\Permutation.Constants.iotaConstants3 ) - 1];
+
+  assign c$vec_4 = '{0: 1'b1
+                    ,1: 1'b0
+                    ,2: 1'b0
+                    ,3: 1'b0
+                    ,4: 1'b0
+                    ,5: 1'b0
+                    ,6: 1'b0
+                    ,7: 1'b0};
+
+  assign c$vec1_19 = '{0: 1'b0
+                      ,1: 1'b1
+                      ,2: 1'b0
+                      ,3: 1'b0
+                      ,4: 1'b0
+                      ,5: 1'b0
+                      ,6: 1'b0
+                      ,7: 1'b0};
+
+  assign c$vec2_5 = '{0: 1'b1
+                     ,1: 1'b0
+                     ,2: 1'b0
+                     ,3: 1'b0
+                     ,4: 1'b1
+                     ,5: 1'b1
+                     ,6: 1'b1
+                     ,7: 1'b0};
+
+  // zipWith begin
+  genvar n_44;
+  generate
+  for (n_44 = 0; n_44 < $size(\Permutation.Constants.iotaConstants3__dc_arg_res ); n_44 = n_44 + 1) begin : zipWith_26
+    logic zipWith_in1_26;
+    assign zipWith_in1_26 = c$vec1_19[n_44];
+    logic zipWith_in2_26;
+    assign zipWith_in2_26 = c$vec2_5[n_44];
+    logic zipWith_out_26;
+    Component_SampleNTT2_types::array_of_8_logic c$vec_5;
+    assign c$vec_5 = '{0: 1'b1
+                      ,1: 1'b0
+                      ,2: 1'b0
+                      ,3: 1'b0
+                      ,4: 1'b0
+                      ,5: 1'b0
+                      ,6: 1'b0
+                      ,7: 1'b0};
+
+    assign zipWith_out_26 = zipWith_in1_26 ^ ((c$vec_5[$high(c$vec_5)]) & zipWith_in2_26);
+
+
+    assign \Permutation.Constants.iotaConstants3__dc_arg_res [n_44] = zipWith_out_26;
+  end
+  endgenerate
+  // zipWith end
+
+  assign \Permutation.Constants.iotaConstants3  = Component_SampleNTT2_types::array_of_169_Tuple2_cons({c$vec_4[0]
+                                                                                                       ,{Component_SampleNTT2_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
+
+  // map begin
+  genvar n_46;
+  generate
+  for (n_46=0; n_46 < $size(\Permutation.Constants.iotaConstants4 ); n_46 = n_46 + 1) begin : map_11
+    Component_SampleNTT2_types::Tuple2 map_in_11;
+    assign map_in_11 = \Permutation.Constants.iotaConstants5 [n_46];
+    Component_SampleNTT2_types::Tuple2 map_out_11;
+    Component_SampleNTT2_types::array_of_8_logic result_8;
+    Component_SampleNTT2_types::Tuple2_1 c$case_scrut;
+    logic feedback;
+    Component_SampleNTT2_types::array_of_8_logic x_0;
+    Component_SampleNTT2_types::Tuple2 result_7;
+    Component_SampleNTT2_types::array_of_8_logic c$vec2_6;
+    Component_SampleNTT2_types::array_of_8_logic c$vec_6;
+    Component_SampleNTT2_types::array_of_8_logic c$vec_7;
+    assign map_out_11 = result_7;
+
+    assign c$vec2_6 = '{0: 1'b1
+                       ,1: 1'b0
+                       ,2: 1'b0
+                       ,3: 1'b0
+                       ,4: 1'b1
+                       ,5: 1'b1
+                       ,6: 1'b1
+                       ,7: 1'b0};
+
+    // zipWith begin
+    genvar n_45;
+
+    for (n_45 = 0; n_45 < $size(result_8); n_45 = n_45 + 1) begin : zipWith_27
+      logic zipWith_in1_27;
+      assign zipWith_in1_27 = x_0[n_45];
+      logic zipWith_in2_27;
+      assign zipWith_in2_27 = c$vec2_6[n_45];
+      logic zipWith_out_27;
+      assign zipWith_out_27 = zipWith_in1_27 ^ (feedback & zipWith_in2_27);
+
+
+      assign result_8[n_45] = zipWith_out_27;
+    end
+
+    // zipWith end
+
+    // splitAt begin
+    logic [0:9-1] [0:1-1] vec;
+    assign vec = {Component_SampleNTT2_types::array_of_9_logic_to_lv((Component_SampleNTT2_types::array_of_9_logic_from_lv({{Component_SampleNTT2_types::array_of_1_logic_to_lv('{0: 1'b0})},{Component_SampleNTT2_types::array_of_8_logic_to_lv(Component_SampleNTT2_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1))}})))};
+
+      if (8 == 9) begin : no_split
+        assign c$case_scrut = {vec};
+      end else begin : do_split
+        assign c$case_scrut = {vec[0:8-1]
+                         ,vec[8:9-1]
+                         };
+      end
+
+    // splitAt end
+
+    assign c$vec_6 = Component_SampleNTT2_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1);
+
+    assign feedback = c$vec_6[$high(c$vec_6)];
+
+    assign x_0 = Component_SampleNTT2_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
+
+    assign c$vec_7 = Component_SampleNTT2_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1);
+
+    assign result_7 = {c$vec_7[0]
+                      ,{Component_SampleNTT2_types::array_of_8_logic_to_lv(result_8)}};
+
+
+    assign \Permutation.Constants.iotaConstants4 [n_46] = map_out_11;
+  end
+  endgenerate
+  // map end
+
+  assign \Permutation.Constants.iotaConstants5  = \Permutation.Constants.iotaConstants_xs ;
+
+  assign c$app_arg_7 = result_0;
 
 
 endmodule

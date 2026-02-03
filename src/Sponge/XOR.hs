@@ -12,6 +12,7 @@ module Sponge.XOR
     staticXOR256',
     staticXOR512,
     staticXOR512',
+    staticXOR512_256,
     staticXOR128,
     staticXOR128B,
   )
@@ -128,6 +129,31 @@ $(mkMap "staticXOR256'" "xor" 1600
 -- Generated via Template Haskell.
 $(mkMap "staticXOR512'" "xor" 1600
     [ (i, i * 64, 64) | i <- [0 :: Integer .. 8] ])
+
+-- | Static XOR for 3 beats of 256-bit input (SHA3-512 rate 576).
+--   Beat 2 uses only the low 64 bits to stay within the 576-bit rate.
+staticXOR512_256 :: BitVector 1600 -> BitVector 256 -> Index 3 -> BitVector 1600
+staticXOR512_256 state block beatCounter =
+  case beatCounter of
+    0 ->
+      setSlice
+        (SNat @255)
+        (SNat @0)
+        (slice (SNat @255) (SNat @0) state `xor` block)
+        state
+    1 ->
+      setSlice
+        (SNat @511)
+        (SNat @256)
+        (slice (SNat @511) (SNat @256) state `xor` block)
+        state
+    _ ->
+      let blockLo = slice (SNat @63) (SNat @0) block
+       in setSlice
+            (SNat @575)
+            (SNat @512)
+            (slice (SNat @575) (SNat @512) state `xor` blockLo)
+            state
 
 -- | Static case-based XOR covering SHA3-512 rate (9 beats).
 staticXOR512 :: BitVector 1600 -> BitVector 64 -> Index 9 -> BitVector 1600
