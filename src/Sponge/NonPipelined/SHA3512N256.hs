@@ -11,6 +11,7 @@ import Clash.Prelude hiding (permute, tlast)
 import TH (mkRead)
 import Sponge.NonPipelinedN256
 import Sponge.XOR qualified as XOR
+import Parameter
 
 type PadBeats = 9
 
@@ -43,10 +44,11 @@ sponge ::
     MsgBits + 2 <= n * 576,
     MsgBits + 4 <= n * 576
   ) =>
+  MLKEM ->
   (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
   Signal dom (AXI4Stream MsgBits, Bool, Bool) -> -- Input message, output tready, flush signal
   Signal dom (AXI4Stream DigestBits, Bool) -- Output digest (AXI4-Stream), input tready
-sponge permModule = mealy step (State (Absorb 0) 0)
+sponge mlkem permModule = mealy step (State (Absorb 0) 0)
   where
     step ::
       State PadBeats (Index SqueezeBeats) ->

@@ -1,17 +1,18 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Component.G
+module Component.G512
   ( topEntity,
   )
 where
 
 import AXI4Stream (AXI4Stream)
 import Clash.Prelude
+import Parameter
 import Permutation qualified
 import Sponge.NonPipelined.SHA3512N256 qualified
 
 --------------------------------------------------------------------------------
--- Component G (SHA3-512, normal order, 256-bit output)
+-- Component G512 (SHA3-512, normal order, 256-bit output)
 --------------------------------------------------------------------------------
 
 type MsgBits = 64
@@ -27,7 +28,7 @@ spongeFSM = Permutation.keccakF1600
 {-# ANN
   topEntity
   ( Synthesize
-      { t_name = "Component_G",
+      { t_name = "Component_G_512_I256_O256",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -62,4 +63,4 @@ topEntity ::
 topEntity clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig
-       in Sponge.NonPipelined.SHA3512N256.sponge @System spongeFSM (bundle (msgSig, treadySig, flushSig))
+       in Sponge.NonPipelined.SHA3512N256.sponge @System MLKEM512 spongeFSM (bundle (msgSig, treadySig, flushSig))

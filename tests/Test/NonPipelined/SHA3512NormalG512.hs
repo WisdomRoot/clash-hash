@@ -3,18 +3,18 @@
 {-# OPTIONS_GHC -Wno-unused-local-binds #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
-module Test.NonPipelined.SHA3512NormalG (spec) where
+module Test.NonPipelined.SHA3512NormalG512 (spec) where
 
 import Data.ByteString qualified as BS
 import Data.Foldable (for_)
 import Prelude
 import Test.Hspec
 import Test.QuickCheck
-import Test.TestHarness.SHA3512NormalG
+import Test.TestHarness.SHA3512NormalG512
 import Test.TestHarness.SHAKESamples qualified as Samples
 import Test.TestHarness.SHAKECommon (makeBasicTest, makeBackpressureTest, makeCombinedTest, makeStallTest)
 
-basicCases :: [SHA3512NormalGTest]
+basicCases :: [SHA3512NormalG512Test]
 basicCases =
   [ makeBasicTest BS.empty 32,
     makeBasicTest "qwertyui" 32,
@@ -24,14 +24,14 @@ basicCases =
     makeBasicTest Samples.msg3200 32
   ]
 
-stallCases :: [SHA3512NormalGTest]
+stallCases :: [SHA3512NormalG512Test]
 stallCases =
   [ makeStallTest Samples.msg576 32 Samples.stallPatternAggressive,
     makeStallTest Samples.msg1152 32 Samples.stallPatternModerate,
     makeStallTest Samples.msg1600 32 Samples.stallPatternSimple
   ]
 
-backpressureCases :: [SHA3512NormalGTest]
+backpressureCases :: [SHA3512NormalG512Test]
 backpressureCases =
   [ makeBackpressureTest Samples.msg576 32 Samples.backpressurePatternSimple,
     makeBackpressureTest Samples.msg1152 32 Samples.backpressurePatternModerate,
@@ -48,7 +48,7 @@ backpressureCases =
   ]
 
 spec :: Spec
-spec = describe "Component G (256-bit output) Tests" $ do
+spec = describe "Component G512 (256-bit output) Tests" $ do
   let emptyFlushCase = makeBasicTest BS.empty 32
 
   it "0-bit input, 256-bit output (flush-only)" $ runTest emptyFlushCase
@@ -68,4 +68,4 @@ spec = describe "Component G (256-bit output) Tests" $ do
   describe "QuickCheck property tests" $
     it "correctly handles random test cases" $
       withMaxSuccess 10 $
-        forAll sha3512NormalGGen runTest
+        forAll sha3512NormalG512Gen runTest

@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.TestHarness.SHA3512NormalG
-  ( SHA3512NormalGTest,
-    sha3512NormalGGen,
+module Test.TestHarness.SHA3512NormalG512
+  ( SHA3512NormalG512Test,
+    sha3512NormalG512Gen,
     runTest,
     runHardware,
     testLabel
@@ -18,7 +18,7 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
-import Component.G qualified as G
+import Component.G512 qualified as G512
 import Reference.Crypton qualified as Crypton
 import Test.Hspec (Expectation, shouldBe)
 import Test.QuickCheck (Gen)
@@ -37,7 +37,7 @@ import Test.TestHarness.StreamCommon
   )
 import Prelude qualified as P
 
-type SHA3512NormalGTest = ShakeTest
+type SHA3512NormalG512Test = ShakeTest
 
 type ShakeTopEntity256 =
   Clock System ->
@@ -53,16 +53,16 @@ data ShakeParams256 = ShakeParams256
     spTopEntity :: ShakeTopEntity256
   }
 
-sha3512NormalGParams :: ShakeParams256
-sha3512NormalGParams =
+sha3512NormalG512Params :: ShakeParams256
+sha3512NormalG512Params =
   ShakeParams256
     { spBeatsPerBlock = 9,
       spReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 msg),
-      spTopEntity = G.topEntity
+      spTopEntity = G512.topEntity
     }
 
-sha3512NormalGGenConfig :: ShakeGenConfig
-sha3512NormalGGenConfig =
+sha3512NormalG512GenConfig :: ShakeGenConfig
+sha3512NormalG512GenConfig =
   defaultShakeGenConfig
     { sgBeatOptions =
         [ (2, 1),
@@ -77,24 +77,24 @@ sha3512NormalGGenConfig =
       sgOutputOptions = [(1, 32)]
     }
 
-sha3512NormalGGen :: Gen SHA3512NormalGTest
-sha3512NormalGGen = genShakeTest sha3512NormalGGenConfig
+sha3512NormalG512Gen :: Gen SHA3512NormalG512Test
+sha3512NormalG512Gen = genShakeTest sha3512NormalG512GenConfig
 
-runTest :: SHA3512NormalGTest -> Expectation
+runTest :: SHA3512NormalG512Test -> Expectation
 runTest test = do
-  let expected = spReference sha3512NormalGParams (Common.testOutputBytes test) (Common.testMessage test)
+  let expected = spReference sha3512NormalG512Params (Common.testOutputBytes test) (Common.testMessage test)
       actual = runHardware test
   actual `shouldBe` expected
 
-runHardware :: SHA3512NormalGTest -> ByteString
+runHardware :: SHA3512NormalG512Test -> ByteString
 runHardware test =
   let inputBytes = BS.length (Common.testMessage test)
       beats = (inputBytes P.+ 7) `P.div` 8
    in case fromJust (someNatVal (P.fromIntegral beats)) of
         SomeNat (_ :: Proxy beats') ->
-          runHardwareKnown @beats' sha3512NormalGParams test beats (spBeatsPerBlock sha3512NormalGParams)
+          runHardwareKnown @beats' sha3512NormalG512Params test beats (spBeatsPerBlock sha3512NormalG512Params)
 
-testLabel :: SHA3512NormalGTest -> String
+testLabel :: SHA3512NormalG512Test -> String
 testLabel = Common.testLabel
 
 runHardwareKnown ::
