@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 module Component.Dev
   ( topEntity,
@@ -5,7 +6,7 @@ module Component.Dev
 where
 
 import Clash.Prelude
-import qualified Slicer
+import TH (mkRead, mkWrite)
 
 {-# ANN
   topEntity
@@ -36,7 +37,7 @@ topEntity ::
 topEntity clk rst en =
   withClockResetEnable clk rst en (fmap applyXor)
   where
-    applyXor (state, block, beat) = new state block beat
+    applyXor (state, block, beat) = baseline state block beat
 
 -- baseline: 3114.860
 -- current:  
@@ -70,10 +71,9 @@ baseline state block beatCounter =
     23 -> setSlice (SNat @1535) (SNat @1472) (slice (SNat @1535) (SNat @1472) state `xor` block) state
     _ -> setSlice (SNat @1599) (SNat @1536) (slice (SNat @1599) (SNat @1536) state `xor` block) state
 
+$(mkRead "readLane" 1600 [(i, i * 64, 64) | i <- [0 .. 24]])
+$(mkWrite "writeLane" 64 25)
+
 new :: BitVector 1600 -> BitVector 64 -> Index 25 -> BitVector 1600
 {-# INLINE new #-}
-new state block index = Slicer.write (xor block (Slicer.read index state)) index state
-  -- Slicer.map (xor block) index state
-  -- let old = Slicer.read (resize index) state
-  --     new = block `xor` old 
-  --  in Slicer.write (resize index) new state
+new state block index = writeLane (block `xor` readLane state index) index state

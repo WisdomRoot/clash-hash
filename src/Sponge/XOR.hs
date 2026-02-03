@@ -18,7 +18,7 @@ module Sponge.XOR
 where
 
 import Clash.Prelude hiding (permute)
-import Slicer.TH (mkMap)
+import TH (mkMap)
 
 type MsgBits = 64
 
@@ -111,23 +111,23 @@ staticXOR256 state block beatCounter =
     16 -> setSlice (SNat @575) (SNat @512) (slice (SNat @575) (SNat @512) state `xor` block) state
     _ -> state
 
--- | Static case-based XOR with indices mirrored by (1599 - i).
--- Generated via Template Haskell
+-- | Static XOR for 17 beats
+--      0 -> state[63:0]    := state[63:0]    `xor` block
+--      1 -> state[127:64]  := state[127:64]  `xor` block
+--      2 -> state[191:128] := state[191:128] `xor` block
+--      ...
+-- Generated via Template Haskell.
 $(mkMap "staticXOR256'" "xor" 1600
-    [ (0, 0, 64), (1, 64, 64), (2, 128, 64), (3, 192, 64)
-    , (4, 256, 64), (5, 320, 64), (6, 384, 64), (7, 448, 64)
-    , (8, 512, 64), (9, 576, 64), (10, 640, 64), (11, 704, 64)
-    , (12, 768, 64), (13, 832, 64), (14, 896, 64), (15, 960, 64)
-    , (16, 1024, 64)
-    ])
+    [ (i, i * 64, 64) | i <- [0 :: Integer .. 16] ])
 
--- | Static case-based XOR with indices mirrored by (1599 - i) for SHA3-512 rate (9 beats).
--- Generated via Template Haskell
+-- | Static XOR for 9 beats
+--      0 -> state[63:0]    := state[63:0]    `xor` block
+--      1 -> state[127:64]  := state[127:64]  `xor` block
+--      2 -> state[191:128] := state[191:128] `xor` block
+--      ...
+-- Generated via Template Haskell.
 $(mkMap "staticXOR512'" "xor" 1600
-    [ (0, 0, 64), (1, 64, 64), (2, 128, 64), (3, 192, 64)
-    , (4, 256, 64), (5, 320, 64), (6, 384, 64), (7, 448, 64)
-    , (8, 512, 64)
-    ])
+    [ (i, i * 64, 64) | i <- [0 :: Integer .. 8] ])
 
 -- | Static case-based XOR covering SHA3-512 rate (9 beats).
 staticXOR512 :: BitVector 1600 -> BitVector 64 -> Index 9 -> BitVector 1600

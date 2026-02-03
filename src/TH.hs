@@ -1,4 +1,4 @@
-module Slicer.TH (mkWrite, mkRead, mkMap) where
+module TH (mkWrite, mkRead, mkMap) where
 
 import Language.Haskell.TH
 import Prelude
@@ -40,13 +40,14 @@ mkWrite funcName laneSize numLanes = do
             lowerTy = LitT (NumTyLit lower)
             snatUpper = AppTypeE (ConE snatName) upperTy
             snatLower = AppTypeE (ConE snatName) lowerTy
-            pat = if i < numLanes - 1
-                  then LitP (IntegerL i)
-                  else WildP
+            pat =
+              if i < numLanes - 1
+                then LitP (IntegerL i)
+                else WildP
             body = foldl AppE (VarE setSliceName) [snatUpper, snatLower, VarE laneName, VarE bvName]
         pure $ Clause [VarP laneName, pat, VarP bvName] (NormalB body) []
 
-  clauses <- mapM mkClause [0..numLanes-1]
+  clauses <- mapM mkClause [0 .. numLanes - 1]
   pure [typeSig, FunD writeName clauses]
 
 -- | Generate a read function that slices out a lane from a BitVector.
@@ -87,7 +88,7 @@ mkRead funcName stateSize slices = do
       indexName = mkName "Index"
 
       laneSize = case slices of
-        ((_, _, ls):_) -> ls
+        ((_, _, ls) : _) -> ls
         [] -> error "mkRead: empty slices list"
 
       numCases = toInteger (length slices)
@@ -124,7 +125,7 @@ mkRead funcName stateSize slices = do
 --
 -- Example 1: Normal bit order (3 lanes for brevity)
 --
---   $(mkMap "xorNormal" "xor" 192 [(0, 0, 64), (1, 64, 64), (2, 128, 64)])
+--   $(mkMap "xorNormal" "xor" 192 [(i, i * 64, 64) | i <- [0 .. 2]])
 --
 --   -- Generates:
 --   xorNormal :: BitVector 192 -> BitVector 64 -> Index 3 -> BitVector 192
@@ -135,7 +136,7 @@ mkRead funcName stateSize slices = do
 --
 -- Example 2: Reversed bit order (3 lanes for brevity)
 --
---   $(mkMap "xorReversed" "xor" 192 [(0, 128, 64), (1, 64, 64), (2, 0, 64)])
+--   $(mkMap "xorReversed" "xor" 192 [(i, 128 - (i * 64), 64) | i <- [0 .. 2]])
 --
 --   -- Generates:
 --   xorReversed :: BitVector 192 -> BitVector 64 -> Index 3 -> BitVector 192
@@ -165,7 +166,7 @@ mkMap funcName opName stateSize slices = do
 
       -- Extract laneSize from first tuple (assumed uniform)
       laneSize = case slices of
-        ((_, _, ls):_) -> ls
+        ((_, _, ls) : _) -> ls
         [] -> error "mkMap: empty slices list"
 
       numCases = toInteger (length slices)
@@ -192,7 +193,7 @@ mkMap funcName opName stateSize slices = do
             opExpr = InfixE (Just sliceExpr) (VarE opNameN) (Just (VarE blockName))
             -- setSlice (SNat @upper) (SNat @lower) (... `op` block) state
             body = foldl AppE (VarE setSliceName) [snatUpper, snatLower, opExpr, VarE stateName]
-        in Clause [VarP stateName, VarP blockName, pat] (NormalB body) []
+         in Clause [VarP stateName, VarP blockName, pat] (NormalB body) []
 
       -- Wildcard fallback clause: func state _ _ = state
       wildcardClause = Clause [VarP stateName, WildP, WildP] (NormalB (VarE stateName)) []

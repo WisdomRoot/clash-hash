@@ -8,7 +8,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Slicer.TH (mkRead)
+import TH (mkRead)
 import Sponge.NonPipelinedN
 import Sponge.XOR qualified as XOR
 
