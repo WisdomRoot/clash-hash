@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_G512_topEntity_sponge14",
+        "Component_G512_topEntity_sponge20",
         "Component_G512_topEntity_spongeFSM",
         "Component_G_512_I256_O256"
     ],
@@ -36,10 +36,6 @@
             "sha256": "6ea23efc0e4dc5bf06c3cbc64b4b72ccce7f8a96a61a840f10a18b89ff14d6c6"
         },
         {
-            "name": "Component_G_512_I256_O256_shim.cpp",
-            "sha256": "6ea23efc0e4dc5bf06c3cbc64b4b72ccce7f8a96a61a840f10a18b89ff14d6c6"
-        },
-        {
             "name": "Component_G_512_I256_O256.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -48,12 +44,12 @@
             "sha256": "0f9bfe53b16812c344a99ca2a5be9bc5fe8b914ed372115c0ec5745a2e11a1ef"
         },
         {
-            "name": "Component_G512_topEntity_sponge14.sv",
-            "sha256": "ca1364b40cc5d684df279e1df748e02f347a1228e95d1728d1be409b8ef8355c"
+            "name": "Component_G512_topEntity_sponge20.sv",
+            "sha256": "541d95831f7c95d4b0edbaef3bc40d7b0ecb4e4c41144ee3123014f44fb198ab"
         },
         {
             "name": "Component_G512_topEntity_spongeFSM.sv",
-            "sha256": "469031ac51c2c7b405f4d1225e3b0995609fc748df67671c531e0d8b56e5ef08"
+            "sha256": "a68f4d8d7d9fc923ddf21b1a96e2018a464a2ef2a80c1bc3a17140406dc43aeb"
         },
         {
             "name": "Component_G_512_I256_O256.sv",
@@ -64,7 +60,7 @@
         20,
         20
     ],
-    "hash": "c2a421282da633519b8694d02092d1590b22280c322acf692f2a09d1b74b72bd",
+    "hash": "036b3e6655bce8eb17b3168bd31200c7f0999f09276b3a877dca42cc77f12442",
     "top_component": {
         "name": "Component_G_512_I256_O256",
         "ports_flat": [

@@ -13,256 +13,73 @@ module Component_G512_topEntity_spongeFSM
       // Outputs
     , output Component_G_512_I256_O256_types::Tuple2_4 result
     );
-  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt;
-  Component_G_512_I256_O256_types::Tuple2 result_0;
-  Component_G_512_I256_O256_types::State c$app_arg;
-  logic [255:0] c$app_arg_0;
-  logic [255:0] c$case_alt;
-  logic c$case_scrut;
-  logic [1599:0] c$app_arg_1;
-  Component_G_512_I256_O256_types::State c$app_arg_2;
-  logic [0:0] counter;
-  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt_0;
-  logic tready;
-  logic [1:0] seenTLAST;
-  logic [4:0] counter_0;
-  Component_G_512_I256_O256_types::Tuple2 result_1;
-  Component_G_512_I256_O256_types::Tuple2 c$case_alt_0;
-  Component_G_512_I256_O256_types::Tuple2 c$case_alt_1;
-  logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_2;
-  logic [1599:0] c$app_arg_4;
-  Component_G_512_I256_O256_types::Tuple2 result_3;
-  Component_G_512_I256_O256_types::Tuple2 c$case_alt_2;
-  logic c$app_arg_5;
-  logic [1599:0] result_4;
-  logic signed [63:0] c$app_arg_6;
-  logic [1599:0] c$app_arg_7;
-  logic [1599:0] result_5;
-  logic signed [63:0] c$app_arg_8;
-  logic [1599:0] c$app_arg_9;
-  logic [1599:0] result_6;
-  logic signed [63:0] c$app_arg_10;
-  logic [1599:0] c$app_arg_11;
-  logic [10:0] c$complementAt1_arg0;
-  logic [10:0] c$complementAt1_arg0_case_alt;
-  logic [10:0] c$complementAt1_arg0_0;
-  logic [10:0] c$complementAt1_arg0_case_alt_0;
-  logic [10:0] c$complementAt1_arg0_case_alt_1;
   Component_G_512_I256_O256_types::Tuple2_3 c$complementAt1_tupIn;
-  logic c$complementAt1_tupIn_case_scrut;
-  Component_G_512_I256_O256_types::Tuple2_3 result_7;
+  Component_G_512_I256_O256_types::Tuple2_3 result_0;
   Component_G_512_I256_O256_types::Tuple2_3 c$complementAt1_tupIn_case_alt;
-  logic [1599:0] result_8;
-  logic [1599:0] c$case_alt_3;
-  logic [1599:0] c$case_alt_4;
-  logic [1599:0] c$case_alt_5;
-  logic [1599:0] c$case_alt_6;
-  logic [1599:0] c$app_arg_12;
-  logic c$complementAt1_tupIn_case_scrut_0;
-  logic c$complementAt1_tupIn_case_scrut_1;
-  logic flush;
-  Component_G_512_I256_O256_types::AXI4Stream \input ;
-  logic [1:0] counter_1;
   logic [1599:0] state;
   Component_G_512_I256_O256_types::State ds1 = {{2'b00,2'd0,5'bxxxxx}
 ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
+  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt;
+  logic [255:0] result_1;
+  logic [255:0] c$case_alt;
+  logic [1599:0] c$app_arg;
+  Component_G_512_I256_O256_types::State c$ds_app_arg;
+  Component_G_512_I256_O256_types::State c$ds_case_alt_0;
+  logic isLast;
+  logic [0:0] counter;
+  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt_1;
+  logic tready;
+  logic [1:0] seenTLAST;
+  logic [4:0] counter_0;
+  Component_G_512_I256_O256_types::Tuple2 result_2;
+  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt_2;
+  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt_3;
+  logic [1599:0] c$ds_app_arg_0;
+  logic [1599:0] result_3;
+  logic [1599:0] c$app_arg_0;
+  logic [1599:0] result_4;
+  logic signed [63:0] c$app_arg_1;
+  logic [1599:0] c$app_arg_2;
+  logic [1599:0] result_5;
+  logic signed [63:0] c$app_arg_3;
+  logic [1599:0] c$app_arg_4;
+  logic [1599:0] result_6;
+  logic signed [63:0] c$app_arg_5;
+  logic [1599:0] c$app_arg_6;
+  logic [10:0] c$complementAt1_arg0;
+  logic [10:0] c$complementAt1_arg0_case_alt;
+  logic [10:0] c$complementAt1_arg0_case_alt_0;
+  logic c$complementAt1_arg0_case_scrut;
+  logic [10:0] c$complementAt1_arg0_0;
+  logic [10:0] c$complementAt1_arg0_case_alt_1;
+  Component_G_512_I256_O256_types::Tuple2 result_7;
+  Component_G_512_I256_O256_types::Tuple2 c$ds_case_alt_4;
+  logic [1599:0] result_8;
+  logic [1599:0] c$case_alt_0;
+  logic [1599:0] c$case_alt_1;
+  logic [1599:0] c$case_alt_2;
+  logic [1599:0] c$case_alt_3;
+  logic [1599:0] c$app_arg_7;
+  logic c$ds_case_scrut;
+  logic c$ds_case_scrut_0;
+  logic flush;
+  logic c$ds_app_arg_1;
+  logic [1:0] counter_1;
+  Component_G_512_I256_O256_types::AXI4Stream \input ;
   logic [8:0] c$ds_case_alt_selection_1;
-  logic [10:0] c$i_17;
+  logic [10:0] c$i_18;
   logic [255:0] c$bv;
 
   assign result = c$ds_case_alt.Tuple2_sel1;
 
-  assign c$ds_case_alt_selection_1 = ds1.State_sel0;
+  assign c$complementAt1_tupIn = c$ds_case_scrut_0 ? {11'd1
+                                                     ,state} : result_0;
 
-  always_comb begin
-    case(c$ds_case_alt_selection_1[8:7])
-      2'b00 : c$ds_case_alt = result_1;
-      2'b01 : c$ds_case_alt = c$ds_case_alt_0;
-      default : c$ds_case_alt = result_0;
-    endcase
-  end
+  assign result_0 = c$ds_app_arg_1 ? {11'd257
+                                     ,result_8} : c$complementAt1_tupIn_case_alt;
 
-  assign result_0 = c$case_scrut ? {c$app_arg
-                                   ,{{c$app_arg_0,1'b1,1'b1},1'b0}} : {c$app_arg_2
-                                                                      ,{{c$app_arg_0,1'b1,1'b0},1'b0}};
-
-  assign c$app_arg = tready ? {{2'b00,2'd0,5'bxxxxx}
-                              ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000} : {{2'b10,1'd1,6'bxxxxxx}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ,state};
-
-  assign c$app_arg_0 = (counter == 1'd0) ? (c$app_arg_1[255 : 0]) : c$case_alt;
-
-  assign c$case_alt = c$case_scrut ? (c$app_arg_1[511 : 256]) : ({256 {1'bx}});
-
-  assign c$case_scrut = counter == 1'd1;
-
-  assign c$app_arg_1 = state;
-
-  assign c$app_arg_2 = tready ? {{2'b10,counter + 1'd1,6'bxxxxxx}
-                                ,state} : {{2'b10,counter,6'bxxxxxx},state};
-
-  assign counter = ds1[1606:1606];
-
-  Component_G512_topEntity_sponge14 Component_G512_topEntity_sponge14_c$ds_case_alt_0
-    ( .result (c$ds_case_alt_0)
-    , .eta3 (counter_0)
-    , .eta4 (seenTLAST)
-    , .eta5 (state)
-    , .eta6 (tready) );
-
-  assign tready = eta2.Tuple3_0_sel1;
-
-  assign seenTLAST = ds1[1601:1600];
-
-  assign counter_0 = ds1[1606:1602];
-
-  assign result_1 = c$complementAt1_tupIn_case_scrut ? {{{2'b01,5'd0,2'd0}
-                                                        ,result_4}
-                                                       ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                                         ,1'b0
-                                                         ,1'b0}
-                                                        ,1'b0}} : c$case_alt_0;
-
-  assign c$case_alt_0 = (~ \input .AXI4Stream_sel1) ? {{{2'b00,counter_1,5'bxxxxx}
-                                                       ,state}
-                                                      ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                                        ,1'b0
-                                                        ,1'b0}
-                                                       ,1'b1}} : c$case_alt_1;
-
-  assign c$case_alt_1 = (\input .AXI4Stream_sel2 & c$app_arg_5) ? {{{2'b01,5'd0,2'd0}
-                                                                   ,c$app_arg_3}
-                                                                  ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                                                    ,1'b0
-                                                                    ,1'b0}
-                                                                   ,1'b0}} : result_3;
-
-  assign c$app_arg_3 = c$complementAt1_tupIn_case_scrut_1 ? result_2 : result_4;
-
-  // replaceBit start
-  always_comb begin
-    result_2 = c$app_arg_4;
-    result_2[64'sd575] = (~ (c$app_arg_4[64'sd575]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_4 = result_4;
-
-  assign result_3 = \input .AXI4Stream_sel2 ? {{{2'b01,5'd0,2'd1}
-                                               ,result_8}
-                                              ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                                ,1'b0
-                                                ,1'b0}
-                                               ,1'b0}} : c$case_alt_2;
-
-  assign c$case_alt_2 = c$app_arg_5 ? {{{2'b00,counter_1 + 2'd1,5'bxxxxx}
-                                       ,result_8}
-                                      ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                        ,1'b0
-                                        ,1'b0}
-                                       ,1'b1}} : {{{2'b01,5'd0,2'd2},result_8}
-                                                 ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                                   ,1'b0
-                                                   ,1'b0}
-                                                  ,1'b0}};
-
-  assign c$app_arg_5 = counter_1 < 2'd2;
-
-  // replaceBit start
-  always_comb begin
-    result_4 = c$app_arg_7;
-    result_4[c$app_arg_6] = (~ (c$app_arg_7[c$app_arg_6]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_6 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0});
-
-  assign c$app_arg_7 = result_5;
-
-  // replaceBit start
-  always_comb begin
-    result_5 = c$app_arg_9;
-    result_5[c$app_arg_8] = (~ (c$app_arg_9[c$app_arg_8]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_8 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0_0});
-
-  assign c$app_arg_9 = result_6;
-
-  // replaceBit start
-  always_comb begin
-    result_6 = c$app_arg_11;
-    result_6[c$app_arg_10] = (~ (c$app_arg_11[c$app_arg_10]));
-  end
-  // replaceBit end
-
-  assign c$i_17 = c$complementAt1_tupIn.Tuple2_3_sel0;
-
-  assign c$app_arg_10 = $unsigned({{(64-11) {1'b0}},c$i_17});
-
-  assign c$app_arg_11 = c$complementAt1_tupIn.Tuple2_3_sel1;
-
-  assign c$complementAt1_arg0 = c$complementAt1_tupIn_case_scrut ? 11'd575 : c$complementAt1_arg0_case_alt;
-
-  assign c$complementAt1_arg0_case_alt = c$complementAt1_tupIn_case_scrut_1 ? 11'd266 : 11'd575;
-
-  assign c$complementAt1_arg0_0 = c$complementAt1_tupIn_case_scrut ? 11'd2 : c$complementAt1_arg0_case_alt_0;
-
-  assign c$complementAt1_arg0_case_alt_0 = c$complementAt1_tupIn_case_scrut_1 ? 11'd265 : c$complementAt1_arg0_case_alt_1;
-
-  assign c$complementAt1_arg0_case_alt_1 = c$complementAt1_tupIn_case_scrut_0 ? 11'd514 : 11'd2;
-
-  assign c$complementAt1_tupIn = c$complementAt1_tupIn_case_scrut ? {11'd1
-                                                                    ,state} : result_7;
-
-  assign c$complementAt1_tupIn_case_scrut = flush & (counter_1 == 2'd0);
-
-  assign result_7 = c$complementAt1_tupIn_case_scrut_1 ? {11'd257
-                                                         ,result_8} : c$complementAt1_tupIn_case_alt;
-
-  assign c$complementAt1_tupIn_case_alt = c$complementAt1_tupIn_case_scrut_0 ? {11'd513
-                                                                               ,result_8} : {11'd1,result_8};
-
-  assign result_8 = (counter_1 == 2'd0) ? c$case_alt_3 : c$case_alt_4;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_3 = c$app_arg_12;
-    c$case_alt_3[255 : 0] = ((c$app_arg_12[255 : 0]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$case_alt_4 = (counter_1 == 2'd1) ? c$case_alt_5 : c$case_alt_6;
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_5 = c$app_arg_12;
-    c$case_alt_5[511 : 256] = ((c$app_arg_12[511 : 256]) ^ \input .AXI4Stream_sel0);
-  end
-  // setSlice end
-
-  assign c$bv = (\input .AXI4Stream_sel0);
-
-  // setSlice begin
-  always_comb begin
-    c$case_alt_6 = c$app_arg_12;
-    c$case_alt_6[575 : 512] = ((c$app_arg_12[575 : 512]) ^ (c$bv[63 : 0]));
-  end
-  // setSlice end
-
-  assign c$app_arg_12 = state;
-
-  assign c$complementAt1_tupIn_case_scrut_0 = counter_1 == 2'd1;
-
-  assign c$complementAt1_tupIn_case_scrut_1 = counter_1 == 2'd0;
-
-  assign flush = eta2.Tuple3_0_sel2;
-
-  assign \input  = eta2.Tuple3_0_sel0;
-
-  assign counter_1 = ds1[1606:1605];
+  assign c$complementAt1_tupIn_case_alt = c$complementAt1_arg0_case_scrut ? {11'd513
+                                                                            ,result_8} : {11'd1,result_8};
 
   assign state = ds1.State_sel1;
 
@@ -276,6 +93,183 @@ module Component_G512_topEntity_spongeFSM
     end
   end
   // register end
+
+  assign c$ds_case_alt_selection_1 = ds1.State_sel0;
+
+  always_comb begin
+    case(c$ds_case_alt_selection_1[8:7])
+      2'b00 : c$ds_case_alt = result_2;
+      2'b01 : c$ds_case_alt = c$ds_case_alt_1;
+      default : c$ds_case_alt = {c$ds_app_arg
+                                ,{{result_1,1'b1,isLast},1'b0}};
+    endcase
+  end
+
+  assign result_1 = (counter == 1'd0) ? (c$app_arg[255 : 0]) : c$case_alt;
+
+  assign c$case_alt = (counter == 1'd1) ? (c$app_arg[511 : 256]) : ({256 {1'bx}});
+
+  assign c$app_arg = state;
+
+  assign c$ds_app_arg = (~ tready) ? ds1 : c$ds_case_alt_0;
+
+  assign c$ds_case_alt_0 = isLast ? {{2'b00,2'd0,5'bxxxxx}
+                                    ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000} : {{2'b10,counter + 1'd1,6'bxxxxxx}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,state};
+
+  assign isLast = counter == 1'd1;
+
+  assign counter = ds1[1606:1606];
+
+  Component_G512_topEntity_sponge20 Component_G512_topEntity_sponge20_c$ds_case_alt_1
+    ( .result (c$ds_case_alt_1)
+    , .eta3 (counter_0)
+    , .eta4 (seenTLAST)
+    , .eta5 (state)
+    , .eta6 (tready) );
+
+  assign tready = eta2.Tuple3_0_sel1;
+
+  assign seenTLAST = ds1[1601:1600];
+
+  assign counter_0 = ds1[1606:1602];
+
+  assign result_2 = c$ds_case_scrut_0 ? {{{2'b01,5'd0,2'd0}
+                                         ,result_4}
+                                        ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                          ,1'b0
+                                          ,1'b0}
+                                         ,1'b0}} : c$ds_case_alt_2;
+
+  assign c$ds_case_alt_2 = (~ \input .AXI4Stream_sel1) ? {ds1
+                                                         ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                           ,1'b0
+                                                           ,1'b0}
+                                                          ,1'b1}} : c$ds_case_alt_3;
+
+  assign c$ds_case_alt_3 = (\input .AXI4Stream_sel2 & c$ds_case_scrut) ? {{{2'b01,5'd0,2'd0}
+                                                                          ,c$ds_app_arg_0}
+                                                                         ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                           ,1'b0
+                                                                           ,1'b0}
+                                                                          ,1'b0}} : result_7;
+
+  assign c$ds_app_arg_0 = c$ds_app_arg_1 ? result_3 : result_4;
+
+  // replaceBit start
+  always_comb begin
+    result_3 = c$app_arg_0;
+    result_3[64'sd575] = (~ (c$app_arg_0[64'sd575]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_0 = result_4;
+
+  // replaceBit start
+  always_comb begin
+    result_4 = c$app_arg_2;
+    result_4[c$app_arg_1] = (~ (c$app_arg_2[c$app_arg_1]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_1 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0_0});
+
+  assign c$app_arg_2 = result_5;
+
+  // replaceBit start
+  always_comb begin
+    result_5 = c$app_arg_4;
+    result_5[c$app_arg_3] = (~ (c$app_arg_4[c$app_arg_3]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_3 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0});
+
+  assign c$app_arg_4 = result_6;
+
+  // replaceBit start
+  always_comb begin
+    result_6 = c$app_arg_6;
+    result_6[c$app_arg_5] = (~ (c$app_arg_6[c$app_arg_5]));
+  end
+  // replaceBit end
+
+  assign c$i_18 = c$complementAt1_tupIn.Tuple2_3_sel0;
+
+  assign c$app_arg_5 = $unsigned({{(64-11) {1'b0}},c$i_18});
+
+  assign c$app_arg_6 = c$complementAt1_tupIn.Tuple2_3_sel1;
+
+  assign c$complementAt1_arg0 = c$ds_case_scrut_0 ? 11'd2 : c$complementAt1_arg0_case_alt;
+
+  assign c$complementAt1_arg0_case_alt = c$ds_app_arg_1 ? 11'd265 : c$complementAt1_arg0_case_alt_0;
+
+  assign c$complementAt1_arg0_case_alt_0 = c$complementAt1_arg0_case_scrut ? 11'd514 : 11'd2;
+
+  assign c$complementAt1_arg0_case_scrut = counter_1 == 2'd1;
+
+  assign c$complementAt1_arg0_0 = c$ds_case_scrut_0 ? 11'd575 : c$complementAt1_arg0_case_alt_1;
+
+  assign c$complementAt1_arg0_case_alt_1 = c$ds_app_arg_1 ? 11'd266 : 11'd575;
+
+  assign result_7 = \input .AXI4Stream_sel2 ? {{{2'b01,5'd0,2'd1}
+                                               ,result_8}
+                                              ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                ,1'b0
+                                                ,1'b0}
+                                               ,1'b0}} : c$ds_case_alt_4;
+
+  assign c$ds_case_alt_4 = c$ds_case_scrut ? {{{2'b00,counter_1 + 2'd1,5'bxxxxx}
+                                              ,result_8}
+                                             ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                               ,1'b0
+                                               ,1'b0}
+                                              ,1'b1}} : {{{2'b01,5'd0,2'd2},result_8}
+                                                        ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                          ,1'b0
+                                                          ,1'b0}
+                                                         ,1'b0}};
+
+  assign result_8 = (counter_1 == 2'd0) ? c$case_alt_0 : c$case_alt_1;
+
+  // setSlice begin
+  always_comb begin
+    c$case_alt_0 = c$app_arg_7;
+    c$case_alt_0[255 : 0] = ((c$app_arg_7[255 : 0]) ^ \input .AXI4Stream_sel0);
+  end
+  // setSlice end
+
+  assign c$case_alt_1 = (counter_1 == 2'd1) ? c$case_alt_2 : c$case_alt_3;
+
+  // setSlice begin
+  always_comb begin
+    c$case_alt_2 = c$app_arg_7;
+    c$case_alt_2[511 : 256] = ((c$app_arg_7[511 : 256]) ^ \input .AXI4Stream_sel0);
+  end
+  // setSlice end
+
+  assign c$bv = (\input .AXI4Stream_sel0);
+
+  // setSlice begin
+  always_comb begin
+    c$case_alt_3 = c$app_arg_7;
+    c$case_alt_3[575 : 512] = ((c$app_arg_7[575 : 512]) ^ (c$bv[63 : 0]));
+  end
+  // setSlice end
+
+  assign c$app_arg_7 = state;
+
+  assign c$ds_case_scrut = counter_1 < 2'd2;
+
+  assign c$ds_case_scrut_0 = flush & c$ds_app_arg_1;
+
+  assign flush = eta2.Tuple3_0_sel2;
+
+  assign c$ds_app_arg_1 = counter_1 == 2'd0;
+
+  assign counter_1 = ds1[1606:1605];
+
+  assign \input  = eta2.Tuple3_0_sel0;
 
 
 endmodule

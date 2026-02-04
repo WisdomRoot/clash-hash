@@ -10,7 +10,7 @@ module Sponge.NonPipelinedN256
     complementAt,
     absorb,
     permute,
-    squeeze
+    squeeze,
   )
 where
 
@@ -53,6 +53,7 @@ data State k n
 complementAt :: Index 1600 -> BitVector 1600 -> BitVector 1600
 complementAt i state = replaceBit i (complement (state ! i)) state
 
+{-# INLINE absorb #-}
 absorb ::
   (KnownNat k) =>
   (Index k -> BitVector 1600 -> BitVector 1600) ->
@@ -82,6 +83,7 @@ absorb pad xorFn counter state input flush
       let state' = xorFn state (tdata input) counter
        in (State (Permute 0 NotSeenTLAST) state', (idleAXI4Stream, False))
 
+-- | Adding the INLINE pragma would cause the area to swell a bit
 permute ::
   (KnownNat k, KnownNat n) =>
   (Index 24 -> BitVector 1600 -> BitVector 1600) ->
@@ -106,6 +108,7 @@ permute permModule pad cut counter seenTLAST state tready =
           NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True))
         else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
 
+{-# INLINE squeeze #-}
 squeeze ::
   (KnownNat k, KnownNat n) =>
   (BitVector 1600 -> Index n -> BitVector 256) ->
@@ -113,19 +116,11 @@ squeeze ::
   BitVector 1600 ->
   Bool ->
   (State k (Index n), (AXI4Stream 256, Bool))
-squeeze cut counter state tready =
-  if counter == maxBound
-    then
-      let outStream = AXI4Stream {tdata = cut state counter, tvalid = True, tlast = True}
-          nextState =
-            if tready
-              then State (Absorb 0) 0
-              else State (Squeeze maxBound) state
-       in (nextState, (outStream, False))
-    else
-      let outStream = AXI4Stream {tdata = cut state counter, tvalid = True, tlast = False}
-          nextState =
-            if tready
-              then State (Squeeze (counter + 1)) state
-              else State (Squeeze counter) state
-       in (nextState, (outStream, False))
+squeeze squeezeSlice counter state tready =
+  let isLast = counter == maxBound
+      outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = isLast}
+      nextState
+        | not tready = State (Squeeze counter) state
+        | isLast = State (Absorb 0) 0
+        | otherwise = State (Squeeze (counter + 1)) state
+   in (nextState, (outStream, False))

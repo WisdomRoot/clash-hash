@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_G512_topEntity_sponge14
+module Component_G512_topEntity_sponge20
     ( // Inputs
       input wire logic [4:0] eta3
     , input wire logic [1:0] eta4
