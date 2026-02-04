@@ -31,6 +31,7 @@ $( mkRead
        (1, 256, 256)
      ]
  )
+{-# INLINE squeezeSlice #-}
 
 -- | Stateful sponge with AXI4-Stream backpressure support.
 {-# OPAQUE sponge #-}
@@ -49,19 +50,5 @@ sponge mlkem permModule = mealy step (State (Absorb 0) 0)
       (State PadBeats (Index SqueezeBeats), (AXI4Stream 256, Bool))
     step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR512_256 counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad (`squeezeSlice` 0) counter seenTLAST state tready
-    step (State (Squeeze counter) state) (_msg, tready, _flush) = 
-      if counter == maxBound
-        then
-          let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = True}
-              nextState =
-                if tready
-                  then State (Absorb 0) 0
-                  else State (Squeeze maxBound) state
-          in (nextState, (outStream, False))
-        else
-          let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = False}
-              nextState =
-                if tready
-                  then State (Squeeze (counter + 1)) state
-                  else State (Squeeze counter) state
-          in (nextState, (outStream, False))
+    step (State (Squeeze counter) state) (_msg, tready, _flush) =
+      squeeze squeezeSlice counter state tready

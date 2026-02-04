@@ -84,3 +84,8 @@ stack test -- run all tests
 * H256: Pipelined *high_speed_core* SHA3-256 by *Team Keccak*
 
 These targets can be used with the `synth` and `bench` commands. They are defined in `clash.json` and `vhdl.json`.
+
+## Clash Pitfalls
+
+- TH-generated helper functions (e.g. `mkRead`-produced `squeezeSlice`) may fail to inline when passed as higher-order arguments, which can force Clash to emit a separate SV module and increase area.
+- Adding `{-# INLINE <name> #-}` to the generated helper (or replacing it with an equivalent non-TH definition) restores inlining and removes the extra module in practice.

@@ -9,7 +9,8 @@ module Sponge.NonPipelinedN256
     SeenTLAST (..),
     complementAt,
     absorb,
-    permute
+    permute,
+    squeeze
   )
 where
 
@@ -105,26 +106,26 @@ permute permModule pad cut counter seenTLAST state tready =
           NotSeenTLAST -> (State (Absorb 0) state', (idleAXI4Stream, True))
         else (State (Permute (counter + 1) seenTLAST) state', (idleAXI4Stream, False))
 
--- squeeze ::
---   (KnownNat k, KnownNat n) =>
---   (BitVector 1600 -> Index n -> BitVector 256) ->
---   Index n ->
---   BitVector 1600 ->
---   Bool ->
---   (State k (Index n), (AXI4Stream 256, Bool))
--- squeeze cut counter state tready =
-  -- if counter == maxBound
-  --   then
-  --     let outStream = AXI4Stream {tdata = cut state counter, tvalid = True, tlast = True}
-  --         nextState =
-  --           if tready
-  --             then State (Absorb 0) 0
-  --             else State (Squeeze maxBound) state
-  --      in (nextState, (outStream, False))
-  --   else
-  --     let outStream = AXI4Stream {tdata = cut state counter, tvalid = True, tlast = False}
-  --         nextState =
-  --           if tready
-  --             then State (Squeeze (counter + 1)) state
-  --             else State (Squeeze counter) state
-  --      in (nextState, (outStream, False))
+squeeze ::
+  (KnownNat k, KnownNat n) =>
+  (BitVector 1600 -> Index n -> BitVector 256) ->
+  Index n ->
+  BitVector 1600 ->
+  Bool ->
+  (State k (Index n), (AXI4Stream 256, Bool))
+squeeze cut counter state tready =
+  if counter == maxBound
+    then
+      let outStream = AXI4Stream {tdata = cut state counter, tvalid = True, tlast = True}
+          nextState =
+            if tready
+              then State (Absorb 0) 0
+              else State (Squeeze maxBound) state
+       in (nextState, (outStream, False))
+    else
+      let outStream = AXI4Stream {tdata = cut state counter, tvalid = True, tlast = False}
+          nextState =
+            if tready
+              then State (Squeeze (counter + 1)) state
+              else State (Squeeze counter) state
+       in (nextState, (outStream, False))
