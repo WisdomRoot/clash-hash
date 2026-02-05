@@ -1,0 +1,129 @@
+{
+    "components": [
+        "Component_G768_i256o256_sponge20",
+        "Component_G768_i256o256_spongeFSM",
+        "Component_G_768_I256_O256"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "Component_G_768_I256_O256_shim.cpp",
+            "sha256": "3e355ae59c32bc9608944e1a7a0d2aeaf8a7768912ca2c33651d952b1f1eaef3"
+        },
+        {
+            "name": "Component_G_768_I256_O256.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "Component_G_768_I256_O256_types.sv",
+            "sha256": "4c58433ec9ab613bea661febf394760ea8714b912c8f78303628947a6ba8dbd6"
+        },
+        {
+            "name": "Component_G768_i256o256_sponge20.sv",
+            "sha256": "f34042c92b2756a49bee5e9d15a2d439113d04bc6607fa9bbf95be0c74dc37e4"
+        },
+        {
+            "name": "Component_G768_i256o256_spongeFSM.sv",
+            "sha256": "bba466626cf9c047190f2ba06b6c1cb57e9002a6c62ee550f480b65d68484b93"
+        },
+        {
+            "name": "Component_G_768_I256_O256.sv",
+            "sha256": "5c3b211c6186ca7438634e516d27919e3a66c3a97f330c1ab174f6220f78529f"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "899ea443494bcb31ee4e2360feb714929fd036c78f73e7c3f45532ca39def298",
+    "top_component": {
+        "name": "Component_G_768_I256_O256",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "TREADY",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_MSG_TDATA",
+                "type_name": "logic [257:0]",
+                "width": 258
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_MSG_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TDATA",
+                "type_name": "logic [257:0]",
+                "width": 258
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
+            }
+        ]
+    },
+    "version": "unstable"
+}
