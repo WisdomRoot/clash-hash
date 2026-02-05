@@ -1,8 +1,10 @@
-package SHA3_512_NonPipelined_types;
+package G512_I256_O256_types;
   typedef struct packed {
-    logic [8:0] State_sel0;
-    logic [1599:0] State_sel1;
-  } State;
+    logic [255:0] Tuple4_sel0;
+    logic Tuple4_sel1;
+    logic Tuple4_sel2;
+    logic Tuple4_sel3;
+  } Tuple4;
   typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
   typedef struct packed {
@@ -17,7 +19,7 @@ package SHA3_512_NonPipelined_types;
   } Tuple2_3;
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
-    logic [63:0] AXI4Stream_sel0;
+    logic [255:0] AXI4Stream_sel0;
     logic AXI4Stream_sel1;
     logic AXI4Stream_sel2;
   } AXI4Stream;
@@ -30,18 +32,14 @@ package SHA3_512_NonPipelined_types;
     AXI4Stream Tuple2_4_sel0;
     logic Tuple2_4_sel1;
   } Tuple2_4;
-  typedef struct packed {
-    State Tuple2_0_sel0;
-    Tuple2_4 Tuple2_0_sel1;
-  } Tuple2_0;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {
-    logic Tuple2_sel0;
-    logic[0:7] Tuple2_sel1;
-  } Tuple2;
-  typedef Tuple2  array_of_168_Tuple2 [0:167];
-  typedef Tuple2  array_of_169_Tuple2 [0:168];
+    logic Tuple2_0_sel0;
+    logic[0:7] Tuple2_0_sel1;
+  } Tuple2_0;
+  typedef Tuple2_0  array_of_168_Tuple2_0 [0:167];
+  typedef Tuple2_0  array_of_169_Tuple2_0 [0:168];
   typedef logic  array_of_9_logic [0:8];
   typedef logic  array_of_1600_logic [0:1599];
   typedef logic  array_of_64_logic [0:63];
@@ -61,6 +59,14 @@ package SHA3_512_NonPipelined_types;
   } Tuple2_2;
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
+  typedef struct packed {
+    logic [8:0] State_sel0;
+    logic [1599:0] State_sel1;
+  } State;
+  typedef struct packed {
+    State Tuple2_sel0;
+    Tuple2_4 Tuple2_sel1;
+  } Tuple2;
   function automatic logic [0:63][0:0] array_of_64_logic_vector_1_to_lv(array_of_64_logic_vector_1 i);
     for (int n = 0; n < 64; n=n+1)
       array_of_64_logic_vector_1_to_lv[n] = i[n];
@@ -133,29 +139,29 @@ package SHA3_512_NonPipelined_types;
     array_of_8_logic_cons[0] = x;
     array_of_8_logic_cons[1:7] = xs;
   endfunction
-  function automatic logic [0:167][8:0] array_of_168_Tuple2_to_lv(array_of_168_Tuple2 i);
+  function automatic logic [0:167][8:0] array_of_168_Tuple2_0_to_lv(array_of_168_Tuple2_0 i);
     for (int n = 0; n < 168; n=n+1)
-      array_of_168_Tuple2_to_lv[n] = i[n];
+      array_of_168_Tuple2_0_to_lv[n] = i[n];
   endfunction
-  function automatic array_of_168_Tuple2 array_of_168_Tuple2_from_lv(logic [0:167][8:0] i);
+  function automatic array_of_168_Tuple2_0 array_of_168_Tuple2_0_from_lv(logic [0:167][8:0] i);
     for (int n = 0; n < 168; n=n+1)
-      array_of_168_Tuple2_from_lv[n] = i[n];
+      array_of_168_Tuple2_0_from_lv[n] = i[n];
   endfunction
-  function automatic array_of_168_Tuple2 array_of_168_Tuple2_cons(Tuple2 x,Tuple2  xs [0:166]);
-    array_of_168_Tuple2_cons[0] = x;
-    array_of_168_Tuple2_cons[1:167] = xs;
+  function automatic array_of_168_Tuple2_0 array_of_168_Tuple2_0_cons(Tuple2_0 x,Tuple2_0  xs [0:166]);
+    array_of_168_Tuple2_0_cons[0] = x;
+    array_of_168_Tuple2_0_cons[1:167] = xs;
   endfunction
-  function automatic logic [0:168][8:0] array_of_169_Tuple2_to_lv(array_of_169_Tuple2 i);
+  function automatic logic [0:168][8:0] array_of_169_Tuple2_0_to_lv(array_of_169_Tuple2_0 i);
     for (int n = 0; n < 169; n=n+1)
-      array_of_169_Tuple2_to_lv[n] = i[n];
+      array_of_169_Tuple2_0_to_lv[n] = i[n];
   endfunction
-  function automatic array_of_169_Tuple2 array_of_169_Tuple2_from_lv(logic [0:168][8:0] i);
+  function automatic array_of_169_Tuple2_0 array_of_169_Tuple2_0_from_lv(logic [0:168][8:0] i);
     for (int n = 0; n < 169; n=n+1)
-      array_of_169_Tuple2_from_lv[n] = i[n];
+      array_of_169_Tuple2_0_from_lv[n] = i[n];
   endfunction
-  function automatic array_of_169_Tuple2 array_of_169_Tuple2_cons(Tuple2 x,Tuple2  xs [0:167]);
-    array_of_169_Tuple2_cons[0] = x;
-    array_of_169_Tuple2_cons[1:168] = xs;
+  function automatic array_of_169_Tuple2_0 array_of_169_Tuple2_0_cons(Tuple2_0 x,Tuple2_0  xs [0:167]);
+    array_of_169_Tuple2_0_cons[0] = x;
+    array_of_169_Tuple2_0_cons[1:168] = xs;
   endfunction
   function automatic logic [0:8][0:0] array_of_9_logic_to_lv(array_of_9_logic i);
     for (int n = 0; n < 9; n=n+1)
@@ -288,5 +294,5 @@ package SHA3_512_NonPipelined_types;
     array_of_24_array_of_7_logic_cons[0] = {array_of_7_logic_to_lv(x)};
     array_of_24_array_of_7_logic_cons[1:23] = xs;
   endfunction
-endpackage : SHA3_512_NonPipelined_types
+endpackage : G512_I256_O256_types
 

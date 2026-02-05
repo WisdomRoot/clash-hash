@@ -95,8 +95,8 @@ mlkemToKByte MLKEM768 = 3
 mlkemToKByte MLKEM1024 = 4
 
 mlkemTopEntity :: MLKEM -> GTopEntity256
-mlkemTopEntity MLKEM512 = G512.i256o256
-mlkemTopEntity MLKEM768 = G768.i256o256
+mlkemTopEntity MLKEM512 = G512.i256o256Stream
+mlkemTopEntity MLKEM768 = G768.i256o256Stream
 mlkemTopEntity MLKEM1024 = error "Component.G1024 not implemented"
 
 gGenConfig :: ShakeGenConfig

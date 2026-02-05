@@ -2,12 +2,12 @@
 
 #include <verilated.h>
 
-#include "VComponent_G.h"
+#include "VG512_I256_O256.h"
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
 
-  VComponent_G *top = new VComponent_G;
+  VG512_I256_O256 *top = new VG512_I256_O256;
 
   while(!Verilated::gotFinish()) {
     top->eval();

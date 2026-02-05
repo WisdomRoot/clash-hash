@@ -1,6 +1,14 @@
 # clash-hash
 
-## Components
+## ML-KEM-512 Components
+
+### G
+
+|  In  |  Out  |  Area  |  Module  |
+|------|-------|--------|----------|
+| 256  | 256   | 24536  | systemverilog/Component.G512.i256o256/G512_I256_O256.sv |
+
+## Old Components (to be updated)
 
 ### SampleNTT2
 

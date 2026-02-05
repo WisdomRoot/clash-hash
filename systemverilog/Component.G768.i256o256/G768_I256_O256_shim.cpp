@@ -2,12 +2,12 @@
 
 #include <verilated.h>
 
-#include "VComponent_PRF2.h"
+#include "VG768_I256_O256.h"
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
 
-  VComponent_PRF2 *top = new VComponent_PRF2;
+  VG768_I256_O256 *top = new VG768_I256_O256;
 
   while(!Verilated::gotFinish()) {
     top->eval();
