@@ -16,6 +16,7 @@ import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
 import Test.SampleNTT qualified
 import Test.SampleNTT2 qualified
+import Test.SampleNTT512 qualified
 import Test.Permutation qualified
 import Test.PRF2 qualified
 import Test.PRF3 qualified
@@ -47,6 +48,7 @@ main = do
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
   nSampleNTTTests <- testSpec "SampleNTT" Test.SampleNTT.spec
   nSampleNTT2Tests <- testSpec "SampleNTT2" Test.SampleNTT2.spec
+  nSampleNTT512Tests <- testSpec "SampleNTT512" Test.SampleNTT512.spec
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
 
@@ -74,5 +76,6 @@ main = do
         refSha3Tests,
         refShake256Tests,
         nSampleNTTTests,
-        nSampleNTT2Tests
+        nSampleNTT2Tests,
+        nSampleNTT512Tests
       ]

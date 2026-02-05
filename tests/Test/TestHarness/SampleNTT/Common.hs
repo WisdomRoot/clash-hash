@@ -22,6 +22,7 @@ module Test.TestHarness.SampleNTT.Common
     makeBackpressureSignalRepeat,
     backpressurePattern,
     bsToBV272,
+    bsToBV272Normal,
     reverseBits12Word,
     splitCoeffsN,
     sampleCountMargin,
@@ -33,7 +34,7 @@ import Data.Aeson (eitherDecode)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
-import Data.Word (Word16)
+import Data.Word (Word16, Word8)
 import System.FilePath ((</>))
 import System.IO (hClose)
 import System.IO.Unsafe (unsafePerformIO)
@@ -132,6 +133,17 @@ bsToBV272 bs =
 
 reverseBits8 :: BitVector 8 -> BitVector 8
 reverseBits8 bv = pack (reverse (unpack bv :: Vec 8 Bit))
+
+bsToBV272Normal :: ByteString -> BitVector 272
+bsToBV272Normal bs =
+  let padded = BS.take 34 (bs P.<> BS.replicate 34 0)
+      bits = P.concatMap word8ToBits (BS.unpack padded)
+      paddedBits = P.take 272 (bits P.++ P.repeat 0)
+   in P.foldl accumBit 0 (P.zip [0 .. 271] paddedBits)
+  where
+    word8ToBits :: Word8 -> [Bit]
+    word8ToBits w = [if testBit w i then 1 else 0 | i <- [0 .. 7]]
+    accumBit acc (i, b) = if b == 1 then setBit acc i else acc
 
 reverseBits12Word :: Word16 -> Word16
 reverseBits12Word w =
