@@ -58,8 +58,21 @@ def run_cmd(cmd, label, timeout=3600):
         timeout=timeout,
     )
     if result.returncode != 0:
-        print(result.stdout + result.stderr, file=sys.stderr)
-        sys.exit(f"[bench] ERROR: {label} failed (exit {result.returncode})")
+        output = result.stdout + result.stderr
+        if "Relocation target for PAGE21 out of range" in output:
+            print("[bench] Clash hit GHC relocation bug; retrying once...", file=sys.stderr)
+            result = subprocess.run(
+                cmd,
+                cwd=PROJECT_ROOT,
+                text=True,
+                capture_output=True,
+                timeout=timeout,
+            )
+            output = result.stdout + result.stderr
+        if result.returncode != 0:
+            print(output, file=sys.stderr)
+            sys.exit(f"[bench] ERROR: {label} failed (exit {result.returncode})")
+        return output
     return result.stdout + result.stderr
 
 
@@ -178,13 +191,20 @@ def load_manifest(label: str) -> dict:
         sys.exit(f"[bench] ERROR: could not read manifest {path}: {exc}")
 
 
-def module_from_label(label: str) -> str:
-    """Infer Clash module name from verilog directory label.
+def parse_clash_target(label: str) -> tuple[str, str | None]:
+    """Return (module_name, main_is) for a Clash target label.
 
-    Convention: <Module>.topEntity → <Module>
+    - <Module>.topEntity → (Module, None)
+    - <Module>.<func>    → (Module, Module.func) when func starts lowercase
+    - <Module>           → (Module, None)
     """
     suffix = ".topEntity"
-    return label[: -len(suffix)] if label.endswith(suffix) else label
+    if label.endswith(suffix):
+        return label[: -len(suffix)], None
+    parts = label.split(".")
+    if parts and parts[-1] and parts[-1][0].islower():
+        return ".".join(parts[:-1]), label
+    return label, None
 
 
 def load_aliases(path: Path, required: bool = False) -> dict[str, str]:
@@ -273,35 +293,21 @@ def bench(target_label: str):
         return
 
     target_label = ALIASES.get(target_label, target_label)
-    module_name = module_from_label(target_label)
+    module_name, main_is = parse_clash_target(target_label)
 
     # Rebuild only this package so Clash sees fresh sources without a full stack build
     run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
 
     # (Re)generate SystemVerilog for the target and capture Clash timings
-    clash_output = run_cmd(
-        [
-            "stack",
-            "exec",
-            "clash",
-            "--",
-            "--systemverilog",
-            module_name,
-        ],
-        f"SystemVerilog gen for {module_name}",
-    )
+    clash_cmd = ["stack", "exec", "clash", "--", "--systemverilog", module_name]
+    if main_is:
+        clash_cmd += ["-main-is", main_is]
+    clash_output = run_cmd(clash_cmd, f"SystemVerilog gen for {module_name}")
     # Also emit Verilog for tool compatibility
-    run_cmd(
-        [
-            "stack",
-            "exec",
-            "clash",
-            "--",
-            "--verilog",
-            module_name,
-        ],
-        f"Verilog gen for {module_name}",
-    )
+    verilog_cmd = ["stack", "exec", "clash", "--", "--verilog", module_name]
+    if main_is:
+        verilog_cmd += ["-main-is", main_is]
+    run_cmd(verilog_cmd, f"Verilog gen for {module_name}")
 
     load_time, compile_time = parse_clash_timings(clash_output)
 

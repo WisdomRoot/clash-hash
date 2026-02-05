@@ -59,7 +59,7 @@ sha3512NormalG512Params =
   ShakeParams256
     { spBeatsPerBlock = 3,
       spReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 (msg <> BS.pack [2])),
-      spTopEntity = G512.topEntity
+      spTopEntity = G512.i256o256
     }
 
 sha3512NormalG512GenConfig :: ShakeGenConfig

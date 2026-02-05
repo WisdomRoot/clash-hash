@@ -79,12 +79,20 @@ def load_vhdl_targets(path: Path) -> dict[str, dict]:
     return targets
 
 
-def _module_base_name(label: str) -> str:
-    return label[: -len(".topEntity")] if label.endswith(".topEntity") else label
+def _parse_clash_target(label: str) -> tuple[str, str | None]:
+    suffix = ".topEntity"
+    if label.endswith(suffix):
+        return label[: -len(suffix)], None
+    parts = label.split(".")
+    if parts and parts[-1] and parts[-1][0].islower():
+        return ".".join(parts[:-1]), label
+    return label, None
 
 
-def _run_clash_codegen(flag: str, module_name: str) -> tuple[bool, str]:
+def _run_clash_codegen(flag: str, module_name: str, main_is: str | None) -> tuple[bool, str]:
     cmd = ["stack", "exec", "clash", "--", flag, module_name]
+    if main_is:
+        cmd += ["-main-is", main_is]
     result = subprocess.run(
         cmd,
         cwd=PROJECT_ROOT,
@@ -112,10 +120,10 @@ def _run_clash_codegen(flag: str, module_name: str) -> tuple[bool, str]:
 
 def _auto_generate_systemverilog(label: str) -> bool:
     """Attempt to auto-generate SystemVerilog from Clash source."""
-    module_name = _module_base_name(label)
+    module_name, main_is = _parse_clash_target(label)
     print(f"[synth] SystemVerilog not found, generating from Clash: {label}", flush=True)
 
-    ok, output = _run_clash_codegen("--systemverilog", module_name)
+    ok, output = _run_clash_codegen("--systemverilog", module_name, main_is)
     if not ok:
         print(f"[synth] Failed to generate SystemVerilog:", flush=True)
         print(output, flush=True)
@@ -127,10 +135,10 @@ def _auto_generate_systemverilog(label: str) -> bool:
 
 def _auto_generate_verilog(label: str) -> bool:
     """Attempt to auto-generate Verilog from Clash source (fallback)."""
-    module_name = _module_base_name(label)
+    module_name, main_is = _parse_clash_target(label)
     print(f"[synth] Verilog not found, generating from Clash: {label}", flush=True)
 
-    ok, output = _run_clash_codegen("--verilog", module_name)
+    ok, output = _run_clash_codegen("--verilog", module_name, main_is)
     if not ok:
         print(f"[synth] Failed to generate Verilog:", flush=True)
         print(output, flush=True)

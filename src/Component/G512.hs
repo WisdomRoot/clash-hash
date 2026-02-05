@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Component.G512
-  ( topEntity,
+  ( i256o256,
   )
 where
 
@@ -22,7 +22,7 @@ spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
 spongeFSM = Permutation.keccakF1600
 
 {-# ANN
-  topEntity
+  i256o256
   ( Synthesize
       { t_name = "Component_G_512_I256_O256",
         t_inputs =
@@ -48,15 +48,15 @@ spongeFSM = Permutation.keccakF1600
       }
   )
   #-}
-{-# NOINLINE topEntity #-}
-topEntity ::
+{-# NOINLINE i256o256 #-}
+i256o256 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System Bool -> -- output tready
   Signal System (AXI4Stream 256, Bool) -> -- Input message with flush signal
   Signal System (AXI4Stream 256, Bool) -- Output digest (AXI4-Stream), input tready
-topEntity clk rst en treadySig inputSig =
+i256o256 clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig
        in Sponge.NonPipelined.SHA3512N256.sponge @System MLKEM512 spongeFSM (bundle (msgSig, treadySig, flushSig))
