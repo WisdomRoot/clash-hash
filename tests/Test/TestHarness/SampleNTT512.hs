@@ -55,7 +55,7 @@ sampleNTT512Params :: SampleNTT512Params
 sampleNTT512Params =
   SampleNTT512Params
     { spReference = unpackPython384Bytes . externalSampleNTTPacked,
-      spTopEntity = SampleNTT512.topEntity
+      spTopEntity = SampleNTT512.i272o24
     }
 
 sampleCountMargin512 :: Int

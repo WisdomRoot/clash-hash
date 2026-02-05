@@ -1,5 +1,5 @@
 module Component.SampleNTT512
-  ( topEntity,
+  ( i272o24,
   )
 where
 
@@ -9,9 +9,9 @@ import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 
 {-# ANN
-  topEntity
+  i272o24
   ( Synthesize
-      { t_name = "Component_SampleNTT512",
+      { t_name = "SampleNTT512_I272_O24",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
@@ -31,14 +31,14 @@ import Sponge.NonPipelined (complementAt)
       }
   )
   #-}
-{-# NOINLINE topEntity #-}
-topEntity ::
+{-# NOINLINE i272o24 #-}
+i272o24 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-topEntity clk rst en inputSig =
+i272o24 clk rst en inputSig =
   withClockResetEnable clk rst en (hash inputSig)
 
 data State
