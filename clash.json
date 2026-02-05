@@ -4,6 +4,7 @@
   "N512": "Hash.NonPipelined.SHA3512.topEntity",
   "N512N": "Hash.NonPipelined.SHA3512Normal.topEntity",
   "G512": "Component.G512.i256o256",
+  "G768": "Component.G768.i256o256",
   "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
