@@ -12,6 +12,7 @@
   "PRF3": "Component.PRF3.topEntity",
   "SampleNTT": "Component.SampleNTT.topEntity",
   "SampleNTT2": "Component.SampleNTT2.topEntity",
+  "SampleNTT512": "Component.SampleNTT512.topEntity",
   "SamplePolyCBD2": "Component.SamplePolyCBD2.topEntity",
   "SamplePolyCBD3": "Component.SamplePolyCBD3.topEntity",
   "Dev": "Component.Dev.topEntity",

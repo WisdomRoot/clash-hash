@@ -43,7 +43,6 @@ import Test.TestHarness.StreamCommon
     feedInput256,
     makeBackpressureSignal
   )
-import Prelude (String, (<>))
 import Prelude qualified as P
 
 type GTest = ShakeTest
@@ -76,7 +75,7 @@ gReference = gReferenceK 2
 -- | Reference implementation of G with explicit k (2/3/4).
 gReferenceK :: Word8 -> ByteString -> (ByteString, ByteString)
 gReferenceK k input =
-  let output = callPythonReference ("reference" </> "kyber" </> "g.py") (input <> BS.pack [k])
+  let output = callPythonReference ("reference" </> "kyber" </> "g.py") (input P.<> BS.pack [k])
    in (BS.take 32 output, BS.drop 32 output)
 
 gParamsFor :: MLKEM -> GParams
@@ -131,7 +130,7 @@ runHardware params test =
         SomeNat (_ :: Proxy beats') ->
           runHardwareKnown @beats' params test beats (gpBeatsPerBlock params)
 
-testLabel :: GTest -> String
+testLabel :: GTest -> P.String
 testLabel = Common.testLabel
 
 runHardwareKnown ::
