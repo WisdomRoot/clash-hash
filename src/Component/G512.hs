@@ -24,7 +24,7 @@ spongeFSM = Permutation.keccakF1600
 {-# ANN
   i256o256
   ( Synthesize
-      { t_name = "Component_G_512_I256_O256",
+      { t_name = "G512_I256_O256",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
