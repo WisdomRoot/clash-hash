@@ -15,6 +15,7 @@
   "SampleNTT512": "Component.SampleNTT512.i272o24",
   "SamplePolyCBD2": "Component.SamplePolyCBD2.topEntity",
   "SamplePolyCBD3": "Component.SamplePolyCBD3.topEntity",
+  "SamplePolyCBD512": "Component.SamplePolyCBD512.topEntity",
   "Dev": "Component.Dev.topEntity",
   "Perm": "Permutation.topEntity",
   "PermRev": "Permutation.Reversed.topEntity",

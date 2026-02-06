@@ -8,11 +8,13 @@
 |------|-------|--------|----------|
 | 256  | 256   | 24536  | systemverilog/Component.G512.i256o256/G512_I256_O256.sv |
 
-### SampleNTT512
+### SampleNTT
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
 | 272  | 24    | 28209  | systemverilog/Component.SampleNTT512.i272o24/SampleNTT512_I272_O24.sv |
+
+### SamplePolyCBD
 
 ## Old Components (to be updated)
 

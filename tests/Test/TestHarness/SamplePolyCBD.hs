@@ -8,6 +8,7 @@ module Test.TestHarness.SamplePolyCBD
     samplePolyCBDReference,
     unpackPython512Bytes,
     runSamplePolyCBDHardware,
+    runSamplePolyCBDHardwareNormal,
   )
 where
 
@@ -77,6 +78,34 @@ runSamplePolyCBDHardware topEntity s b backpressure =
         P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
    in coeffs
 
+runSamplePolyCBDHardwareNormal ::
+  SamplePolyCBDTopEntity ->
+  ByteString ->
+  Word8 ->
+  DownstreamBackpressure ->
+  [Word16]
+runSamplePolyCBDHardwareNormal topEntity s b backpressure =
+  let msgBV = bsToBV264Normal (s <> BS.singleton b)
+      msgSig = pure msgBV
+      treadySignal = makeBackpressureSignal backpressure
+      output =
+        topEntity
+          clockGen
+          resetGen
+          enableGen
+          msgSig
+          treadySignal
+      sampleCount = 24 P.+ 24 P.+ 256 P.+ 200
+      samples = sampleN @System sampleCount (bundle (output, treadySignal))
+      validOutputs =
+        [ tdata stream
+          | ((stream, _), ready) <- samples,
+            tvalid stream P.&& ready
+        ]
+      coeffs =
+        P.map (P.fromIntegral . (unpack :: BitVector 12 -> Unsigned 12)) (P.take 256 validOutputs)
+   in coeffs
+
 bsToBV264 :: ByteString -> BitVector 264
 bsToBV264 bs =
   let padded = BS.take 33 (bs P.<> BS.replicate 33 0)
@@ -87,3 +116,14 @@ bsToBV264 bs =
 
 reverseBits8 :: BitVector 8 -> BitVector 8
 reverseBits8 bv = pack (reverse (unpack bv :: Vec 8 Bit))
+
+bsToBV264Normal :: ByteString -> BitVector 264
+bsToBV264Normal bs =
+  let padded = BS.take 33 (bs P.<> BS.replicate 33 0)
+      bits = P.concatMap word8ToBits (BS.unpack padded)
+      paddedBits = P.take 264 (bits P.++ P.repeat 0)
+   in P.foldl accumBit 0 (P.zip [0 .. 263] paddedBits)
+  where
+    word8ToBits :: Word8 -> [Bit]
+    word8ToBits w = [if testBit w i then 1 else 0 | i <- [0 .. 7]]
+    accumBit acc (i, b) = if b == 1 then setBit acc i else acc
