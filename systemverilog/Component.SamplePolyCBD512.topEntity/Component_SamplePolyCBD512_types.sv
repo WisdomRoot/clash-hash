@@ -19,10 +19,9 @@ package Component_SamplePolyCBD512_types;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
-    logic [8:0] Tuple3_0_sel0;
-    logic [127:0] Tuple3_0_sel1;
-    logic [7:0] Tuple3_0_sel2;
-  } Tuple3_0;
+    logic [1617:0] Tuple2_2_sel0;
+    Tuple2_3 Tuple2_2_sel1;
+  } Tuple2_2;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {
@@ -51,10 +50,6 @@ package Component_SamplePolyCBD512_types;
   typedef logic  array_of_6_logic [0:5];
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
-  typedef struct packed {
-    logic [1757:0] Tuple2_2_sel0;
-    Tuple2_3 Tuple2_2_sel1;
-  } Tuple2_2;
   function automatic logic [0:5][0:0] array_of_6_logic_vector_1_to_lv(array_of_6_logic_vector_1 i);
     for (int n = 0; n < 6; n=n+1)
       array_of_6_logic_vector_1_to_lv[n] = i[n];

@@ -5,6 +5,7 @@ module Component.SamplePolyCBD.Common
     extractTop6,
     cbd2,
     cbd3,
+    cbdDiff6,
   )
 where
 
@@ -85,7 +86,11 @@ cbd2 bits =
 
 -- | CBD(eta=3): Convert 6 bits to a coefficient in [-3, 3] mod 3329.
 cbd3 :: BitVector 6 -> BitVector 12
-cbd3 bits =
+cbd3 = cbdDiff6
+
+-- | CBD(eta=3) helper: first 3 bits are a, last 3 bits are b', return a - b' mod 3329.
+cbdDiff6 :: BitVector 6 -> BitVector 12
+cbdDiff6 bits =
   let b0 = resize (unpack (slice d5 d5 bits) :: Unsigned 1) :: Unsigned 3
       b1 = resize (unpack (slice d4 d4 bits) :: Unsigned 1) :: Unsigned 3
       b2 = resize (unpack (slice d3 d3 bits) :: Unsigned 1) :: Unsigned 3
