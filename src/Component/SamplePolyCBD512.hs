@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeOperators #-}
 
 module Component.SamplePolyCBD512
-  ( topEntity,
+  ( i264o12,
   )
 where
 
@@ -24,7 +24,7 @@ $(mkRead "read6Block0" 1600 [(i, i * 6, 6) | i <- [0 .. 180]])
 $(mkRead "read6Block1" 1600 [(i, 4 + i * 6, 6) | i <- [0 .. 73]])
 
 {-# ANN
-  topEntity
+  i264o12
   ( Synthesize
       { t_name = "Component_SamplePolyCBD512",
         t_inputs =
@@ -44,15 +44,15 @@ $(mkRead "read6Block1" 1600 [(i, 4 + i * 6, 6) | i <- [0 .. 73]])
       }
   )
   #-}
-{-# NOINLINE topEntity #-}
-topEntity ::
+{-# NOINLINE i264o12 #-}
+i264o12 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (BitVector MsgBits) ->
   Signal System Bool ->
   Signal System (AXI4Stream 12, Bool)
-topEntity clk rst en msgSig treadySig =
+i264o12 clk rst en msgSig treadySig =
   withClockResetEnable clk rst en (samplePolyCBD512 msgSig treadySig)
 
 data Permutation = FirstBlock | SecondBlock (BitVector 2) -- the final 2 bits of digest from the first block
@@ -105,18 +105,15 @@ samplePolyCBD512 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig
                   let tail2 = slice (SNat @1087) (SNat @1086) block
                    in (Permute 0 coeffIdx block (SecondBlock tail2), (idleAXI4Stream, False))
                 else
-                  let isLast = coeffIdx == 255
-                      bits6 = read6Block0 block (fromIntegral coeffIdx)
-                      bits6Rev = pack (reverse (unpack bits6 :: Vec 6 Bit))
-                      coeffVal = cbd3 bits6Rev
+                  let bits6 = read6Block0 block (fromIntegral coeffIdx)
+                      coeffVal = cbd3 bits6
                       outStream =
                         AXI4Stream
                           { tdata = coeffVal,
                             tvalid = True,
-                            tlast = isLast
+                            tlast = False
                           }
                       nextState
-                        | tready && isLast = Done
                         | tready = Squeeze (coeffIdx + 1) block FirstBlock
                         | otherwise = Squeeze coeffIdx block FirstBlock
                    in (nextState, (outStream, False))
@@ -128,8 +125,7 @@ samplePolyCBD512 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig
                         let head4 = slice d3 d0 block
                          in head4 ++# tail2
                       else read6Block1 block (fromIntegral (coeffIdx - 182))
-                  bits6Rev = pack (reverse (unpack bits6 :: Vec 6 Bit))
-                  coeffVal = cbd3 bits6Rev
+                  coeffVal = cbd3 bits6
                   outStream =
                     AXI4Stream
                       { tdata = coeffVal,

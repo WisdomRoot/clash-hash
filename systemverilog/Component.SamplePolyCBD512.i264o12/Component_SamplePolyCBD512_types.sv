@@ -1,5 +1,4 @@
 package Component_SamplePolyCBD512_types;
-  typedef logic [0:0] array_of_6_logic_vector_1 [0:5];
   typedef struct packed {
     logic [11:0] AXI4Stream_sel0;
     logic AXI4Stream_sel1;
@@ -47,21 +46,8 @@ package Component_SamplePolyCBD512_types;
     logic[0:7] Tuple2_1_sel0;
     logic[0:0] Tuple2_1_sel1;
   } Tuple2_1;
-  typedef logic  array_of_6_logic [0:5];
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
-  function automatic logic [0:5][0:0] array_of_6_logic_vector_1_to_lv(array_of_6_logic_vector_1 i);
-    for (int n = 0; n < 6; n=n+1)
-      array_of_6_logic_vector_1_to_lv[n] = i[n];
-  endfunction
-  function automatic array_of_6_logic_vector_1 array_of_6_logic_vector_1_from_lv(logic [0:5][0:0] i);
-    for (int n = 0; n < 6; n=n+1)
-      array_of_6_logic_vector_1_from_lv[n] = i[n];
-  endfunction
-  function automatic array_of_6_logic_vector_1 array_of_6_logic_vector_1_cons(logic [0:0] x,logic [0:0] xs [0:4]);
-    array_of_6_logic_vector_1_cons[0] = x;
-    array_of_6_logic_vector_1_cons[1:5] = xs;
-  endfunction
   function automatic logic [0:63][0:0] array_of_64_logic_vector_1_to_lv(array_of_64_logic_vector_1 i);
     for (int n = 0; n < 64; n=n+1)
       array_of_64_logic_vector_1_to_lv[n] = i[n];
@@ -264,18 +250,6 @@ package Component_SamplePolyCBD512_types;
   endfunction
   function automatic array_of_1_logic array_of_1_logic_cons(logic x);
     array_of_1_logic_cons[0] = x;
-  endfunction
-  function automatic logic [0:5][0:0] array_of_6_logic_to_lv(array_of_6_logic i);
-    for (int n = 0; n < 6; n=n+1)
-      array_of_6_logic_to_lv[n] = i[n];
-  endfunction
-  function automatic array_of_6_logic array_of_6_logic_from_lv(logic [0:5][0:0] i);
-    for (int n = 0; n < 6; n=n+1)
-      array_of_6_logic_from_lv[n] = i[n];
-  endfunction
-  function automatic array_of_6_logic array_of_6_logic_cons(logic x,logic  xs [0:4]);
-    array_of_6_logic_cons[0] = x;
-    array_of_6_logic_cons[1:5] = xs;
   endfunction
   function automatic logic [0:6][0:0] array_of_7_logic_to_lv(array_of_7_logic i);
     for (int n = 0; n < 7; n=n+1)

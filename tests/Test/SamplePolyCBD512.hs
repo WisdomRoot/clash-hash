@@ -36,21 +36,21 @@ spec = describe "SamplePolyCBD512" $ do
 
   it "matches kyber-py reference (seed=[0..31], b=0x01)" $ do
     let expected = samplePolyCBDReference Eta3 seed0 byte0
-        actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.topEntity seed0 byte0 NoDownstreamBackpressure
+        actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.i264o12 seed0 byte0 NoDownstreamBackpressure
     actual `shouldBe` expected
 
   it "matches kyber-py reference (all zeros)" $ do
     let seed = BS.replicate 32 0
         b = 0x00
         expected = samplePolyCBDReference Eta3 seed b
-        actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.topEntity seed b NoDownstreamBackpressure
+        actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.i264o12 seed b NoDownstreamBackpressure
     actual `shouldBe` expected
 
   it "matches kyber-py reference (all ones)" $ do
     let seed = BS.replicate 32 0xFF
         b = 0xFF
         expected = samplePolyCBDReference Eta3 seed b
-        actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.topEntity seed b NoDownstreamBackpressure
+        actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.i264o12 seed b NoDownstreamBackpressure
     actual `shouldBe` expected
 
   it "QuickCheck matches kyber-py reference" $
@@ -59,5 +59,5 @@ spec = describe "SamplePolyCBD512" $ do
 prop_samplePolyCBD512 :: SamplePolyCBD512Input -> Bool
 prop_samplePolyCBD512 (SamplePolyCBD512Input s b bp) =
   let expected = samplePolyCBDReference Eta3 s b
-      actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.topEntity s b bp
+      actual = runSamplePolyCBDHardwareNormal SamplePolyCBD512.i264o12 s b bp
    in actual == expected
