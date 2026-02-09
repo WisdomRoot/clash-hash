@@ -99,10 +99,10 @@ runSampleNTTTest params test = do
 
 runSampleNTTHardware :: SampleNTTParams -> ShakeTest -> [Word16]
 runSampleNTTHardware params test =
-  let msgBV = bsToBV272 (testMessage test)
+  let input = bsToBV272 (testMessage test)
       treadyPattern = backpressurePattern (testDownstreamBackpressure test)
       treadySignal = makeBackpressureSignalRepeat treadyPattern
-      msgStreamSig = fmap (\v -> AXI4Stream msgBV v False) msgValidSig
+      msgStreamSig = fmap (\v -> AXI4Stream input v False) msgValidSig
       inputSig = bundle (msgStreamSig, treadySignal)
       output =
         spTopEntity

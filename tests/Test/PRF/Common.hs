@@ -65,8 +65,8 @@ prop_prf cfg (PRFInput s b) =
 
 runHardware :: PRFConfig -> ByteString -> Word8 -> ByteString
 runHardware cfg s b =
-  let msgBV = bsToBV264 (s <> BS.singleton b)
-      msgSig = pure msgBV
+  let input = bsToBV264 (s <> BS.singleton b)
+      msgSig = pure input
       treadySig = pure True
       output = pcTopEntity cfg clockGen resetGen enableGen msgSig treadySig
       etaWords = 8 P.* P.fromIntegral (etaValue (pcEta cfg))

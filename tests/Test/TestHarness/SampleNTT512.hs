@@ -81,7 +81,7 @@ runSampleNTT512Test params test = do
 
 runSampleNTT512Hardware :: SampleNTT512Params -> ShakeTest -> [Word16]
 runSampleNTT512Hardware params test =
-  let msgBV = bsToBV272Normal (testMessage test)
+  let input = bsToBV272Normal (testMessage test)
       treadyPattern = backpressurePattern (testDownstreamBackpressure test)
       treadySignal = makeBackpressureSignalRepeat treadyPattern
       output =
@@ -91,7 +91,7 @@ runSampleNTT512Hardware params test =
           resetGen
           enableGen
           inputSig
-      msgStreamSig = fmap (\v -> AXI4Stream msgBV v False) msgValidSig
+      msgStreamSig = fmap (\v -> AXI4Stream input v False) msgValidSig
       inputSig = bundle (msgStreamSig, treadySignal)
       msgReadySig = fmap snd output
       (msgValidSig, msgReadyPrevSig) =
