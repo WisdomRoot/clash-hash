@@ -2,43 +2,54 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.SamplePolyCBD512 (spec) where
+module Test.SamplePolyCBD512 (spec, simulate) where
 
 import Component.PRF.Common (Eta (Eta3))
 import Component.SamplePolyCBD512 qualified as SamplePolyCBD512
+import Data.List qualified as L
+import Data.Maybe (isJust)
 import Stream
 import Test.Hspec (Spec, describe, it)
 import Test.Reference.SamplePolyCBD qualified as Reference
-import Prelude (($))
+import Prelude (Maybe (..), ($))
 import Prelude qualified as P
+
+simulate :: InputTiming 264 -> OutputTiming 12
+simulate inputTiming =
+  let (inputPattern, inputValues) = expandInputTiming inputTiming
+      inputBV =
+        case inputValues of
+          (v : _) -> v
+          [] -> P.error "SamplePolyCBD512.simulate: no input provided"
+      startSilence =
+        case L.findIndex isJust inputPattern of
+          Just i -> i
+          Nothing -> P.error "SamplePolyCBD512.simulate: no input provided"
+      coeffs = Reference.run Eta3 inputBV
+      (c0, c1) = P.splitAt 181 coeffs
+      base = [Silent 25, Output c0, Silent 25, Output c1]
+   in if startSilence P.== 0 then base else Silent startSilence : base
 
 spec :: Spec
 spec = describe "SamplePolyCBD512" $ do
   it "matches expected handshake timing (no backpressure)" $ do
     let input = [toBV @264 "0123456789abcdef0123456789abcdef!"]
-        (output0, output1) =
-          P.splitAt 181 (Reference.run Eta3 "0123456789abcdef0123456789abcdef!")
     run
       SamplePolyCBD512.i264o12
-      [Silent 25, Output output0, Silent 25, Output output1]
+      simulate
       [Input input, Hold 305]
       [Ready 306]
   it "matches expected handshake timing (periodic backpressure)" $ do
     let input = toBV @264 "0123456789abcdef0123456789abcdef!"
-        coeffs = Reference.run Eta3 "0123456789abcdef0123456789abcdef!"
-        (c0, rest0) = P.splitAt 15 coeffs
-        (c1, c2) = P.splitAt 166 rest0
     run
       SamplePolyCBD512.i264o12
-      [Silent 25, Output c0, Silent 10, Output c1, Silent 25, Output c2]
+      simulate
       [Input [input], Hold 315]
       [Ready 40, Backpress 10, Ready 266]
   it "matches expected handshake timing (initial backpressure)" $ do
     let input = toBV @264 "0123456789abcdef0123456789abcdef!"
-        coeffs = Reference.run Eta3 "0123456789abcdef0123456789abcdef!"
-        (c0, c1) = P.splitAt 181 coeffs
     run
       SamplePolyCBD512.i264o12
-      [Silent 25, Output c0, Silent 25, Output c1]
+      simulate
       [Input [input], Hold 305]
       [Backpress 12, Ready 294]

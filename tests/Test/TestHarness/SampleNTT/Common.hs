@@ -54,7 +54,7 @@ import Test.TestHarness.SHAKECommon
 import Prelude qualified as P
 
 sampleCountMargin :: Int
-sampleCountMargin = 5
+sampleCountMargin = 50
 
 externalSampleNTTPacked :: ByteString -> ByteString
 externalSampleNTTPacked = callPythonReference ("reference" </> "kyber" </> "sample_ntt.py")

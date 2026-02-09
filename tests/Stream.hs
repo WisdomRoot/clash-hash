@@ -10,6 +10,7 @@ module Stream
     Backpressure (..),
     BackpressureTiming,
     expandBackpressureTiming,
+    applyBackpressure,
     StreamTopEntity,
     run,
     toBV,
@@ -23,7 +24,7 @@ import Clash.Prelude qualified as C
 import Data.Bits (setBit, testBit, (.|.))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Maybe (catMaybes)
+import Data.Maybe (isJust, isNothing)
 import Data.Word (Word8)
 import Test.Hspec (shouldBe)
 import Prelude
@@ -45,12 +46,16 @@ data Input n
 
 type InputTiming n = [Input n]
 
-expandInputTiming :: InputTiming n -> [Maybe (BitVector n)]
-expandInputTiming = concatMap expand
+expandInputTiming :: InputTiming n -> ([Maybe (BitVector n)], [BitVector n])
+expandInputTiming = go
   where
-    expand :: Input n -> [Maybe (BitVector n)]
-    expand (Hold n) = replicate n Nothing
-    expand (Input xs) = map Just xs
+    go [] = ([], [])
+    go (Hold n : rest) =
+      let (pattern, values) = go rest
+       in (replicate n Nothing ++ pattern, values)
+    go (Input xs : rest) =
+      let (pattern, values) = go rest
+       in (map Just xs ++ pattern, xs ++ values)
 
 data Backpressure
   = Ready Int -- cycles when output tready is high (ready to accept output)
@@ -72,6 +77,45 @@ expandOutputTiming = concatMap expand
     expand (Silent n) = replicate n Nothing
     expand (Output xs) = map Just xs
 
+applyBackpressure :: BackpressureTiming -> OutputTiming o -> OutputTiming o
+applyBackpressure backpressureTiming outputTiming =
+  let ready = expandBackpressureTiming backpressureTiming
+      base = expandOutputTiming outputTiming
+      (out, rest) = go base ready
+   in if any isJust rest
+        then error "Stream.applyBackpressure: backpressure pattern too short"
+        else compress out
+  where
+    go base [] = ([], base)
+    go base (r : rs) =
+      case base of
+        [] ->
+          let (out, rest) = go [] rs
+           in (Nothing : out, rest)
+        (b : bs) ->
+          case b of
+            Nothing ->
+              let (out, rest) = go bs rs
+               in (Nothing : out, rest)
+            Just _ ->
+              if r
+                then
+                  let (out, rest) = go bs rs
+                   in (b : out, rest)
+                else
+                  let (out, rest) = go base rs
+                   in (Nothing : out, rest)
+
+    compress [] = []
+    compress xs =
+      case span isNothing xs of
+        (nothings, rest) | not (null nothings) ->
+          Silent (length nothings) : compress rest
+        _ ->
+          let (justs, rest) = span isJust xs
+              vals = [v | Just v <- justs]
+           in Output vals : compress rest
+
 type StreamTopEntity m n =
   Clock System ->
   Reset System ->
@@ -80,13 +124,13 @@ type StreamTopEntity m n =
   Signal System Bool ->
   Signal System (AXI4Stream m, Bool)
 
-run :: (KnownNat n, KnownNat m) => StreamTopEntity m n -> OutputTiming m -> InputTiming n -> BackpressureTiming -> IO ()
-run topEntity outputTiming inputTiming backpressureTiming = do
-  let expectedBase = expandOutputTiming outputTiming
-      inputPattern = expandInputTiming inputTiming
+run :: (KnownNat n, KnownNat m) => StreamTopEntity m n -> (InputTiming n -> OutputTiming m) -> InputTiming n -> BackpressureTiming -> IO ()
+run topEntity simulate inputTiming backpressureTiming = do
+  let expectedBase = expandOutputTiming (applyBackpressure backpressureTiming (simulate inputTiming))
+      (inputPattern, inputValues) = expandInputTiming inputTiming
       treadyPattern = expandBackpressureTiming backpressureTiming
       sampleLen = length expectedBase
-      input = case catMaybes inputPattern of
+      input = case inputValues of
         (v : _) -> v
         [] -> 0
       treadySignal = fromList (True : treadyPattern ++ repeat True)
@@ -104,12 +148,10 @@ run topEntity outputTiming inputTiming backpressureTiming = do
           | ((stream, _), ready) <- samples
         ]
       actual = drop 1 actualAll
-  if length inputPattern /= sampleLen
-    then error "Stream: InputTiming length must match OutputTiming length"
+  if length inputPattern /= length treadyPattern
+    then error "Stream: InputTiming length must match BackpressureTiming length"
     else
-      if length treadyPattern /= sampleLen
-        then error "Stream: BackpressureTiming length must match OutputTiming length"
-        else actual `shouldBe` expectedBase
+      actual `shouldBe` expectedBase
 
 toBV :: forall n. (KnownNat n) => ByteString -> BitVector n
 toBV bs =
