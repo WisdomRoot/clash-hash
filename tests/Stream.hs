@@ -60,6 +60,7 @@ expandInputTiming = go
 data Backpressure
   = Ready Int -- cycles when output tready is high (ready to accept output)
   | Backpress Int -- cycles when output tready is low (backpressure applied)
+  deriving (Eq, Show)
 
 type BackpressureTiming = [Backpressure]
 
@@ -126,14 +127,19 @@ type StreamTopEntity m n =
 
 run :: (KnownNat n, KnownNat m) => StreamTopEntity m n -> (InputTiming n -> OutputTiming m) -> InputTiming n -> BackpressureTiming -> IO ()
 run topEntity simulate inputTiming backpressureTiming = do
-  let expectedBase = expandOutputTiming (applyBackpressure backpressureTiming (simulate inputTiming))
-      (inputPattern, inputValues) = expandInputTiming inputTiming
-      treadyPattern = expandBackpressureTiming backpressureTiming
+  let base = expandOutputTiming (simulate inputTiming)
+      expectedHandshakes = length [() | Just _ <- base]
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> repeat True
+        _ -> cycle readyPattern
+      expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
+      (_inputPattern, inputValues) = expandInputTiming inputTiming
       sampleLen = length expectedBase
       input = case inputValues of
         (v : _) -> v
         [] -> 0
-      treadySignal = fromList (True : treadyPattern ++ repeat True)
+      treadySignal = fromList (True : readyStream)
       msgSig = pure input
       output =
         topEntity
@@ -148,10 +154,21 @@ run topEntity simulate inputTiming backpressureTiming = do
           | ((stream, _), ready) <- samples
         ]
       actual = drop 1 actualAll
-  if length inputPattern /= length treadyPattern
-    then error "Stream: InputTiming length must match BackpressureTiming length"
-    else
-      actual `shouldBe` expectedBase
+  actual `shouldBe` expectedBase
+
+applyBackpressureUntil :: Int -> [Maybe (BitVector m)] -> [Bool] -> [Maybe (BitVector m)]
+applyBackpressureUntil target = go target
+  where
+    go 0 _ _ = []
+    go _ [] _ = error "Stream.run: expected output shorter than handshake count"
+    go n bs [] = go n bs (repeat True)
+    go n (b : bs) (r : rs) =
+      case b of
+        Nothing -> Nothing : go n bs rs
+        Just _ ->
+          if r
+            then b : go (n - 1) bs rs
+            else Nothing : go n (b : bs) rs
 
 toBV :: forall n. (KnownNat n) => ByteString -> BitVector n
 toBV bs =
