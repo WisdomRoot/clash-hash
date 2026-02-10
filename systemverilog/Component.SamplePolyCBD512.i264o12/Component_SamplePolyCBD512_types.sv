@@ -8,6 +8,12 @@ package Component_SamplePolyCBD512_types;
     AXI4Stream Tuple2_3_sel0;
     logic Tuple2_3_sel1;
   } Tuple2_3;
+  typedef struct packed {
+    logic [11:0] Tuple4_sel0;
+    logic Tuple4_sel1;
+    logic [2:0] Tuple4_sel2;
+    logic [2:0] Tuple4_sel3;
+  } Tuple4;
   typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
   typedef struct packed {

@@ -5,12 +5,11 @@
 module Test.SamplePolyCBD512 (spec, simulate) where
 
 import Component.PRF.Common (Eta (Eta3))
-import Clash.Prelude (BitVector)
+import Clash.Prelude ( BitVector, (++#) )
 import Component.SamplePolyCBD512 qualified as SamplePolyCBD512
-import Clash.Prelude ((++#))
 import Data.ByteString qualified as BS
 import Data.List qualified as L
-import Data.Maybe (isJust, isNothing)
+import Data.Maybe (isJust)
 import Data.Word (Word8)
 import Stream
 import Test.Hspec (Spec, describe, it)
@@ -35,46 +34,25 @@ simulate inputTiming =
       base = [Silent 25, Output c0, Silent 25, Output c1]
    in if startSilence P.== 0 then base else Silent startSilence : base
 
-data PairBuf24
-  = PairEmpty
-  | PairHalf (BitVector 12)
-  | PairFull (BitVector 12) (BitVector 12)
-
 simulate24 :: InputTiming 264 -> OutputTiming 24
 simulate24 inputTiming =
-  let base12 = expandOutputTiming (simulate inputTiming)
-      packed = packPairs PairEmpty base12
-   in compress packed
+  let (inputPattern, inputValues) = expandInputTiming inputTiming
+      inputBV =
+        case inputValues of
+          (v : _) -> v
+          [] -> P.error "SamplePolyCBD512.simulate24: no input provided"
+      startSilence =
+        case L.findIndex isJust inputPattern of
+          Just i -> i
+          Nothing -> P.error "SamplePolyCBD512.simulate24: no input provided"
+      coeffs = Reference.run Eta3 inputBV
+      pairs = toPairs coeffs
+      (p0, p1) = P.splitAt 90 pairs
+      base = [Silent 25, Output p0, Silent 25, Output p1]
+   in if startSilence P.== 0 then base else Silent startSilence : base
   where
-    packPairs _ [] = []
-    packPairs buf (x : xs) =
-      let out = case buf of
-            PairFull v1 v2 -> Just (v2 ++# v1)
-            _ -> Nothing
-          nextBuf = case buf of
-            PairEmpty ->
-              case x of
-                Just v -> PairHalf v
-                Nothing -> PairEmpty
-            PairHalf v1 ->
-              case x of
-                Just v2 -> PairFull v1 v2
-                Nothing -> PairHalf v1
-            PairFull _ _ ->
-              case x of
-                Just v -> PairHalf v
-                Nothing -> PairEmpty
-       in out : packPairs nextBuf xs
-
-    compress [] = []
-    compress xs =
-      case P.span isNothing xs of
-        (nothings, rest) | P.not (P.null nothings) ->
-          Silent (P.length nothings) : compress rest
-        _ ->
-          let (justs, rest) = P.span isJust xs
-              vals = [v | Just v <- justs]
-           in Output vals : compress rest
+    toPairs (a : b : rest) = (b ++# a) : toPairs rest
+    toPairs _ = []
 
 genInputBV :: Gen (BitVector 264)
 genInputBV = do

@@ -35,12 +35,16 @@
             "sha256": "9ec047c5603fca3d22c43fde2a111d0b7a64990ee47029050ee1f7278cc92848"
         },
         {
+            "name": "SamplePolyCBD512_I264_O24_shim.cpp",
+            "sha256": "9ec047c5603fca3d22c43fde2a111d0b7a64990ee47029050ee1f7278cc92848"
+        },
+        {
             "name": "SamplePolyCBD512_I264_O24.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "SamplePolyCBD512_I264_O24_types.sv",
-            "sha256": "bde353b141ddf7d6505d105101ece5add410e165a1066b4b374b887aba5c7d18"
+            "sha256": "6fe3e0224d59df1d09274dba7f54767bb5c0c6872df766742501b9568ec01842"
         },
         {
             "name": "Component_SamplePolyCBD512_i264o24_keccakF1600.sv",
@@ -48,14 +52,14 @@
         },
         {
             "name": "SamplePolyCBD512_I264_O24.sv",
-            "sha256": "51cad1088fe85f055be85e9d0d887684c8701a52dafcdcc36af75a29e6ddd63e"
+            "sha256": "15bb299cb58ec6662f2b29f51103d3d5fb1077caae49739904caa9d10cedf901"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "8cf028552bff6960f451d9b1032b11be0cdd0434c0a35f3b63875a2dd98ca5a1",
+    "hash": "735517202188d7c71611bf80b0d3b3fad8cfce781749e9e4750f3f76dca13845",
     "top_component": {
         "name": "SamplePolyCBD512_I264_O24",
         "ports_flat": [

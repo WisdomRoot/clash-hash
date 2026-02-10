@@ -14,11 +14,13 @@
 |------|-------|--------|----------|
 | 272  | 24    | 28209  | systemverilog/Component.SampleNTT512.i272o24/SampleNTT512_I272_O24.sv |
 
-### SamplePolyCBD
+### SamplePolyCBD+PRF
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
-| 256  | 24    | 28004  | systemverilog/Component.SamplePolyCBD512.i264o24/SamplePolyCBD512_I264_O24.sv |
+| 264  | 24    | 28004  | systemverilog/Component.SamplePolyCBD512.i264o24/SamplePolyCBD512_I264_O24.sv |
+
+Timing: Permute 25, Output 90 pairs, Permute 25, Output 38 pairs (128 handshakes total).
 
 ## Old Components (to be updated)
 

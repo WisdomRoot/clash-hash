@@ -1,28 +1,19 @@
 package SamplePolyCBD512_I264_O24_types;
+  typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef struct packed {
-    logic [23:0] AXI4Stream_0_sel0;
-    logic AXI4Stream_0_sel1;
-    logic AXI4Stream_0_sel2;
-  } AXI4Stream_0;
-  typedef struct packed {
-    logic [11:0] AXI4Stream_sel0;
+    logic [23:0] AXI4Stream_sel0;
     logic AXI4Stream_sel1;
     logic AXI4Stream_sel2;
   } AXI4Stream;
   typedef struct packed {
-    AXI4Stream Tuple2_2_sel0;
-    logic Tuple2_2_sel1;
-  } Tuple2_2;
-  typedef struct packed {
-    AXI4Stream_0 Tuple2_5_sel0;
-    logic Tuple2_5_sel1;
-  } Tuple2_5;
-  typedef struct packed {
-    logic [27:0] Tuple2_4_sel0;
-    Tuple2_5 Tuple2_4_sel1;
-  } Tuple2_4;
-  typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
+    AXI4Stream Tuple2_3_sel0;
+    logic Tuple2_3_sel1;
+  } Tuple2_3;
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
+  typedef struct packed {
+    logic [1622:0] Tuple2_2_sel0;
+    Tuple2_3 Tuple2_2_sel1;
+  } Tuple2_2;
   typedef struct packed {
     logic [10:0] Tuple3_sel0;
     logic [10:0] Tuple3_sel1;
@@ -31,9 +22,11 @@ package SamplePolyCBD512_I264_O24_types;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
-    logic [1617:0] Tuple2_3_sel0;
-    Tuple2_2 Tuple2_3_sel1;
-  } Tuple2_3;
+    logic [23:0] Tuple4_sel0;
+    logic Tuple4_sel1;
+    logic [8:0] Tuple4_sel2;
+    logic [8:0] Tuple4_sel3;
+  } Tuple4;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {

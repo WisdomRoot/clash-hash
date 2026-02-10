@@ -86,73 +86,24 @@ i264o24 ::
   Signal System Bool ->
   Signal System (AXI4Stream 24, Bool)
 i264o24 clk rst en msgSig treadySig =
-  withClockResetEnable clk rst en $
-    let (out12, msgReady) = unbundle (samplePolyCBD512 msgSig tready12)
-        outPacked = mealy pack2 Empty (bundle (out12, treadySig))
-        (out24, tready12) = unbundle outPacked
-     in bundle (out24, msgReady)
-  where
-    pack2 ::
-      PairBuf ->
-      (AXI4Stream 12, Bool) ->
-      (PairBuf, (AXI4Stream 24, Bool))
-    pack2 buf (inStream, outTready) =
-      let tready12 = case buf of
-            Full _ _ _ _ -> outTready
-            _ -> True
-          inValid = tvalid inStream && tready12
-          inCoeff = tdata inStream
-          inLast = tlast inStream
-          idleOut =
-            AXI4Stream
-              { tdata = 0,
-                tvalid = False,
-                tlast = False
-              }
-       in case buf of
-            Empty ->
-              if inValid
-                then (Half inCoeff inLast, (idleOut, tready12))
-                else (Empty, (idleOut, tready12))
-            Half v1 l1 ->
-              if inValid
-                then (Full v1 l1 inCoeff inLast, (idleOut, tready12))
-                else (Half v1 l1, (idleOut, tready12))
-            Full v1 l1 v2 l2 ->
-              let outStream =
-                    AXI4Stream
-                      { tdata = v2 ++# v1,
-                        tvalid = True,
-                        tlast = l2
-                      }
-                  nextBuf
-                    | outTready && inValid = Half inCoeff inLast
-                    | outTready = Empty
-                    | otherwise = Full v1 l1 v2 l2
-              in (nextBuf, (outStream, tready12))
+  withClockResetEnable clk rst en (samplePolyCBD512_24 msgSig treadySig)
 
-data PairBuf
-  = Empty
-  | Half (BitVector 12) Bool
-  | Full (BitVector 12) Bool (BitVector 12) Bool
-  deriving (Generic, NFDataX)
-
-data Permutation = FirstBlock | SecondBlock (BitVector 2) -- the final 2 bits of digest from the first block
+data Phase k = FirstBlock | SecondBlock (BitVector k) -- remaining bits from block0
   deriving (Show, Eq, Generic, NFDataX)
 
 -- | State machine for SamplePolyCBD512 (eta=3).
 --     256 coefficients => 256 * 6 bit of digest = 2 permutation
-data State
+data State n phase
   = Absorb
   | Permute
       (Index 24) -- round index
-      (Index 256) -- coefficient count (0-256)
+      (Index n) -- coefficient count
       (BitVector 1600) -- state being permuted
-      Permutation -- which block we are permuting
+      phase -- which block we are permuting
   | Squeeze
-      (Index 256) -- coefficient count (0-256)
+      (Index n) -- coefficient count
       (BitVector 1600) -- current block
-      Permutation -- which block we are squeezing
+      phase -- which block we are squeezing
   | Done
   deriving (Show, Eq, Generic, NFDataX)
 
@@ -162,62 +113,129 @@ samplePolyCBD512 ::
   Signal dom (BitVector MsgBits) ->
   Signal dom Bool ->
   Signal dom (AXI4Stream 12, Bool)
-samplePolyCBD512 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
+samplePolyCBD512 = samplePolyCBD512With boundary12 emit12
+  where
+    boundary12 :: Index 256 -> BitVector 1600 -> Phase 2 -> Maybe (Phase 2)
+    boundary12 coeffIdx block whichBlock =
+      case whichBlock of
+        FirstBlock ->
+          if coeffIdx >= 181
+            then
+              let tail2 = slice (SNat @1087) (SNat @1086) block
+               in Just (SecondBlock tail2)
+            else Nothing
+        SecondBlock _ -> Nothing
+
+    emit12 :: Index 256 -> BitVector 1600 -> Phase 2 -> (BitVector 12, Bool, Phase 2, Phase 2)
+    emit12 coeffIdx block whichBlock =
+      case whichBlock of
+        FirstBlock ->
+          let bits6 = read6Block0 block (fromIntegral coeffIdx)
+              coeffVal = cbd3 bits6
+           in (coeffVal, False, FirstBlock, FirstBlock)
+        SecondBlock tail2 ->
+          let isLast = coeffIdx == 255
+              bits6 =
+                if coeffIdx == 181
+                  then
+                    let head4 = slice d3 d0 block
+                     in head4 ++# tail2
+                  else read6Block1 block (fromIntegral (coeffIdx - 182))
+              coeffVal = cbd3 bits6
+           in (coeffVal, isLast, SecondBlock tail2, SecondBlock tail2)
+
+samplePolyCBD512_24 ::
+  forall dom.
+  (HiddenClockResetEnable dom) =>
+  Signal dom (BitVector MsgBits) ->
+  Signal dom Bool ->
+  Signal dom (AXI4Stream 24, Bool)
+samplePolyCBD512_24 = samplePolyCBD512With boundary24 emit24
+  where
+    boundary24 :: Index 128 -> BitVector 1600 -> Phase 8 -> Maybe (Phase 8)
+    boundary24 pairIdx block phase =
+      case phase of
+        FirstBlock ->
+          if pairIdx >= pairBoundary
+            then
+              let bits8 = slice (SNat @1087) (SNat @1080) block
+               in Just (SecondBlock bits8)
+            else Nothing
+        SecondBlock _ -> Nothing
+
+    emit24 :: Index 128 -> BitVector 1600 -> Phase 8 -> (BitVector 24, Bool, Phase 8, Phase 8)
+    emit24 pairIdx block phase =
+      case phase of
+        FirstBlock ->
+          let pairIdxU = (fromIntegral pairIdx :: Unsigned 8)
+              idx0 = fromIntegral (pairIdxU * 2) :: Index 181
+              idx1 = fromIntegral (pairIdxU * 2 + 1) :: Index 181
+              coeff0 = cbd3 (read6Block0 block idx0)
+              coeff1 = cbd3 (read6Block0 block idx1)
+           in (coeff1 ++# coeff0, False, FirstBlock, FirstBlock)
+        SecondBlock bits8 ->
+          if pairIdx == pairBoundary
+            then
+              let tail2 = slice d7 d6 bits8
+                  coeff180Bits = slice d5 d0 bits8
+                  coeff180 = cbd3 coeff180Bits
+                  head4 = slice d3 d0 block
+                  coeff181 = cbd3 (head4 ++# tail2)
+               in (coeff181 ++# coeff180, False, SecondBlock bits8, SecondBlock bits8)
+            else
+              let pairIdxU = (fromIntegral pairIdx :: Unsigned 8)
+                  coeff0U = pairIdxU * 2
+                  coeff1U = coeff0U + 1
+                  idx0 = fromIntegral (coeff0U - 182) :: Index 74
+                  idx1 = fromIntegral (coeff1U - 182) :: Index 74
+                  coeff0 = cbd3 (read6Block1 block idx0)
+                  coeff1 = cbd3 (read6Block1 block idx1)
+                  isLast = pairIdx == maxBound
+               in (coeff1 ++# coeff0, isLast, SecondBlock bits8, SecondBlock bits8)
+    pairBoundary :: Index 128
+    pairBoundary = 90
+
+samplePolyCBD512With ::
+  forall dom n k m.
+  (HiddenClockResetEnable dom, KnownNat n, KnownNat m, KnownNat k) =>
+  (Index n -> BitVector 1600 -> Phase k -> Maybe (Phase k)) ->
+  (Index n -> BitVector 1600 -> Phase k -> (BitVector m, Bool, Phase k, Phase k)) ->
+  Signal dom (BitVector MsgBits) ->
+  Signal dom Bool ->
+  Signal dom (AXI4Stream m, Bool)
+samplePolyCBD512With boundaryPhase emitPhase msgSig treadySig =
+  mealy step Absorb (bundle (msgSig, treadySig))
   where
     step ::
-      State ->
+      State n (Phase k) ->
       (BitVector MsgBits, Bool) ->
-      (State, (AXI4Stream 12, Bool))
+      (State n (Phase k), (AXI4Stream m, Bool))
     step st (msg, tready) =
       case st of
         Absorb ->
           let initState = absorb33Normal msg
            in (Permute 0 0 initState FirstBlock, (idleAXI4Stream, True))
-        Permute roundIdx coeffIdx state whichBlock ->
+        Permute roundIdx idx state phase ->
           let state' = Permutation.keccakF1600 roundIdx state
            in if roundIdx == maxBound
-                then (Squeeze coeffIdx state' whichBlock, (idleAXI4Stream, False))
+                then (Squeeze idx state' phase, (idleAXI4Stream, False))
                 else
-                  (Permute (roundIdx + 1) coeffIdx state' whichBlock, (idleAXI4Stream, False))
-        Squeeze coeffIdx block whichBlock ->
-          case whichBlock of
-            FirstBlock ->
-              if coeffIdx >= 181
-                then
-                  let tail2 = slice (SNat @1087) (SNat @1086) block
-                   in (Permute 0 coeffIdx block (SecondBlock tail2), (idleAXI4Stream, False))
-                else
-                  let bits6 = read6Block0 block (fromIntegral coeffIdx)
-                      coeffVal = cbd3 bits6
-                      outStream =
-                        AXI4Stream
-                          { tdata = coeffVal,
-                            tvalid = True,
-                            tlast = False
-                          }
-                      nextState
-                        | tready = Squeeze (coeffIdx + 1) block FirstBlock
-                        | otherwise = Squeeze coeffIdx block FirstBlock
-                   in (nextState, (outStream, False))
-            SecondBlock tail2 ->
-              let isLast = coeffIdx == 255
-                  bits6 =
-                    if coeffIdx == 181
-                      then
-                        let head4 = slice d3 d0 block
-                         in head4 ++# tail2
-                      else read6Block1 block (fromIntegral (coeffIdx - 182))
-                  coeffVal = cbd3 bits6
+                  (Permute (roundIdx + 1) idx state' phase, (idleAXI4Stream, False))
+        Squeeze idx block phase ->
+          case boundaryPhase idx block phase of
+            Just phase' -> (Permute 0 idx block phase', (idleAXI4Stream, False))
+            Nothing ->
+              let (tdataVal, isLast, phaseHold, phaseAdvance) = emitPhase idx block phase
                   outStream =
                     AXI4Stream
-                      { tdata = coeffVal,
+                      { tdata = tdataVal,
                         tvalid = True,
                         tlast = isLast
                       }
                   nextState
                     | tready && isLast = Done
-                    | tready = Squeeze (coeffIdx + 1) block (SecondBlock tail2)
-                    | otherwise = Squeeze coeffIdx block (SecondBlock tail2)
+                    | tready = Squeeze (idx + 1) block phaseAdvance
+                    | otherwise = Squeeze idx block phaseHold
                in (nextState, (outStream, False))
         Done -> (Done, (idleAXI4Stream, False))
 
