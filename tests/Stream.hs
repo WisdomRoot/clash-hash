@@ -13,6 +13,8 @@ module Stream
     applyBackpressure,
     StreamTopEntity,
     run,
+    StreamTopEntityIn,
+    runStreamInput,
     toBV,
     bsToBVRev8,
   )
@@ -43,6 +45,7 @@ type OutputTiming n = [Output n]
 data Input n
   = Hold Int -- cycles with no input, i.e. when input tvalid is low
   | Input [BitVector n] -- input data when input tvalid is high
+  deriving (Eq, Show)
 
 type InputTiming n = [Input n]
 
@@ -125,6 +128,14 @@ type StreamTopEntity m n =
   Signal System Bool ->
   Signal System (AXI4Stream m, Bool)
 
+type StreamTopEntityIn m n =
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System Bool ->
+  Signal System (AXI4Stream n, Bool) ->
+  Signal System (AXI4Stream m, Bool)
+
 run :: (KnownNat n, KnownNat m) => StreamTopEntity m n -> (InputTiming n -> OutputTiming m) -> InputTiming n -> BackpressureTiming -> IO ()
 run topEntity simulate inputTiming backpressureTiming = do
   let base = expandOutputTiming (simulate inputTiming)
@@ -169,6 +180,61 @@ applyBackpressureUntil target = go target
           if r
             then b : go (n - 1) bs rs
             else Nothing : go n (b : bs) rs
+
+runStreamInput ::
+  (KnownNat n, KnownNat m) =>
+  StreamTopEntityIn m n ->
+  (InputTiming n -> OutputTiming m) ->
+  InputTiming n ->
+  BackpressureTiming ->
+  IO ()
+runStreamInput topEntity simulate inputTiming backpressureTiming = do
+  let base = expandOutputTiming (simulate inputTiming)
+      expectedHandshakes = length [() | Just _ <- base]
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> repeat True
+        _ -> cycle readyPattern
+      expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
+      (inputPattern, _inputValues) = expandInputTiming inputTiming
+      lastJustIdx = case [i | (i, Just _) <- zip ([0 ..] :: [Int]) inputPattern] of
+        [] -> Nothing
+        xs -> Just (last xs)
+      beats = zipWith (mkBeat lastJustIdx) ([0 ..] :: [Int]) inputPattern
+      inputSignal = fromList (idleBeat : beats ++ repeat idleBeat)
+      flushSignal = pure False
+      treadySignal = fromList (True : readyStream)
+      output =
+        topEntity
+          clockGen
+          resetGen
+          enableGen
+          treadySignal
+          (bundle (inputSignal, flushSignal))
+      samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
+      actualAll =
+        [ if tvalid stream && ready then Just (tdata stream) else Nothing
+          | ((stream, _), ready) <- samples
+        ]
+      actual = drop 1 actualAll
+  actual `shouldBe` expectedBase
+  where
+    mkBeat lastIdx i mv =
+      AXI4Stream
+        { tdata = case mv of
+            Just v -> v
+            Nothing -> 0,
+          tvalid = isJust mv,
+          tlast = case (lastIdx, mv) of
+            (Just j, Just _) -> i == j
+            _ -> False
+        }
+    idleBeat =
+      AXI4Stream
+        { tdata = 0,
+          tvalid = False,
+          tlast = False
+        }
 
 toBV :: forall n. (KnownNat n) => ByteString -> BitVector n
 toBV bs =
