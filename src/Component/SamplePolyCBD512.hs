@@ -5,6 +5,7 @@
 
 module Component.SamplePolyCBD512
   ( i264o12,
+    i264o24,
   )
 where
 
@@ -54,6 +55,87 @@ i264o12 ::
   Signal System (AXI4Stream 12, Bool)
 i264o12 clk rst en msgSig treadySig =
   withClockResetEnable clk rst en (samplePolyCBD512 msgSig treadySig)
+
+{-# ANN
+  i264o24
+  ( Synthesize
+      { t_name = "SamplePolyCBD512_I264_O24",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "MSG_33B",
+            PortName "DIGEST_TREADY"
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortName "DIGEST_TDATA",
+              PortName "DIGEST_TVALID",
+              PortName "DIGEST_TLAST"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i264o24 #-}
+i264o24 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (BitVector MsgBits) ->
+  Signal System Bool ->
+  Signal System (AXI4Stream 24, Bool)
+i264o24 clk rst en msgSig treadySig =
+  withClockResetEnable clk rst en $
+    let (out12, msgReady) = unbundle (samplePolyCBD512 msgSig tready12)
+        outPacked = mealy pack2 Empty (bundle (out12, treadySig))
+        (out24, tready12) = unbundle outPacked
+     in bundle (out24, msgReady)
+  where
+    pack2 ::
+      PairBuf ->
+      (AXI4Stream 12, Bool) ->
+      (PairBuf, (AXI4Stream 24, Bool))
+    pack2 buf (inStream, outTready) =
+      let tready12 = case buf of
+            Full _ _ _ _ -> outTready
+            _ -> True
+          inValid = tvalid inStream && tready12
+          inCoeff = tdata inStream
+          inLast = tlast inStream
+          idleOut =
+            AXI4Stream
+              { tdata = 0,
+                tvalid = False,
+                tlast = False
+              }
+       in case buf of
+            Empty ->
+              if inValid
+                then (Half inCoeff inLast, (idleOut, tready12))
+                else (Empty, (idleOut, tready12))
+            Half v1 l1 ->
+              if inValid
+                then (Full v1 l1 inCoeff inLast, (idleOut, tready12))
+                else (Half v1 l1, (idleOut, tready12))
+            Full v1 l1 v2 l2 ->
+              let outStream =
+                    AXI4Stream
+                      { tdata = v2 ++# v1,
+                        tvalid = True,
+                        tlast = l2
+                      }
+                  nextBuf
+                    | outTready && inValid = Half inCoeff inLast
+                    | outTready = Empty
+                    | otherwise = Full v1 l1 v2 l2
+              in (nextBuf, (outStream, tready12))
+
+data PairBuf
+  = Empty
+  | Half (BitVector 12) Bool
+  | Full (BitVector 12) Bool (BitVector 12) Bool
+  deriving (Generic, NFDataX)
 
 data Permutation = FirstBlock | SecondBlock (BitVector 2) -- the final 2 bits of digest from the first block
   deriving (Show, Eq, Generic, NFDataX)
