@@ -8,6 +8,24 @@
 
 [bench] Time/Mem: load 2.41s | compile 2.68s | synth 18.59s | mem 2996.59 MB
 
+## SamplePolyCBD512-I256-O12
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Component_SamplePolyCBD512                         27532.330         8607.760    31.26%
+  Component_SamplePolyCBD512_i264o12_keccakF1600       9518.810            0.000     0.00%
+
+[bench] Time/Mem: load 2.71s | compile 5.23s | synth 12.92s | mem 1967.38 MB
+
+## SamplePolyCBD512-I256-O24
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Component_SamplePolyCBD512_i264o24_keccakF1600       9518.810            0.000     0.00%
+  SamplePolyCBD512_I264_O24                          28004.214         8756.720    31.27%
+
+[bench] Time/Mem: load 2.83s | compile 5.35s | synth 13.10s | mem 2022.78 MB
+
 ## SHA3-256
 
 * 20260105: baseline

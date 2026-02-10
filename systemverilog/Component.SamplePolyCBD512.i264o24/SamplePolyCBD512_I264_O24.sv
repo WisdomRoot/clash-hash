@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_SamplePolyCBD512
+module SamplePolyCBD512_I264_O24
     ( // Inputs
       input wire logic CLK  // clock
     , input wire logic RST  // reset
@@ -12,42 +12,44 @@ module Component_SamplePolyCBD512
     , input wire logic DIGEST_TREADY
 
       // Outputs
-    , output logic [13:0] DIGEST_TDATA
+    , output logic [25:0] DIGEST_TDATA
     , output logic DIGEST_TVALID
     );
+  logic [27:0] c$ds2_app_arg = {2'b00,26'bxxxxxxxxxxxxxxxxxxxxxxxxxx};
   logic [1617:0] c$ds_app_arg = {2'b00,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-  Component_SamplePolyCBD512_types::Tuple2_2 c$case_alt;
-  Component_SamplePolyCBD512_types::Tuple2_2 result_0;
-  Component_SamplePolyCBD512_types::Tuple2_2 c$case_alt_0;
+  SamplePolyCBD512_I264_O24_types::Tuple2_2 result_0;
+  SamplePolyCBD512_I264_O24_types::Tuple2_3 c$case_alt;
+  SamplePolyCBD512_I264_O24_types::Tuple2_3 result_1;
+  SamplePolyCBD512_I264_O24_types::Tuple2_3 c$case_alt_0;
   logic [1617:0] c$app_arg;
   logic [1617:0] c$case_alt_1;
   logic isLast;
   logic [1617:0] c$app_arg_0;
   logic [7:0] c$app_arg_1;
-  logic [11:0] result_1;
+  logic [11:0] result_2;
   logic [2:0] a;
   logic [2:0] b;
   logic [5:0] c$b_app_arg;
-  Component_SamplePolyCBD512_types::Tuple2_2 result_2;
+  SamplePolyCBD512_I264_O24_types::Tuple2_3 result_3;
   logic [2:0] whichBlock;
   logic [7:0] coeffIdx;
-  logic [1599:0] result_3;
-  logic [1599:0] c$app_arg_2;
   logic [1599:0] result_4;
-  logic [1599:0] c$app_arg_3;
+  logic [1599:0] c$app_arg_2;
   logic [1599:0] result_5;
-  logic [1599:0] c$app_arg_4;
+  logic [1599:0] c$app_arg_3;
   logic [1599:0] result_6;
-  logic [1599:0] c$app_arg_5;
+  logic [1599:0] c$app_arg_4;
   logic [1599:0] result_7;
-  logic [1599:0] c$app_arg_6;
+  logic [1599:0] c$app_arg_5;
   logic [1599:0] result_8;
+  logic [1599:0] c$app_arg_6;
+  logic [1599:0] result_9;
   logic [1599:0] c$app_arg_7;
   logic [5:0] c$cbdDiff6_arg0;
   logic [5:0] c$cbdDiff6_arg0_case_alt;
   logic [1:0] tail2;
   logic [2:0] whichBlock_0;
-  logic [5:0] result_9;
+  logic [5:0] result_10;
   logic [5:0] c$cbdDiff6_arg0_case_alt_0;
   logic [5:0] c$cbdDiff6_arg0_case_alt_1;
   logic [5:0] c$cbdDiff6_arg0_case_alt_2;
@@ -123,7 +125,7 @@ module Component_SamplePolyCBD512
   logic [5:0] c$cbdDiff6_arg0_case_alt_72;
   logic [6:0] ds1;
   logic signed [63:0] c$ds1_app_arg;
-  logic [5:0] result_10;
+  logic [5:0] result_11;
   logic [5:0] c$cbdDiff6_arg0_case_alt_73;
   logic [5:0] c$cbdDiff6_arg0_case_alt_74;
   logic [5:0] c$cbdDiff6_arg0_case_alt_75;
@@ -312,6 +314,19 @@ module Component_SamplePolyCBD512
   logic [1599:0] c$keccakF1600_out;
   logic [1599:0] state;
   logic [4:0] roundIdx;
+  SamplePolyCBD512_I264_O24_types::Tuple2_4 result_12;
+  SamplePolyCBD512_I264_O24_types::Tuple2_4 c$case_alt_2;
+  SamplePolyCBD512_I264_O24_types::Tuple2_4 c$case_alt_3;
+  logic l2;
+  logic [11:0] v2;
+  logic [11:0] v1;
+  logic [27:0] c$app_arg_8;
+  logic [27:0] c$case_alt_4;
+  logic l1;
+  logic [11:0] v1_0;
+  logic c$case_scrut;
+  logic tready12;
+  SamplePolyCBD512_I264_O24_types::AXI4Stream inStream;
   logic [0:0] c$bv;
   logic [0:0] c$bv_0;
   logic [0:0] c$bv_1;
@@ -319,51 +334,61 @@ module Component_SamplePolyCBD512
   logic [0:0] c$bv_3;
   logic [0:0] c$bv_4;
   logic [7:0] c$i_92;
-  Component_SamplePolyCBD512_types::Tuple2_3 result;
-  Component_SamplePolyCBD512_types::AXI4Stream DIGEST_TDATA_0;
+  SamplePolyCBD512_I264_O24_types::Tuple2_5 result;
+  SamplePolyCBD512_I264_O24_types::AXI4Stream_0 DIGEST_TDATA_0;
+
+  // register begin
+  always_ff @(posedge CLK or  posedge  RST) begin : c$ds2_app_arg_register
+    if ( RST) begin
+      c$ds2_app_arg <= {2'b00,26'bxxxxxxxxxxxxxxxxxxxxxxxxxx};
+    end else  if (EN)  begin
+      c$ds2_app_arg <= result_12.Tuple2_4_sel0;
+    end
+  end
+  // register end
 
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
     if ( RST) begin
       c$ds_app_arg <= {2'b00,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
     end else  if (EN)  begin
-      c$ds_app_arg <= c$case_alt.Tuple2_2_sel0;
+      c$ds_app_arg <= c$case_alt.Tuple2_3_sel0;
     end
   end
   // register end
 
-  assign result = c$case_alt.Tuple2_2_sel1;
+  assign result_0 = c$case_alt.Tuple2_3_sel1;
 
   always_comb begin
     case(c$ds_app_arg[1617:1616])
-      2'b00 : c$case_alt = {{2'b01,5'd0,8'd0,result_3,{1'b0,2'bxx}}
+      2'b00 : c$case_alt = {{2'b01,5'd0,8'd0,result_4,{1'b0,2'bxx}}
                            ,{{12'b000000000000,1'b0,1'b0},1'b1}};
-      2'b01 : c$case_alt = result_2;
-      2'b10 : c$case_alt = result_0;
+      2'b01 : c$case_alt = result_3;
+      2'b10 : c$case_alt = result_1;
       default : c$case_alt = {{2'b11,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                              ,{{12'b000000000000,1'b0,1'b0},1'b0}};
     endcase
   end
 
-  assign result_0 = whichBlock_0[2:2] ? {c$app_arg
-                                        ,{{result_1,1'b1,isLast},1'b0}} : c$case_alt_0;
+  assign result_1 = whichBlock_0[2:2] ? {c$app_arg
+                                        ,{{result_2,1'b1,isLast},1'b0}} : c$case_alt_0;
 
   assign c$case_alt_0 = (coeffIdx_0 >= 8'd181) ? {{2'b01,5'd0,coeffIdx_0,block,{1'b1,c$cbdDiff6_arg0_app_arg[1087 : 1086]}}
                                                  ,{{12'b000000000000,1'b0,1'b0}
                                                   ,1'b0}} : {c$app_arg_0
-                                                            ,{{result_1,1'b1,1'b0},1'b0}};
+                                                            ,{{result_2,1'b1,1'b0},1'b0}};
 
-  assign c$app_arg = (DIGEST_TREADY & isLast) ? {2'b11,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_1;
+  assign c$app_arg = (result_12[0:0] & isLast) ? {2'b11,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_1;
 
-  assign c$case_alt_1 = DIGEST_TREADY ? {2'b10,c$app_arg_1,block,whichBlock_0,5'bxxxxx} : c$ds_app_arg;
+  assign c$case_alt_1 = result_12[0:0] ? {2'b10,c$app_arg_1,block,whichBlock_0,5'bxxxxx} : c$ds_app_arg;
 
   assign isLast = coeffIdx_0 == 8'd255;
 
-  assign c$app_arg_0 = DIGEST_TREADY ? {2'b10,c$app_arg_1,block,{1'b0,2'bxx},5'bxxxxx} : c$ds_app_arg;
+  assign c$app_arg_0 = result_12[0:0] ? {2'b10,c$app_arg_1,block,{1'b0,2'bxx},5'bxxxxx} : c$ds_app_arg;
 
   assign c$app_arg_1 = coeffIdx_0 + 8'd1;
 
-  assign result_1 = (a >= b) ? ({9'b000000000,(((a - b)))}) : (12'b110100000001 - ({9'b000000000,(((b - a)))}));
+  assign result_2 = (a >= b) ? ({9'b000000000,(((a - b)))}) : (12'b110100000001 - ({9'b000000000,(((b - a)))}));
 
   assign c$bv = ((c$b_app_arg[0 : 0]));
 
@@ -383,7 +408,7 @@ module Component_SamplePolyCBD512
 
   assign c$b_app_arg = c$cbdDiff6_arg0;
 
-  assign result_2 = (roundIdx == 5'd23) ? {{2'b10,coeffIdx,c$keccakF1600_out,whichBlock,5'bxxxxx}
+  assign result_3 = (roundIdx == 5'd23) ? {{2'b10,coeffIdx,c$keccakF1600_out,whichBlock,5'bxxxxx}
                                           ,{{12'b000000000000,1'b0,1'b0}
                                            ,1'b0}} : {{2'b01,roundIdx + 5'd1,coeffIdx,c$keccakF1600_out,whichBlock}
                                                      ,{{12'b000000000000,1'b0,1'b0},1'b0}};
@@ -394,67 +419,67 @@ module Component_SamplePolyCBD512
 
   // replaceBit start
   always_comb begin
-    result_3 = c$app_arg_2;
-    result_3[64'sd1087] = (~ (c$app_arg_2[64'sd1087]));
+    result_4 = c$app_arg_2;
+    result_4[64'sd1087] = (~ (c$app_arg_2[64'sd1087]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_4;
+  assign c$app_arg_2 = result_5;
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg_3;
-    result_4[64'sd264] = (~ (c$app_arg_3[64'sd264]));
+    result_5 = c$app_arg_3;
+    result_5[64'sd264] = (~ (c$app_arg_3[64'sd264]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_5;
+  assign c$app_arg_3 = result_6;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_4;
-    result_5[64'sd265] = (~ (c$app_arg_4[64'sd265]));
+    result_6 = c$app_arg_4;
+    result_6[64'sd265] = (~ (c$app_arg_4[64'sd265]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = result_6;
+  assign c$app_arg_4 = result_7;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_5;
-    result_6[64'sd266] = (~ (c$app_arg_5[64'sd266]));
+    result_7 = c$app_arg_5;
+    result_7[64'sd266] = (~ (c$app_arg_5[64'sd266]));
   end
   // replaceBit end
 
-  assign c$app_arg_5 = result_7;
+  assign c$app_arg_5 = result_8;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_6;
-    result_7[64'sd267] = (~ (c$app_arg_6[64'sd267]));
+    result_8 = c$app_arg_6;
+    result_8[64'sd267] = (~ (c$app_arg_6[64'sd267]));
   end
   // replaceBit end
 
-  assign c$app_arg_6 = result_8;
+  assign c$app_arg_6 = result_9;
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_7;
-    result_8[64'sd268] = (~ (c$app_arg_7[64'sd268]));
+    result_9 = c$app_arg_7;
+    result_9[64'sd268] = (~ (c$app_arg_7[64'sd268]));
   end
   // replaceBit end
 
   assign c$app_arg_7 = ({1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,MSG_33B});
 
-  assign c$cbdDiff6_arg0 = whichBlock_0[2:2] ? c$cbdDiff6_arg0_case_alt : result_10;
+  assign c$cbdDiff6_arg0 = whichBlock_0[2:2] ? c$cbdDiff6_arg0_case_alt : result_11;
 
-  assign c$cbdDiff6_arg0_case_alt = (coeffIdx_0 == 8'd181) ? ({(c$cbdDiff6_arg0_app_arg[3 : 0]),tail2}) : result_9;
+  assign c$cbdDiff6_arg0_case_alt = (coeffIdx_0 == 8'd181) ? ({(c$cbdDiff6_arg0_app_arg[3 : 0]),tail2}) : result_10;
 
   assign tail2 = whichBlock_0[1:0];
 
   assign whichBlock_0 = c$ds_app_arg[7:5];
 
-  assign result_9 = (ds1 == 7'd0) ? (c$cbdDiff6_arg0_app_arg[9 : 4]) : c$cbdDiff6_arg0_case_alt_0;
+  assign result_10 = (ds1 == 7'd0) ? (c$cbdDiff6_arg0_app_arg[9 : 4]) : c$cbdDiff6_arg0_case_alt_0;
 
   assign c$cbdDiff6_arg0_case_alt_0 = (ds1 == 7'd1) ? (c$cbdDiff6_arg0_app_arg[15 : 10]) : c$cbdDiff6_arg0_case_alt_1;
 
@@ -608,7 +633,7 @@ module Component_SamplePolyCBD512
 
   assign c$ds1_app_arg = $unsigned({{(64-8) {1'b0}},c$i_92});
 
-  assign result_10 = (ds1_0 == 8'd0) ? (c$cbdDiff6_arg0_app_arg[5 : 0]) : c$cbdDiff6_arg0_case_alt_73;
+  assign result_11 = (ds1_0 == 8'd0) ? (c$cbdDiff6_arg0_app_arg[5 : 0]) : c$cbdDiff6_arg0_case_alt_73;
 
   assign c$cbdDiff6_arg0_case_alt_73 = (ds1_0 == 8'd1) ? (c$cbdDiff6_arg0_app_arg[11 : 6]) : c$cbdDiff6_arg0_case_alt_74;
 
@@ -980,7 +1005,7 @@ module Component_SamplePolyCBD512
 
   assign coeffIdx_0 = c$ds_app_arg[1615:1608];
 
-  Component_SamplePolyCBD512_i264o12_keccakF1600 Component_SamplePolyCBD512_i264o12_keccakF1600_c$keccakF1600_out
+  Component_SamplePolyCBD512_i264o24_keccakF1600 Component_SamplePolyCBD512_i264o24_keccakF1600_c$keccakF1600_out
     ( .result (c$keccakF1600_out)
     , .roundIdx (roundIdx)
     , .x (state) );
@@ -989,9 +1014,58 @@ module Component_SamplePolyCBD512
 
   assign roundIdx = c$ds_app_arg[1615:1611];
 
-  assign DIGEST_TDATA_0 = result.Tuple2_3_sel0;
+  assign result = {result_12[26:1]
+                  ,result_0.Tuple2_2_sel1};
 
-  assign DIGEST_TVALID = result.Tuple2_3_sel1;
+  always_comb begin
+    case(c$ds2_app_arg[27:26])
+      2'b00 : result_12 = c$case_alt_3;
+      2'b01 : result_12 = c$case_alt_2;
+      default : result_12 = {c$app_arg_8
+                            ,{{{v2,v1},1'b1,l2},tready12}};
+    endcase
+  end
+
+  assign c$case_alt_2 = c$case_scrut ? {{2'b10,v1_0,l1,inStream.AXI4Stream_sel0,inStream.AXI4Stream_sel2}
+                                       ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                        ,tready12}} : {c$ds2_app_arg
+                                                      ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                       ,tready12}};
+
+  assign c$case_alt_3 = c$case_scrut ? {{2'b01,inStream.AXI4Stream_sel0,inStream.AXI4Stream_sel2,13'bxxxxxxxxxxxxx}
+                                       ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                        ,tready12}} : {{2'b00,26'bxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                      ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                       ,tready12}};
+
+  assign l2 = c$ds2_app_arg[0:0];
+
+  assign v2 = c$ds2_app_arg[12:1];
+
+  assign v1 = c$ds2_app_arg[25:14];
+
+  assign c$app_arg_8 = (DIGEST_TREADY & c$case_scrut) ? {2'b01,inStream.AXI4Stream_sel0,inStream.AXI4Stream_sel2,13'bxxxxxxxxxxxxx} : c$case_alt_4;
+
+  assign c$case_alt_4 = DIGEST_TREADY ? {2'b00,26'bxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$ds2_app_arg;
+
+  assign l1 = c$ds2_app_arg[13:13];
+
+  assign v1_0 = c$ds2_app_arg[25:14];
+
+  assign c$case_scrut = inStream.AXI4Stream_sel1 & tready12;
+
+  always_comb begin
+    case(c$ds2_app_arg[27:26])
+      2'b10 : tready12 = DIGEST_TREADY;
+      default : tready12 = 1'b1;
+    endcase
+  end
+
+  assign inStream = result_0.Tuple2_2_sel0;
+
+  assign DIGEST_TDATA_0 = result.Tuple2_5_sel0;
+
+  assign DIGEST_TVALID = result.Tuple2_5_sel1;
 
   assign DIGEST_TDATA = DIGEST_TDATA_0;
 

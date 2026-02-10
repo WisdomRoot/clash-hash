@@ -16,6 +16,10 @@
 
 ### SamplePolyCBD
 
+|  In  |  Out  |  Area  |  Module  |
+|------|-------|--------|----------|
+| 256  | 24    | 28004  | systemverilog/Component.SamplePolyCBD512.i264o24/SamplePolyCBD512_I264_O24.sv |
+
 ## Old Components (to be updated)
 
 ### SampleNTT2
