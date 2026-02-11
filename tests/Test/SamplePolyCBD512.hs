@@ -84,53 +84,37 @@ genCase = do
 
 spec :: Spec
 spec = describe "SamplePolyCBD512" $ do
-  it "matches expected handshake timing (no backpressure)" $ do
-    let input = [toBV @264 "0123456789abcdef0123456789abcdef!"]
-    run
-      SamplePolyCBD512.i264o12
-      simulate
-      [Input input, Hold 305]
-      [Ready 306]
-  it "matches expected handshake timing (i264o24, no backpressure)" $ do
-    let input = [toBV @264 "0123456789abcdef0123456789abcdef!"]
-    run
-      SamplePolyCBD512.i264o24
-      simulate24
-      [Input input, Hold 305]
-      [Ready 306]
-  it "matches expected handshake timing (periodic backpressure)" $ do
-    let input = toBV @264 "0123456789abcdef0123456789abcdef!"
-    run
-      SamplePolyCBD512.i264o12
-      simulate
-      [Input [input], Hold 315]
-      [Ready 40, Backpress 10, Ready 266]
-  it "matches expected handshake timing (i264o24, periodic backpressure)" $ do
-    let input = toBV @264 "0123456789abcdef0123456789abcdef!"
-    run
-      SamplePolyCBD512.i264o24
-      simulate24
-      [Input [input], Hold 315]
-      [Ready 40, Backpress 10, Ready 266]
-  it "matches expected handshake timing (initial backpressure)" $ do
-    let input = toBV @264 "0123456789abcdef0123456789abcdef!"
-    run
-      SamplePolyCBD512.i264o12
-      simulate
-      [Input [input], Hold 305]
-      [Backpress 12, Ready 294]
-  it "matches expected handshake timing (i264o24, initial backpressure)" $ do
-    let input = toBV @264 "0123456789abcdef0123456789abcdef!"
-    run
-      SamplePolyCBD512.i264o24
-      simulate24
-      [Input [input], Hold 305]
-      [Backpress 12, Ready 294]
-  describe "QuickCheck property tests" $
-    it "matches reference for random inputs and backpressure" $
-      forAll genCase $ \(inputBV, backpressure) -> do
-        run SamplePolyCBD512.i264o12 simulate [Input [inputBV]] backpressure
-  describe "QuickCheck property tests (i264o24)" $
-    it "matches reference for random inputs and backpressure" $
-      forAll genCase $ \(inputBV, backpressure) -> do
-        run SamplePolyCBD512.i264o24 simulate24 [Input [inputBV]] backpressure
+  timingSpec ""
+    SamplePolyCBD512.i264o12
+    simulate
+  timingSpec " (i264o24)"
+    SamplePolyCBD512.i264o24
+    simulate24
+  quickCheckSpec ""
+    SamplePolyCBD512.i264o12
+    simulate
+  quickCheckSpec " (i264o24)"
+    SamplePolyCBD512.i264o24
+    simulate24
+  where
+    timingSpec label topEntity simulateFn =
+      P.mapM_ (runCase label topEntity simulateFn) timingCases
+
+    runCase label topEntity simulateFn (name, inputTiming, backpressure) =
+      it
+        ("matches expected handshake timing" P.++ label P.++ " (" P.++ name P.++ ")")
+        (run topEntity simulateFn inputTiming backpressure)
+
+    quickCheckSpec label topEntity simulateFn =
+      describe ("QuickCheck property tests" P.++ label) $
+        it "matches reference for random inputs and backpressure" $
+          forAll genCase $ \(inputBV, backpressure) ->
+            run topEntity simulateFn [Input [inputBV]] backpressure
+
+    timingCases :: [(P.String, InputTiming 264, BackpressureTiming)]
+    timingCases =
+      let input = toBV @264 "0123456789abcdef0123456789abcdef!"
+       in [ ("no backpressure", [Input [input], Hold 305], [Ready 306]),
+            ("periodic backpressure", [Input [input], Hold 315], [Ready 40, Backpress 10, Ready 266]),
+            ("initial backpressure", [Input [input], Hold 305], [Backpress 12, Ready 294])
+          ]

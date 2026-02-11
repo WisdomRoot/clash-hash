@@ -37,6 +37,10 @@
             "sha256": "a56735df3151d4a074ea1f394332af8da930c989a6e30f434eff74f375e45154"
         },
         {
+            "name": "G512_I256_O256_shim.cpp",
+            "sha256": "a56735df3151d4a074ea1f394332af8da930c989a6e30f434eff74f375e45154"
+        },
+        {
             "name": "G512_I256_O256.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
