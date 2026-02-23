@@ -23,15 +23,15 @@
     * The probability of having 1 valid candidate is `p * q^(n-1) * n`
     * Failure rate is `q^n + p * q^(n-1) * n`
 
-| Lookahead (L) | Failure rate  |
-|---:|---:|
-| 0 | 33.9447% |
-| 1 | 9.2062% |
-| 2 | 2.2576% |
-| 3 | 0.5227% |
-| 4 | 0.1166% |
-| 5 | 0.0253% |
-| 6 | 0.0054% |
+| Lookahead (L) | Failure rate  | Expected cycles (128 pairs) |
+|---:|---:|---:|
+| 0 | 33.9447% | 193.78 |
+| 1 | 9.2062% | 140.98 |
+| 2 | 2.2576% | 130.96 |
+| 3 | 0.5227% | 128.67 |
+| 4 | 0.1166% | 128.15 |
+| 5 | 0.0253% | 128.03 |
+| 6 | 0.0054% | 128.01 |
 
 ### SamplePolyCBD+PRF
 
