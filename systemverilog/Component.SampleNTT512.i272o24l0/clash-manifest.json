@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SampleNTT512_i272o24_keccakF1600",
+        "Component_SampleNTT512_i272o24l0_keccakF1600",
         "SampleNTT512_I272_O24"
     ],
     "dependencies": {
@@ -35,27 +35,31 @@
             "sha256": "0994f8412ab45d10e3c9812a4737119e66bf101e318953fcbb559e06ab685aaa"
         },
         {
+            "name": "SampleNTT512_I272_O24_shim.cpp",
+            "sha256": "0994f8412ab45d10e3c9812a4737119e66bf101e318953fcbb559e06ab685aaa"
+        },
+        {
             "name": "SampleNTT512_I272_O24.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "SampleNTT512_I272_O24_types.sv",
-            "sha256": "675691c4a9a36d46e4198a3db9fc58f661735c59dae13d2b44bc9a88fcd3bc23"
+            "sha256": "966cef390641c3488fefc70b56e7ce03783327a8f77be428ff2505630a05a507"
         },
         {
-            "name": "Component_SampleNTT512_i272o24_keccakF1600.sv",
-            "sha256": "f9b73cd958e4116f6405ac5faa0660fdcb18edf821891538017af63b1b4c6350"
+            "name": "Component_SampleNTT512_i272o24l0_keccakF1600.sv",
+            "sha256": "52ba7faf18c2ff8eb97d3bd695ffa51534c866ca2e1b7fff2fcb6355da67b6da"
         },
         {
             "name": "SampleNTT512_I272_O24.sv",
-            "sha256": "092f1bc6a435f593fb2d8c574d83498df86578a78f421a13ed23e1b423f1ddc3"
+            "sha256": "9857b9d7a989d0226e0fda973bb92961ae895c7d5cde4dbdde47924c7d1b1d69"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "efdac1e655397ae4cab1326d96f8dc84a44db36035cadb52c4520af0c731837f",
+    "hash": "635ad8e359000a15716fc699760009fa0926c185328d0b31a70d0ca7e6a61677",
     "top_component": {
         "name": "SampleNTT512_I272_O24",
         "ports_flat": [

@@ -1,4 +1,4 @@
-package SampleNTT512_I272_O24_types;
+package SN512_I272_O24_L1_types;
   typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef struct packed {
     logic [23:0] AXI4Stream_sel0;
@@ -9,6 +9,12 @@ package SampleNTT512_I272_O24_types;
     AXI4Stream Tuple2_4_sel0;
     logic Tuple2_4_sel1;
   } Tuple2_4;
+  typedef struct packed {
+    logic signed [63:0] Tuple4_sel0;
+    logic Tuple4_sel1;
+    logic [23:0] Tuple4_sel2;
+    logic [12:0] Tuple4_sel3;
+  } Tuple4;
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
   typedef struct packed {
     logic [10:0] Tuple3_sel0;
@@ -48,6 +54,11 @@ package SampleNTT512_I272_O24_types;
   } Tuple2_1;
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
+  typedef struct packed {
+    logic Tuple3_0_sel0;
+    logic [23:0] Tuple3_0_sel1;
+    logic [12:0] Tuple3_0_sel2;
+  } Tuple3_0;
   typedef struct packed {
     logic [271:0] AXI4Stream_0_sel0;
     logic AXI4Stream_0_sel1;
@@ -284,5 +295,5 @@ package SampleNTT512_I272_O24_types;
     array_of_24_array_of_7_logic_cons[0] = {array_of_7_logic_to_lv(x)};
     array_of_24_array_of_7_logic_cons[1:23] = xs;
   endfunction
-endpackage : SampleNTT512_I272_O24_types
+endpackage : SN512_I272_O24_L1_types
 

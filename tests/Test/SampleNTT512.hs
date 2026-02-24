@@ -29,27 +29,27 @@ import Prelude qualified as P
 
 spec :: Spec
 spec = describe "SampleNTT512 Stream" $ do
-  describe "i272o24" $ runAllTests SampleNTT512.i272o24
-  describe "i272o24l1" $ runAllTests (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
+  describe "i272o24l0" $ runAllTests SampleNTT512.Lookahead0 SampleNTT512.i272o24l0
+  describe "i272o24l1" $ runAllTests SampleNTT512.Lookahead1 (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
   where
-    runAllTests topEntityCore = do
+    runAllTests lookahead topEntityCore = do
       describe "Basic functionality tests (34-byte seeds)" $
         for_ Samples.basicSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
       describe "Upstream stall handling (34-byte seeds)" $
         for_ Samples.stallSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
       describe "Downstream backpressure handling (34-byte seeds)" $
         for_ Samples.backpressureSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
       describe "Combined stress tests (34-byte seeds)" $
         for_ Samples.combinedSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
       describe "QuickCheck property tests (34-byte seeds)" $
         it "correctly handles random 34-byte test cases" $
-          withMaxSuccess 40 $ forAll Samples.genSampleNTTTest (runStreamTest topEntityCore)
+          withMaxSuccess 40 $ forAll Samples.genSampleNTTTest (runStreamTest lookahead topEntityCore)
 
-    runStreamTest topEntityCore testCase =
+    runStreamTest lookahead topEntityCore testCase =
       let seed = testMessage testCase
           holdCycles =
             case testUpstreamStall testCase of
@@ -66,11 +66,11 @@ spec = describe "SampleNTT512 Stream" $ do
             ]
           topEntity clk rst en treadySig inputSig =
             topEntityCore clk rst en (bundle (P.fmap P.fst inputSig, treadySig))
-          expected = simulate seed backpressureTiming inputTiming
+          expected = simulate lookahead seed backpressureTiming inputTiming
        in runStreamInputExpected topEntity expected inputTiming backpressureTiming
 
-simulate :: ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
-simulate seed backpressureTiming inputTiming =
+simulate :: SampleNTT512.Lookahead -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
+simulate lookahead seed backpressureTiming inputTiming =
   let (inputPattern, _) = expandInputTiming inputTiming
       startSilence =
         case L.findIndex isJust inputPattern of
@@ -99,12 +99,59 @@ simulate seed backpressureTiming inputTiming =
 
     toBV12 v = P.fromIntegral v :: BitVector 12
 
+    lookN = case lookahead of
+      SampleNTT512.Lookahead0 -> 2
+      SampleNTT512.Lookahead1 -> 3
+
+    decide0 buffer v0 v1 =
+      case buffer of
+        0 ->
+          if v0 P.&& v1
+            then (2, P.True, 0)
+            else
+              if v0 P.|| v1
+                then (2, P.False, 1)
+                else (2, P.False, 0)
+        _ ->
+          if v0 P.&& v1
+            then (2, P.True, 1)
+            else
+              if v0 P.|| v1
+                then (2, P.True, 0)
+                else (2, P.False, 1)
+
+    decide1 buffer v0 v1 v2 =
+      case buffer of
+        0 ->
+          if v0 P.&& v1
+            then (2, P.True, 0)
+            else
+              if v0 P.&& P.not v1 P.&& v2
+                then (3, P.True, 0)
+                else
+                  if P.not v0 P.&& v1 P.&& v2
+                    then (3, P.True, 0)
+                    else
+                      if v0 P.|| v1 P.|| v2
+                        then (3, P.False, 1)
+                        else (3, P.False, 0)
+        _ ->
+          if v0
+            then (1, P.True, 0)
+            else
+              if v1
+                then (2, P.True, 0)
+                else
+                  if v2
+                    then (3, P.True, 0)
+                    else (3, P.False, 1)
+
     buildBlocks validity buffer pairs emitted =
       if emitted P.>= 128
         then []
         else
           let (blockOuts, buffer', pairs', emitted', restVals) =
-                runBlock validity 56 buffer pairs emitted []
+                runBlock validity 112 buffer pairs emitted []
            in if emitted' P.>= 128
                 then [blockOuts]
                 else blockOuts : buildBlocks restVals buffer' pairs' emitted'
@@ -117,33 +164,47 @@ simulate seed backpressureTiming inputTiming =
       P.Int ->
       [Maybe (BitVector 24)] ->
       ([Maybe (BitVector 24)], P.Int, [BitVector 24], P.Int, [P.Bool])
-    runBlock vals cyclesLeft buffer pairs emitted acc =
+    runBlock vals remaining buffer pairs emitted acc =
       if emitted P.>= 128
         then (P.reverse acc, buffer, pairs, emitted, vals)
       else
-        if cyclesLeft P.== 0
+        if remaining P.== 0
           then (P.reverse acc, buffer, pairs, emitted, vals)
           else
             case vals of
-              v0 : v1 : vs ->
-                let (buffer', emittedThis) = consume buffer v0 v1
-                    (out, pairs', emitted') =
-                      if emittedThis
-                        then case pairs of
-                          p : ps -> (Just p, ps, emitted P.+ 1)
-                          [] -> P.error "SampleNTT512.simulate: output exhausted"
-                        else (Nothing, pairs, emitted)
-                 in runBlock vs (cyclesLeft P.- 1) buffer' pairs' emitted' (out : acc)
-              [v0] ->
-                let (buffer', emittedThis) = consume buffer v0 P.False
-                    (out, pairs', emitted') =
-                      if emittedThis
-                        then case pairs of
-                          p : ps -> (Just p, ps, emitted P.+ 1)
-                          [] -> P.error "SampleNTT512.simulate: output exhausted"
-                        else (Nothing, pairs, emitted)
-                 in runBlock [] (cyclesLeft P.- 1) buffer' pairs' emitted' (out : acc)
               [] -> P.error "SampleNTT512.simulate: validity pattern exhausted"
+              v0 : rest0 ->
+                let (v1, rest1) =
+                      if remaining P.> 1
+                        then case rest0 of
+                          v : rs -> (P.Just v, rs)
+                          [] -> (P.Nothing, [])
+                        else (P.Nothing, rest0)
+                    (v2, _rest2) =
+                      if remaining P.> 2
+                        then case rest1 of
+                          v : rs -> (P.Just v, rs)
+                          [] -> (P.Nothing, [])
+                        else (P.Nothing, rest1)
+                    avail = if remaining P.< lookN then remaining else lookN
+                    v1b = case v1 of
+                      P.Just v -> v
+                      P.Nothing -> P.False
+                    v2b = case v2 of
+                      P.Just v -> v
+                      P.Nothing -> P.False
+                    (consumeCount, emittedThis, buffer') = case lookahead of
+                      SampleNTT512.Lookahead0 -> decide0 buffer v0 v1b
+                      SampleNTT512.Lookahead1 -> decide1 buffer v0 v1b v2b
+                    consumeN' = if consumeCount P.> avail then avail else consumeCount
+                    restVals = P.drop consumeN' vals
+                    (out, pairs', emitted') =
+                      if emittedThis
+                        then case pairs of
+                          p : ps -> (Just p, ps, emitted P.+ 1)
+                          [] -> P.error "SampleNTT512.simulate: output exhausted"
+                        else (Nothing, pairs, emitted)
+                 in runBlock restVals (remaining P.- consumeN') buffer' pairs' emitted' (out : acc)
 
     runBlocks [] rs = ([], rs)
     runBlocks (block : rest) rs =
@@ -167,15 +228,6 @@ simulate seed backpressureTiming inputTiming =
               let (out, rs'') = runSqueeze (b : bs) rs'
                in (Nothing : out, rs'')
         [] -> P.error "SampleNTT512.simulate: empty backpressure pattern"
-
-    consume buffer v0 v1 =
-      let step (b, emitted) v =
-            let b' = if v then b P.+ 1 else b
-             in if P.not emitted P.&& b' P.>= 2
-                  then (b' P.- 2, P.True)
-                  else (b', emitted)
-          (b1, e1) = step (buffer, P.False) v0
-       in step (b1, e1) v1
 
     consumeN :: P.Int -> [P.Bool] -> ([Maybe (BitVector 24)], [P.Bool])
     consumeN n rs =

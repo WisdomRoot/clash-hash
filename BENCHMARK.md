@@ -8,6 +8,25 @@
 
 [bench] Time/Mem: load 2.41s | compile 2.68s | synth 18.59s | mem 2996.59 MB
 
+## SN512-I272-O24-L0
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Component_SampleNTT512_i272o24l0_keccakF1600        9518.810            0.000     0.00%
+  SampleNTT512_I272_O24                              27212.332         8629.040    31.71%
+
+[bench] Time/Mem: load 2.86s | compile 3.23s | synth 13.64s | mem 1990.84 MB
+
+## SN512-I272-O24-L1
+
+  module                                            area (µm²)   seq area (µm²)    seq %
+  --------------------------------------------------------------------------------------
+  Component_SampleNTT512_i272o24l1_keccakF1600        9518.810            0.000     0.00%
+  SN512_I272_O24_L1                                  33322.086         8629.040    25.90%
+
+[bench] Time/Mem: load 2.80s | compile 5.17s | synth 13.89s | mem 2105.97 MB
+
+
 ## SamplePolyCBD512-I256-O12
 
   module                                            area (µm²)   seq area (µm²)    seq %

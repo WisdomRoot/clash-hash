@@ -49,6 +49,11 @@ package SampleNTT512_I272_O24_types;
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
   typedef struct packed {
+    logic Tuple3_0_sel0;
+    logic [23:0] Tuple3_0_sel1;
+    logic [12:0] Tuple3_0_sel2;
+  } Tuple3_0;
+  typedef struct packed {
     logic [271:0] AXI4Stream_0_sel0;
     logic AXI4Stream_0_sel1;
     logic AXI4Stream_0_sel2;

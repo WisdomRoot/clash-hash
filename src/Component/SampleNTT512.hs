@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Component.SampleNTT512
-  ( i272o24,
+  ( i272o24l0,
     i272o24l1,
     Lookahead (..),
   )
@@ -12,15 +12,15 @@ import Clash.Prelude hiding (permute, tlast)
 import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
+import Prelude qualified as P
 
 data Lookahead = Lookahead0 | Lookahead1
   deriving (Show, Eq, Generic, NFDataX)
 
-
 data State
   = Idle
-  | Permute (Index 24) (BitVector 1600) (Maybe (BitVector 12))
-  | Squeeze (Index 56) (BitVector 1600) (Maybe (BitVector 12))
+  | Permute (Index 24) (BitVector 1600) (Maybe (BitVector 12)) -- pending single valid coeff carried across permute
+  | Squeeze (Index 112) (BitVector 1600) (Maybe (BitVector 12)) -- pending coeff carried across stalls/block boundary
   deriving (Show, Eq, Generic, NFDataX)
 
 -- | Extract 24-bit coefficient pair from state (pattern matched on all 56 indices)
@@ -32,13 +32,22 @@ $( mkRead
 
 {-# INLINE squeezeCoeff24 #-}
 
--- | Clean hash function for fixed 34-byte input with AXI4-Stream input handshaking
-hash ::
+$( mkRead
+     "squeezeCoeff12"
+     1600
+     [ (i, i * 12, 12) | i <- [0 .. 111] ]
+ )
+
+{-# INLINE squeezeCoeff12 #-}
+
+-- | Clean hashWith function for fixed 34-byte input with AXI4-Stream input handshaking
+hashWith ::
   forall dom.
   (HiddenClockResetEnable dom) =>
+  Lookahead ->
   Signal dom (AXI4Stream 272, Bool) ->
   Signal dom (AXI4Stream 24, Bool)
-hash = mealy step Idle
+hashWith lookahead = mealy step (Idle :: State)
   where
     step ::
       State ->
@@ -57,40 +66,100 @@ hash = mealy step Idle
                 then (Squeeze 0 state' buffer, (idleAXI4Stream, False))
                 else (Permute (roundIdx + 1) state' buffer, (idleAXI4Stream, False))
         Squeeze index state buffer ->
-          let coeffPair = squeezeCoeff24 state index
-              coeff0 = slice (SNat @11) (SNat @0) coeffPair
-              coeff1 = slice (SNat @23) (SNat @12) coeffPair
-              coeff0Val = unpack coeff0 :: Unsigned 12
-              coeff1Val = unpack coeff1 :: Unsigned 12
-              valid0 = coeff0Val < (3329 :: Unsigned 12)
-              valid1 = coeff1Val < (3329 :: Unsigned 12)
-              (pairReady, tdataOut, nextBuffer) = case (buffer, valid0, valid1) of
-                (Nothing, False, False) -> (False, 0, Nothing)
-                (Nothing, True, False) -> (False, 0, Just coeff0)
-                (Nothing, False, True) -> (False, 0, Just coeff1)
-                (Nothing, True, True) -> (True, coeff1 ++# coeff0, Nothing)
-                (Just coeffB, False, False) -> (False, 0, Just coeffB)
-                (Just coeffB, True, False) -> (True, coeff0 ++# coeffB, Nothing)
-                (Just coeffB, False, True) -> (True, coeff1 ++# coeffB, Nothing)
-                (Just coeffB, True, True) -> (True, coeff0 ++# coeffB, Just coeff1)
-              outStream =
-                AXI4Stream
-                  { tdata = tdataOut,
-                    tvalid = pairReady,
-                    tlast = False
-                  }
-              nextIndex = if index == maxBound then 0 else index + 1
-              nextState =
-                if tready
-                  then
-                    if index == maxBound
-                      then Permute 0 state nextBuffer
-                      else Squeeze nextIndex state nextBuffer
-                  else Squeeze index state buffer
-           in (nextState, (outStream, False))
+          case lookahead of
+            Lookahead0 ->
+              let idxInt = fromEnum index
+                  pairIdx = fromIntegral (idxInt `div` 2) :: Index 56
+                  pair = squeezeCoeff24 state pairIdx
+                  c0 = slice (SNat @11) (SNat @0) pair
+                  c1 = slice (SNat @23) (SNat @12) pair
+                  v0 = (unpack c0 :: Unsigned 12) < (3329 :: Unsigned 12)
+                  v1 = (unpack c1 :: Unsigned 12) < (3329 :: Unsigned 12)
+                  wrap = idxInt >= 110
+                  nextIdx = if wrap then 0 else fromIntegral (idxInt + 2)
+                  (pairReady, tdataOut, nextBuffer) =
+                    case (buffer, v0, v1) of
+                      (Just b, True, True) -> (True, c0 ++# b, Just c1)
+                      (Just b, True, False) -> (True, c0 ++# b, Nothing)
+                      (Just b, False, True) -> (True, c1 ++# b, Nothing)
+                      (Just b, False, False) -> (False, 0, Just b)
+                      (Nothing, True, True) -> (True, c1 ++# c0, Nothing)
+                      (Nothing, True, False) -> (False, 0, Just c0)
+                      (Nothing, False, True) -> (False, 0, Just c1)
+                      (Nothing, False, False) -> (False, 0, Nothing)
+                  outStream =
+                    AXI4Stream
+                      { tdata = tdataOut,
+                        tvalid = pairReady,
+                        tlast = False
+                      }
+                  nextState =
+                    if tready
+                      then
+                        if wrap
+                          then Permute 0 state nextBuffer
+                          else Squeeze nextIdx state nextBuffer
+                      else Squeeze index state buffer
+               in (nextState, (outStream, False))
+            Lookahead1 ->
+              let idxInt = fromEnum index
+                  remaining = 112 - idxInt
+                  c0 = squeezeCoeff12 state index
+                  c1 = if remaining P.> 1
+                    then Just (squeezeCoeff12 state (fromIntegral (idxInt + 1)))
+                    else Nothing
+                  c2 = if remaining P.> 2
+                    then Just (squeezeCoeff12 state (fromIntegral (idxInt + 2)))
+                    else Nothing
+                  v0 = (unpack c0 :: Unsigned 12) < (3329 :: Unsigned 12)
+                  v1 = case c1 of
+                    Just v -> (unpack v :: Unsigned 12) < (3329 :: Unsigned 12)
+                    Nothing -> False
+                  v2 = case c2 of
+                    Just v -> (unpack v :: Unsigned 12) < (3329 :: Unsigned 12)
+                    Nothing -> False
+                  (consumeN, pairReady, tdataOut, nextBuffer) =
+                    case buffer of
+                      Nothing ->
+                        case (v0, v1, v2) of
+                          (True, True, _) -> (2, True, (case c1 of Just v -> v; Nothing -> 0) ++# c0, Nothing)
+                          (True, False, True) -> (3, True, (case c2 of Just v -> v; Nothing -> 0) ++# c0, Nothing)
+                          (False, True, True) -> (3, True, (case c2 of Just v -> v; Nothing -> 0) ++# (case c1 of Just v -> v; Nothing -> 0), Nothing)
+                          (True, False, False) -> (3, False, 0, Just c0)
+                          (False, True, False) -> (3, False, 0, c1)
+                          (False, False, True) -> (3, False, 0, c2)
+                          (False, False, False) -> (3, False, 0, Nothing)
+                      Just coeffB ->
+                        if v0
+                          then (1, True, c0 ++# coeffB, Nothing)
+                          else
+                            if v1
+                              then (2, True, (case c1 of Just v -> v; Nothing -> 0) ++# coeffB, Nothing)
+                              else
+                                if v2
+                                  then (3, True, (case c2 of Just v -> v; Nothing -> 0) ++# coeffB, Nothing)
+                                  else (3, False, 0, Just coeffB)
+                  consumeN' = P.min consumeN remaining
+                  nextInt = idxInt + consumeN'
+                  wrap = nextInt >= 112
+                  nextIdx = if wrap then fromIntegral (nextInt - 112) else fromIntegral nextInt
+                  outStream =
+                    AXI4Stream
+                      { tdata = tdataOut,
+                        tvalid = pairReady,
+                        tlast = False
+                      }
+                  nextState =
+                    if tready
+                      then
+                        if wrap
+                          then Permute 0 state nextBuffer
+                          else Squeeze nextIdx state nextBuffer
+                      else Squeeze index state buffer
+               in (nextState, (outStream, False))
 
 {-# ANN
-  i272o24
+  i272o24l0
   ( Synthesize
       { t_name = "SampleNTT512_I272_O24",
         t_inputs =
@@ -112,15 +181,15 @@ hash = mealy step Idle
       }
   )
   #-}
-{-# NOINLINE i272o24 #-}
-i272o24 ::
+{-# NOINLINE i272o24l0 #-}
+i272o24l0 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24 clk rst en inputSig =
-  withClockResetEnable clk rst en (hash inputSig)
+i272o24l0 clk rst en inputSig =
+  withClockResetEnable clk rst en (hashWith Lookahead0 inputSig)
 
 {-# ANN
   i272o24l1
@@ -154,8 +223,8 @@ i272o24l1 ::
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24l1 _ clk rst en inputSig =
-  withClockResetEnable clk rst en (hash inputSig)
+i272o24l1 lookahead clk rst en inputSig =
+  withClockResetEnable clk rst en (hashWith lookahead inputSig)
 
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600
