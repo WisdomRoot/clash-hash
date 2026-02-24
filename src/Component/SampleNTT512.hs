@@ -1,5 +1,6 @@
 module Component.SampleNTT512
   ( i272o24,
+    i272o24l1,
   )
 where
 
@@ -39,6 +40,39 @@ i272o24 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
 i272o24 clk rst en inputSig =
+  withClockResetEnable clk rst en (hash inputSig)
+
+{-# ANN
+  i272o24l1
+  ( Synthesize
+      { t_name = "SN512_I272_O24_L1",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l1 #-}
+i272o24l1 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l1 clk rst en inputSig =
   withClockResetEnable clk rst en (hash inputSig)
 
 data State

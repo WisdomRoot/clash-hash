@@ -13,6 +13,7 @@
   "SampleNTT": "Component.SampleNTT.topEntity",
   "SampleNTT2": "Component.SampleNTT2.topEntity",
   "SampleNTT512": "Component.SampleNTT512.i272o24",
+  "SN512-I272-O24-L1": "Component.SampleNTT512.i272o24l1",
   "SamplePolyCBD2": "Component.SamplePolyCBD2.topEntity",
   "SamplePolyCBD3": "Component.SamplePolyCBD3.topEntity",
   "CBD512-12": "Component.SamplePolyCBD512.i264o12",

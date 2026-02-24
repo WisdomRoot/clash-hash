@@ -29,23 +29,27 @@ import Prelude qualified as P
 
 spec :: Spec
 spec = describe "SampleNTT512 Stream" $ do
-  describe "Basic functionality tests (34-byte seeds)" $
-    for_ Samples.basicSeedCases $ \testCase ->
-      it (testLabel testCase) $ runStreamTest testCase
-  describe "Upstream stall handling (34-byte seeds)" $
-    for_ Samples.stallSeedCases $ \testCase ->
-      it (testLabel testCase) $ runStreamTest testCase
-  describe "Downstream backpressure handling (34-byte seeds)" $
-    for_ Samples.backpressureSeedCases $ \testCase ->
-      it (testLabel testCase) $ runStreamTest testCase
-  describe "Combined stress tests (34-byte seeds)" $
-    for_ Samples.combinedSeedCases $ \testCase ->
-      it (testLabel testCase) $ runStreamTest testCase
-  describe "QuickCheck property tests (34-byte seeds)" $
-    it "correctly handles random 34-byte test cases" $
-      withMaxSuccess 40 $ forAll Samples.genSampleNTTTest runStreamTest
+  describe "i272o24" $ runAllTests SampleNTT512.i272o24
+  describe "i272o24l1" $ runAllTests SampleNTT512.i272o24l1
   where
-    runStreamTest testCase =
+    runAllTests topEntityCore = do
+      describe "Basic functionality tests (34-byte seeds)" $
+        for_ Samples.basicSeedCases $ \testCase ->
+          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+      describe "Upstream stall handling (34-byte seeds)" $
+        for_ Samples.stallSeedCases $ \testCase ->
+          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+      describe "Downstream backpressure handling (34-byte seeds)" $
+        for_ Samples.backpressureSeedCases $ \testCase ->
+          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+      describe "Combined stress tests (34-byte seeds)" $
+        for_ Samples.combinedSeedCases $ \testCase ->
+          it (testLabel testCase) $ runStreamTest topEntityCore testCase
+      describe "QuickCheck property tests (34-byte seeds)" $
+        it "correctly handles random 34-byte test cases" $
+          withMaxSuccess 40 $ forAll Samples.genSampleNTTTest (runStreamTest topEntityCore)
+
+    runStreamTest topEntityCore testCase =
       let seed = testMessage testCase
           holdCycles =
             case testUpstreamStall testCase of
@@ -61,7 +65,7 @@ spec = describe "SampleNTT512 Stream" $ do
               | grp@(b : _) <- L.group bpPattern
             ]
           topEntity clk rst en treadySig inputSig =
-            SampleNTT512.i272o24 clk rst en (bundle (P.fmap P.fst inputSig, treadySig))
+            topEntityCore clk rst en (bundle (P.fmap P.fst inputSig, treadySig))
           expected = simulate seed backpressureTiming inputTiming
        in runStreamInputExpected topEntity expected inputTiming backpressureTiming
 
