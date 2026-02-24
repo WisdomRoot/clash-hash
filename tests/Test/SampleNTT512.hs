@@ -30,7 +30,7 @@ import Prelude qualified as P
 spec :: Spec
 spec = describe "SampleNTT512 Stream" $ do
   describe "i272o24" $ runAllTests SampleNTT512.i272o24
-  describe "i272o24l1" $ runAllTests SampleNTT512.i272o24l1
+  describe "i272o24l1" $ runAllTests (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
   where
     runAllTests topEntityCore = do
       describe "Basic functionality tests (34-byte seeds)" $
