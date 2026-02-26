@@ -18,8 +18,7 @@ import Test.TestHarness.SampleNTT.Common
     UpstreamStall (..),
     backpressurePattern,
     bsToBV272Normal,
-    externalSampleNTTPacked,
-    getTimingInfo,
+    getSampleNTTOutput,
     testLabel,
     unpackPython384Bytes,
   )
@@ -76,12 +75,12 @@ simulate lookahead seed backpressureTiming inputTiming =
         case L.findIndex isJust inputPattern of
           Just i -> i
           Nothing -> P.error "SampleNTT512.simulate: no input provided"
-      validityRaw = getTimingInfo seed
+      (packedBytes, validityRaw) = getSampleNTTOutput seed
       validity =
         if P.odd (P.length validityRaw)
           then validityRaw P.++ [P.False]
           else validityRaw
-      coeffs = unpackPython384Bytes (externalSampleNTTPacked seed)
+      coeffs = unpackPython384Bytes packedBytes
       pairs = toPairs coeffs
       readyPattern = expandBackpressureTiming backpressureTiming
       readyStream = case readyPattern of

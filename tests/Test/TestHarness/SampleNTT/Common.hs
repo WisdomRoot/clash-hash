@@ -13,6 +13,7 @@ module Test.TestHarness.SampleNTT.Common
     makeBackpressureTest,
     makeCombinedTest,
     externalSampleNTTPacked,
+    getSampleNTTOutput,
     unpackPython384Bytes,
     getTimingInfo,
     simulateTimingN,
@@ -30,7 +31,7 @@ module Test.TestHarness.SampleNTT.Common
 where
 
 import Clash.Prelude
-import Data.Aeson (eitherDecode)
+import Data.Aeson (FromJSON (..), eitherDecode, withObject, (.:))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
@@ -39,7 +40,6 @@ import System.FilePath ((</>))
 import System.IO (hClose)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Process (CreateProcess (..), StdStream (..), createProcess, proc, waitForProcess)
-import Test.TestHarness.ExternalReference (callPythonReference)
 import Test.TestHarness.SHAKECommon
   ( DownstreamBackpressure (..),
     ShakeTest (..),
@@ -56,8 +56,41 @@ import Prelude qualified as P
 sampleCountMargin :: Int
 sampleCountMargin = 50
 
+sampleNTTScriptPath :: FilePath
+sampleNTTScriptPath = "reference" </> "kyber" </> "sample_ntt.py"
+
+data SampleNTTJson = SampleNTTJson
+  { sampleNTTPacked :: [Word8],
+    sampleNTTValidity :: [Bool]
+  }
+
+instance FromJSON SampleNTTJson where
+  parseJSON = withObject "SampleNTTJson" $ \o ->
+    SampleNTTJson <$> o .: "packed" <*> o .: "validity"
+
+getSampleNTTOutput :: ByteString -> (ByteString, [Bool])
+getSampleNTTOutput input = unsafePerformIO $ do
+  (Just hIn, Just hOut, _, ph) <-
+    createProcess
+      (proc "python3" [sampleNTTScriptPath])
+        { std_in = CreatePipe,
+          std_out = CreatePipe
+        }
+  BS.hPut hIn input
+  hClose hIn
+  output <- LBS.hGetContents hOut
+  _ <- waitForProcess ph
+  case eitherDecode output of
+    Left err -> P.error $ "Failed to parse SampleNTT JSON: " P.++ err
+    Right parsed ->
+      P.return
+        ( BS.pack (sampleNTTPacked parsed),
+          sampleNTTValidity parsed
+        )
+{-# NOINLINE getSampleNTTOutput #-}
+
 externalSampleNTTPacked :: ByteString -> ByteString
-externalSampleNTTPacked = callPythonReference ("reference" </> "kyber" </> "sample_ntt.py")
+externalSampleNTTPacked = P.fst . getSampleNTTOutput
 
 -- | Unpack Python's 384-byte format to 256 coefficients
 -- Python packs two 12-bit coefficients into 3 bytes (128 triplets):
@@ -76,20 +109,7 @@ unpackPython384Bytes bs = go (BS.unpack bs)
 -- | Get validity pattern from Python reference script
 -- Returns which coefficients pass rejection sampling (< 3329)
 getTimingInfo :: ByteString -> [Bool]
-getTimingInfo input = unsafePerformIO $ do
-  (Just hIn, Just hOut, _, ph) <-
-    createProcess
-      (proc "python3" ["reference/kyber/sample_ntt_timing.py"])
-        { std_in = CreatePipe,
-          std_out = CreatePipe
-        }
-  BS.hPut hIn input
-  hClose hIn
-  output <- LBS.hGetContents hOut
-  _ <- waitForProcess ph
-  case eitherDecode output of
-    Left err -> P.error $ "Failed to parse validity pattern: " P.++ err
-    Right vp -> P.return vp
+getTimingInfo = P.snd . getSampleNTTOutput
 {-# NOINLINE getTimingInfo #-}
 
 -- | Generate MSG_TVALID signal based on upstream stall pattern.

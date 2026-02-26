@@ -4,10 +4,11 @@ Minimal external reference for SampleNTT using kyber-py.
 
 Implements FIPS 203 Algorithm 6 (SampleNTT).
 Input: 34 raw bytes on stdin (32-byte rho + i + j)
-Output: 384 raw bytes on stdout (256 coefficients × 12 bits, packed)
+Output: JSON on stdout with packed coefficients and validity pattern.
 """
 import sys
 import os
+import json
 from hashlib import shake_128
 
 # Get kyber-py path from environment, with fallback
@@ -25,6 +26,39 @@ def shake128_xof(input_bytes):
     return shake_128(input_bytes).digest(840)
 
 
+def compute_validity_pattern(xof_bytes):
+    """
+    Compute validity pattern for rejection sampling (< 3329).
+
+    Returns a list of booleans indicating whether each candidate was accepted.
+    """
+    validity_pattern = []
+    valid_count = 0
+    i = 0
+
+    # Extract 12-bit coefficients per FIPS 203 Algorithm 6
+    # Every 3 bytes -> 2 candidates
+    while valid_count < 256:
+        b0, b1, b2 = xof_bytes[i], xof_bytes[i + 1], xof_bytes[i + 2]
+
+        # d1 = b0 + 256*(b1 mod 16)
+        d1 = b0 + 256 * (b1 & 0x0F)
+        validity_pattern.append(d1 < 3329)
+        if d1 < 3329:
+            valid_count += 1
+
+        if valid_count < 256:
+            # d2 = floor(b1/16) + 16*b2
+            d2 = (b1 >> 4) + 16 * b2
+            validity_pattern.append(d2 < 3329)
+            if d2 < 3329:
+                valid_count += 1
+
+        i += 3
+
+    return validity_pattern
+
+
 def sample_ntt(input_bytes):
     """
     Perform SampleNTT: rejection sampling to get 256 coefficients.
@@ -33,7 +67,7 @@ def sample_ntt(input_bytes):
         input_bytes: 34 bytes (32-byte rho + i + j)
 
     Returns:
-        384 bytes (256 coefficients × 12 bits, packed)
+        (packed_bytes, validity_pattern)
     """
     # SHAKE-128 XOF (840 bytes)
     xof_bytes = shake128_xof(input_bytes)
@@ -49,13 +83,15 @@ def sample_ntt(input_bytes):
         c1 = poly_ntt.coeffs[i + 1]
 
         # Pack two 12-bit coefficients into 3 bytes
-        byte0 = c0 & 0xFF                           # Lower 8 bits of c0
+        byte0 = c0 & 0xFF  # Lower 8 bits of c0
         byte1 = ((c0 >> 8) & 0x0F) | ((c1 & 0x0F) << 4)  # Upper 4 bits of c0, lower 4 bits of c1
-        byte2 = (c1 >> 4) & 0xFF                    # Upper 8 bits of c1
+        byte2 = (c1 >> 4) & 0xFF  # Upper 8 bits of c1
 
         result.extend([byte0, byte1, byte2])
 
-    return bytes(result)
+    validity_pattern = compute_validity_pattern(xof_bytes)
+
+    return bytes(result), validity_pattern
 
 
 def main():
@@ -64,10 +100,14 @@ def main():
     input_bytes = sys.stdin.buffer.read(34)
 
     # Perform SampleNTT
-    output_bytes = sample_ntt(input_bytes)
+    output_bytes, validity_pattern = sample_ntt(input_bytes)
 
-    # Write to stdout
-    sys.stdout.buffer.write(output_bytes)
+    # Write JSON to stdout
+    payload = {
+        "packed": list(output_bytes),
+        "validity": validity_pattern,
+    }
+    print(json.dumps(payload))
 
 
 if __name__ == "__main__":

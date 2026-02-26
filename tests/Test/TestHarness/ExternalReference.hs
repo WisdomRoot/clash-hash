@@ -17,7 +17,7 @@ import Prelude
 -- No encoding/decoding overhead - pure binary communication.
 --
 -- Example:
--- >>> callPythonReference "reference/kyber/sample_ntt.py" inputBytes
+-- >>> callPythonReference "reference/kyber/prf.py" inputBytes
 callPythonReference :: FilePath -> ByteString -> ByteString
 callPythonReference scriptPath input = unsafePerformIO $ do
   -- Create process with pipes for stdin/stdout
