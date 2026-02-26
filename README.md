@@ -8,7 +8,7 @@
 |------|-------|--------|----------|
 | 256  | 256   | 24536  | systemverilog/Component.G512.i256o256/G512_I256_O256.sv |
 
-### SampleNTT
+### SampleNTT512
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
@@ -52,7 +52,6 @@ stack test -- run all tests
 
 ### Targets
 
-* SampleNTT (Clash)
 * N256: Non-pipelined SHA3-256 at `Hash.NonPipelined.SHA3256` (Clash)
 * N256N: Non-pipelined SHA3-256 (Normal) at `Hash.NonPipelined.SHA3256Normal` (Clash)
 * N256X: Non-pipelined SHAKE-256 (Clash)

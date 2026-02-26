@@ -10,8 +10,6 @@
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
   "PRF2": "Component.PRF2.topEntity",
   "PRF3": "Component.PRF3.topEntity",
-  "SampleNTT": "Component.SampleNTT.topEntity",
-  "SampleNTT2": "Component.SampleNTT2.topEntity",
   "SN512-I272-O24-L0": "Component.SampleNTT512.i272o24l0",
   "SN512-I272-O24-L1": "Component.SampleNTT512.i272o24l1",
   "SamplePolyCBD2": "Component.SamplePolyCBD2.topEntity",

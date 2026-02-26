@@ -176,22 +176,6 @@
 
 [bench] Time/Mem: load 3.16s | compile 10.47s | synth 33.31s | mem 4304.33 MB
 
-## SHAKE128B
-
-* 20260120: baseline
-  module                                            area (µm²)   seq area (µm²)    seq %
-  --------------------------------------------------------------------------------------
-  Component_SampleNTT                                26372.836         8559.880    32.46%
-  Component_SampleNTT_topEntity_keccakF1600Round       9516.682            0.000     0.00%
-
-[bench] Time/Mem: load 2.83s | compile 3.14s | synth 6.43s | mem 1486.75 MB
-  module                                            area (µm²)   seq area (µm²)    seq %
-  --------------------------------------------------------------------------------------
-  Component_SampleNTT                                28126.308         8559.880    30.43%
-  Component_SampleNTT_topEntity_keccakF1600Round       9516.682            0.000     0.00%
-
-[bench] Time/Mem: load 2.93s | compile 3.79s | synth 5.99s | mem 1286.38 MB
-
 ## Sponge
 
 * Baseline: stateful sponge, no streaming interface, fixed 1084-bit input / 256-bit output
