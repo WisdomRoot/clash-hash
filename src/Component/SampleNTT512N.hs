@@ -200,44 +200,45 @@ step (State phase state buffer) (AXI4Stream inputMsg msgValid _, tready) = case 
           else (State (Permute (counter + 1)) state' buffer, (idleAXI4Stream, False))
   Squeeze counter ->
     let chunk = squeezeCoeff48 state counter
+        nextPhase = if counter == maxBound then Permute 0 else Squeeze (counter + 1)
      in case buffer of
           Buffer0 -> case screenCandidates chunk of
-            Valid0 -> (State (Squeeze (counter + 1)) state buffer, (idleAXI4Stream, False))
-            Valid1 c0 -> (State (Squeeze (counter + 1)) state (Buffer1 c0), (idleAXI4Stream, False))
+            Valid0 -> (State nextPhase state buffer, (idleAXI4Stream, False))
+            Valid1 c0 -> (State nextPhase state (Buffer1 c0), (idleAXI4Stream, False))
             Valid2 c0 c1 -> 
               if tready 
-                then (State (Squeeze (counter + 1)) state buffer, (validBeat (c0 ++# c1) False, False))
-                else (State (Squeeze (counter + 1)) state (Buffer2 c0 c1), (idleAXI4Stream, False))
+                then (State nextPhase state buffer, (validBeat (c1 ++# c0) False, False))
+                else (State nextPhase state (Buffer2 c0 c1), (idleAXI4Stream, False))
             Valid3 c0 c1 c2 -> 
               if tready 
-                then (State (Squeeze (counter + 1)) state (Buffer1 c2), (validBeat (c0 ++# c1) False, False))
-                else (State (Squeeze (counter + 1)) state (Buffer3 c0 c1 c2), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer1 c2), (validBeat (c1 ++# c0) False, False))
+                else (State nextPhase state (Buffer3 c0 c1 c2), (idleAXI4Stream, False))
             Valid4 c0 c1 c2 c3 -> 
               if tready
-                then (State (Squeeze (counter + 1)) state (Buffer2 c2 c3), (validBeat (c0 ++# c1) False, False))
+                then (State nextPhase state (Buffer2 c2 c3), (validBeat (c1 ++# c0) False, False))
                 else (State (Squeeze counter) state buffer, (idleAXI4Stream, False))
           Buffer1 b0 -> case screenCandidates chunk of
-            Valid0 -> (State (Squeeze (counter + 1)) state (Buffer1 b0), (idleAXI4Stream, False))
+            Valid0 -> (State nextPhase state (Buffer1 b0), (idleAXI4Stream, False))
             Valid1 c0 -> 
               if tready
-                then (State (Squeeze (counter + 1)) state Buffer0, (validBeat (b0 ++# c0) False, False))
-                else (State (Squeeze (counter + 1)) state (Buffer2 b0 c0), (idleAXI4Stream, False))
+                then (State nextPhase state Buffer0, (validBeat (c0 ++# b0) False, False))
+                else (State nextPhase state (Buffer2 b0 c0), (idleAXI4Stream, False))
             Valid2 c0 c1 -> 
               if tready
-                then (State (Squeeze (counter + 1)) state (Buffer1 c1), (validBeat (b0 ++# c0) False, False))
-                else (State (Squeeze (counter + 1)) state (Buffer3 b0 c0 c1), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer1 c1), (validBeat (c0 ++# b0) False, False))
+                else (State nextPhase state (Buffer3 b0 c0 c1), (idleAXI4Stream, False))
             Valid3 c0 c1 c2 -> 
                if tready
-                then (State (Squeeze (counter + 1)) state (Buffer2 c1 c2), (validBeat (b0 ++# c0) False, False))
-                else (State (Squeeze (counter + 1)) state (Buffer4 b0 c0 c1 c2), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer2 c1 c2), (validBeat (c0 ++# b0) False, False))
+                else (State nextPhase state (Buffer4 b0 c0 c1 c2), (idleAXI4Stream, False))
             Valid4 c0 c1 c2 c3 -> 
                if tready
-                then (State (Squeeze (counter + 1)) state (Buffer3 c1 c2 c3), (validBeat (b0 ++# c0) False, False))
-                else (State (Squeeze (counter + 1)) state (Buffer5 b0 c0 c1 c2 c3), (idleAXI4Stream, False))
-          Buffer2 b0 b1 -> (State (Squeeze counter) state Buffer0, (validBeat (b0 ++# b1) False, False))
-          Buffer3 b0 b1 b2 -> (State (Squeeze counter) state (Buffer1 b2), (validBeat (b0 ++# b1) False, False))
-          Buffer4 b0 b1 b2 b3 -> (State (Squeeze counter) state (Buffer2 b2 b3), (validBeat (b0 ++# b1) False, False))
-          Buffer5 b0 b1 b2 b3 b4 -> (State (Squeeze counter) state (Buffer3 b2 b3 b4), (validBeat (b0 ++# b1) False, False))
+                then (State nextPhase state (Buffer3 c1 c2 c3), (validBeat (c0 ++# b0) False, False))
+                else (State nextPhase state (Buffer5 b0 c0 c1 c2 c3), (idleAXI4Stream, False))
+          Buffer2 b0 b1 -> (State (Squeeze counter) state Buffer0, (validBeat (b1 ++# b0) False, False))
+          Buffer3 b0 b1 b2 -> (State (Squeeze counter) state (Buffer1 b2), (validBeat (b1 ++# b0) False, False))
+          Buffer4 b0 b1 b2 b3 -> (State (Squeeze counter) state (Buffer2 b2 b3), (validBeat (b1 ++# b0) False, False))
+          Buffer5 b0 b1 b2 b3 b4 -> (State (Squeeze counter) state (Buffer3 b2 b3 b4), (validBeat (b1 ++# b0) False, False))
 
 -- case screenCandidates chunk of
 --     Valid0 -> (State (Squeeze (counter + 1)) state buffer, (idleAXI4Stream, False))
