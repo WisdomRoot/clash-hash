@@ -216,7 +216,7 @@ step (State phase state buffer) (AXI4Stream inputMsg msgValid _, tready) = case 
             Valid4 c0 c1 c2 c3 -> 
               if tready
                 then (State nextPhase state (Buffer2 c2 c3), (validBeat (c1 ++# c0) False, False))
-                else (State (Squeeze counter) state buffer, (idleAXI4Stream, False))
+                else (State nextPhase state (Buffer4 c0 c1 c2 c3), (idleAXI4Stream, False))
           Buffer1 b0 -> case screenCandidates chunk of
             Valid0 -> (State nextPhase state (Buffer1 b0), (idleAXI4Stream, False))
             Valid1 c0 -> 
