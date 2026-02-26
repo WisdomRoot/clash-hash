@@ -24,5 +24,5 @@
   "Pi": "Permutation.Pi.topEntity",
   "Iota": "Permutation.Iota.topEntity",
   "Theta": "Permutation.Theta.topEntity",
-  "SN512-I272-O24-L2": "Component.SampleNTT512N.i272o24l2"
+  "SN512-I272-O24-L2": "Component.SampleNTT512N.i272o24l2Top"
 }

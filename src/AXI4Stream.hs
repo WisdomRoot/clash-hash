@@ -9,6 +9,7 @@ module AXI4Stream
     Master,
     Slave,
     (~>),
+    transducerTop,
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -97,6 +98,26 @@ master ~> slave =
   in b
 
 infixl 1 ~>
+
+-- | Adapt a component expressed as @Slave dom a (Master dom b)@ into the
+-- first-order top-entity shape used in this codebase:
+--
+-- @Signal dom (AXI4Stream a, Bool) -> Signal dom (AXI4Stream b, Bool)@
+--
+-- where the input Bool is @tready@ for the output stream and the output Bool
+-- is @tready@ for the input stream.
+transducerTop ::
+  (Clock dom -> Reset dom -> Enable dom -> Slave dom a (Master dom b)) ->
+  Clock dom ->
+  Reset dom ->
+  Enable dom ->
+  Signal dom (AXI4Stream a, Bool) ->
+  Signal dom (AXI4Stream b, Bool)
+transducerTop comp clk rst en inputSig =
+  let (inputStream, outReady) = unbundle inputSig
+      (inReady, master) = comp clk rst en inputStream
+      outStream = master outReady
+   in bundle (outStream, inReady)
 
 --------------------------------------------------------------------------------
 -- Utilities

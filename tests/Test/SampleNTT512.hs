@@ -32,7 +32,7 @@ spec :: Spec
 spec = describe "SampleNTT512 Stream" $ do
   describe "i272o24l0" $ runAllTests 0 1 SampleNTT512.i272o24l0
   describe "i272o24l1" $ runAllTests 1 1 (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
-  describe "i272o24l2" $ runAllTests 2 5 SampleNTT512N.i272o24l2
+  describe "i272o24l2" $ runAllTests 2 5 SampleNTT512N.i272o24l2Top
   where
     runAllTests lookaheadCount bufferSize topEntityCore = do
       describe "Basic functionality tests (34-byte seeds)" $

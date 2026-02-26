@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_SampleNTT512N_i272o24l2_keccakF1600
+module Component_SampleNTT512N_i272o24l2Top_keccakF1600
     ( // Inputs
       input wire logic [4:0] roundIdx
     , input wire logic [1599:0] x

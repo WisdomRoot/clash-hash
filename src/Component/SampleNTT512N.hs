@@ -2,6 +2,7 @@
 
 module Component.SampleNTT512N
   ( i272o24l2,
+    i272o24l2Top,
   )
 where
 
@@ -120,8 +121,30 @@ step (State phase state buffer) (AXI4Stream inputMsg msgValid _, tready) = case 
           Buffer4 b0 b1 b2 b3 -> (State (Squeeze counter) state (Buffer2 b2 b3), (validBeat (b1 ++# b0) False, False))
           Buffer5 b0 b1 b2 b3 b4 -> (State (Squeeze counter) state (Buffer3 b2 b3 b4), (validBeat (b1 ++# b0) False, False))
 
+i272o24l2 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Slave System 272 (Master System 24)
+i272o24l2 clk rst en seedStream = (seedReady, master)
+  where
+    master coeffReady =
+      let outSig =
+            withClockResetEnable clk rst en
+              (mealy step (State Absorb 0 Buffer0) (bundle (seedStream, coeffReady)))
+       in fst <$> outSig
+    seedReady =
+      withClockResetEnable clk rst en
+        (mealy seedReadyStep False seedStream)
+
+    seedReadyStep seenSeed stream =
+      let msgValid = tvalid stream
+          ready = not seenSeed && not msgValid
+          seenSeed' = seenSeed || msgValid
+       in (seenSeed', ready)
+
 {-# ANN
-  i272o24l2
+  i272o24l2Top
   ( Synthesize
       { t_name = "SN512_I272_O24_L2",
         t_inputs =
@@ -144,14 +167,14 @@ step (State phase state buffer) (AXI4Stream inputMsg msgValid _, tready) = case 
       }
   )
   #-}
-{-# NOINLINE i272o24l2 #-}
-i272o24l2 ::
+{-# NOINLINE i272o24l2Top #-}
+i272o24l2Top ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24l2 clk rst en inputSig = withClockResetEnable clk rst en (mealy step (State Absorb 0 Buffer0) inputSig)
+i272o24l2Top = transducerTop i272o24l2
 
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600

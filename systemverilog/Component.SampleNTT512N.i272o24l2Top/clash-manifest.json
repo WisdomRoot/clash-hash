@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SampleNTT512N_i272o24l2_keccakF1600",
+        "Component_SampleNTT512N_i272o24l2Top_keccakF1600",
         "SN512_I272_O24_L2"
     ],
     "dependencies": {
@@ -43,19 +43,19 @@
             "sha256": "39f15b1ed600716aa61728868818ff22b0f6cafe6a12f87cc0763f08ec690194"
         },
         {
-            "name": "Component_SampleNTT512N_i272o24l2_keccakF1600.sv",
-            "sha256": "1118c57aba617883aa11a391f5ab1b96673ed6c720b5f6288752c1248bf5d863"
+            "name": "Component_SampleNTT512N_i272o24l2Top_keccakF1600.sv",
+            "sha256": "87467207de48562be0589d1152718fee0f09d913a674b48e23398ee681611a36"
         },
         {
             "name": "SN512_I272_O24_L2.sv",
-            "sha256": "a1b245ffe2a6a1a07f5bcc5be947605ec2088b37cfd7e6d1801500bde1c13aaf"
+            "sha256": "b378b485988879e90d2451d81e732403f58ed01f4f120e6a00fe2032e2f5ad86"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "22b23a06d2fef26e22b785d2ecced73df64daa2604ddd6dff03790d183326efd",
+    "hash": "a4f045ff5d2f0df3a721c777761d26bd694d28be02e0d77cfaece0518dda08a0",
     "top_component": {
         "name": "SN512_I272_O24_L2",
         "ports_flat": [
