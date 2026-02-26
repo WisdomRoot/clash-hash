@@ -6,10 +6,12 @@ module Test.SampleNTT512 (spec) where
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude (BitVector, bundle, clockGen, enableGen, fromList, resetGen, sampleN, (++#))
 import Component.SampleNTT512 qualified as SampleNTT512
+import Component.SampleNTT512N qualified as SampleNTT512N
 import Data.ByteString (ByteString)
 import Data.Foldable (for_)
 import Data.List qualified as L
-import Data.Maybe (isJust)
+import Data.Maybe (catMaybes, isJust)
+import Data.Word (Word16)
 import Stream
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.QuickCheck (forAll, withMaxSuccess)
@@ -28,27 +30,28 @@ import Prelude qualified as P
 
 spec :: Spec
 spec = describe "SampleNTT512 Stream" $ do
-  describe "i272o24l0" $ runAllTests SampleNTT512.Lookahead0 SampleNTT512.i272o24l0
-  describe "i272o24l1" $ runAllTests SampleNTT512.Lookahead1 (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
+  describe "i272o24l0" $ runAllTests 0 1 SampleNTT512.i272o24l0
+  describe "i272o24l1" $ runAllTests 1 1 (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
+  describe "i272o24l2" $ runAllTests 2 5 SampleNTT512N.i272o24l2
   where
-    runAllTests lookahead topEntityCore = do
+    runAllTests lookaheadCount bufferSize topEntityCore = do
       describe "Basic functionality tests (34-byte seeds)" $
         for_ Samples.basicSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
+          it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
       describe "Upstream stall handling (34-byte seeds)" $
         for_ Samples.stallSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
+          it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
       describe "Downstream backpressure handling (34-byte seeds)" $
         for_ Samples.backpressureSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
+          it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
       describe "Combined stress tests (34-byte seeds)" $
         for_ Samples.combinedSeedCases $ \testCase ->
-          it (testLabel testCase) $ runStreamTest lookahead topEntityCore testCase
+          it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
       describe "QuickCheck property tests (34-byte seeds)" $
         it "correctly handles random 34-byte test cases" $
-          withMaxSuccess 40 $ forAll Samples.genSampleNTTTest (runStreamTest lookahead topEntityCore)
+          withMaxSuccess 40 $ forAll Samples.genSampleNTTTest (runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore)
 
-    runStreamTest lookahead topEntityCore testCase =
+    runStreamTestWith expectedFn topEntityCore testCase =
       let seed = testMessage testCase
           holdCycles =
             case testUpstreamStall testCase of
@@ -65,42 +68,70 @@ spec = describe "SampleNTT512 Stream" $ do
             ]
           topEntity clk rst en treadySig inputSig =
             topEntityCore clk rst en (bundle (P.fmap P.fst inputSig, treadySig))
-          expected = simulate lookahead seed backpressureTiming inputTiming
+          expected = expectedFn seed backpressureTiming inputTiming
        in runStreamInputExpected topEntity expected inputTiming backpressureTiming
 
-simulate :: SampleNTT512.Lookahead -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
-simulate lookahead seed backpressureTiming inputTiming =
-  let (inputPattern, _) = expandInputTiming inputTiming
-      startSilence =
-        case L.findIndex isJust inputPattern of
-          Just i -> i
-          Nothing -> P.error "SampleNTT512.simulate: no input provided"
-      (packedBytes, validityRaw) = getSampleNTTOutput seed
-      validity =
-        if P.odd (P.length validityRaw)
-          then validityRaw P.++ [P.False]
-          else validityRaw
-      coeffs = unpackPython384Bytes packedBytes
-      pairs = toPairs coeffs
-      readyPattern = expandBackpressureTiming backpressureTiming
-      readyStream = case readyPattern of
-        [] -> P.repeat P.True
-        _ -> P.cycle readyPattern
-      blocks = buildBlocks validity (0 :: P.Int) pairs (0 :: P.Int)
-      (idleOut, readyAfterIdle) = consumeN startSilence readyStream
-      (permuteOut, readyAfterPermute) = consumeN 25 readyAfterIdle
-      (squeezeOut, _) = runBlocks blocks readyAfterPermute
-      base = compress (idleOut P.++ permuteOut P.++ squeezeOut)
-   in base
+simulate :: P.Int -> P.Int -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
+simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
+  if bufferSize P.== 1 P.&& (lookaheadCount P.== 0 P.|| lookaheadCount P.== 1)
+    then simulateL01
+    else
+      if lookaheadCount P.== 2
+        then simulateL2
+        else P.error "SampleNTT512.simulate: unsupported lookahead/bufferSize"
   where
+    simulateL01 =
+      let (inputPattern, _) = expandInputTiming inputTiming
+          startSilence =
+            case L.findIndex isJust inputPattern of
+              Just i -> i
+              Nothing -> P.error "SampleNTT512.simulate: no input provided"
+          (packedBytes, validityRaw) = getSampleNTTOutput seed
+          validity =
+            if P.odd (P.length validityRaw)
+              then validityRaw P.++ [P.False]
+              else validityRaw
+          coeffs = unpackPython384Bytes packedBytes
+          pairs = toPairs coeffs
+          readyPattern = expandBackpressureTiming backpressureTiming
+          readyStream = case readyPattern of
+            [] -> P.repeat P.True
+            _ -> P.cycle readyPattern
+          blocks = buildBlocks validity (0 :: P.Int) pairs (0 :: P.Int)
+          (idleOut, readyAfterIdle) = consumeN startSilence readyStream
+          (permuteOut, readyAfterPermute) = consumeN 25 readyAfterIdle
+          (squeezeOut, _) = runBlocks blocks readyAfterPermute
+          base = compress (idleOut P.++ permuteOut P.++ squeezeOut)
+       in base
+
+    simulateL2 =
+      let (inputPattern, _) = expandInputTiming inputTiming
+          startSilence =
+            case L.findIndex isJust inputPattern of
+              Just i -> i
+              Nothing -> P.error "SampleNTT512.simulateL2: no input provided"
+          (packedBytes, validityRaw) = getSampleNTTOutput seed
+          coeffs = unpackPython384Bytes packedBytes
+          validity = padToMultiple P.False 4 validityRaw
+          candidates = assignCandidates validity coeffs
+          chunks = chunksOf 4 (padToMultiple P.Nothing 4 candidates)
+          blocks = chunksOf 28 (padChunks 28 chunks)
+          readyPattern = expandBackpressureTiming backpressureTiming
+          readyStream = case readyPattern of
+            [] -> P.repeat P.True
+            _ -> P.cycle readyPattern
+          (idleOut, readyAfterIdle) = consumeN startSilence readyStream
+          (permuteOut, readyAfterPermute) = consumeN 25 readyAfterIdle
+          (squeezeOut, _) = runBlocksL2 blocks [] readyAfterPermute 0
+          base = compress (idleOut P.++ permuteOut P.++ squeezeOut)
+       in base
+
     toPairs (a : b : rest) = (toBV12 b ++# toBV12 a) : toPairs rest
     toPairs _ = []
 
     toBV12 v = P.fromIntegral v :: BitVector 12
 
-    lookN = case lookahead of
-      SampleNTT512.Lookahead0 -> 2
-      SampleNTT512.Lookahead1 -> 3
+    lookN = lookaheadCount P.+ 2
 
     decide0 buffer v0 v1 =
       case buffer of
@@ -192,9 +223,11 @@ simulate lookahead seed backpressureTiming inputTiming =
                     v2b = case v2 of
                       P.Just v -> v
                       P.Nothing -> P.False
-                    (consumeCount, emittedThis, buffer') = case lookahead of
-                      SampleNTT512.Lookahead0 -> decide0 buffer v0 v1b
-                      SampleNTT512.Lookahead1 -> decide1 buffer v0 v1b v2b
+                    (consumeCount, emittedThis, buffer') =
+                      case lookaheadCount of
+                        0 -> decide0 buffer v0 v1b
+                        1 -> decide1 buffer v0 v1b v2b
+                        _ -> P.error "SampleNTT512.simulate: unsupported lookahead"
                     consumeN' = if consumeCount P.> avail then avail else consumeCount
                     restVals = P.drop consumeN' vals
                     (out, pairs', emitted') =
@@ -238,6 +271,123 @@ simulate lookahead seed backpressureTiming inputTiming =
               let (out, rs'') = consumeN (n P.- 1) rs'
                in (Nothing : out, rs'')
             [] -> P.error "SampleNTT512.simulate: empty backpressure pattern"
+
+    padToMultiple filler n xs =
+      let r = P.length xs `P.mod` n
+          pad = if r P.== 0 then 0 else n P.- r
+       in xs P.++ P.replicate pad filler
+
+    padChunks n xs =
+      let r = P.length xs `P.mod` n
+          pad = if r P.== 0 then 0 else n P.- r
+          filler = P.replicate 4 P.Nothing
+       in xs P.++ P.replicate pad filler
+
+    chunksOf n xs =
+      case P.splitAt n xs of
+        ([], _) -> []
+        (chunk, rest) -> chunk : chunksOf n rest
+
+    assignCandidates [] [] = []
+    assignCandidates [] _ = P.error "SampleNTT512.simulateL2: extra coefficients"
+    assignCandidates (v : vs) coeffs' =
+      if v
+        then case coeffs' of
+          [] -> P.error "SampleNTT512.simulateL2: ran out of coefficients"
+          c : cs -> P.Just c : assignCandidates vs cs
+        else P.Nothing : assignCandidates vs coeffs'
+
+    runBlocksL2 ::
+      [[[P.Maybe Word16]]] ->
+      [Word16] ->
+      [P.Bool] ->
+      P.Int ->
+      ([P.Maybe (BitVector 24)], [P.Bool])
+    runBlocksL2 blocks buffer rs emitted =
+      if emitted P.>= 128
+        then ([], rs)
+        else case blocks of
+          [] -> P.error "SampleNTT512.simulateL2: candidate blocks exhausted"
+          block : rest ->
+            let (blockOut, buffer', rs', emitted') = runBlockL2 block buffer rs emitted
+             in if emitted' P.>= 128
+                  then (blockOut, rs')
+                  else
+                    let (permuteOut, rs'') = consumeN 24 rs'
+                        (moreOut, rs''') = runBlocksL2 rest buffer' rs'' emitted'
+                     in (blockOut P.++ permuteOut P.++ moreOut, rs''')
+
+    runBlockL2 ::
+      [[P.Maybe Word16]] ->
+      [Word16] ->
+      [P.Bool] ->
+      P.Int ->
+      ([P.Maybe (BitVector 24)], [Word16], [P.Bool], P.Int)
+    runBlockL2 block buffer rs emitted = go 0 buffer rs emitted []
+      where
+        blockLen = P.length block
+        go idx buf ready emitted' acc
+          | emitted' P.>= 128 = (P.reverse acc, buf, ready, emitted')
+          | idx P.>= blockLen = (P.reverse acc, buf, ready, emitted')
+          | P.otherwise =
+            case ready of
+              [] -> P.error "SampleNTT512.simulateL2: empty backpressure pattern"
+              r : rs' ->
+                let chunk = block P.!! idx
+                    (rawOut, buf', advanceIdx, produced) = stepL2 buf chunk r
+                    outMaybe = if r then rawOut else P.Nothing
+                    idx' = if advanceIdx then idx P.+ 1 else idx
+                    emitted'' = emitted' P.+ produced
+                 in go idx' buf' rs' emitted'' (outMaybe : acc)
+
+    stepL2 ::
+      [Word16] ->
+      [P.Maybe Word16] ->
+      P.Bool ->
+      (P.Maybe (BitVector 24), [Word16], P.Bool, P.Int)
+    stepL2 buffer chunk tready =
+      case buffer of
+        a : b : rest -> (P.Just (mkPair a b), rest, P.False, 1)
+        [b0] ->
+          let vals = catMaybes chunk
+           in case vals of
+                [] -> (P.Nothing, [b0], P.True, 0)
+                c0 : restVals ->
+                  if tready
+                    then (P.Just (mkPair b0 c0), restVals, P.True, 1)
+                    else
+                      if P.length (b0 : vals) P.<= bufferSize
+                        then (P.Nothing, b0 : vals, P.True, 0)
+                        else (P.Nothing, [b0], P.False, 0)
+        [] ->
+          let vals = catMaybes chunk
+           in case vals of
+                [] -> (P.Nothing, [], P.True, 0)
+                [c0] -> (P.Nothing, [c0], P.True, 0)
+                [c0, c1] ->
+                  if tready
+                    then (P.Just (mkPair c0 c1), [], P.True, 1)
+                    else
+                      if P.length vals P.<= bufferSize
+                        then (P.Nothing, vals, P.True, 0)
+                        else (P.Nothing, [], P.False, 0)
+                [c0, c1, c2] ->
+                  if tready
+                    then (P.Just (mkPair c0 c1), [c2], P.True, 1)
+                    else
+                      if P.length vals P.<= bufferSize
+                        then (P.Nothing, vals, P.True, 0)
+                        else (P.Nothing, [], P.False, 0)
+                [c0, c1, c2, c3] ->
+                  if tready
+                    then (P.Just (mkPair c0 c1), [c2, c3], P.True, 1)
+                    else
+                      if P.length vals P.<= bufferSize
+                        then (P.Nothing, vals, P.True, 0)
+                        else (P.Nothing, [], P.False, 0)
+                _ -> P.error "SampleNTT512.simulateL2: invalid candidate chunk size"
+
+    mkPair a b = toBV12 b ++# toBV12 a
 
     compress [] = []
     compress xs =

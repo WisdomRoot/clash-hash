@@ -96,35 +96,35 @@ module SN512_I272_O24_L2
   logic c$case_scrut_1;
   logic [11:0] c3_0;
   logic [47:0] c$c0_app_arg;
-  logic [47:0] result_9;
-  logic [47:0] c$case_alt_24;
-  logic [47:0] c$case_alt_25;
-  logic [47:0] c$case_alt_26;
-  logic [47:0] c$case_alt_27;
-  logic [47:0] c$case_alt_28;
-  logic [47:0] c$case_alt_29;
-  logic [47:0] c$case_alt_30;
-  logic [47:0] c$case_alt_31;
-  logic [47:0] c$case_alt_32;
-  logic [47:0] c$case_alt_33;
-  logic [47:0] c$case_alt_34;
-  logic [47:0] c$case_alt_35;
-  logic [47:0] c$case_alt_36;
-  logic [47:0] c$case_alt_37;
-  logic [47:0] c$case_alt_38;
-  logic [47:0] c$case_alt_39;
-  logic [47:0] c$case_alt_40;
-  logic [47:0] c$case_alt_41;
-  logic [47:0] c$case_alt_42;
-  logic [47:0] c$case_alt_43;
-  logic [47:0] c$case_alt_44;
-  logic [47:0] c$case_alt_45;
-  logic [47:0] c$case_alt_46;
-  logic [47:0] c$case_alt_47;
-  logic [47:0] c$case_alt_48;
-  logic [47:0] c$case_alt_49;
-  logic [47:0] c$case_alt_50;
-  logic [1599:0] c$app_arg_5;
+  logic [47:0] chunk;
+  logic [47:0] c$chunk_case_alt;
+  logic [47:0] c$chunk_case_alt_0;
+  logic [47:0] c$chunk_case_alt_1;
+  logic [47:0] c$chunk_case_alt_2;
+  logic [47:0] c$chunk_case_alt_3;
+  logic [47:0] c$chunk_case_alt_4;
+  logic [47:0] c$chunk_case_alt_5;
+  logic [47:0] c$chunk_case_alt_6;
+  logic [47:0] c$chunk_case_alt_7;
+  logic [47:0] c$chunk_case_alt_8;
+  logic [47:0] c$chunk_case_alt_9;
+  logic [47:0] c$chunk_case_alt_10;
+  logic [47:0] c$chunk_case_alt_11;
+  logic [47:0] c$chunk_case_alt_12;
+  logic [47:0] c$chunk_case_alt_13;
+  logic [47:0] c$chunk_case_alt_14;
+  logic [47:0] c$chunk_case_alt_15;
+  logic [47:0] c$chunk_case_alt_16;
+  logic [47:0] c$chunk_case_alt_17;
+  logic [47:0] c$chunk_case_alt_18;
+  logic [47:0] c$chunk_case_alt_19;
+  logic [47:0] c$chunk_case_alt_20;
+  logic [47:0] c$chunk_case_alt_21;
+  logic [47:0] c$chunk_case_alt_22;
+  logic [47:0] c$chunk_case_alt_23;
+  logic [47:0] c$chunk_case_alt_24;
+  logic [47:0] c$chunk_case_alt_25;
+  logic [1599:0] c$chunk_app_arg;
   logic [4:0] counter;
   logic [1599:0] c$keccakF1600_out;
   logic [4:0] counter_0;
@@ -454,65 +454,65 @@ module SN512_I272_O24_L2
 
   assign c3_0 = c$c0_app_arg[47 : 36];
 
-  assign c$c0_app_arg = result_9;
+  assign c$c0_app_arg = chunk;
 
-  assign result_9 = (counter == 5'd0) ? (c$app_arg_5[47 : 0]) : c$case_alt_24;
+  assign chunk = (counter == 5'd0) ? (c$chunk_app_arg[47 : 0]) : c$chunk_case_alt;
 
-  assign c$case_alt_24 = (counter == 5'd1) ? (c$app_arg_5[95 : 48]) : c$case_alt_25;
+  assign c$chunk_case_alt = (counter == 5'd1) ? (c$chunk_app_arg[95 : 48]) : c$chunk_case_alt_0;
 
-  assign c$case_alt_25 = (counter == 5'd2) ? (c$app_arg_5[143 : 96]) : c$case_alt_26;
+  assign c$chunk_case_alt_0 = (counter == 5'd2) ? (c$chunk_app_arg[143 : 96]) : c$chunk_case_alt_1;
 
-  assign c$case_alt_26 = (counter == 5'd3) ? (c$app_arg_5[191 : 144]) : c$case_alt_27;
+  assign c$chunk_case_alt_1 = (counter == 5'd3) ? (c$chunk_app_arg[191 : 144]) : c$chunk_case_alt_2;
 
-  assign c$case_alt_27 = (counter == 5'd4) ? (c$app_arg_5[239 : 192]) : c$case_alt_28;
+  assign c$chunk_case_alt_2 = (counter == 5'd4) ? (c$chunk_app_arg[239 : 192]) : c$chunk_case_alt_3;
 
-  assign c$case_alt_28 = (counter == 5'd5) ? (c$app_arg_5[287 : 240]) : c$case_alt_29;
+  assign c$chunk_case_alt_3 = (counter == 5'd5) ? (c$chunk_app_arg[287 : 240]) : c$chunk_case_alt_4;
 
-  assign c$case_alt_29 = (counter == 5'd6) ? (c$app_arg_5[335 : 288]) : c$case_alt_30;
+  assign c$chunk_case_alt_4 = (counter == 5'd6) ? (c$chunk_app_arg[335 : 288]) : c$chunk_case_alt_5;
 
-  assign c$case_alt_30 = (counter == 5'd7) ? (c$app_arg_5[383 : 336]) : c$case_alt_31;
+  assign c$chunk_case_alt_5 = (counter == 5'd7) ? (c$chunk_app_arg[383 : 336]) : c$chunk_case_alt_6;
 
-  assign c$case_alt_31 = (counter == 5'd8) ? (c$app_arg_5[431 : 384]) : c$case_alt_32;
+  assign c$chunk_case_alt_6 = (counter == 5'd8) ? (c$chunk_app_arg[431 : 384]) : c$chunk_case_alt_7;
 
-  assign c$case_alt_32 = (counter == 5'd9) ? (c$app_arg_5[479 : 432]) : c$case_alt_33;
+  assign c$chunk_case_alt_7 = (counter == 5'd9) ? (c$chunk_app_arg[479 : 432]) : c$chunk_case_alt_8;
 
-  assign c$case_alt_33 = (counter == 5'd10) ? (c$app_arg_5[527 : 480]) : c$case_alt_34;
+  assign c$chunk_case_alt_8 = (counter == 5'd10) ? (c$chunk_app_arg[527 : 480]) : c$chunk_case_alt_9;
 
-  assign c$case_alt_34 = (counter == 5'd11) ? (c$app_arg_5[575 : 528]) : c$case_alt_35;
+  assign c$chunk_case_alt_9 = (counter == 5'd11) ? (c$chunk_app_arg[575 : 528]) : c$chunk_case_alt_10;
 
-  assign c$case_alt_35 = (counter == 5'd12) ? (c$app_arg_5[623 : 576]) : c$case_alt_36;
+  assign c$chunk_case_alt_10 = (counter == 5'd12) ? (c$chunk_app_arg[623 : 576]) : c$chunk_case_alt_11;
 
-  assign c$case_alt_36 = (counter == 5'd13) ? (c$app_arg_5[671 : 624]) : c$case_alt_37;
+  assign c$chunk_case_alt_11 = (counter == 5'd13) ? (c$chunk_app_arg[671 : 624]) : c$chunk_case_alt_12;
 
-  assign c$case_alt_37 = (counter == 5'd14) ? (c$app_arg_5[719 : 672]) : c$case_alt_38;
+  assign c$chunk_case_alt_12 = (counter == 5'd14) ? (c$chunk_app_arg[719 : 672]) : c$chunk_case_alt_13;
 
-  assign c$case_alt_38 = (counter == 5'd15) ? (c$app_arg_5[767 : 720]) : c$case_alt_39;
+  assign c$chunk_case_alt_13 = (counter == 5'd15) ? (c$chunk_app_arg[767 : 720]) : c$chunk_case_alt_14;
 
-  assign c$case_alt_39 = (counter == 5'd16) ? (c$app_arg_5[815 : 768]) : c$case_alt_40;
+  assign c$chunk_case_alt_14 = (counter == 5'd16) ? (c$chunk_app_arg[815 : 768]) : c$chunk_case_alt_15;
 
-  assign c$case_alt_40 = (counter == 5'd17) ? (c$app_arg_5[863 : 816]) : c$case_alt_41;
+  assign c$chunk_case_alt_15 = (counter == 5'd17) ? (c$chunk_app_arg[863 : 816]) : c$chunk_case_alt_16;
 
-  assign c$case_alt_41 = (counter == 5'd18) ? (c$app_arg_5[911 : 864]) : c$case_alt_42;
+  assign c$chunk_case_alt_16 = (counter == 5'd18) ? (c$chunk_app_arg[911 : 864]) : c$chunk_case_alt_17;
 
-  assign c$case_alt_42 = (counter == 5'd19) ? (c$app_arg_5[959 : 912]) : c$case_alt_43;
+  assign c$chunk_case_alt_17 = (counter == 5'd19) ? (c$chunk_app_arg[959 : 912]) : c$chunk_case_alt_18;
 
-  assign c$case_alt_43 = (counter == 5'd20) ? (c$app_arg_5[1007 : 960]) : c$case_alt_44;
+  assign c$chunk_case_alt_18 = (counter == 5'd20) ? (c$chunk_app_arg[1007 : 960]) : c$chunk_case_alt_19;
 
-  assign c$case_alt_44 = (counter == 5'd21) ? (c$app_arg_5[1055 : 1008]) : c$case_alt_45;
+  assign c$chunk_case_alt_19 = (counter == 5'd21) ? (c$chunk_app_arg[1055 : 1008]) : c$chunk_case_alt_20;
 
-  assign c$case_alt_45 = (counter == 5'd22) ? (c$app_arg_5[1103 : 1056]) : c$case_alt_46;
+  assign c$chunk_case_alt_20 = (counter == 5'd22) ? (c$chunk_app_arg[1103 : 1056]) : c$chunk_case_alt_21;
 
-  assign c$case_alt_46 = (counter == 5'd23) ? (c$app_arg_5[1151 : 1104]) : c$case_alt_47;
+  assign c$chunk_case_alt_21 = (counter == 5'd23) ? (c$chunk_app_arg[1151 : 1104]) : c$chunk_case_alt_22;
 
-  assign c$case_alt_47 = (counter == 5'd24) ? (c$app_arg_5[1199 : 1152]) : c$case_alt_48;
+  assign c$chunk_case_alt_22 = (counter == 5'd24) ? (c$chunk_app_arg[1199 : 1152]) : c$chunk_case_alt_23;
 
-  assign c$case_alt_48 = (counter == 5'd25) ? (c$app_arg_5[1247 : 1200]) : c$case_alt_49;
+  assign c$chunk_case_alt_23 = (counter == 5'd25) ? (c$chunk_app_arg[1247 : 1200]) : c$chunk_case_alt_24;
 
-  assign c$case_alt_49 = (counter == 5'd26) ? (c$app_arg_5[1295 : 1248]) : c$case_alt_50;
+  assign c$chunk_case_alt_24 = (counter == 5'd26) ? (c$chunk_app_arg[1295 : 1248]) : c$chunk_case_alt_25;
 
-  assign c$case_alt_50 = (counter == 5'd27) ? (c$app_arg_5[1343 : 1296]) : ({48 {1'bx}});
+  assign c$chunk_case_alt_25 = (counter == 5'd27) ? (c$chunk_app_arg[1343 : 1296]) : ({48 {1'bx}});
 
-  assign c$app_arg_5 = state;
+  assign c$chunk_app_arg = state;
 
   assign counter = phase[4:0];
 
