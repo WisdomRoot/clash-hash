@@ -48,30 +48,31 @@ module SN512_I272_O24_L2
   SN512_I272_O24_L2_types::Tuple2_2 c$case_alt_8;
   SN512_I272_O24_L2_types::Tuple2_2 c$case_alt_9;
   logic tready;
-  logic [11:0] c1;
-  logic [11:0] c0;
   logic [11:0] c3;
   logic [11:0] c2;
+  logic [11:0] c1;
+  logic [11:0] c0;
   logic [11:0] c2_0;
   logic [11:0] c1_0;
   logic [11:0] c0_0;
   logic [11:0] c1_1;
   logic [11:0] c0_1;
   logic [11:0] c0_2;
+  logic [6:0] c$app_arg;
   SN512_I272_O24_L2_types::Tuple2_2 result_1;
   logic [62:0] buffer;
   logic [1599:0] result_2;
-  logic [1599:0] c$app_arg;
-  logic [1599:0] result_3;
   logic [1599:0] c$app_arg_0;
-  logic [1599:0] result_4;
+  logic [1599:0] result_3;
   logic [1599:0] c$app_arg_1;
-  logic [1599:0] result_5;
+  logic [1599:0] result_4;
   logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_6;
+  logic [1599:0] result_5;
   logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_7;
+  logic [1599:0] result_6;
   logic [1599:0] c$app_arg_4;
+  logic [1599:0] result_7;
+  logic [1599:0] c$app_arg_5;
   logic [271:0] inputMsg;
   logic [50:0] result_8;
   logic [50:0] c$case_alt_10;
@@ -175,25 +176,25 @@ module SN512_I272_O24_L2
       3'b010 : result_0 = {{phase
                            ,state
                            ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                          ,{{{b0_2,b1_2},1'b1,1'b0},1'b0}};
+                          ,{{{b1_2,b0_2},1'b1,1'b0},1'b0}};
       3'b011 : result_0 = {{phase
                            ,state
                            ,{3'b001,b2_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                          ,{{{b0_1,b1_1},1'b1,1'b0},1'b0}};
+                          ,{{{b1_1,b0_1},1'b1,1'b0},1'b0}};
       3'b100 : result_0 = {{phase
                            ,state
                            ,{3'b010,b2_0,b3_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                          ,{{{b0_0,b1_0},1'b1,1'b0},1'b0}};
+                          ,{{{b1_0,b0_0},1'b1,1'b0},1'b0}};
       default : result_0 = {{phase
                             ,state
                             ,{3'b011,b2,b3,b4,24'bxxxxxxxxxxxxxxxxxxxxxxxx}}
-                           ,{{{b0,b1},1'b1,1'b0},1'b0}};
+                           ,{{{b1,b0},1'b1,1'b0},1'b0}};
     endcase
   end
 
   always_comb begin
     case(result_8[50:48])
-      3'b000 : c$case_alt_1 = {{{2'b10,counter + 5'd1}
+      3'b000 : c$case_alt_1 = {{c$app_arg
                                ,state
                                ,buffer}
                               ,{{24'b000000000000000000000000,1'b0,1'b0}
@@ -207,12 +208,12 @@ module SN512_I272_O24_L2
 
   always_comb begin
     case(result_8[50:48])
-      3'b000 : c$case_alt_2 = {{{2'b10,counter + 5'd1}
+      3'b000 : c$case_alt_2 = {{c$app_arg
                                ,state
                                ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
                               ,{{24'b000000000000000000000000,1'b0,1'b0}
                                ,1'b0}};
-      3'b001 : c$case_alt_2 = {{{2'b10,counter + 5'd1}
+      3'b001 : c$case_alt_2 = {{c$app_arg
                                ,state
                                ,{3'b001,c0_2,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
                               ,{{24'b000000000000000000000000,1'b0,1'b0}
@@ -251,84 +252,80 @@ module SN512_I272_O24_L2
 
   assign b0_2 = buffer[59:48];
 
-  assign c$case_alt_3 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_3 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b011,c1,c2,c3,24'bxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{b0_3,c0},1'b1,1'b0}
-                                  ,1'b0}} : {{{2'b10,counter + 5'd1}
-                                             ,state
-                                             ,{3'b101,b0_3,c0,c1,c2,c3}}
-                                            ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                             ,1'b0}};
+                                 ,{{{c0,b0_3},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                   ,state
+                                                                   ,{3'b101,b0_3,c0,c1,c2,c3}}
+                                                                  ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                                   ,1'b0}};
 
-  assign c$case_alt_4 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_4 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b010,c1_0,c2_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{b0_3,c0_0},1'b1,1'b0}
-                                  ,1'b0}} : {{{2'b10,counter + 5'd1}
-                                             ,state
-                                             ,{3'b100,b0_3,c0_0,c1_0,c2_0,12'bxxxxxxxxxxxx}}
-                                            ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                             ,1'b0}};
+                                 ,{{{c0_0,b0_3},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                     ,state
+                                                                     ,{3'b100,b0_3,c0_0,c1_0,c2_0,12'bxxxxxxxxxxxx}}
+                                                                    ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                                     ,1'b0}};
 
-  assign c$case_alt_5 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_5 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b001,c1_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{b0_3,c0_1},1'b1,1'b0}
-                                  ,1'b0}} : {{{2'b10,counter + 5'd1}
-                                             ,state
-                                             ,{3'b011,b0_3,c0_1,c1_1,24'bxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                            ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                             ,1'b0}};
+                                 ,{{{c0_1,b0_3},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                     ,state
+                                                                     ,{3'b011,b0_3,c0_1,c1_1,24'bxxxxxxxxxxxxxxxxxxxxxxxx}}
+                                                                    ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                                     ,1'b0}};
 
-  assign c$case_alt_6 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_6 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{b0_3,c0_2},1'b1,1'b0}
-                                  ,1'b0}} : {{{2'b10,counter + 5'd1}
-                                             ,state
-                                             ,{3'b010,b0_3,c0_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                            ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                             ,1'b0}};
+                                 ,{{{c0_2,b0_3},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                     ,state
+                                                                     ,{3'b010,b0_3,c0_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
+                                                                    ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                                     ,1'b0}};
 
   assign b0_3 = buffer[59:48];
 
-  assign c$case_alt_7 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_7 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b010,c2,c3,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{c0,c1},1'b1,1'b0},1'b0}} : {c$ds_app_arg
+                                 ,{{{c1,c0},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                 ,state
+                                                                 ,{3'b100,c0,c1,c2,c3,12'bxxxxxxxxxxxx}}
                                                                 ,{{24'b000000000000000000000000,1'b0,1'b0}
                                                                  ,1'b0}};
 
-  assign c$case_alt_8 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_8 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b001,c2_0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{c0_0,c1_0},1'b1,1'b0}
-                                  ,1'b0}} : {{{2'b10,counter + 5'd1}
-                                             ,state
-                                             ,{3'b011,c0_0,c1_0,c2_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                            ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                             ,1'b0}};
+                                 ,{{{c1_0,c0_0},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                     ,state
+                                                                     ,{3'b011,c0_0,c1_0,c2_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}}
+                                                                    ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                                     ,1'b0}};
 
-  assign c$case_alt_9 = tready ? {{{2'b10,counter + 5'd1}
+  assign c$case_alt_9 = tready ? {{c$app_arg
                                   ,state
                                   ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                 ,{{{c0_1,c1_1},1'b1,1'b0}
-                                  ,1'b0}} : {{{2'b10,counter + 5'd1}
-                                             ,state
-                                             ,{3'b010,c0_1,c1_1,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
-                                            ,{{24'b000000000000000000000000,1'b0,1'b0}
-                                             ,1'b0}};
+                                 ,{{{c1_1,c0_1},1'b1,1'b0},1'b0}} : {{c$app_arg
+                                                                     ,state
+                                                                     ,{3'b010,c0_1,c1_1,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
+                                                                    ,{{24'b000000000000000000000000,1'b0,1'b0}
+                                                                     ,1'b0}};
 
   assign tready = EN_0.Tuple2_3_sel1;
-
-  assign c1 = result_8[35:24];
-
-  assign c0 = result_8[47:36];
 
   assign c3 = result_8[11:0];
 
   assign c2 = result_8[23:12];
+
+  assign c1 = result_8[35:24];
+
+  assign c0 = result_8[47:36];
 
   assign c2_0 = result_8[23:12];
 
@@ -341,6 +338,8 @@ module SN512_I272_O24_L2
   assign c0_1 = result_8[47:36];
 
   assign c0_2 = result_8[47:36];
+
+  assign c$app_arg = (counter == 5'd27) ? {2'b01,5'd0} : {2'b10,counter + 5'd1};
 
   assign result_1 = (counter_0 == 5'd23) ? {{{2'b10,5'd0}
                                             ,c$keccakF1600_out
@@ -356,57 +355,57 @@ module SN512_I272_O24_L2
 
   // replaceBit start
   always_comb begin
-    result_2 = c$app_arg;
-    result_2[64'sd1343] = (~ (c$app_arg[64'sd1343]));
+    result_2 = c$app_arg_0;
+    result_2[64'sd1343] = (~ (c$app_arg_0[64'sd1343]));
   end
   // replaceBit end
 
-  assign c$app_arg = result_3;
+  assign c$app_arg_0 = result_3;
 
   // replaceBit start
   always_comb begin
-    result_3 = c$app_arg_0;
-    result_3[64'sd272] = (~ (c$app_arg_0[64'sd272]));
+    result_3 = c$app_arg_1;
+    result_3[64'sd272] = (~ (c$app_arg_1[64'sd272]));
   end
   // replaceBit end
 
-  assign c$app_arg_0 = result_4;
+  assign c$app_arg_1 = result_4;
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg_1;
-    result_4[64'sd273] = (~ (c$app_arg_1[64'sd273]));
+    result_4 = c$app_arg_2;
+    result_4[64'sd273] = (~ (c$app_arg_2[64'sd273]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_5;
+  assign c$app_arg_2 = result_5;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_2;
-    result_5[64'sd274] = (~ (c$app_arg_2[64'sd274]));
+    result_5 = c$app_arg_3;
+    result_5[64'sd274] = (~ (c$app_arg_3[64'sd274]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_6;
+  assign c$app_arg_3 = result_6;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_3;
-    result_6[64'sd275] = (~ (c$app_arg_3[64'sd275]));
+    result_6 = c$app_arg_4;
+    result_6[64'sd275] = (~ (c$app_arg_4[64'sd275]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_7;
+  assign c$app_arg_4 = result_7;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_4;
-    result_7[64'sd276] = (~ (c$app_arg_4[64'sd276]));
+    result_7 = c$app_arg_5;
+    result_7[64'sd276] = (~ (c$app_arg_5[64'sd276]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
+  assign c$app_arg_5 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
 
   assign inputMsg = EN_0[274:3];
 

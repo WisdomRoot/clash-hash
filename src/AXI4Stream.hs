@@ -6,6 +6,9 @@ module AXI4Stream
     AXI4Stream32,
     AXI4Stream64,
     AXI4Stream128,
+    Master,
+    Slave,
+    (~>),
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -37,6 +40,63 @@ instance Bundle (AXI4Stream n)
 type AXI4Stream32 = AXI4Stream 32
 type AXI4Stream64 = AXI4Stream 64
 type AXI4Stream128 = AXI4Stream 128
+
+--------------------------------------------------------------------------------
+-- AXI4-Stream Interface Roles
+--
+-- A pipeline is assembled as:
+--
+--   @source '~>' transducer '~>' sink@
+--
+-- where the three roles are:
+--
+-- * __Source__      (@'Master' dom n@):
+--     Produces a stream.  Given @tready@ from downstream, drives
+--     @AXI4Stream n@ forward.
+--
+-- * __Transducer__  (@'AXI4Transducer' dom a b@):
+--     Consumes one stream and produces another.
+--     It is a slave whose extra output is itself a master.
+--
+-- * __Sink__        (@'Slave' dom a b@):
+--     Consumes a stream and yields a result @b@.
+--     Given @AXI4Stream a@, drives @tready@ back and produces @b@.
+--------------------------------------------------------------------------------
+
+-- | __Source__ role.
+-- Given @tready@ from the slave, drives @AXI4Stream n@ forward.
+--
+-- Example:
+--
+-- > counter :: Master dom 32
+-- > counter tready = mealy step 0 tready
+-- >   where step n _ = (n+1, validBeat n False)
+type Master dom n = Signal dom Bool -> Signal dom (AXI4Stream n)
+
+-- | __Sink__ role.
+-- Given @AXI4Stream a@ from the master, drives @tready@ back and produces extra output @b@.
+--
+-- Example:
+--
+-- > collector :: Slave dom 32 (Signal dom [BitVector 32])
+-- > collector stream = (pure True, fmap tdata <$> stream)
+type Slave dom a b = Signal dom (AXI4Stream a) -> (Signal dom Bool, b)
+
+-- | Connect a master to a slave, tying the tready feedback loop.
+--
+-- The recursive @let@ is safe under Clash's lazy 'Signal' semantics provided
+-- there is at least one register in the tready/stream loop (as every real
+-- state-machine component has).
+--
+-- Chains left-associatively: @source '~>' transducer '~>' sink@
+-- works because @source '~>' transducer :: Master dom m@.
+(~>) :: Master dom n -> Slave dom n b -> b
+master ~> slave =
+  let stream      = master tready
+      (tready, b) = slave stream
+  in b
+
+infixl 1 ~>
 
 --------------------------------------------------------------------------------
 -- Utilities

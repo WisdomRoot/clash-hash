@@ -48,14 +48,14 @@
         },
         {
             "name": "SN512_I272_O24_L2.sv",
-            "sha256": "e8c92d51ac14058348258de3524a777726adefff219d6d54804b1fade13087c2"
+            "sha256": "a1b245ffe2a6a1a07f5bcc5be947605ec2088b37cfd7e6d1801500bde1c13aaf"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "c083218e0e907acfcd5f0e1b57c1f6e1b70561fd101455557582fc0d97322221",
+    "hash": "22b23a06d2fef26e22b785d2ecced73df64daa2604ddd6dff03790d183326efd",
     "top_component": {
         "name": "SN512_I272_O24_L2",
         "ports_flat": [
