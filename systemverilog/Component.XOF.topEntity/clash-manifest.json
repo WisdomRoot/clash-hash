@@ -1,0 +1,145 @@
+{
+    "components": [
+        "keccakF1600",
+        "topEntity"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "topEntity_shim.cpp",
+            "sha256": "460702d8afc7479b65dad3acb826f56baf7e34f11fea519fb6f597a0c8340150"
+        },
+        {
+            "name": "topEntity.sdc",
+            "sha256": "ca18b7b5ac513b7acb2066d2969124d1f80e7bd4ea0d51a78091ae62f9aa1781"
+        },
+        {
+            "name": "Component_XOF_topEntity_types.sv",
+            "sha256": "a02251bf3dbbc6d6a293aa085f33205aeb07859cecec32b0d3b9b6e1cac37311"
+        },
+        {
+            "name": "keccakF1600.sv",
+            "sha256": "3a3751d6d5c7a0ab451d641579c86e67553bae08b1e37f5a7ac99035bea97038"
+        },
+        {
+            "name": "topEntity.sv",
+            "sha256": "ca07648cd1bd2c4339830fe37e4ba10e74292c81895c8e328edaf3ef1d93e7a4"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "6c0873b20968afb53e24c67473715cba97768e322c22499c76dad59ad2b9e567",
+    "top_component": {
+        "name": "topEntity",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "c$arg",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "c$arg_0",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "c$arg_1",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "c$arg_0_0",
+                "type_name": "logic [273:0]",
+                "width": 274
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "c$arg_0_1",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "c$arg_0_2",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "c$arg_1_3",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "result_0_0",
+                "type_name": "logic [47:0]",
+                "width": 48
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "result_0_1",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "result_0_2",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "result_1",
+                "type_name": "logic",
+                "width": 1
+            }
+        ]
+    },
+    "version": "unstable"
+}
