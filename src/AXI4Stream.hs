@@ -48,7 +48,7 @@ type AXI4Stream128 = AXI4Stream 128
 --
 -- A pipeline is assembled as:
 --
---   @source '~>' transducer '~>' sink@
+--   @stageA '~>' stageB '~>' stageC@
 --
 -- where the three roles are:
 --
@@ -91,19 +91,18 @@ type Stage dom a b =
   (Signal dom Bool, Signal dom (AXI4Stream a)) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
--- | Connect a master to a slave, tying the tready feedback loop.
+-- | Compose two stream stages, tying the intermediate @tready@ feedback loop.
 --
 -- The recursive @let@ is safe under Clash's lazy 'Signal' semantics provided
 -- there is at least one register in the tready/stream loop (as every real
 -- state-machine component has).
 --
--- Chains left-associatively: @source '~>' transducer '~>' sink@
--- works because @source '~>' transducer :: Master dom m@.
-(~>) :: Master dom n -> Slave dom n b -> b
-master ~> slave =
-  let stream      = master tready
-      (tready, b) = slave stream
-  in b
+-- Chains left-associatively: @stageA '~>' stageB '~>' stageC@.
+(~>) :: Stage dom a b -> Stage dom b c -> Stage dom a c
+stageAB ~> stageBC = \(outReady, inStream) ->
+  let (inReady, midStream) = stageAB (midReady, inStream)
+      (midReady, outStream) = stageBC (outReady, midStream)
+   in (inReady, outStream)
 
 infixl 1 ~>
 
