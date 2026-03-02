@@ -8,8 +8,9 @@ module AXI4Stream
     AXI4Stream128,
     Master,
     Slave,
+    Stage,
     (~>),
-    transducerTop,
+    stageTop,
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -83,6 +84,14 @@ type Master dom n = Signal dom Bool -> Signal dom (AXI4Stream n)
 -- > collector stream = (pure True, fmap tdata <$> stream)
 type Slave dom a b = Signal dom (AXI4Stream a) -> (Signal dom Bool, b)
 
+-- | __Stage__ role.
+-- A one-step stream component with upstream/downstream ready visibility.
+-- Input order: downstream ready, upstream stream.
+type Stage dom a b =
+  Signal dom Bool ->
+  Signal dom (AXI4Stream a) ->
+  (Signal dom Bool, Signal dom (AXI4Stream b))
+
 -- | Connect a master to a slave, tying the tready feedback loop.
 --
 -- The recursive @let@ is safe under Clash's lazy 'Signal' semantics provided
@@ -99,24 +108,23 @@ master ~> slave =
 
 infixl 1 ~>
 
--- | Adapt a component expressed as @Slave dom a (Master dom b)@ into the
+-- | Adapt a component expressed as @Stage dom a b@ into the
 -- first-order top-entity shape used in this codebase:
 --
 -- @Signal dom (AXI4Stream a, Bool) -> Signal dom (AXI4Stream b, Bool)@
 --
 -- where the input Bool is @tready@ for the output stream and the output Bool
 -- is @tready@ for the input stream.
-transducerTop ::
-  (Clock dom -> Reset dom -> Enable dom -> Slave dom a (Master dom b)) ->
+stageTop ::
+  (Clock dom -> Reset dom -> Enable dom -> Stage dom a b) ->
   Clock dom ->
   Reset dom ->
   Enable dom ->
   Signal dom (AXI4Stream a, Bool) ->
   Signal dom (AXI4Stream b, Bool)
-transducerTop comp clk rst en inputSig =
+stageTop comp clk rst en inputSig =
   let (inputStream, outReady) = unbundle inputSig
-      (inReady, master) = comp clk rst en inputStream
-      outStream = master outReady
+      (inReady, outStream) = comp clk rst en outReady inputStream
    in bundle (outStream, inReady)
 
 --------------------------------------------------------------------------------

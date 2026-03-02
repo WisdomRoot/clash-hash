@@ -125,23 +125,13 @@ i272o24l2 ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Slave System 272 (Master System 24)
-i272o24l2 clk rst en seedStream = (seedReady, master)
-  where
-    master coeffReady =
-      let outSig =
-            withClockResetEnable clk rst en
-              (mealy step (State Absorb 0 Buffer0) (bundle (seedStream, coeffReady)))
-       in fst <$> outSig
-    seedReady =
-      withClockResetEnable clk rst en
-        (mealy seedReadyStep False seedStream)
-
-    seedReadyStep seenSeed stream =
-      let msgValid = tvalid stream
-          ready = not seenSeed && not msgValid
-          seenSeed' = seenSeed || msgValid
-       in (seenSeed', ready)
+  Stage System 272 24
+i272o24l2 clk rst en coeffReady seedStream =
+  let outSig =
+        withClockResetEnable clk rst en
+          (mealy step (State Absorb 0 Buffer0) (bundle (seedStream, coeffReady)))
+      (coeffStream, seedReady) = unbundle outSig
+   in (seedReady, coeffStream)
 
 {-# ANN
   i272o24l2Top
@@ -174,7 +164,7 @@ i272o24l2Top ::
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24l2Top = transducerTop i272o24l2
+i272o24l2Top = stageTop i272o24l2
 
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600
