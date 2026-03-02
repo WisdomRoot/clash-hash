@@ -86,10 +86,9 @@ type Slave dom a b = Signal dom (AXI4Stream a) -> (Signal dom Bool, b)
 
 -- | __Stage__ role.
 -- A one-step stream component with upstream/downstream ready visibility.
--- Input order: downstream ready, upstream stream.
+-- Input tuple order: downstream ready, upstream stream.
 type Stage dom a b =
-  Signal dom Bool ->
-  Signal dom (AXI4Stream a) ->
+  (Signal dom Bool, Signal dom (AXI4Stream a)) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
 -- | Connect a master to a slave, tying the tready feedback loop.
@@ -116,16 +115,18 @@ infixl 1 ~>
 -- where the input Bool is @tready@ for the output stream and the output Bool
 -- is @tready@ for the input stream.
 stageTop ::
-  (Clock dom -> Reset dom -> Enable dom -> Stage dom a b) ->
+  KnownDomain dom =>
+  (HiddenClockResetEnable dom => Stage dom a b) ->
   Clock dom ->
   Reset dom ->
   Enable dom ->
   Signal dom (AXI4Stream a, Bool) ->
   Signal dom (AXI4Stream b, Bool)
 stageTop comp clk rst en inputSig =
-  let (inputStream, outReady) = unbundle inputSig
-      (inReady, outStream) = comp clk rst en outReady inputStream
-   in bundle (outStream, inReady)
+  withClockResetEnable clk rst en $
+    let (inputStream, outReady) = unbundle inputSig
+        (inReady, outStream) = comp (outReady, inputStream)
+     in bundle (outStream, inReady)
 
 --------------------------------------------------------------------------------
 -- Utilities

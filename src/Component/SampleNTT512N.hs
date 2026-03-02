@@ -66,72 +66,66 @@ screenCandidates chunk =
 
 step ::
   State ->
-  (AXI4Stream 272, Bool) ->
-  (State, (AXI4Stream 24, Bool))
-step (State phase state buffer) (AXI4Stream inputMsg msgValid _, tready) = case phase of
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case phase of
   Absorb ->
     -- TREADY is True, waiting for TVALID
     if msgValid
-      then (State (Permute 0) (absorb34 inputMsg) Buffer0, (idleAXI4Stream, False))
-      else (State Absorb state buffer, (idleAXI4Stream, True))
+      then (State (Permute 0) (absorb34 inputMsg) Buffer0, (False, idleAXI4Stream))
+      else (State Absorb state buffer, (True, idleAXI4Stream))
   Permute counter ->
     let state' = Permutation.keccakF1600 counter state
      in if counter == maxBound
-          then (State (Squeeze 0) state' buffer, (idleAXI4Stream, False))
-          else (State (Permute (counter + 1)) state' buffer, (idleAXI4Stream, False))
+          then (State (Squeeze 0) state' buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 1)) state' buffer, (False, idleAXI4Stream))
   Squeeze counter ->
     let chunk = squeezeCoeff48 state counter
         nextPhase = if counter == maxBound then Permute 0 else Squeeze (counter + 1)
      in case buffer of
           Buffer0 -> case screenCandidates chunk of
-            Valid0 -> (State nextPhase state buffer, (idleAXI4Stream, False))
-            Valid1 c0 -> (State nextPhase state (Buffer1 c0), (idleAXI4Stream, False))
+            Valid0 -> (State nextPhase state buffer, (False, idleAXI4Stream))
+            Valid1 c0 -> (State nextPhase state (Buffer1 c0), (False, idleAXI4Stream))
             Valid2 c0 c1 -> 
               if tready 
-                then (State nextPhase state buffer, (validBeat (c1 ++# c0) False, False))
-                else (State nextPhase state (Buffer2 c0 c1), (idleAXI4Stream, False))
+                then (State nextPhase state buffer, (False, validBeat (c1 ++# c0) False))
+                else (State nextPhase state (Buffer2 c0 c1), (False, idleAXI4Stream))
             Valid3 c0 c1 c2 -> 
               if tready 
-                then (State nextPhase state (Buffer1 c2), (validBeat (c1 ++# c0) False, False))
-                else (State nextPhase state (Buffer3 c0 c1 c2), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer1 c2), (False, validBeat (c1 ++# c0) False))
+                else (State nextPhase state (Buffer3 c0 c1 c2), (False, idleAXI4Stream))
             Valid4 c0 c1 c2 c3 -> 
               if tready
-                then (State nextPhase state (Buffer2 c2 c3), (validBeat (c1 ++# c0) False, False))
-                else (State nextPhase state (Buffer4 c0 c1 c2 c3), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer2 c2 c3), (False, validBeat (c1 ++# c0) False))
+                else (State nextPhase state (Buffer4 c0 c1 c2 c3), (False, idleAXI4Stream))
           Buffer1 b0 -> case screenCandidates chunk of
-            Valid0 -> (State nextPhase state (Buffer1 b0), (idleAXI4Stream, False))
+            Valid0 -> (State nextPhase state (Buffer1 b0), (False, idleAXI4Stream))
             Valid1 c0 -> 
               if tready
-                then (State nextPhase state Buffer0, (validBeat (c0 ++# b0) False, False))
-                else (State nextPhase state (Buffer2 b0 c0), (idleAXI4Stream, False))
+                then (State nextPhase state Buffer0, (False, validBeat (c0 ++# b0) False))
+                else (State nextPhase state (Buffer2 b0 c0), (False, idleAXI4Stream))
             Valid2 c0 c1 -> 
               if tready
-                then (State nextPhase state (Buffer1 c1), (validBeat (c0 ++# b0) False, False))
-                else (State nextPhase state (Buffer3 b0 c0 c1), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer1 c1), (False, validBeat (c0 ++# b0) False))
+                else (State nextPhase state (Buffer3 b0 c0 c1), (False, idleAXI4Stream))
             Valid3 c0 c1 c2 -> 
                if tready
-                then (State nextPhase state (Buffer2 c1 c2), (validBeat (c0 ++# b0) False, False))
-                else (State nextPhase state (Buffer4 b0 c0 c1 c2), (idleAXI4Stream, False))
+                then (State nextPhase state (Buffer2 c1 c2), (False, validBeat (c0 ++# b0) False))
+                else (State nextPhase state (Buffer4 b0 c0 c1 c2), (False, idleAXI4Stream))
             Valid4 c0 c1 c2 c3 -> 
                if tready
-                then (State nextPhase state (Buffer3 c1 c2 c3), (validBeat (c0 ++# b0) False, False))
-                else (State nextPhase state (Buffer5 b0 c0 c1 c2 c3), (idleAXI4Stream, False))
-          Buffer2 b0 b1 -> (State (Squeeze counter) state Buffer0, (validBeat (b1 ++# b0) False, False))
-          Buffer3 b0 b1 b2 -> (State (Squeeze counter) state (Buffer1 b2), (validBeat (b1 ++# b0) False, False))
-          Buffer4 b0 b1 b2 b3 -> (State (Squeeze counter) state (Buffer2 b2 b3), (validBeat (b1 ++# b0) False, False))
-          Buffer5 b0 b1 b2 b3 b4 -> (State (Squeeze counter) state (Buffer3 b2 b3 b4), (validBeat (b1 ++# b0) False, False))
+                then (State nextPhase state (Buffer3 c1 c2 c3), (False, validBeat (c0 ++# b0) False))
+                else (State nextPhase state (Buffer5 b0 c0 c1 c2 c3), (False, idleAXI4Stream))
+          Buffer2 b0 b1 -> (State (Squeeze counter) state Buffer0, (False, validBeat (b1 ++# b0) False))
+          Buffer3 b0 b1 b2 -> (State (Squeeze counter) state (Buffer1 b2), (False, validBeat (b1 ++# b0) False))
+          Buffer4 b0 b1 b2 b3 -> (State (Squeeze counter) state (Buffer2 b2 b3), (False, validBeat (b1 ++# b0) False))
+          Buffer5 b0 b1 b2 b3 b4 -> (State (Squeeze counter) state (Buffer3 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
 
 i272o24l2 ::
-  Clock System ->
-  Reset System ->
-  Enable System ->
-  Stage System 272 24
-i272o24l2 clk rst en coeffReady seedStream =
-  let outSig =
-        withClockResetEnable clk rst en
-          (mealy step (State Absorb 0 Buffer0) (bundle (seedStream, coeffReady)))
-      (coeffStream, seedReady) = unbundle outSig
-   in (seedReady, coeffStream)
+  HiddenClockResetEnable dom =>
+  Stage dom 272 24
+i272o24l2 (coeffReady, seedStream) =
+  mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
 {-# ANN
   i272o24l2Top
