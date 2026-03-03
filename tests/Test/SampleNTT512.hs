@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Test.SampleNTT512 (spec) where
 
@@ -70,8 +69,10 @@ spec = describe "SampleNTT512 Stream" $ do
             ]
           topEntity clk rst en treadySig inputSig =
             topEntityCore clk rst en (bundle (P.fmap P.fst inputSig, treadySig))
-          expected = expectedFn seed backpressureTiming inputTiming
-       in runStreamInputExpected topEntity expected inputTiming backpressureTiming
+          (packedBytes, _) = getSampleNTTOutput seed
+          expectedValues = coeffPairsFromPacked packedBytes
+          baselineNoBpLen = P.length (expandOutputTiming (expectedFn seed [Ready 1] inputTiming))
+       in runStreamInputExpected topEntity expectedValues baselineNoBpLen inputTiming backpressureTiming
 
 simulate :: P.Int -> P.Int -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
 simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
@@ -218,7 +219,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                           v : rs -> (P.Just v, rs)
                           [] -> (P.Nothing, [])
                         else (P.Nothing, rest1)
-                    avail = if remaining P.< lookN then remaining else lookN
+                    avail = P.min remaining lookN
                     v1b = case v1 of
                       P.Just v -> v
                       P.Nothing -> P.False
@@ -230,7 +231,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                         0 -> decide0 buffer v0 v1b
                         1 -> decide1 buffer v0 v1b v2b
                         _ -> P.error "SampleNTT512.simulate: unsupported lookahead"
-                    consumeN' = if consumeCount P.> avail then avail else consumeCount
+                    consumeN' = P.min consumeCount avail
                     restVals = P.drop consumeN' vals
                     (out, pairs', emitted') =
                       if emittedThis
@@ -403,17 +404,26 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
 
 runStreamInputExpected ::
   StreamTopEntityIn 24 272 ->
-  OutputTiming 24 ->
+  [BitVector 24] ->
+  P.Int ->
   InputTiming 272 ->
   BackpressureTiming ->
   P.IO ()
-runStreamInputExpected topEntity expected inputTiming backpressureTiming = do
-  let expectedBase = expandOutputTiming expected
+runStreamInputExpected topEntity expectedValues baselineNoBpLen inputTiming backpressureTiming = do
+  let expectedCount = P.length expectedValues
       readyPattern = expandBackpressureTiming backpressureTiming
       readyStream = case readyPattern of
         [] -> P.repeat P.True
         _ -> P.cycle readyPattern
       (inputPattern, _inputValues) = expandInputTiming inputTiming
+      startSilence =
+        case L.findIndex isJust inputPattern of
+          Just i -> i
+          Nothing -> P.error "SampleNTT512 Stream: no input provided"
+      patternLen = P.max 1 (P.length readyPattern)
+      readyCount = P.max 1 (P.length (P.filter P.id readyPattern))
+      readyBudget = ceilDiv (expectedCount P.* patternLen) readyCount
+      sampleLen = P.max (baselineNoBpLen P.+ 300) (startSilence P.+ 25 P.+ readyBudget P.+ 300)
       lastJustIdx = case [i | (i, Just _) <- P.zip ([0 ..] :: [P.Int]) inputPattern] of
         [] -> Nothing
         xs -> Just (P.last xs)
@@ -427,24 +437,60 @@ runStreamInputExpected topEntity expected inputTiming backpressureTiming = do
           enableGen
           treadySignal
           (bundle (inputSignal, P.pure P.False))
-      sampleLen = P.max (P.length expectedBase) (P.length inputPattern) P.+ 1
       samples = sampleN sampleLen (bundle (output, treadySignal, inputSignal))
-      actualAll =
-        [ if tvalid stream P.&& ready then Just (tdata stream) else Nothing
-          | ((stream, _), ready, _) <- samples
+      handshakes =
+        [ tdata stream
+          | ((stream, _), ready, _) <- P.drop 1 samples,
+            tvalid stream P.&& ready
         ]
-      actual = P.take (P.length expectedBase) (P.drop 1 actualAll)
+      outSamples =
+        [ (stream, ready)
+          | ((stream, _), ready, _) <- P.drop 1 samples
+        ]
+      outHoldViolations =
+        [ idx
+          | (idx, ((prevStream, prevReady), (currStream, _))) <-
+              P.zip ([1 ..] :: [P.Int]) (P.zip outSamples (P.drop 1 outSamples)),
+            tvalid prevStream P.&& P.not prevReady,
+            tvalid currStream P./= P.True
+              P.|| tdata currStream P./= tdata prevStream
+              P.|| tlast currStream P./= tlast prevStream
+        ]
       inputValids = [tvalid inStream | (_, _, inStream) <- samples]
       readyPrev = P.True : [seedReady | ((_, seedReady), _, _) <- P.init samples]
       readyViolations = [() | (valid, ready) <- P.zip inputValids readyPrev, valid P.&& P.not ready]
-      handshakes = [() | (valid, ready) <- P.zip inputValids readyPrev, valid P.&& ready]
-  if P.null readyViolations
-    then
-      if P.null handshakes
-        then P.error "SampleNTT512 Stream: MSG_TVALID never asserted after MSG_TREADY"
-        else actual `shouldBe` expectedBase
-    else P.error "SampleNTT512 Stream: MSG_TVALID asserted without MSG_TREADY in previous cycle"
+      inputHandshakes = [() | (valid, ready) <- P.zip inputValids readyPrev, valid P.&& ready]
+      actualPrefix = P.take expectedCount handshakes
+      protocolError =
+        if P.null readyViolations
+          then
+            if P.null outHoldViolations
+              then P.Nothing
+              else
+                P.Just
+                  ( "SampleNTT512 Stream: output changed during backpressure at cycle "
+                      P.++ P.show (P.head outHoldViolations)
+                  )
+          else P.Just "SampleNTT512 Stream: MSG_TVALID asserted without MSG_TREADY in previous cycle"
+   in case protocolError of
+        P.Just err -> P.error err
+        P.Nothing ->
+          if P.null inputHandshakes
+            then P.error "SampleNTT512 Stream: MSG_TVALID never asserted after MSG_TREADY"
+            else
+              if P.length handshakes P.< expectedCount
+                then
+                  P.error
+                    ( "SampleNTT512 Stream: did not complete 128 outputs before timeout; got "
+                        P.++ P.show (P.length handshakes)
+                        P.++ ", expected "
+                        P.++ P.show expectedCount
+                        P.++ ", sampleLen="
+                        P.++ P.show sampleLen
+                    )
+                else actualPrefix `shouldBe` expectedValues
   where
+    ceilDiv x y = (x P.+ y P.- 1) `P.div` y
     mkBeat lastIdx i mv =
       AXI4Stream
         { tdata = case mv of
@@ -461,3 +507,12 @@ runStreamInputExpected topEntity expected inputTiming backpressureTiming = do
           tvalid = P.False,
           tlast = P.False
         }
+
+coeffPairsFromPacked :: ByteString -> [BitVector 24]
+coeffPairsFromPacked packed = go (unpackPython384Bytes packed)
+  where
+    go (a : b : rest) =
+      let a12 = P.fromIntegral a :: BitVector 12
+          b12 = P.fromIntegral b :: BitVector 12
+       in (b12 ++# a12) : go rest
+    go _ = []
