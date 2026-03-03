@@ -116,10 +116,22 @@ step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case 
                if tready
                 then (State nextPhase state (Buffer3 c1 c2 c3), (False, validBeat (c0 ++# b0) False))
                 else (State nextPhase state (Buffer5 b0 c0 c1 c2 c3), (False, idleAXI4Stream))
-          Buffer2 b0 b1 -> (State (Squeeze counter) state Buffer0, (False, validBeat (b1 ++# b0) False))
-          Buffer3 b0 b1 b2 -> (State (Squeeze counter) state (Buffer1 b2), (False, validBeat (b1 ++# b0) False))
-          Buffer4 b0 b1 b2 b3 -> (State (Squeeze counter) state (Buffer2 b2 b3), (False, validBeat (b1 ++# b0) False))
-          Buffer5 b0 b1 b2 b3 b4 -> (State (Squeeze counter) state (Buffer3 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
+          Buffer2 b0 b1 ->
+            if tready
+              then (State (Squeeze counter) state Buffer0, (False, validBeat (b1 ++# b0) False))
+              else (State (Squeeze counter) state (Buffer2 b0 b1), (False, validBeat (b1 ++# b0) False))
+          Buffer3 b0 b1 b2 ->
+            if tready
+              then (State (Squeeze counter) state (Buffer1 b2), (False, validBeat (b1 ++# b0) False))
+              else (State (Squeeze counter) state (Buffer3 b0 b1 b2), (False, validBeat (b1 ++# b0) False))
+          Buffer4 b0 b1 b2 b3 ->
+            if tready
+              then (State (Squeeze counter) state (Buffer2 b2 b3), (False, validBeat (b1 ++# b0) False))
+              else (State (Squeeze counter) state (Buffer4 b0 b1 b2 b3), (False, validBeat (b1 ++# b0) False))
+          Buffer5 b0 b1 b2 b3 b4 ->
+            if tready
+              then (State (Squeeze counter) state (Buffer3 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
+              else (State (Squeeze counter) state (Buffer5 b0 b1 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
 
 i272o24l2 ::
   HiddenClockResetEnable dom =>

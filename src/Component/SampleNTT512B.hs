@@ -98,21 +98,21 @@ bufferStep buf (outReady, AXI4Stream chunk inValid _) =
                 then (Buffer3 c1 c2 c3, (True, validBeat (c0 ++# b0) False))
                 else (Buffer5 b0 c0 c1 c2 c3, (True, idleAXI4Stream))
     Buffer2 b0 b1 ->
-      if inValid
+      if outReady
         then (Buffer0, (False, validBeat (b1 ++# b0) False))
-        else (Buffer2 b0 b1, (True, idleAXI4Stream))
+        else (Buffer2 b0 b1, (False, validBeat (b1 ++# b0) False))
     Buffer3 b0 b1 b2 ->
-      if inValid
+      if outReady
         then (Buffer1 b2, (False, validBeat (b1 ++# b0) False))
-        else (Buffer3 b0 b1 b2, (True, idleAXI4Stream))
+        else (Buffer3 b0 b1 b2, (False, validBeat (b1 ++# b0) False))
     Buffer4 b0 b1 b2 b3 ->
-      if inValid
+      if outReady
         then (Buffer2 b2 b3, (False, validBeat (b1 ++# b0) False))
-        else (Buffer4 b0 b1 b2 b3, (True, idleAXI4Stream))
+        else (Buffer4 b0 b1 b2 b3, (False, validBeat (b1 ++# b0) False))
     Buffer5 b0 b1 b2 b3 b4 ->
-      if inValid
+      if outReady
         then (Buffer3 b2 b3 b4, (False, validBeat (b1 ++# b0) False))
-        else (Buffer5 b0 b1 b2 b3 b4, (True, idleAXI4Stream))
+        else (Buffer5 b0 b1 b2 b3 b4, (False, validBeat (b1 ++# b0) False))
 
 buffer ::
   HiddenClockResetEnable dom =>
