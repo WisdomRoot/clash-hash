@@ -103,6 +103,7 @@ stageAB ~> stageBC = \(outReady, inStream) ->
   let (inReady, midStream) = stageAB (midReady, inStream)
       (midReady, outStream) = stageBC (outReady, midStream)
    in (inReady, outStream)
+{-# INLINE (~>) #-}
 
 infixl 1 ~>
 

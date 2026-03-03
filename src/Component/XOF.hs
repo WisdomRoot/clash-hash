@@ -77,13 +77,15 @@ absorbInput :: BitVector InputBits -> BitVector 1600
 absorbInput = padInput . placeMsg
   where
     placeMsg :: BitVector InputBits -> BitVector 1600
-    placeMsg msg = (0 :: BitVector 1326) ++# msg
+    placeMsg msg =
+      let seed = slice (SNat @271) (SNat @0) msg
+       in (0 :: BitVector 1328) ++# seed
 
     padInput :: BitVector 1600 -> BitVector 1600
     padInput =
       complementAt 1343
+        . complementAt 272
+        . complementAt 273
         . complementAt 274
         . complementAt 275
         . complementAt 276
-        . complementAt 277
-        . complementAt 278
