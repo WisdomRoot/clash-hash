@@ -13,7 +13,7 @@ import Data.ByteString (ByteString)
 import Parameter (MLKEM (..))
 import Test.Hspec (Expectation)
 import Test.QuickCheck (Gen)
-import Test.TestHarness.G qualified as Common
+import Test.TestHarness.G.Common qualified as Common
 import Prelude (String)
 
 type G768Test = Common.GTest

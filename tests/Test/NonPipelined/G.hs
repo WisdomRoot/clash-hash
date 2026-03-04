@@ -11,25 +11,25 @@ import Data.Word (Word8)
 import Prelude
 import Test.Hspec
 import Test.QuickCheck
-import Test.TestHarness.GGeneral
+import Test.TestHarness.G
 import Test.TestHarness.SHAKECommon (makeBasicTest, makeBackpressureTest, makeCombinedTest, makeStallTest)
 import Test.TestHarness.SHAKESamples qualified as Samples
 
-basicCases :: [GGeneralTest]
+basicCases :: [GTest]
 basicCases =
   [ makeBasicTest (msg33 0x00 0x02) 32,
     makeBasicTest (msg33 0x61 0x03) 32,
     makeBasicTest (msg33 0xFF 0x04) 32
   ]
 
-stallCases :: [GGeneralTest]
+stallCases :: [GTest]
 stallCases =
   [ makeStallTest (msg33 0x7E 0x02) 32 Samples.stallPatternAggressive,
     makeStallTest (msg33 0x33 0x03) 32 Samples.stallPatternModerate,
     makeStallTest (msg33 0xAA 0x04) 32 Samples.stallPatternSimple
   ]
 
-backpressureCases :: [GGeneralTest]
+backpressureCases :: [GTest]
 backpressureCases =
   [ makeBackpressureTest (msg33 0x10 0x02) 32 Samples.backpressurePatternSimple,
     makeBackpressureTest (msg33 0x22 0x03) 32 Samples.backpressurePatternModerate,
@@ -65,5 +65,4 @@ spec = describe "Component G (264-bit input, explicit k) Tests" $ do
   describe "QuickCheck property tests" $
     it "correctly handles random test cases" $
       withMaxSuccess 10 $
-        forAll gGeneralGen runTest
-
+        forAll gGen runTest

@@ -15,7 +15,7 @@ import Data.Word (Word8)
 import Stream
 import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, shuffle, vectorOf)
-import Test.TestHarness.G qualified as GReference
+import Test.TestHarness.G.Common qualified as GReference
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
