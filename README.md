@@ -1,5 +1,13 @@
 # clash-hash
 
+## General ML-KEM Components
+
+### G
+
+|  In  |  Out  |  Area  |  Module  |
+|------|-------|--------|----------|
+| 274  | 256   | 24609  | systemverilog/Component.G.i274o256/G_I274_O256.sv |
+
 ## ML-KEM-512 Components
 
 ### G
