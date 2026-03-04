@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_G512_i256o256_sponge20",
+        "Component_G512_i256o256_sponge7",
         "Component_G512_i256o256_spongeFSM",
         "Component_G512_i256o256_i256o256Stream",
         "G512_I256_O256"
@@ -37,14 +37,6 @@
             "sha256": "a56735df3151d4a074ea1f394332af8da930c989a6e30f434eff74f375e45154"
         },
         {
-            "name": "G512_I256_O256_shim.cpp",
-            "sha256": "a56735df3151d4a074ea1f394332af8da930c989a6e30f434eff74f375e45154"
-        },
-        {
-            "name": "G512_I256_O256_shim.cpp",
-            "sha256": "a56735df3151d4a074ea1f394332af8da930c989a6e30f434eff74f375e45154"
-        },
-        {
             "name": "G512_I256_O256.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -53,12 +45,12 @@
             "sha256": "a5a25787c8527c9b5fa1293324b121c47f70b1736b94fb5b860b46b7569d4e55"
         },
         {
-            "name": "Component_G512_i256o256_sponge20.sv",
-            "sha256": "1beddf484367afb4b3926712bb1c021f419ec8dc82b27c071beb8e1caf56f86a"
+            "name": "Component_G512_i256o256_sponge7.sv",
+            "sha256": "023ae5e464c0c398c05dc9b70f4fde36c55addd6aa2340cde3857200490fc5a5"
         },
         {
             "name": "Component_G512_i256o256_spongeFSM.sv",
-            "sha256": "c8142f611a5c8286b6b0c181db16311e9336d673fda087d8dfa739c68df049a6"
+            "sha256": "33d8558e395289db5c69c42fbd0b48f9ecf8db20cfa76e69f8a724ee9b96454e"
         },
         {
             "name": "Component_G512_i256o256_i256o256Stream.sv",
@@ -73,7 +65,7 @@
         20,
         20
     ],
-    "hash": "c1dadc053fe89a357b184cc66f9867f6334356ba63c81ba9ebf59e9761b2e5fa",
+    "hash": "b5c25d51a3d2c93ac864a62e4e9fa13b62d1bc0f3c1ee526c8b77a39706b392e",
     "top_component": {
         "name": "G512_I256_O256",
         "ports_flat": [

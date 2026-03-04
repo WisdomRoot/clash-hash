@@ -11,7 +11,9 @@ import Test.NonPipelined.SHA3512 qualified
 import Test.NonPipelined.SHA3512Normal qualified
 import Test.NonPipelined.G512 qualified
 import Test.NonPipelined.G768 qualified
+import Test.NonPipelined.G qualified
 import Test.G512 qualified
+import Test.G qualified
 import Test.NonPipelined.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
@@ -41,6 +43,8 @@ main = do
   gTests <- testSpec "G512" Test.NonPipelined.G512.spec
   gStreamTests <- testSpec "G512 Stream" Test.G512.spec
   g768Tests <- testSpec "G768" Test.NonPipelined.G768.spec
+  gGeneralTests <- testSpec "G" Test.NonPipelined.G.spec
+  gGeneralStreamTests <- testSpec "G Stream" Test.G.spec
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
@@ -66,6 +70,8 @@ main = do
         gTests,
         gStreamTests,
         g768Tests,
+        gGeneralTests,
+        gGeneralStreamTests,
         n256xTests,
         n128xTests,
         n128xbTests,

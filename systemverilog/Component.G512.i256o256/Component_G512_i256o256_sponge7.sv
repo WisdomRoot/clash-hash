@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_G768_i256o256_sponge20
+module Component_G512_i256o256_sponge7
     ( // Inputs
       input wire logic [4:0] eta3
     , input wire logic [1:0] eta4
@@ -11,10 +11,10 @@ module Component_G768_i256o256_sponge20
     , input wire logic eta6
 
       // Outputs
-    , output G768_I256_O256_types::Tuple2 result
+    , output G512_I256_O256_types::Tuple2 result
     );
-  G768_I256_O256_types::Tuple2 c$case_alt;
-  G768_I256_O256_types::State c$app_arg;
+  G512_I256_O256_types::Tuple2 c$case_alt;
+  G512_I256_O256_types::State c$app_arg;
   logic [1599:0] result_0;
   logic [1599:0] c$app_arg_0;
   logic [1599:0] result_1;
@@ -23,95 +23,95 @@ module Component_G768_i256o256_sponge20
   logic [1599:0] c$app_arg_2;
   logic [1599:0] result_3;
   logic [63:0] lvl;
-  G768_I256_O256_types::array_of_64_logic_vector_1 c$lvl_app_arg;
-  G768_I256_O256_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
-  G768_I256_O256_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
-  G768_I256_O256_types::array_of_168_logic c$lvl_app_arg_2;
-  G768_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants_xs ;
-  G768_I256_O256_types::array_of_169_Tuple2_0 \Permutation.Constants.iotaConstants3 ;
-  G768_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants4 ;
-  G768_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants5 ;
+  G512_I256_O256_types::array_of_64_logic_vector_1 c$lvl_app_arg;
+  G512_I256_O256_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
+  G512_I256_O256_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
+  G512_I256_O256_types::array_of_168_logic c$lvl_app_arg_2;
+  G512_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants_xs ;
+  G512_I256_O256_types::array_of_169_Tuple2_0 \Permutation.Constants.iotaConstants3 ;
+  G512_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants4 ;
+  G512_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants5 ;
   logic [1599:0] \c$state'_app_arg ;
-  G768_I256_O256_types::array_of_1600_logic_vector_1 c$app_arg_3;
+  G512_I256_O256_types::array_of_1600_logic_vector_1 c$app_arg_3;
   logic [1599:0] result_4;
-  G768_I256_O256_types::array_of_1600_logic result_5;
+  G512_I256_O256_types::array_of_1600_logic result_5;
   logic [1599:0] lvl1;
-  G768_I256_O256_types::array_of_1600_logic_vector_1 result_6;
-  G768_I256_O256_types::array_of_1600_logic c$lvl1_app_arg;
+  G512_I256_O256_types::array_of_1600_logic_vector_1 result_6;
+  G512_I256_O256_types::array_of_1600_logic c$lvl1_app_arg;
   logic [1599:0] lvl2;
-  G768_I256_O256_types::array_of_1600_logic_vector_1 result_7;
-  G768_I256_O256_types::array_of_1600_logic c$lvl2_app_arg;
+  G512_I256_O256_types::array_of_1600_logic_vector_1 result_7;
+  G512_I256_O256_types::array_of_1600_logic c$lvl2_app_arg;
   logic [1599:0] lvl3;
-  G768_I256_O256_types::array_of_1600_logic_vector_1 result_8;
-  G768_I256_O256_types::array_of_1600_logic c$lvl3_app_arg;
-  G768_I256_O256_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
-  G768_I256_O256_types::array_of_64_logic lvl8;
-  G768_I256_O256_types::array_of_64_logic c$lvl8_app_arg;
-  G768_I256_O256_types::array_of_64_logic lvl7;
-  G768_I256_O256_types::array_of_64_logic parity4;
-  G768_I256_O256_types::array_of_64_logic c$parity4_app_arg;
-  G768_I256_O256_types::array_of_64_logic c$parity4_app_arg_0;
-  G768_I256_O256_types::array_of_64_logic c$parity4_app_arg_1;
-  G768_I256_O256_types::array_of_64_logic c$lvl7_app_arg;
-  G768_I256_O256_types::array_of_64_logic lvl6;
-  G768_I256_O256_types::array_of_64_logic c$lvl6_app_arg;
-  G768_I256_O256_types::array_of_64_logic lvl5;
-  G768_I256_O256_types::array_of_64_logic parity1;
-  G768_I256_O256_types::array_of_64_logic c$parity1_app_arg;
-  G768_I256_O256_types::array_of_64_logic c$parity1_app_arg_0;
-  G768_I256_O256_types::array_of_64_logic c$parity1_app_arg_1;
-  G768_I256_O256_types::array_of_64_logic c$lvl5_app_arg;
-  G768_I256_O256_types::array_of_64_logic parity3;
-  G768_I256_O256_types::array_of_64_logic c$parity3_app_arg;
-  G768_I256_O256_types::array_of_64_logic c$parity3_app_arg_0;
-  G768_I256_O256_types::array_of_64_logic c$parity3_app_arg_1;
-  G768_I256_O256_types::array_of_64_logic lvl4;
-  G768_I256_O256_types::array_of_64_logic parity0;
-  G768_I256_O256_types::array_of_64_logic c$parity0_app_arg;
-  G768_I256_O256_types::array_of_64_logic c$parity0_app_arg_0;
-  G768_I256_O256_types::array_of_64_logic c$parity0_app_arg_1;
-  G768_I256_O256_types::array_of_64_logic c$lvl4_app_arg;
-  G768_I256_O256_types::array_of_64_logic parity2;
-  G768_I256_O256_types::array_of_64_logic c$parity2_app_arg;
-  G768_I256_O256_types::array_of_64_logic c$parity2_app_arg_0;
-  G768_I256_O256_types::array_of_64_logic c$parity2_app_arg_1;
-  G768_I256_O256_types::array_of_25_array_of_64_logic state;
-  G768_I256_O256_types::array_of_1600_logic c$state_app_arg;
+  G512_I256_O256_types::array_of_1600_logic_vector_1 result_8;
+  G512_I256_O256_types::array_of_1600_logic c$lvl3_app_arg;
+  G512_I256_O256_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
+  G512_I256_O256_types::array_of_64_logic lvl8;
+  G512_I256_O256_types::array_of_64_logic c$lvl8_app_arg;
+  G512_I256_O256_types::array_of_64_logic lvl7;
+  G512_I256_O256_types::array_of_64_logic parity4;
+  G512_I256_O256_types::array_of_64_logic c$parity4_app_arg;
+  G512_I256_O256_types::array_of_64_logic c$parity4_app_arg_0;
+  G512_I256_O256_types::array_of_64_logic c$parity4_app_arg_1;
+  G512_I256_O256_types::array_of_64_logic c$lvl7_app_arg;
+  G512_I256_O256_types::array_of_64_logic lvl6;
+  G512_I256_O256_types::array_of_64_logic c$lvl6_app_arg;
+  G512_I256_O256_types::array_of_64_logic lvl5;
+  G512_I256_O256_types::array_of_64_logic parity1;
+  G512_I256_O256_types::array_of_64_logic c$parity1_app_arg;
+  G512_I256_O256_types::array_of_64_logic c$parity1_app_arg_0;
+  G512_I256_O256_types::array_of_64_logic c$parity1_app_arg_1;
+  G512_I256_O256_types::array_of_64_logic c$lvl5_app_arg;
+  G512_I256_O256_types::array_of_64_logic parity3;
+  G512_I256_O256_types::array_of_64_logic c$parity3_app_arg;
+  G512_I256_O256_types::array_of_64_logic c$parity3_app_arg_0;
+  G512_I256_O256_types::array_of_64_logic c$parity3_app_arg_1;
+  G512_I256_O256_types::array_of_64_logic lvl4;
+  G512_I256_O256_types::array_of_64_logic parity0;
+  G512_I256_O256_types::array_of_64_logic c$parity0_app_arg;
+  G512_I256_O256_types::array_of_64_logic c$parity0_app_arg_0;
+  G512_I256_O256_types::array_of_64_logic c$parity0_app_arg_1;
+  G512_I256_O256_types::array_of_64_logic c$lvl4_app_arg;
+  G512_I256_O256_types::array_of_64_logic parity2;
+  G512_I256_O256_types::array_of_64_logic c$parity2_app_arg;
+  G512_I256_O256_types::array_of_64_logic c$parity2_app_arg_0;
+  G512_I256_O256_types::array_of_64_logic c$parity2_app_arg_1;
+  G512_I256_O256_types::array_of_25_array_of_64_logic state;
+  G512_I256_O256_types::array_of_1600_logic c$state_app_arg;
   logic [1599:0] c$bv;
-  G768_I256_O256_types::array_of_64_logic c$vec;
-  G768_I256_O256_types::array_of_8_logic c$vec_0;
-  G768_I256_O256_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
-  G768_I256_O256_types::array_of_8_logic c$vec1;
-  G768_I256_O256_types::array_of_8_logic c$vec2_0;
-  G768_I256_O256_types::array_of_1600_Tuple3 c$vec_4;
-  G768_I256_O256_types::array_of_1600_logic_vector_11 c$vec_5;
-  G768_I256_O256_types::array_of_1600_logic_vector_11 c$vec_6;
-  G768_I256_O256_types::array_of_64_logic c$vec1_0;
-  G768_I256_O256_types::array_of_64_logic c$vec1_1;
-  G768_I256_O256_types::array_of_64_logic c$vec1_2;
-  G768_I256_O256_types::array_of_64_logic c$vec1_3;
-  G768_I256_O256_types::array_of_64_logic c$vec2_2;
-  G768_I256_O256_types::array_of_64_logic c$vec1_4;
-  G768_I256_O256_types::array_of_64_logic c$vec1_5;
-  G768_I256_O256_types::array_of_64_logic c$vec1_6;
-  G768_I256_O256_types::array_of_64_logic c$vec1_7;
-  G768_I256_O256_types::array_of_64_logic c$vec2_3;
-  G768_I256_O256_types::array_of_64_logic c$vec1_8;
-  G768_I256_O256_types::array_of_64_logic c$vec1_9;
-  G768_I256_O256_types::array_of_64_logic c$vec1_10;
-  G768_I256_O256_types::array_of_64_logic c$vec1_11;
-  G768_I256_O256_types::array_of_64_logic c$vec2_4;
-  G768_I256_O256_types::array_of_64_logic c$vec1_12;
-  G768_I256_O256_types::array_of_64_logic c$vec1_13;
-  G768_I256_O256_types::array_of_64_logic c$vec1_14;
-  G768_I256_O256_types::array_of_64_logic c$vec1_15;
-  G768_I256_O256_types::array_of_64_logic c$vec2_5;
-  G768_I256_O256_types::array_of_64_logic c$vec1_16;
-  G768_I256_O256_types::array_of_64_logic c$vec1_17;
-  G768_I256_O256_types::array_of_64_logic c$vec1_18;
-  G768_I256_O256_types::array_of_64_logic c$vec1_19;
-  G768_I256_O256_types::array_of_64_logic c$vec2_6;
-  G768_I256_O256_types::array_of_1600_logic_vector_1 c$vec_7;
+  G512_I256_O256_types::array_of_64_logic c$vec;
+  G512_I256_O256_types::array_of_8_logic c$vec_0;
+  G512_I256_O256_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
+  G512_I256_O256_types::array_of_8_logic c$vec1;
+  G512_I256_O256_types::array_of_8_logic c$vec2_0;
+  G512_I256_O256_types::array_of_1600_Tuple3 c$vec_4;
+  G512_I256_O256_types::array_of_1600_logic_vector_11 c$vec_5;
+  G512_I256_O256_types::array_of_1600_logic_vector_11 c$vec_6;
+  G512_I256_O256_types::array_of_64_logic c$vec1_0;
+  G512_I256_O256_types::array_of_64_logic c$vec1_1;
+  G512_I256_O256_types::array_of_64_logic c$vec1_2;
+  G512_I256_O256_types::array_of_64_logic c$vec1_3;
+  G512_I256_O256_types::array_of_64_logic c$vec2_2;
+  G512_I256_O256_types::array_of_64_logic c$vec1_4;
+  G512_I256_O256_types::array_of_64_logic c$vec1_5;
+  G512_I256_O256_types::array_of_64_logic c$vec1_6;
+  G512_I256_O256_types::array_of_64_logic c$vec1_7;
+  G512_I256_O256_types::array_of_64_logic c$vec2_3;
+  G512_I256_O256_types::array_of_64_logic c$vec1_8;
+  G512_I256_O256_types::array_of_64_logic c$vec1_9;
+  G512_I256_O256_types::array_of_64_logic c$vec1_10;
+  G512_I256_O256_types::array_of_64_logic c$vec1_11;
+  G512_I256_O256_types::array_of_64_logic c$vec2_4;
+  G512_I256_O256_types::array_of_64_logic c$vec1_12;
+  G512_I256_O256_types::array_of_64_logic c$vec1_13;
+  G512_I256_O256_types::array_of_64_logic c$vec1_14;
+  G512_I256_O256_types::array_of_64_logic c$vec1_15;
+  G512_I256_O256_types::array_of_64_logic c$vec2_5;
+  G512_I256_O256_types::array_of_64_logic c$vec1_16;
+  G512_I256_O256_types::array_of_64_logic c$vec1_17;
+  G512_I256_O256_types::array_of_64_logic c$vec1_18;
+  G512_I256_O256_types::array_of_64_logic c$vec1_19;
+  G512_I256_O256_types::array_of_64_logic c$vec2_6;
+  G512_I256_O256_types::array_of_1600_logic_vector_1 c$vec_7;
 
   assign result = (eta3 == 5'd23) ? c$case_alt : {{{2'b01,eta3 + 5'd1,eta4}
                                                   ,result_3}
@@ -178,9 +178,9 @@ module Component_G768_i256o256_sponge20
   end
   // setSlice end
 
-  assign lvl = ({G768_I256_O256_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
+  assign lvl = ({G512_I256_O256_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
 
-  assign c$vec = (G768_I256_O256_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},eta3}))]));
+  assign c$vec = (G512_I256_O256_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},eta3}))]));
 
   // map begin
   genvar n;
@@ -201,17 +201,17 @@ module Component_G768_i256o256_sponge20
   genvar n_2;
   generate
   for (n_2=0; n_2 < $size(c$lvl_app_arg_0); n_2 = n_2 + 1) begin : map_0
-    G768_I256_O256_types::array_of_7_logic map_in_0;
-    assign map_in_0 = G768_I256_O256_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_2]);
-    G768_I256_O256_types::array_of_64_logic map_out_0;
-    G768_I256_O256_types::array_of_8_array_of_64_logic ws;
-    G768_I256_O256_types::array_of_7_array_of_64_logic ws1;
-    G768_I256_O256_types::array_of_64_logic result_12;
-    G768_I256_O256_types::array_of_7_Tuple2_1 c$ws1_app_arg;
-    G768_I256_O256_types::array_of_7_array_of_64_logic c$vec2;
+    G512_I256_O256_types::array_of_7_logic map_in_0;
+    assign map_in_0 = G512_I256_O256_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_2]);
+    G512_I256_O256_types::array_of_64_logic map_out_0;
+    G512_I256_O256_types::array_of_8_array_of_64_logic ws;
+    G512_I256_O256_types::array_of_7_array_of_64_logic ws1;
+    G512_I256_O256_types::array_of_64_logic result_12;
+    G512_I256_O256_types::array_of_7_Tuple2_1 c$ws1_app_arg;
+    G512_I256_O256_types::array_of_7_array_of_64_logic c$vec2;
     assign map_out_0 = result_12;
 
-    assign ws = G768_I256_O256_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
+    assign ws = G512_I256_O256_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
 
     // imap begin
     genvar n_0;
@@ -219,26 +219,26 @@ module Component_G768_i256o256_sponge20
     for (n_0=0; n_0 < $size(ws1); n_0 = n_0 + 1) begin : imap
       logic [2:0] i;
       assign i = n_0;
-      G768_I256_O256_types::Tuple2_1 imap_in;
+      G512_I256_O256_types::Tuple2_1 imap_in;
       assign imap_in = c$ws1_app_arg[n_0];
-      G768_I256_O256_types::array_of_64_logic imap_out;
-      G768_I256_O256_types::array_of_64_logic y;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_4;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_5;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_6;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_7;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_8;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_9;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_10;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_11;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_12;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_13;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_14;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_15;
-    G768_I256_O256_types::array_of_64_logic c$case_alt_16;
+      G512_I256_O256_types::array_of_64_logic imap_out;
+      G512_I256_O256_types::array_of_64_logic y;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_4;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_5;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_6;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_7;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_8;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_9;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_10;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_11;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_12;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_13;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_14;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_15;
+    G512_I256_O256_types::array_of_64_logic c$case_alt_16;
     assign imap_out = c$case_alt_4;
 
-    assign y = G768_I256_O256_types::array_of_64_logic_from_lv(imap_in.Tuple2_1_sel1);
+    assign y = G512_I256_O256_types::array_of_64_logic_from_lv(imap_in.Tuple2_1_sel1);
 
     assign c$case_alt_4 = (i == 3'd0) ? c$case_alt_5 : c$case_alt_6;
 
@@ -302,12 +302,12 @@ module Component_G768_i256o256_sponge20
     // replaceVec end
 
 
-      assign ws1[n_0] = {G768_I256_O256_types::array_of_64_logic_to_lv(imap_out)};
+      assign ws1[n_0] = {G512_I256_O256_types::array_of_64_logic_to_lv(imap_out)};
     end
 
     // imap end
 
-    assign result_12 = G768_I256_O256_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+    assign result_12 = G512_I256_O256_types::array_of_64_logic_from_lv(ws[$high(ws)]);
 
     assign c$vec2 = (ws[0 : $high(ws) - 1]);
 
@@ -317,11 +317,11 @@ module Component_G768_i256o256_sponge20
     for (n_1 = 0; n_1 < $size(c$ws1_app_arg); n_1 = n_1 + 1) begin : zipWith
       logic zipWith_in1;
       assign zipWith_in1 = map_in_0[n_1];
-      G768_I256_O256_types::array_of_64_logic zipWith_in2;
-      assign zipWith_in2 = G768_I256_O256_types::array_of_64_logic_from_lv(c$vec2[n_1]);
-      G768_I256_O256_types::Tuple2_1 zipWith_out;
+      G512_I256_O256_types::array_of_64_logic zipWith_in2;
+      assign zipWith_in2 = G512_I256_O256_types::array_of_64_logic_from_lv(c$vec2[n_1]);
+      G512_I256_O256_types::Tuple2_1 zipWith_out;
       assign zipWith_out = {zipWith_in1
-                     ,{G768_I256_O256_types::array_of_64_logic_to_lv(zipWith_in2)}};
+                     ,{G512_I256_O256_types::array_of_64_logic_to_lv(zipWith_in2)}};
 
 
       assign c$ws1_app_arg[n_1] = zipWith_out;
@@ -330,7 +330,7 @@ module Component_G768_i256o256_sponge20
     // zipWith end
 
 
-    assign c$lvl_app_arg_0[n_2] = {G768_I256_O256_types::array_of_64_logic_to_lv(map_out_0)};
+    assign c$lvl_app_arg_0[n_2] = {G512_I256_O256_types::array_of_64_logic_to_lv(map_out_0)};
   end
   endgenerate
   // map end
@@ -339,7 +339,7 @@ module Component_G768_i256o256_sponge20
   genvar n_3;
   generate
     for (n_3 = 0; n_3 < $size(c$lvl_app_arg_1); n_3 = n_3 + 1) begin : unconcat
-      assign c$lvl_app_arg_1[n_3] = {G768_I256_O256_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_3 * 7) : ((n_3 * 7) + 7 - 1)])};
+      assign c$lvl_app_arg_1[n_3] = {G512_I256_O256_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_3 * 7) : ((n_3 * 7) + 7 - 1)])};
     end
   endgenerate
   // unconcat end
@@ -348,7 +348,7 @@ module Component_G768_i256o256_sponge20
   genvar n_4;
   generate
   for (n_4=0; n_4 < $size(c$lvl_app_arg_2); n_4 = n_4 + 1) begin : map_1
-    G768_I256_O256_types::Tuple2_0 map_in_1;
+    G512_I256_O256_types::Tuple2_0 map_in_1;
     assign map_in_1 = \Permutation.Constants.iotaConstants_xs [n_4];
     logic map_out_1;
     assign map_out_1 = map_in_1.Tuple2_0_sel0;
@@ -397,7 +397,7 @@ module Component_G768_i256o256_sponge20
     logic zipWith_in2_0;
     assign zipWith_in2_0 = c$vec2_0[n_5];
     logic zipWith_out_0;
-    G768_I256_O256_types::array_of_8_logic c$vec_1;
+    G512_I256_O256_types::array_of_8_logic c$vec_1;
     assign c$vec_1 = '{0: 1'b1
                       ,1: 1'b0
                       ,2: 1'b0
@@ -415,24 +415,24 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign \Permutation.Constants.iotaConstants3  = G768_I256_O256_types::array_of_169_Tuple2_0_cons({c$vec_0[0]
-                                                                                                   ,{G768_I256_O256_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
+  assign \Permutation.Constants.iotaConstants3  = G512_I256_O256_types::array_of_169_Tuple2_0_cons({c$vec_0[0]
+                                                                                                   ,{G512_I256_O256_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
 
   // map begin
   genvar n_7;
   generate
   for (n_7=0; n_7 < $size(\Permutation.Constants.iotaConstants4 ); n_7 = n_7 + 1) begin : map_2
-    G768_I256_O256_types::Tuple2_0 map_in_2;
+    G512_I256_O256_types::Tuple2_0 map_in_2;
     assign map_in_2 = \Permutation.Constants.iotaConstants5 [n_7];
-    G768_I256_O256_types::Tuple2_0 map_out_2;
-    G768_I256_O256_types::array_of_8_logic result_14;
-    G768_I256_O256_types::Tuple2_2 c$case_scrut;
+    G512_I256_O256_types::Tuple2_0 map_out_2;
+    G512_I256_O256_types::array_of_8_logic result_14;
+    G512_I256_O256_types::Tuple2_2 c$case_scrut;
     logic feedback;
-    G768_I256_O256_types::array_of_8_logic x;
-    G768_I256_O256_types::Tuple2_0 result_13;
-    G768_I256_O256_types::array_of_8_logic c$vec2_1;
-    G768_I256_O256_types::array_of_8_logic c$vec_2;
-    G768_I256_O256_types::array_of_8_logic c$vec_3;
+    G512_I256_O256_types::array_of_8_logic x;
+    G512_I256_O256_types::Tuple2_0 result_13;
+    G512_I256_O256_types::array_of_8_logic c$vec2_1;
+    G512_I256_O256_types::array_of_8_logic c$vec_2;
+    G512_I256_O256_types::array_of_8_logic c$vec_3;
     assign map_out_2 = result_13;
 
     assign c$vec2_1 = '{0: 1'b1
@@ -463,7 +463,7 @@ module Component_G768_i256o256_sponge20
 
     // splitAt begin
     logic [0:9-1] [0:1-1] vec;
-    assign vec = {G768_I256_O256_types::array_of_9_logic_to_lv((G768_I256_O256_types::array_of_9_logic_from_lv({{G768_I256_O256_types::array_of_1_logic_to_lv('{0: 1'b0})},{G768_I256_O256_types::array_of_8_logic_to_lv(G768_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1))}})))};
+    assign vec = {G512_I256_O256_types::array_of_9_logic_to_lv((G512_I256_O256_types::array_of_9_logic_from_lv({{G512_I256_O256_types::array_of_1_logic_to_lv('{0: 1'b0})},{G512_I256_O256_types::array_of_8_logic_to_lv(G512_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1))}})))};
 
       if (8 == 9) begin : no_split
         assign c$case_scrut = {vec};
@@ -475,16 +475,16 @@ module Component_G768_i256o256_sponge20
 
     // splitAt end
 
-    assign c$vec_2 = G768_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
+    assign c$vec_2 = G512_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
 
     assign feedback = c$vec_2[$high(c$vec_2)];
 
-    assign x = G768_I256_O256_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_2_sel0);
+    assign x = G512_I256_O256_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_2_sel0);
 
-    assign c$vec_3 = G768_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
+    assign c$vec_3 = G512_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
 
     assign result_13 = {c$vec_3[0]
-                       ,{G768_I256_O256_types::array_of_8_logic_to_lv(result_14)}};
+                       ,{G512_I256_O256_types::array_of_8_logic_to_lv(result_14)}};
 
 
     assign \Permutation.Constants.iotaConstants4 [n_7] = map_out_2;
@@ -511,7 +511,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // map end
 
-  assign result_4 = ({G768_I256_O256_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_3)});
+  assign result_4 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_3)});
 
   assign c$vec_4 = '{0: {11'd1599
                         ,11'd1343
@@ -2120,7 +2120,7 @@ module Component_G768_i256o256_sponge20
   genvar n_9;
   generate
   for (n_9=0; n_9 < $size(result_5); n_9 = n_9 + 1) begin : map_4
-    G768_I256_O256_types::Tuple3 map_in_4;
+    G512_I256_O256_types::Tuple3 map_in_4;
     assign map_in_4 = c$vec_4[n_9];
     logic map_out_4;
     logic [10:0] i0;
@@ -2143,7 +2143,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // map end
 
-  assign lvl1 = ({G768_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_6)});
+  assign lvl1 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_6)});
 
   // map begin
   genvar n_10;
@@ -3776,7 +3776,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // map end
 
-  assign lvl2 = ({G768_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_7)});
+  assign lvl2 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_7)});
 
   // map begin
   genvar n_12;
@@ -5409,7 +5409,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // map end
 
-  assign lvl3 = ({G768_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_8)});
+  assign lvl3 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_8)});
 
   // map begin
   genvar n_14;
@@ -5430,7 +5430,7 @@ module Component_G768_i256o256_sponge20
   genvar n_15;
   generate
     for (n_15=0; n_15 < $size(c$lvl3_app_arg_0); n_15 = n_15 + 1) begin : concat
-      assign c$lvl3_app_arg[n_15*64 : n_15*64+(64-1)] = G768_I256_O256_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_15]);
+      assign c$lvl3_app_arg[n_15*64 : n_15*64+(64-1)] = G512_I256_O256_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_15]);
     end
   endgenerate
   // concat end
@@ -5441,15 +5441,15 @@ module Component_G768_i256o256_sponge20
   for (n_17=0; n_17 < $size(c$lvl3_app_arg_0); n_17 = n_17 + 1) begin : imap_0
     logic [4:0] i_0;
     assign i_0 = n_17;
-    G768_I256_O256_types::array_of_64_logic imap_in_0;
-    assign imap_in_0 = G768_I256_O256_types::array_of_64_logic_from_lv(state[n_17]);
-    G768_I256_O256_types::array_of_64_logic imap_out_0;
+    G512_I256_O256_types::array_of_64_logic imap_in_0;
+    assign imap_in_0 = G512_I256_O256_types::array_of_64_logic_from_lv(state[n_17]);
+    G512_I256_O256_types::array_of_64_logic imap_out_0;
     logic [2:0] ds;
-    G768_I256_O256_types::array_of_64_logic c$zipWith_arg6;
-    G768_I256_O256_types::array_of_64_logic result_15;
-    G768_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt;
-    G768_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
-    G768_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
+    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6;
+    G512_I256_O256_types::array_of_64_logic result_15;
+    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt;
+    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
+    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
     logic [4:0] c$bv_0;
     assign imap_out_0 = result_15;
 
@@ -5483,7 +5483,7 @@ module Component_G768_i256o256_sponge20
     assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl4 : lvl7;
 
 
-    assign c$lvl3_app_arg_0[n_17] = {G768_I256_O256_types::array_of_64_logic_to_lv(imap_out_0)};
+    assign c$lvl3_app_arg_0[n_17] = {G512_I256_O256_types::array_of_64_logic_to_lv(imap_out_0)};
   end
   endgenerate
   // imap end
@@ -5535,7 +5535,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_0 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd0]));
+  assign c$vec1_0 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd0]));
 
   // zipWith begin
   genvar n_20;
@@ -5554,7 +5554,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_1 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd5]));
 
   // zipWith begin
   genvar n_21;
@@ -5573,7 +5573,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd10]));
+  assign c$vec1_2 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd10]));
 
   // zipWith begin
   genvar n_22;
@@ -5592,9 +5592,9 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_3 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_3 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd15]));
 
-  assign c$vec2_2 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd20]));
+  assign c$vec2_2 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd20]));
 
   // zipWith begin
   genvar n_23;
@@ -5673,7 +5673,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_4 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd3]));
+  assign c$vec1_4 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd3]));
 
   // zipWith begin
   genvar n_26;
@@ -5692,7 +5692,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_5 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd8]));
+  assign c$vec1_5 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd8]));
 
   // zipWith begin
   genvar n_27;
@@ -5711,7 +5711,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_6 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd13]));
+  assign c$vec1_6 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd13]));
 
   // zipWith begin
   genvar n_28;
@@ -5730,9 +5730,9 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_7 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd18]));
+  assign c$vec1_7 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd18]));
 
-  assign c$vec2_3 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec2_3 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd23]));
 
   // zipWith begin
   genvar n_29;
@@ -5764,7 +5764,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_8 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd1]));
+  assign c$vec1_8 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd1]));
 
   // zipWith begin
   genvar n_30;
@@ -5783,7 +5783,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd6]));
+  assign c$vec1_9 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd6]));
 
   // zipWith begin
   genvar n_31;
@@ -5802,7 +5802,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_10 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_10 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd11]));
 
   // zipWith begin
   genvar n_32;
@@ -5821,9 +5821,9 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd16]));
+  assign c$vec1_11 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd16]));
 
-  assign c$vec2_4 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec2_4 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd21]));
 
   // zipWith begin
   genvar n_33;
@@ -5859,7 +5859,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_12 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd4]));
+  assign c$vec1_12 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd4]));
 
   // zipWith begin
   genvar n_35;
@@ -5878,7 +5878,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_13 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd9]));
+  assign c$vec1_13 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd9]));
 
   // zipWith begin
   genvar n_36;
@@ -5897,7 +5897,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_14 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd14]));
+  assign c$vec1_14 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd14]));
 
   // zipWith begin
   genvar n_37;
@@ -5916,9 +5916,9 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_15 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd19]));
+  assign c$vec1_15 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd19]));
 
-  assign c$vec2_5 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd24]));
+  assign c$vec2_5 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd24]));
 
   // zipWith begin
   genvar n_38;
@@ -5950,7 +5950,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_16 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd2]));
+  assign c$vec1_16 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd2]));
 
   // zipWith begin
   genvar n_39;
@@ -5969,7 +5969,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_17 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd7]));
+  assign c$vec1_17 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd7]));
 
   // zipWith begin
   genvar n_40;
@@ -5988,7 +5988,7 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_18 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd12]));
+  assign c$vec1_18 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd12]));
 
   // zipWith begin
   genvar n_41;
@@ -6007,9 +6007,9 @@ module Component_G768_i256o256_sponge20
   endgenerate
   // zipWith end
 
-  assign c$vec1_19 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd17]));
+  assign c$vec1_19 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd17]));
 
-  assign c$vec2_6 = (G768_I256_O256_types::array_of_64_logic_from_lv(state[64'sd22]));
+  assign c$vec2_6 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd22]));
 
   // zipWith begin
   genvar n_42;
@@ -6032,12 +6032,12 @@ module Component_G768_i256o256_sponge20
   genvar n_43;
   generate
     for (n_43 = 0; n_43 < $size(state); n_43 = n_43 + 1) begin : unconcat_0
-      assign state[n_43] = {G768_I256_O256_types::array_of_64_logic_to_lv(c$state_app_arg[(n_43 * 64) : ((n_43 * 64) + 64 - 1)])};
+      assign state[n_43] = {G512_I256_O256_types::array_of_64_logic_to_lv(c$state_app_arg[(n_43 * 64) : ((n_43 * 64) + 64 - 1)])};
     end
   endgenerate
   // unconcat end
 
-  assign c$vec_7 = (G768_I256_O256_types::array_of_1600_logic_vector_1_from_lv(eta5));
+  assign c$vec_7 = (G512_I256_O256_types::array_of_1600_logic_vector_1_from_lv(eta5));
 
   // map begin
   genvar n_44;

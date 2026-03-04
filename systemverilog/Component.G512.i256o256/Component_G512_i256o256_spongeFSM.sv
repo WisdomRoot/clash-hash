@@ -121,7 +121,7 @@ module Component_G512_i256o256_spongeFSM
 
   assign counter = ds1[1606:1606];
 
-  Component_G512_i256o256_sponge20 Component_G512_i256o256_sponge20_c$ds_case_alt_1
+  Component_G512_i256o256_sponge7 Component_G512_i256o256_sponge7_c$ds_case_alt_1
     ( .result (c$ds_case_alt_1)
     , .eta3 (counter_0)
     , .eta4 (seenTLAST)

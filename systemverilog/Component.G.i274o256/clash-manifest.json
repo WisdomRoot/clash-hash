@@ -1,9 +1,8 @@
 {
     "components": [
-        "Component_G768_i256o256_sponge7",
-        "Component_G768_i256o256_spongeFSM",
-        "Component_G768_i256o256_i256o256Stream",
-        "G768_I256_O256"
+        "Component_G_i274o256_keccakF1600",
+        "Component_G_i274o256_i274o256Stream",
+        "G_I274_O256"
     ],
     "dependencies": {
         "transitive": []
@@ -33,41 +32,37 @@
     },
     "files": [
         {
-            "name": "G768_I256_O256_shim.cpp",
-            "sha256": "b89d763f9e5db98a932dc6ed5d612ccdfa427953c83bb0b1a3d6963d48a33a9c"
+            "name": "G_I274_O256_shim.cpp",
+            "sha256": "5c5ab04785a476fcba4b2a161f1c5b1c12d1dae9dd4cb1601bf6e47cd20490e1"
         },
         {
-            "name": "G768_I256_O256.sdc",
+            "name": "G_I274_O256.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "G768_I256_O256_types.sv",
-            "sha256": "82e2fee47e017f57192bf88e5f89baad975a1bfee774d8e4b14fc4d148f94ec9"
+            "name": "G_I274_O256_types.sv",
+            "sha256": "fe5a0c7269d4fc33b739e72f2a9cefe56a8b882dd26393425f47dd35eabbd4b1"
         },
         {
-            "name": "Component_G768_i256o256_sponge7.sv",
-            "sha256": "a0bd0aa2ee0a0627ea8166dd7f0078a80812e9f48c260d2fc5d4cfdeb3d96e10"
+            "name": "Component_G_i274o256_keccakF1600.sv",
+            "sha256": "86472599b7be5ebde9e123849809d3402c18c0888fb03d52c1f3d078b757b32b"
         },
         {
-            "name": "Component_G768_i256o256_spongeFSM.sv",
-            "sha256": "3b89911de50f6c22470d0e680cb557dce86b079ce1d28f355918437ee5ec6487"
+            "name": "Component_G_i274o256_i274o256Stream.sv",
+            "sha256": "043315f0737f247638ee7a14c22a7ad0fcdedac5cfc02d7825b197c71c54f890"
         },
         {
-            "name": "Component_G768_i256o256_i256o256Stream.sv",
-            "sha256": "1b6d706b72fa78777cb1c8ff511af1b6dc0859dc4106e21c5041b99a64e546fe"
-        },
-        {
-            "name": "G768_I256_O256.sv",
-            "sha256": "eb5c9c72e61355dad1ceb2dc8c7b9b394cc54dd5eb9d2c3f09de4b80bb8c08d1"
+            "name": "G_I274_O256.sv",
+            "sha256": "d2a09012652c3e2cb406a0363021bed6eb930b844c1ee6853212b4c06d575b46"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "3bac86bf2d7744cb3ea3e325285db3e36edbe7ffcc6bd6315b74dac766175199",
+    "hash": "12eff1dae65b6ddc61e380f8fd3d518ffff86153e7f52e74efa2b7b2a9a159a0",
     "top_component": {
-        "name": "G768_I256_O256",
+        "name": "G_I274_O256",
         "ports_flat": [
             {
                 "direction": "in",
@@ -104,8 +99,8 @@
                 "direction": "in",
                 "is_clock": false,
                 "name": "MSG_TDATA",
-                "type_name": "logic [255:0]",
-                "width": 256
+                "type_name": "logic [273:0]",
+                "width": 274
             },
             {
                 "direction": "in",
