@@ -1,14 +1,8 @@
-package G_I274_O256_types;
+package dut_types;
   typedef struct packed {
-    logic [255:0] Tuple4_sel0;
-    logic Tuple4_sel1;
-    logic Tuple4_sel2;
-    logic Tuple4_sel3;
-  } Tuple4;
-  typedef struct packed {
-    logic [6:0] GState_sel0;
-    logic [1599:0] GState_sel1;
-  } GState;
+    logic [6:0] State_sel0;
+    logic [1599:0] State_sel1;
+  } State;
   typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
   typedef struct packed {
@@ -24,22 +18,26 @@ package G_I274_O256_types;
     logic AXI4Stream_sel2;
   } AXI4Stream;
   typedef struct packed {
-    AXI4Stream Tuple2_3_sel0;
-    logic Tuple2_3_sel1;
-  } Tuple2_3;
+    AXI4Stream Tuple2_4_sel0;
+    logic Tuple2_4_sel1;
+  } Tuple2_4;
   typedef struct packed {
     logic [255:0] AXI4Stream_0_sel0;
     logic AXI4Stream_0_sel1;
     logic AXI4Stream_0_sel2;
   } AXI4Stream_0;
   typedef struct packed {
-    AXI4Stream_0 Tuple2_4_sel0;
-    logic Tuple2_4_sel1;
-  } Tuple2_4;
+    AXI4Stream_0 Tuple2_5_sel0;
+    logic Tuple2_5_sel1;
+  } Tuple2_5;
   typedef struct packed {
-    GState Tuple2_2_sel0;
-    Tuple2_4 Tuple2_2_sel1;
+    logic Tuple2_2_sel0;
+    AXI4Stream_0 Tuple2_2_sel1;
   } Tuple2_2;
+  typedef struct packed {
+    State Tuple2_3_sel0;
+    Tuple2_2 Tuple2_3_sel1;
+  } Tuple2_3;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {
@@ -294,5 +292,5 @@ package G_I274_O256_types;
     array_of_24_array_of_7_logic_cons[0] = {array_of_7_logic_to_lv(x)};
     array_of_24_array_of_7_logic_cons[1:23] = xs;
   endfunction
-endpackage : G_I274_O256_types
+endpackage : dut_types
 

@@ -8,7 +8,7 @@ where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
-import Component.G.Common qualified as GCommon
+import Component.G.Common qualified as Common
 import Parameter
 import Permutation qualified
 
@@ -33,7 +33,7 @@ i256o256Stream ::
 i256o256Stream clk rst en treadySig inputSig =
   withClockResetEnable clk rst en
     $ let (msgSig, flushSig) = unbundle inputSig
-       in GCommon.sponge @System MLKEM768 spongeFSM (bundle (msgSig, treadySig, flushSig))
+       in Common.sponge @System MLKEM768 spongeFSM (bundle (msgSig, treadySig, flushSig))
 
 {-# ANN
   i256o256

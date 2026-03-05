@@ -1,6 +1,6 @@
 module Component.G
-  ( i274o256Stream,
-    i274o256,
+  ( i274o256,
+    i274o256Stream,
   )
 where
 
@@ -16,13 +16,13 @@ type SqueezeBeats = Common.SqueezeBeats
 -- General G (explicit k in input): i274o256
 --------------------------------------------------------------------------------
 
-data GPhase
-  = GAbsorb
-  | GPermute (Index 24)
-  | GSqueeze (Index SqueezeBeats)
+data Phase
+  = Absorb
+  | Permute (Index 24)
+  | Squeeze (Index SqueezeBeats)
   deriving (Show, Eq, Generic, NFDataX)
 
-data GState = GState GPhase (BitVector 1600)
+data State = State Phase (BitVector 1600)
   deriving (Show, Eq, Generic, NFDataX)
 
 absorb33 :: BitVector 274 -> BitVector 1600
@@ -31,31 +31,25 @@ absorb33 msg274 =
       placed = (0 :: BitVector 1336) ++# msg264
    in complementAt 575 . complementAt 266 . complementAt 265 $ placed
 
-absorbEmpty :: BitVector 1600
-absorbEmpty = complementAt 575 . complementAt 2 . complementAt 1 $ (0 :: BitVector 1600)
-
 stepI274 ::
-  GState ->
-  (AXI4Stream 274, Bool, Bool) ->
-  (GState, (AXI4Stream 256, Bool))
-stepI274 (GState phase state) (input, tready, flush) =
+  State ->
+  (Bool, AXI4Stream 274) ->
+  (State, (Bool, AXI4Stream 256))
+stepI274 (State phase state) (outReady, input) =
   case phase of
-    GAbsorb ->
+    Absorb ->
       if tvalid input
-        then (GState (GPermute 0) (absorb33 (tdata input)), (idleAXI4Stream, False))
-        else
-          if flush
-            then (GState (GPermute 0) absorbEmpty, (idleAXI4Stream, False))
-            else (GState GAbsorb state, (idleAXI4Stream, True))
-    GPermute roundIdx ->
+        then (State (Permute 0) (absorb33 (tdata input)), (False, idleAXI4Stream))
+        else (State Absorb state, (True, idleAXI4Stream))
+    Permute roundIdx ->
       let state' = Permutation.keccakF1600 roundIdx state
        in if roundIdx == maxBound
             then
               let out0 = validBeat (Common.squeezeSlice state' 0) False
-                  nextPhase = if tready then GSqueeze 1 else GSqueeze 0
-               in (GState nextPhase state', (out0, False))
-            else (GState (GPermute (roundIdx + 1)) state', (idleAXI4Stream, False))
-    GSqueeze idx ->
+                  nextPhase = if outReady then Squeeze 1 else Squeeze 0
+               in (State nextPhase state', (False, out0))
+            else (State (Permute (roundIdx + 1)) state', (False, idleAXI4Stream))
+    Squeeze idx ->
       let isLast = idx == maxBound
           outStream =
             AXI4Stream
@@ -64,10 +58,48 @@ stepI274 (GState phase state) (input, tready, flush) =
                 tlast = isLast
               }
           nextState
-            | not tready = GState (GSqueeze idx) state
-            | isLast = GState GAbsorb 0
-            | otherwise = GState (GSqueeze (idx + 1)) state
-       in (nextState, (outStream, False))
+            | not outReady = State (Squeeze idx) state
+            | isLast = State Absorb 0
+            | otherwise = State (Squeeze (idx + 1)) state
+       in (nextState, (False, outStream))
+
+{-# ANN
+  i274o256
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "DIGEST_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "DIGEST" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "MSG_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i274o256 #-}
+i274o256 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 274, Bool) ->
+  Signal System (AXI4Stream 256, Bool)
+i274o256 = stageTop i274o256Core
+
+i274o256Core ::
+  HiddenClockResetEnable dom =>
+  Stage dom 274 256
+i274o256Core (outReady, inStream) =
+  mealyB stepI274 (State Absorb 0) (outReady, inStream)
 
 {-# NOINLINE i274o256Stream #-}
 i274o256Stream ::
@@ -79,47 +111,6 @@ i274o256Stream ::
   Signal System (AXI4Stream 256, Bool)
 i274o256Stream clk rst en treadySig inputSig =
   withClockResetEnable clk rst en $
-    let (msgSig, flushSig) = unbundle inputSig
-     in mealy stepI274 (GState GAbsorb 0) (bundle (msgSig, treadySig, flushSig))
-
-{-# ANN
-  i274o256
-  ( Synthesize
-      { t_name = "G_I274_O256",
-        t_inputs =
-          [ PortName "CLK",
-            PortName "RST",
-            PortName "EN",
-            PortName "TREADY",
-            PortName "MSG_TDATA",
-            PortName "MSG_TVALID",
-            PortName "MSG_TLAST",
-            PortName "MSG_FLUSH"
-          ],
-        t_output =
-          PortProduct
-            ""
-            [ PortName "DIGEST_TDATA",
-              PortName "DIGEST_TVALID",
-              PortName "DIGEST_TLAST",
-              PortName "MSG_TREADY"
-            ]
-      }
-  )
-  #-}
-{-# NOINLINE i274o256 #-}
-i274o256 ::
-  Clock System ->
-  Reset System ->
-  Enable System ->
-  Signal System Bool ->
-  Signal System (BitVector 274) ->
-  Signal System Bool ->
-  Signal System Bool ->
-  Signal System Bool ->
-  (Signal System (BitVector 256), Signal System Bool, Signal System Bool, Signal System Bool)
-i274o256 clk rst en treadySig msgTdataSig msgTvalidSig msgTlastSig msgFlushSig =
-  let msgSig = AXI4Stream <$> msgTdataSig <*> msgTvalidSig <*> msgTlastSig
-      outSig = i274o256Stream clk rst en treadySig (bundle (msgSig, msgFlushSig))
-      (outStream, msgTreadySig) = unbundle outSig
-   in (tdata <$> outStream, tvalid <$> outStream, tlast <$> outStream, msgTreadySig)
+    let (msgSig, _flushSig) = unbundle inputSig
+        (inReadySig, outStreamSig) = mealyB stepI274 (State Absorb 0) (treadySig, msgSig)
+     in bundle (outStreamSig, inReadySig)

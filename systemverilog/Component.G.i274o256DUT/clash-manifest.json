@@ -1,8 +1,7 @@
 {
     "components": [
-        "Component_G_i274o256_keccakF1600",
-        "Component_G_i274o256_i274o256Stream",
-        "G_I274_O256"
+        "Component_G_i274o256DUT_keccakF1600",
+        "dut"
     ],
     "dependencies": {
         "transitive": []
@@ -32,37 +31,33 @@
     },
     "files": [
         {
-            "name": "G_I274_O256_shim.cpp",
-            "sha256": "5c5ab04785a476fcba4b2a161f1c5b1c12d1dae9dd4cb1601bf6e47cd20490e1"
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "G_I274_O256.sdc",
+            "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "G_I274_O256_types.sv",
-            "sha256": "fe5a0c7269d4fc33b739e72f2a9cefe56a8b882dd26393425f47dd35eabbd4b1"
+            "name": "dut_types.sv",
+            "sha256": "3bf6038506de04fcd173cd822fd19996a3e3c39f14095c9c997df36808fb16e0"
         },
         {
-            "name": "Component_G_i274o256_keccakF1600.sv",
-            "sha256": "86472599b7be5ebde9e123849809d3402c18c0888fb03d52c1f3d078b757b32b"
+            "name": "Component_G_i274o256DUT_keccakF1600.sv",
+            "sha256": "754ff9ac5ce824860a4c1e1a41070588df148b72d7443d93c6c7030eca3f868e"
         },
         {
-            "name": "Component_G_i274o256_i274o256Stream.sv",
-            "sha256": "043315f0737f247638ee7a14c22a7ad0fcdedac5cfc02d7825b197c71c54f890"
-        },
-        {
-            "name": "G_I274_O256.sv",
-            "sha256": "d2a09012652c3e2cb406a0363021bed6eb930b844c1ee6853212b4c06d575b46"
+            "name": "dut.sv",
+            "sha256": "9b08d283840a36f4403af21ab03674d4921d25fcf36c899a346d8b316b2e7604"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "b58984e703304013849e6b307fa2fcc5ced56d33f5eed41a32b0b41dd40e304b",
+    "hash": "5feee23a1986ef8589b112d9d485996cf98784b3fae07aff7c4dde31c04c0b3f",
     "top_component": {
-        "name": "G_I274_O256",
+        "name": "dut",
         "ports_flat": [
             {
                 "direction": "in",
@@ -91,13 +86,6 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "TREADY",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
                 "name": "MSG_TDATA",
                 "type_name": "logic [273:0]",
                 "width": 274
@@ -119,7 +107,7 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_FLUSH",
+                "name": "DIGEST_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
