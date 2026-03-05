@@ -3,184 +3,288 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_G512_i256o256_sponge7
+module Component_G512_i256o256_keccakF1600
     ( // Inputs
-      input wire logic [4:0] eta3
-    , input wire logic [1:0] eta4
-    , input wire logic [1599:0] eta5
-    , input wire logic eta6
+      input wire logic c$ds_bindCsr  // clock
+    , input wire logic c$ds_bindCsr_0  // reset
+    , input wire logic c$ds_bindCsr_1  // enable
+    , input wire dut_types::AXI4Stream c$ds_bindCsr_2
+    , input wire logic c$ds_bindCsr_3
 
       // Outputs
-    , output G512_I256_O256_types::Tuple2 result
+    , output dut_types::Tuple2_4 result
     );
-  G512_I256_O256_types::Tuple2 c$case_alt;
-  G512_I256_O256_types::State c$app_arg;
   logic [1599:0] result_0;
-  logic [1599:0] c$app_arg_0;
-  logic [1599:0] result_1;
-  logic [1599:0] c$app_arg_1;
+  logic [1599:0] c$case_alt;
+  logic [1599:0] c$case_alt_0;
+  logic [1599:0] c$case_alt_1;
+  logic [1599:0] c$case_alt_2;
+  logic [1599:0] c$app_arg;
+  logic [1599:0] state;
+  dut_types::State ds1 = {{2'b00,2'd0,5'bxxxxx}
+,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
+  dut_types::Tuple2 c$ds_case_alt;
+  dut_types::Tuple2 result_1;
+  dut_types::Tuple2 c$case_alt_3;
+  dut_types::State c$app_arg_0;
   logic [1599:0] result_2;
-  logic [1599:0] c$app_arg_2;
+  logic [1599:0] c$app_arg_1;
   logic [1599:0] result_3;
-  logic [63:0] lvl;
-  G512_I256_O256_types::array_of_64_logic_vector_1 c$lvl_app_arg;
-  G512_I256_O256_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
-  G512_I256_O256_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
-  G512_I256_O256_types::array_of_168_logic c$lvl_app_arg_2;
-  G512_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants_xs ;
-  G512_I256_O256_types::array_of_169_Tuple2_0 \Permutation.Constants.iotaConstants3 ;
-  G512_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants4 ;
-  G512_I256_O256_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants5 ;
-  logic [1599:0] \c$state'_app_arg ;
-  G512_I256_O256_types::array_of_1600_logic_vector_1 c$app_arg_3;
+  logic [1599:0] c$app_arg_2;
   logic [1599:0] result_4;
-  G512_I256_O256_types::array_of_1600_logic result_5;
+  logic [1599:0] c$app_arg_3;
+  logic [1599:0] result_5;
+  logic [63:0] lvl;
+  dut_types::array_of_64_logic_vector_1 c$lvl_app_arg;
+  dut_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
+  dut_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
+  dut_types::array_of_168_logic c$lvl_app_arg_2;
+  dut_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants_xs ;
+  dut_types::array_of_169_Tuple2_0 \Permutation.Constants.iotaConstants3 ;
+  dut_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants4 ;
+  dut_types::array_of_168_Tuple2_0 \Permutation.Constants.iotaConstants5 ;
+  logic [1599:0] \c$state'_app_arg ;
+  dut_types::array_of_1600_logic_vector_1 c$app_arg_4;
+  logic [1599:0] result_6;
+  dut_types::array_of_1600_logic result_7;
   logic [1599:0] lvl1;
-  G512_I256_O256_types::array_of_1600_logic_vector_1 result_6;
-  G512_I256_O256_types::array_of_1600_logic c$lvl1_app_arg;
+  dut_types::array_of_1600_logic_vector_1 result_8;
+  dut_types::array_of_1600_logic c$lvl1_app_arg;
   logic [1599:0] lvl2;
-  G512_I256_O256_types::array_of_1600_logic_vector_1 result_7;
-  G512_I256_O256_types::array_of_1600_logic c$lvl2_app_arg;
+  dut_types::array_of_1600_logic_vector_1 result_9;
+  dut_types::array_of_1600_logic c$lvl2_app_arg;
   logic [1599:0] lvl3;
-  G512_I256_O256_types::array_of_1600_logic_vector_1 result_8;
-  G512_I256_O256_types::array_of_1600_logic c$lvl3_app_arg;
-  G512_I256_O256_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
-  G512_I256_O256_types::array_of_64_logic lvl8;
-  G512_I256_O256_types::array_of_64_logic c$lvl8_app_arg;
-  G512_I256_O256_types::array_of_64_logic lvl7;
-  G512_I256_O256_types::array_of_64_logic parity4;
-  G512_I256_O256_types::array_of_64_logic c$parity4_app_arg;
-  G512_I256_O256_types::array_of_64_logic c$parity4_app_arg_0;
-  G512_I256_O256_types::array_of_64_logic c$parity4_app_arg_1;
-  G512_I256_O256_types::array_of_64_logic c$lvl7_app_arg;
-  G512_I256_O256_types::array_of_64_logic lvl6;
-  G512_I256_O256_types::array_of_64_logic c$lvl6_app_arg;
-  G512_I256_O256_types::array_of_64_logic lvl5;
-  G512_I256_O256_types::array_of_64_logic parity1;
-  G512_I256_O256_types::array_of_64_logic c$parity1_app_arg;
-  G512_I256_O256_types::array_of_64_logic c$parity1_app_arg_0;
-  G512_I256_O256_types::array_of_64_logic c$parity1_app_arg_1;
-  G512_I256_O256_types::array_of_64_logic c$lvl5_app_arg;
-  G512_I256_O256_types::array_of_64_logic parity3;
-  G512_I256_O256_types::array_of_64_logic c$parity3_app_arg;
-  G512_I256_O256_types::array_of_64_logic c$parity3_app_arg_0;
-  G512_I256_O256_types::array_of_64_logic c$parity3_app_arg_1;
-  G512_I256_O256_types::array_of_64_logic lvl4;
-  G512_I256_O256_types::array_of_64_logic parity0;
-  G512_I256_O256_types::array_of_64_logic c$parity0_app_arg;
-  G512_I256_O256_types::array_of_64_logic c$parity0_app_arg_0;
-  G512_I256_O256_types::array_of_64_logic c$parity0_app_arg_1;
-  G512_I256_O256_types::array_of_64_logic c$lvl4_app_arg;
-  G512_I256_O256_types::array_of_64_logic parity2;
-  G512_I256_O256_types::array_of_64_logic c$parity2_app_arg;
-  G512_I256_O256_types::array_of_64_logic c$parity2_app_arg_0;
-  G512_I256_O256_types::array_of_64_logic c$parity2_app_arg_1;
-  G512_I256_O256_types::array_of_25_array_of_64_logic state;
-  G512_I256_O256_types::array_of_1600_logic c$state_app_arg;
-  logic [1599:0] c$bv;
-  G512_I256_O256_types::array_of_64_logic c$vec;
-  G512_I256_O256_types::array_of_8_logic c$vec_0;
-  G512_I256_O256_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
-  G512_I256_O256_types::array_of_8_logic c$vec1;
-  G512_I256_O256_types::array_of_8_logic c$vec2_0;
-  G512_I256_O256_types::array_of_1600_Tuple3 c$vec_4;
-  G512_I256_O256_types::array_of_1600_logic_vector_11 c$vec_5;
-  G512_I256_O256_types::array_of_1600_logic_vector_11 c$vec_6;
-  G512_I256_O256_types::array_of_64_logic c$vec1_0;
-  G512_I256_O256_types::array_of_64_logic c$vec1_1;
-  G512_I256_O256_types::array_of_64_logic c$vec1_2;
-  G512_I256_O256_types::array_of_64_logic c$vec1_3;
-  G512_I256_O256_types::array_of_64_logic c$vec2_2;
-  G512_I256_O256_types::array_of_64_logic c$vec1_4;
-  G512_I256_O256_types::array_of_64_logic c$vec1_5;
-  G512_I256_O256_types::array_of_64_logic c$vec1_6;
-  G512_I256_O256_types::array_of_64_logic c$vec1_7;
-  G512_I256_O256_types::array_of_64_logic c$vec2_3;
-  G512_I256_O256_types::array_of_64_logic c$vec1_8;
-  G512_I256_O256_types::array_of_64_logic c$vec1_9;
-  G512_I256_O256_types::array_of_64_logic c$vec1_10;
-  G512_I256_O256_types::array_of_64_logic c$vec1_11;
-  G512_I256_O256_types::array_of_64_logic c$vec2_4;
-  G512_I256_O256_types::array_of_64_logic c$vec1_12;
-  G512_I256_O256_types::array_of_64_logic c$vec1_13;
-  G512_I256_O256_types::array_of_64_logic c$vec1_14;
-  G512_I256_O256_types::array_of_64_logic c$vec1_15;
-  G512_I256_O256_types::array_of_64_logic c$vec2_5;
-  G512_I256_O256_types::array_of_64_logic c$vec1_16;
-  G512_I256_O256_types::array_of_64_logic c$vec1_17;
-  G512_I256_O256_types::array_of_64_logic c$vec1_18;
-  G512_I256_O256_types::array_of_64_logic c$vec1_19;
-  G512_I256_O256_types::array_of_64_logic c$vec2_6;
-  G512_I256_O256_types::array_of_1600_logic_vector_1 c$vec_7;
+  dut_types::array_of_1600_logic_vector_1 result_10;
+  dut_types::array_of_1600_logic c$lvl3_app_arg;
+  dut_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
+  dut_types::array_of_64_logic lvl8;
+  dut_types::array_of_64_logic c$lvl8_app_arg;
+  dut_types::array_of_64_logic lvl7;
+  dut_types::array_of_64_logic parity4;
+  dut_types::array_of_64_logic c$parity4_app_arg;
+  dut_types::array_of_64_logic c$parity4_app_arg_0;
+  dut_types::array_of_64_logic c$parity4_app_arg_1;
+  dut_types::array_of_64_logic c$lvl7_app_arg;
+  dut_types::array_of_64_logic lvl6;
+  dut_types::array_of_64_logic c$lvl6_app_arg;
+  dut_types::array_of_64_logic lvl5;
+  dut_types::array_of_64_logic parity1;
+  dut_types::array_of_64_logic c$parity1_app_arg;
+  dut_types::array_of_64_logic c$parity1_app_arg_0;
+  dut_types::array_of_64_logic c$parity1_app_arg_1;
+  dut_types::array_of_64_logic c$lvl5_app_arg;
+  dut_types::array_of_64_logic parity3;
+  dut_types::array_of_64_logic c$parity3_app_arg;
+  dut_types::array_of_64_logic c$parity3_app_arg_0;
+  dut_types::array_of_64_logic c$parity3_app_arg_1;
+  dut_types::array_of_64_logic lvl4;
+  dut_types::array_of_64_logic parity0;
+  dut_types::array_of_64_logic c$parity0_app_arg;
+  dut_types::array_of_64_logic c$parity0_app_arg_0;
+  dut_types::array_of_64_logic c$parity0_app_arg_1;
+  dut_types::array_of_64_logic c$lvl4_app_arg;
+  dut_types::array_of_64_logic parity2;
+  dut_types::array_of_64_logic c$parity2_app_arg;
+  dut_types::array_of_64_logic c$parity2_app_arg_0;
+  dut_types::array_of_64_logic c$parity2_app_arg_1;
+  dut_types::array_of_25_array_of_64_logic state_0;
+  dut_types::array_of_1600_logic c$state_app_arg;
+  logic [1:0] seenTLAST;
+  logic [4:0] counter;
+  dut_types::Tuple2 c$ds_case_alt_0;
+  dut_types::Tuple2 result_11;
+  logic [1599:0] result_12;
+  logic [1599:0] result_13;
+  logic [1599:0] c$app_arg_5;
+  logic [1599:0] result_14;
+  logic signed [63:0] c$app_arg_6;
+  logic [1599:0] c$app_arg_7;
+  logic [1599:0] result_15;
+  logic signed [63:0] c$app_arg_8;
+  logic [1599:0] c$app_arg_9;
+  logic [1599:0] result_16;
+  logic signed [63:0] c$app_arg_10;
+  logic [1599:0] c$app_arg_11;
+  dut_types::Tuple2_1 c$complementAt1_tupIn;
+  dut_types::Tuple2_1 c$complementAt1_tupIn_case_alt;
+  logic [10:0] c$complementAt1_arg0;
+  logic [10:0] c$complementAt1_arg0_case_alt;
+  logic c$complementAt1_arg0_case_scrut;
+  logic [10:0] c$complementAt1_arg0_0;
+  logic c$complementAt1_arg0_case_scrut_0;
+  dut_types::Tuple2 c$ds_case_alt_1;
+  dut_types::Tuple2 c$ds_case_alt_2;
+  logic c$ds_app_arg;
+  logic [1:0] counter_0;
+  logic [255:0] result_17;
+  logic [255:0] c$case_alt_4;
+  logic [1599:0] c$app_arg_12;
+  dut_types::State c$ds_app_arg_0;
+  dut_types::State c$ds_case_alt_3;
+  logic isLast;
+  logic [0:0] counter_1;
+  logic [255:0] c$bv;
+  logic [8:0] c$ds_case_alt_selection_1;
+  logic [1599:0] c$bv_0;
+  dut_types::array_of_64_logic c$vec;
+  dut_types::array_of_8_logic c$vec_0;
+  dut_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
+  dut_types::array_of_8_logic c$vec1;
+  dut_types::array_of_8_logic c$vec2_0;
+  dut_types::array_of_1600_Tuple3 c$vec_4;
+  dut_types::array_of_1600_logic_vector_11 c$vec_5;
+  dut_types::array_of_1600_logic_vector_11 c$vec_6;
+  dut_types::array_of_64_logic c$vec1_0;
+  dut_types::array_of_64_logic c$vec1_1;
+  dut_types::array_of_64_logic c$vec1_2;
+  dut_types::array_of_64_logic c$vec1_3;
+  dut_types::array_of_64_logic c$vec2_2;
+  dut_types::array_of_64_logic c$vec1_4;
+  dut_types::array_of_64_logic c$vec1_5;
+  dut_types::array_of_64_logic c$vec1_6;
+  dut_types::array_of_64_logic c$vec1_7;
+  dut_types::array_of_64_logic c$vec2_3;
+  dut_types::array_of_64_logic c$vec1_8;
+  dut_types::array_of_64_logic c$vec1_9;
+  dut_types::array_of_64_logic c$vec1_10;
+  dut_types::array_of_64_logic c$vec1_11;
+  dut_types::array_of_64_logic c$vec2_4;
+  dut_types::array_of_64_logic c$vec1_12;
+  dut_types::array_of_64_logic c$vec1_13;
+  dut_types::array_of_64_logic c$vec1_14;
+  dut_types::array_of_64_logic c$vec1_15;
+  dut_types::array_of_64_logic c$vec2_5;
+  dut_types::array_of_64_logic c$vec1_16;
+  dut_types::array_of_64_logic c$vec1_17;
+  dut_types::array_of_64_logic c$vec1_18;
+  dut_types::array_of_64_logic c$vec1_19;
+  dut_types::array_of_64_logic c$vec2_6;
+  dut_types::array_of_1600_logic_vector_1 c$vec_7;
+  logic [10:0] c$i_8112;
 
-  assign result = (eta3 == 5'd23) ? c$case_alt : {{{2'b01,eta3 + 5'd1,eta4}
-                                                  ,result_3}
-                                                 ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                                                   ,1'b0
-                                                   ,1'b0}
-                                                  ,1'b0}};
+  assign result = c$ds_case_alt.Tuple2_sel1;
 
-  assign c$bv = (result_3);
-
-  always_comb begin
-    case(eta4)
-      2'b00 : c$case_alt = {c$app_arg
-                           ,{{c$bv[255 : 0],1'b1,1'b0},1'b0}};
-      2'b01 : c$case_alt = {{{2'b01,5'd0,2'd0}
-                            ,result_0}
-                           ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                             ,1'b0
-                             ,1'b0}
-                            ,1'b0}};
-      default : c$case_alt = {{{2'b00,2'd0,5'bxxxxx}
-                              ,result_3}
-                             ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-                               ,1'b0
-                               ,1'b0}
-                              ,1'b1}};
-    endcase
-  end
-
-  assign c$app_arg = eta6 ? {{2'b10,1'd1,6'bxxxxxx}
-                            ,result_3} : {{2'b10,1'd0,6'bxxxxxx},result_3};
-
-  // replaceBit start
-  always_comb begin
-    result_0 = c$app_arg_0;
-    result_0[64'sd575] = (~ (c$app_arg_0[64'sd575]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_0 = result_1;
-
-  // replaceBit start
-  always_comb begin
-    result_1 = c$app_arg_1;
-    result_1[64'sd2] = (~ (c$app_arg_1[64'sd2]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_1 = result_2;
-
-  // replaceBit start
-  always_comb begin
-    result_2 = c$app_arg_2;
-    result_2[64'sd1] = (~ (c$app_arg_2[64'sd1]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_2 = result_3;
+  assign result_0 = (counter_0 == 2'd0) ? c$case_alt : c$case_alt_0;
 
   // setSlice begin
   always_comb begin
-    result_3 = \c$state'_app_arg ;
-    result_3[63 : 0] = ((\c$state'_app_arg [63 : 0]) ^ lvl);
+    c$case_alt = c$app_arg;
+    c$case_alt[255 : 0] = ((c$app_arg[255 : 0]) ^ c$ds_bindCsr_2.AXI4Stream_sel0);
   end
   // setSlice end
 
-  assign lvl = ({G512_I256_O256_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
+  assign c$case_alt_0 = (counter_0 == 2'd1) ? c$case_alt_1 : c$case_alt_2;
 
-  assign c$vec = (G512_I256_O256_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},eta3}))]));
+  // setSlice begin
+  always_comb begin
+    c$case_alt_1 = c$app_arg;
+    c$case_alt_1[511 : 256] = ((c$app_arg[511 : 256]) ^ c$ds_bindCsr_2.AXI4Stream_sel0);
+  end
+  // setSlice end
+
+  assign c$bv = (c$ds_bindCsr_2.AXI4Stream_sel0);
+
+  // setSlice begin
+  always_comb begin
+    c$case_alt_2 = c$app_arg;
+    c$case_alt_2[575 : 512] = ((c$app_arg[575 : 512]) ^ (c$bv[63 : 0]));
+  end
+  // setSlice end
+
+  assign c$app_arg = state;
+
+  assign state = ds1.State_sel1;
+
+  // register begin
+  always_ff @(posedge c$ds_bindCsr or  posedge  c$ds_bindCsr_0) begin : ds1_register
+    if ( c$ds_bindCsr_0) begin
+      ds1 <= {{2'b00,2'd0,5'bxxxxx}
+  ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
+    end else  if (c$ds_bindCsr_1)  begin
+      ds1 <= c$ds_case_alt.Tuple2_sel0;
+    end
+  end
+  // register end
+
+  assign c$ds_case_alt_selection_1 = ds1.State_sel0;
+
+  always_comb begin
+    case(c$ds_case_alt_selection_1[8:7])
+      2'b00 : c$ds_case_alt = c$ds_case_alt_0;
+      2'b01 : c$ds_case_alt = result_1;
+      default : c$ds_case_alt = {c$ds_app_arg_0
+                                ,{{result_17,1'b1,isLast},1'b0}};
+    endcase
+  end
+
+  assign result_1 = (counter == 5'd23) ? c$case_alt_3 : {{{2'b01,counter + 5'd1,seenTLAST}
+                                                         ,result_5}
+                                                        ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                          ,1'b0
+                                                          ,1'b0}
+                                                         ,1'b0}};
+
+  assign c$bv_0 = (result_5);
+
+  always_comb begin
+    case(seenTLAST)
+      2'b00 : c$case_alt_3 = {c$app_arg_0
+                             ,{{c$bv_0[255 : 0],1'b1,1'b0},1'b0}};
+      2'b01 : c$case_alt_3 = {{{2'b01,5'd0,2'd0}
+                              ,result_2}
+                             ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                               ,1'b0
+                               ,1'b0}
+                              ,1'b0}};
+      default : c$case_alt_3 = {{{2'b00,2'd0,5'bxxxxx}
+                                ,result_5}
+                               ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                 ,1'b0
+                                 ,1'b0}
+                                ,1'b1}};
+    endcase
+  end
+
+  assign c$app_arg_0 = c$ds_bindCsr_3 ? {{2'b10,1'd1,6'bxxxxxx}
+                                        ,result_5} : {{2'b10,1'd0,6'bxxxxxx},result_5};
+
+  // replaceBit start
+  always_comb begin
+    result_2 = c$app_arg_1;
+    result_2[64'sd575] = (~ (c$app_arg_1[64'sd575]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_1 = result_3;
+
+  // replaceBit start
+  always_comb begin
+    result_3 = c$app_arg_2;
+    result_3[64'sd2] = (~ (c$app_arg_2[64'sd2]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_2 = result_4;
+
+  // replaceBit start
+  always_comb begin
+    result_4 = c$app_arg_3;
+    result_4[64'sd1] = (~ (c$app_arg_3[64'sd1]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_3 = result_5;
+
+  // setSlice begin
+  always_comb begin
+    result_5 = \c$state'_app_arg ;
+    result_5[63 : 0] = ((\c$state'_app_arg [63 : 0]) ^ lvl);
+  end
+  // setSlice end
+
+  assign lvl = ({dut_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
+
+  assign c$vec = (dut_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},counter}))]));
 
   // map begin
   genvar n;
@@ -201,17 +305,17 @@ module Component_G512_i256o256_sponge7
   genvar n_2;
   generate
   for (n_2=0; n_2 < $size(c$lvl_app_arg_0); n_2 = n_2 + 1) begin : map_0
-    G512_I256_O256_types::array_of_7_logic map_in_0;
-    assign map_in_0 = G512_I256_O256_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_2]);
-    G512_I256_O256_types::array_of_64_logic map_out_0;
-    G512_I256_O256_types::array_of_8_array_of_64_logic ws;
-    G512_I256_O256_types::array_of_7_array_of_64_logic ws1;
-    G512_I256_O256_types::array_of_64_logic result_12;
-    G512_I256_O256_types::array_of_7_Tuple2_1 c$ws1_app_arg;
-    G512_I256_O256_types::array_of_7_array_of_64_logic c$vec2;
-    assign map_out_0 = result_12;
+    dut_types::array_of_7_logic map_in_0;
+    assign map_in_0 = dut_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_2]);
+    dut_types::array_of_64_logic map_out_0;
+    dut_types::array_of_8_array_of_64_logic ws;
+    dut_types::array_of_7_array_of_64_logic ws1;
+    dut_types::array_of_64_logic result_19;
+    dut_types::array_of_7_Tuple2_2 c$ws1_app_arg;
+    dut_types::array_of_7_array_of_64_logic c$vec2;
+    assign map_out_0 = result_19;
 
-    assign ws = G512_I256_O256_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
+    assign ws = dut_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
 
     // imap begin
     genvar n_0;
@@ -219,95 +323,95 @@ module Component_G512_i256o256_sponge7
     for (n_0=0; n_0 < $size(ws1); n_0 = n_0 + 1) begin : imap
       logic [2:0] i;
       assign i = n_0;
-      G512_I256_O256_types::Tuple2_1 imap_in;
+      dut_types::Tuple2_2 imap_in;
       assign imap_in = c$ws1_app_arg[n_0];
-      G512_I256_O256_types::array_of_64_logic imap_out;
-      G512_I256_O256_types::array_of_64_logic y;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_4;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_5;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_6;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_7;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_8;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_9;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_10;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_11;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_12;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_13;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_14;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_15;
-    G512_I256_O256_types::array_of_64_logic c$case_alt_16;
-    assign imap_out = c$case_alt_4;
+      dut_types::array_of_64_logic imap_out;
+      dut_types::array_of_64_logic y;
+    dut_types::array_of_64_logic c$case_alt_7;
+    dut_types::array_of_64_logic c$case_alt_8;
+    dut_types::array_of_64_logic c$case_alt_9;
+    dut_types::array_of_64_logic c$case_alt_10;
+    dut_types::array_of_64_logic c$case_alt_11;
+    dut_types::array_of_64_logic c$case_alt_12;
+    dut_types::array_of_64_logic c$case_alt_13;
+    dut_types::array_of_64_logic c$case_alt_14;
+    dut_types::array_of_64_logic c$case_alt_15;
+    dut_types::array_of_64_logic c$case_alt_16;
+    dut_types::array_of_64_logic c$case_alt_17;
+    dut_types::array_of_64_logic c$case_alt_18;
+    dut_types::array_of_64_logic c$case_alt_19;
+    assign imap_out = c$case_alt_7;
 
-    assign y = G512_I256_O256_types::array_of_64_logic_from_lv(imap_in.Tuple2_1_sel1);
+    assign y = dut_types::array_of_64_logic_from_lv(imap_in.Tuple2_2_sel1);
 
-    assign c$case_alt_4 = (i == 3'd0) ? c$case_alt_5 : c$case_alt_6;
-
-    // replaceVec start
-    always_comb begin
-      c$case_alt_5 = y;
-      c$case_alt_5[64'sd63] = imap_in.Tuple2_1_sel0;
-    end
-    // replaceVec end
-
-    assign c$case_alt_6 = (i == 3'd1) ? c$case_alt_7 : c$case_alt_8;
+    assign c$case_alt_7 = (i == 3'd0) ? c$case_alt_8 : c$case_alt_9;
 
     // replaceVec start
     always_comb begin
-      c$case_alt_7 = y;
-      c$case_alt_7[64'sd62] = imap_in.Tuple2_1_sel0;
+      c$case_alt_8 = y;
+      c$case_alt_8[64'sd63] = imap_in.Tuple2_2_sel0;
     end
     // replaceVec end
 
-    assign c$case_alt_8 = (i == 3'd2) ? c$case_alt_9 : c$case_alt_10;
+    assign c$case_alt_9 = (i == 3'd1) ? c$case_alt_10 : c$case_alt_11;
 
     // replaceVec start
     always_comb begin
-      c$case_alt_9 = y;
-      c$case_alt_9[64'sd60] = imap_in.Tuple2_1_sel0;
+      c$case_alt_10 = y;
+      c$case_alt_10[64'sd62] = imap_in.Tuple2_2_sel0;
     end
     // replaceVec end
 
-    assign c$case_alt_10 = (i == 3'd3) ? c$case_alt_11 : c$case_alt_12;
+    assign c$case_alt_11 = (i == 3'd2) ? c$case_alt_12 : c$case_alt_13;
 
     // replaceVec start
     always_comb begin
-      c$case_alt_11 = y;
-      c$case_alt_11[64'sd56] = imap_in.Tuple2_1_sel0;
+      c$case_alt_12 = y;
+      c$case_alt_12[64'sd60] = imap_in.Tuple2_2_sel0;
     end
     // replaceVec end
 
-    assign c$case_alt_12 = (i == 3'd4) ? c$case_alt_13 : c$case_alt_14;
+    assign c$case_alt_13 = (i == 3'd3) ? c$case_alt_14 : c$case_alt_15;
 
     // replaceVec start
     always_comb begin
-      c$case_alt_13 = y;
-      c$case_alt_13[64'sd48] = imap_in.Tuple2_1_sel0;
+      c$case_alt_14 = y;
+      c$case_alt_14[64'sd56] = imap_in.Tuple2_2_sel0;
     end
     // replaceVec end
 
-    assign c$case_alt_14 = (i == 3'd5) ? c$case_alt_15 : c$case_alt_16;
-
-    // replaceVec start
-    always_comb begin
-      c$case_alt_15 = y;
-      c$case_alt_15[64'sd32] = imap_in.Tuple2_1_sel0;
-    end
-    // replaceVec end
+    assign c$case_alt_15 = (i == 3'd4) ? c$case_alt_16 : c$case_alt_17;
 
     // replaceVec start
     always_comb begin
       c$case_alt_16 = y;
-      c$case_alt_16[64'sd0] = imap_in.Tuple2_1_sel0;
+      c$case_alt_16[64'sd48] = imap_in.Tuple2_2_sel0;
+    end
+    // replaceVec end
+
+    assign c$case_alt_17 = (i == 3'd5) ? c$case_alt_18 : c$case_alt_19;
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_18 = y;
+      c$case_alt_18[64'sd32] = imap_in.Tuple2_2_sel0;
+    end
+    // replaceVec end
+
+    // replaceVec start
+    always_comb begin
+      c$case_alt_19 = y;
+      c$case_alt_19[64'sd0] = imap_in.Tuple2_2_sel0;
     end
     // replaceVec end
 
 
-      assign ws1[n_0] = {G512_I256_O256_types::array_of_64_logic_to_lv(imap_out)};
+      assign ws1[n_0] = {dut_types::array_of_64_logic_to_lv(imap_out)};
     end
 
     // imap end
 
-    assign result_12 = G512_I256_O256_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+    assign result_19 = dut_types::array_of_64_logic_from_lv(ws[$high(ws)]);
 
     assign c$vec2 = (ws[0 : $high(ws) - 1]);
 
@@ -317,11 +421,11 @@ module Component_G512_i256o256_sponge7
     for (n_1 = 0; n_1 < $size(c$ws1_app_arg); n_1 = n_1 + 1) begin : zipWith
       logic zipWith_in1;
       assign zipWith_in1 = map_in_0[n_1];
-      G512_I256_O256_types::array_of_64_logic zipWith_in2;
-      assign zipWith_in2 = G512_I256_O256_types::array_of_64_logic_from_lv(c$vec2[n_1]);
-      G512_I256_O256_types::Tuple2_1 zipWith_out;
+      dut_types::array_of_64_logic zipWith_in2;
+      assign zipWith_in2 = dut_types::array_of_64_logic_from_lv(c$vec2[n_1]);
+      dut_types::Tuple2_2 zipWith_out;
       assign zipWith_out = {zipWith_in1
-                     ,{G512_I256_O256_types::array_of_64_logic_to_lv(zipWith_in2)}};
+                     ,{dut_types::array_of_64_logic_to_lv(zipWith_in2)}};
 
 
       assign c$ws1_app_arg[n_1] = zipWith_out;
@@ -330,7 +434,7 @@ module Component_G512_i256o256_sponge7
     // zipWith end
 
 
-    assign c$lvl_app_arg_0[n_2] = {G512_I256_O256_types::array_of_64_logic_to_lv(map_out_0)};
+    assign c$lvl_app_arg_0[n_2] = {dut_types::array_of_64_logic_to_lv(map_out_0)};
   end
   endgenerate
   // map end
@@ -339,7 +443,7 @@ module Component_G512_i256o256_sponge7
   genvar n_3;
   generate
     for (n_3 = 0; n_3 < $size(c$lvl_app_arg_1); n_3 = n_3 + 1) begin : unconcat
-      assign c$lvl_app_arg_1[n_3] = {G512_I256_O256_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_3 * 7) : ((n_3 * 7) + 7 - 1)])};
+      assign c$lvl_app_arg_1[n_3] = {dut_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_3 * 7) : ((n_3 * 7) + 7 - 1)])};
     end
   endgenerate
   // unconcat end
@@ -348,7 +452,7 @@ module Component_G512_i256o256_sponge7
   genvar n_4;
   generate
   for (n_4=0; n_4 < $size(c$lvl_app_arg_2); n_4 = n_4 + 1) begin : map_1
-    G512_I256_O256_types::Tuple2_0 map_in_1;
+    dut_types::Tuple2_0 map_in_1;
     assign map_in_1 = \Permutation.Constants.iotaConstants_xs [n_4];
     logic map_out_1;
     assign map_out_1 = map_in_1.Tuple2_0_sel0;
@@ -397,7 +501,7 @@ module Component_G512_i256o256_sponge7
     logic zipWith_in2_0;
     assign zipWith_in2_0 = c$vec2_0[n_5];
     logic zipWith_out_0;
-    G512_I256_O256_types::array_of_8_logic c$vec_1;
+    dut_types::array_of_8_logic c$vec_1;
     assign c$vec_1 = '{0: 1'b1
                       ,1: 1'b0
                       ,2: 1'b0
@@ -415,25 +519,25 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign \Permutation.Constants.iotaConstants3  = G512_I256_O256_types::array_of_169_Tuple2_0_cons({c$vec_0[0]
-                                                                                                   ,{G512_I256_O256_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
+  assign \Permutation.Constants.iotaConstants3  = dut_types::array_of_169_Tuple2_0_cons({c$vec_0[0]
+                                                                                        ,{dut_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
 
   // map begin
   genvar n_7;
   generate
   for (n_7=0; n_7 < $size(\Permutation.Constants.iotaConstants4 ); n_7 = n_7 + 1) begin : map_2
-    G512_I256_O256_types::Tuple2_0 map_in_2;
+    dut_types::Tuple2_0 map_in_2;
     assign map_in_2 = \Permutation.Constants.iotaConstants5 [n_7];
-    G512_I256_O256_types::Tuple2_0 map_out_2;
-    G512_I256_O256_types::array_of_8_logic result_14;
-    G512_I256_O256_types::Tuple2_2 c$case_scrut;
+    dut_types::Tuple2_0 map_out_2;
+    dut_types::array_of_8_logic result_21;
+    dut_types::Tuple2_3 c$case_scrut;
     logic feedback;
-    G512_I256_O256_types::array_of_8_logic x;
-    G512_I256_O256_types::Tuple2_0 result_13;
-    G512_I256_O256_types::array_of_8_logic c$vec2_1;
-    G512_I256_O256_types::array_of_8_logic c$vec_2;
-    G512_I256_O256_types::array_of_8_logic c$vec_3;
-    assign map_out_2 = result_13;
+    dut_types::array_of_8_logic x;
+    dut_types::Tuple2_0 result_20;
+    dut_types::array_of_8_logic c$vec2_1;
+    dut_types::array_of_8_logic c$vec_2;
+    dut_types::array_of_8_logic c$vec_3;
+    assign map_out_2 = result_20;
 
     assign c$vec2_1 = '{0: 1'b1
                        ,1: 1'b0
@@ -447,7 +551,7 @@ module Component_G512_i256o256_sponge7
     // zipWith begin
     genvar n_6;
 
-    for (n_6 = 0; n_6 < $size(result_14); n_6 = n_6 + 1) begin : zipWith_1
+    for (n_6 = 0; n_6 < $size(result_21); n_6 = n_6 + 1) begin : zipWith_1
       logic zipWith_in1_1;
       assign zipWith_in1_1 = x[n_6];
       logic zipWith_in2_1;
@@ -456,14 +560,14 @@ module Component_G512_i256o256_sponge7
       assign zipWith_out_1 = zipWith_in1_1 ^ (feedback & zipWith_in2_1);
 
 
-      assign result_14[n_6] = zipWith_out_1;
+      assign result_21[n_6] = zipWith_out_1;
     end
 
     // zipWith end
 
     // splitAt begin
     logic [0:9-1] [0:1-1] vec;
-    assign vec = {G512_I256_O256_types::array_of_9_logic_to_lv((G512_I256_O256_types::array_of_9_logic_from_lv({{G512_I256_O256_types::array_of_1_logic_to_lv('{0: 1'b0})},{G512_I256_O256_types::array_of_8_logic_to_lv(G512_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1))}})))};
+    assign vec = {dut_types::array_of_9_logic_to_lv((dut_types::array_of_9_logic_from_lv({{dut_types::array_of_1_logic_to_lv('{0: 1'b0})},{dut_types::array_of_8_logic_to_lv(dut_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1))}})))};
 
       if (8 == 9) begin : no_split
         assign c$case_scrut = {vec};
@@ -475,16 +579,16 @@ module Component_G512_i256o256_sponge7
 
     // splitAt end
 
-    assign c$vec_2 = G512_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
+    assign c$vec_2 = dut_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
 
     assign feedback = c$vec_2[$high(c$vec_2)];
 
-    assign x = G512_I256_O256_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_2_sel0);
+    assign x = dut_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_3_sel0);
 
-    assign c$vec_3 = G512_I256_O256_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
+    assign c$vec_3 = dut_types::array_of_8_logic_from_lv(map_in_2.Tuple2_0_sel1);
 
-    assign result_13 = {c$vec_3[0]
-                       ,{G512_I256_O256_types::array_of_8_logic_to_lv(result_14)}};
+    assign result_20 = {c$vec_3[0]
+                       ,{dut_types::array_of_8_logic_to_lv(result_21)}};
 
 
     assign \Permutation.Constants.iotaConstants4 [n_7] = map_out_2;
@@ -494,24 +598,24 @@ module Component_G512_i256o256_sponge7
 
   assign \Permutation.Constants.iotaConstants5  = \Permutation.Constants.iotaConstants_xs ;
 
-  assign \c$state'_app_arg  = result_4;
+  assign \c$state'_app_arg  = result_6;
 
   // map begin
   genvar n_8;
   generate
-  for (n_8=0; n_8 < $size(c$app_arg_3); n_8 = n_8 + 1) begin : map_3
+  for (n_8=0; n_8 < $size(c$app_arg_4); n_8 = n_8 + 1) begin : map_3
     logic map_in_3;
-    assign map_in_3 = result_5[n_8];
+    assign map_in_3 = result_7[n_8];
     logic [0:0] map_out_3;
     assign map_out_3 = (map_in_3);
 
 
-    assign c$app_arg_3[n_8] = map_out_3;
+    assign c$app_arg_4[n_8] = map_out_3;
   end
   endgenerate
   // map end
 
-  assign result_4 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_3)});
+  assign result_6 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_4)});
 
   assign c$vec_4 = '{0: {11'd1599
                         ,11'd1343
@@ -2119,15 +2223,15 @@ module Component_G512_i256o256_sponge7
   // map begin
   genvar n_9;
   generate
-  for (n_9=0; n_9 < $size(result_5); n_9 = n_9 + 1) begin : map_4
-    G512_I256_O256_types::Tuple3 map_in_4;
+  for (n_9=0; n_9 < $size(result_7); n_9 = n_9 + 1) begin : map_4
+    dut_types::Tuple3 map_in_4;
     assign map_in_4 = c$vec_4[n_9];
     logic map_out_4;
     logic [10:0] i0;
     logic [10:0] i1;
     logic [10:0] i2;
-    logic c$case_alt_17;
-    assign map_out_4 = c$case_alt_17;
+    logic c$case_alt_20;
+    assign map_out_4 = c$case_alt_20;
 
     assign i0 = map_in_4.Tuple3_sel0;
 
@@ -2135,27 +2239,27 @@ module Component_G512_i256o256_sponge7
 
     assign i2 = map_in_4.Tuple3_sel2;
 
-    assign c$case_alt_17 = (lvl1[($unsigned({{(64-11) {1'b0}},i0}))]) ^ ((~ (lvl1[($unsigned({{(64-11) {1'b0}},i1}))])) & (lvl1[($unsigned({{(64-11) {1'b0}},i2}))]));
+    assign c$case_alt_20 = (lvl1[($unsigned({{(64-11) {1'b0}},i0}))]) ^ ((~ (lvl1[($unsigned({{(64-11) {1'b0}},i1}))])) & (lvl1[($unsigned({{(64-11) {1'b0}},i2}))]));
 
 
-    assign result_5[n_9] = map_out_4;
+    assign result_7[n_9] = map_out_4;
   end
   endgenerate
   // map end
 
-  assign lvl1 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_6)});
+  assign lvl1 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_8)});
 
   // map begin
   genvar n_10;
   generate
-  for (n_10=0; n_10 < $size(result_6); n_10 = n_10 + 1) begin : map_5
+  for (n_10=0; n_10 < $size(result_8); n_10 = n_10 + 1) begin : map_5
     logic map_in_5;
     assign map_in_5 = c$lvl1_app_arg[n_10];
     logic [0:0] map_out_5;
     assign map_out_5 = (map_in_5);
 
 
-    assign result_6[n_10] = map_out_5;
+    assign result_8[n_10] = map_out_5;
   end
   endgenerate
   // map end
@@ -3776,19 +3880,19 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // map end
 
-  assign lvl2 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_7)});
+  assign lvl2 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_9)});
 
   // map begin
   genvar n_12;
   generate
-  for (n_12=0; n_12 < $size(result_7); n_12 = n_12 + 1) begin : map_7
+  for (n_12=0; n_12 < $size(result_9); n_12 = n_12 + 1) begin : map_7
     logic map_in_7;
     assign map_in_7 = c$lvl2_app_arg[n_12];
     logic [0:0] map_out_7;
     assign map_out_7 = (map_in_7);
 
 
-    assign result_7[n_12] = map_out_7;
+    assign result_9[n_12] = map_out_7;
   end
   endgenerate
   // map end
@@ -5409,19 +5513,19 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // map end
 
-  assign lvl3 = ({G512_I256_O256_types::array_of_1600_logic_vector_1_to_lv(result_8)});
+  assign lvl3 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_10)});
 
   // map begin
   genvar n_14;
   generate
-  for (n_14=0; n_14 < $size(result_8); n_14 = n_14 + 1) begin : map_9
+  for (n_14=0; n_14 < $size(result_10); n_14 = n_14 + 1) begin : map_9
     logic map_in_9;
     assign map_in_9 = c$lvl3_app_arg[n_14];
     logic [0:0] map_out_9;
     assign map_out_9 = (map_in_9);
 
 
-    assign result_8[n_14] = map_out_9;
+    assign result_10[n_14] = map_out_9;
   end
   endgenerate
   // map end
@@ -5430,7 +5534,7 @@ module Component_G512_i256o256_sponge7
   genvar n_15;
   generate
     for (n_15=0; n_15 < $size(c$lvl3_app_arg_0); n_15 = n_15 + 1) begin : concat
-      assign c$lvl3_app_arg[n_15*64 : n_15*64+(64-1)] = G512_I256_O256_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_15]);
+      assign c$lvl3_app_arg[n_15*64 : n_15*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_15]);
     end
   endgenerate
   // concat end
@@ -5441,28 +5545,28 @@ module Component_G512_i256o256_sponge7
   for (n_17=0; n_17 < $size(c$lvl3_app_arg_0); n_17 = n_17 + 1) begin : imap_0
     logic [4:0] i_0;
     assign i_0 = n_17;
-    G512_I256_O256_types::array_of_64_logic imap_in_0;
-    assign imap_in_0 = G512_I256_O256_types::array_of_64_logic_from_lv(state[n_17]);
-    G512_I256_O256_types::array_of_64_logic imap_out_0;
+    dut_types::array_of_64_logic imap_in_0;
+    assign imap_in_0 = dut_types::array_of_64_logic_from_lv(state_0[n_17]);
+    dut_types::array_of_64_logic imap_out_0;
     logic [2:0] ds;
-    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6;
-    G512_I256_O256_types::array_of_64_logic result_15;
-    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt;
-    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
-    G512_I256_O256_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
-    logic [4:0] c$bv_0;
-    assign imap_out_0 = result_15;
+    dut_types::array_of_64_logic c$zipWith_arg6;
+    dut_types::array_of_64_logic result_22;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
+    logic [4:0] c$bv_1;
+    assign imap_out_0 = result_22;
 
-    assign c$bv_0 = (i_0 % 5'd5);
+    assign c$bv_1 = (i_0 % 5'd5);
 
-    assign ds = c$bv_0[0+:3];
+    assign ds = c$bv_1[0+:3];
 
     assign c$zipWith_arg6 = (ds == 3'd0) ? lvl6 : c$zipWith_arg6_case_alt;
 
     // zipWith begin
     genvar n_16;
 
-    for (n_16 = 0; n_16 < $size(result_15); n_16 = n_16 + 1) begin : zipWith_2
+    for (n_16 = 0; n_16 < $size(result_22); n_16 = n_16 + 1) begin : zipWith_2
       logic zipWith_in1_2;
       assign zipWith_in1_2 = imap_in_0[n_16];
       logic zipWith_in2_2;
@@ -5471,7 +5575,7 @@ module Component_G512_i256o256_sponge7
       assign zipWith_out_2 = zipWith_in1_2 ^ zipWith_in2_2;
 
 
-      assign result_15[n_16] = zipWith_out_2;
+      assign result_22[n_16] = zipWith_out_2;
     end
 
     // zipWith end
@@ -5483,7 +5587,7 @@ module Component_G512_i256o256_sponge7
     assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl4 : lvl7;
 
 
-    assign c$lvl3_app_arg_0[n_17] = {G512_I256_O256_types::array_of_64_logic_to_lv(imap_out_0)};
+    assign c$lvl3_app_arg_0[n_17] = {dut_types::array_of_64_logic_to_lv(imap_out_0)};
   end
   endgenerate
   // imap end
@@ -5535,7 +5639,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_0 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd0]));
+  assign c$vec1_0 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd0]));
 
   // zipWith begin
   genvar n_20;
@@ -5554,7 +5658,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_1 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd5]));
 
   // zipWith begin
   genvar n_21;
@@ -5573,7 +5677,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd10]));
+  assign c$vec1_2 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd10]));
 
   // zipWith begin
   genvar n_22;
@@ -5592,9 +5696,9 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_3 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_3 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd15]));
 
-  assign c$vec2_2 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd20]));
+  assign c$vec2_2 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd20]));
 
   // zipWith begin
   genvar n_23;
@@ -5673,7 +5777,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_4 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd3]));
+  assign c$vec1_4 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd3]));
 
   // zipWith begin
   genvar n_26;
@@ -5692,7 +5796,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_5 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd8]));
+  assign c$vec1_5 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd8]));
 
   // zipWith begin
   genvar n_27;
@@ -5711,7 +5815,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_6 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd13]));
+  assign c$vec1_6 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd13]));
 
   // zipWith begin
   genvar n_28;
@@ -5730,9 +5834,9 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_7 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd18]));
+  assign c$vec1_7 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd18]));
 
-  assign c$vec2_3 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec2_3 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd23]));
 
   // zipWith begin
   genvar n_29;
@@ -5764,7 +5868,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_8 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd1]));
+  assign c$vec1_8 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd1]));
 
   // zipWith begin
   genvar n_30;
@@ -5783,7 +5887,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd6]));
+  assign c$vec1_9 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd6]));
 
   // zipWith begin
   genvar n_31;
@@ -5802,7 +5906,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_10 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_10 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd11]));
 
   // zipWith begin
   genvar n_32;
@@ -5821,9 +5925,9 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd16]));
+  assign c$vec1_11 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd16]));
 
-  assign c$vec2_4 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec2_4 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd21]));
 
   // zipWith begin
   genvar n_33;
@@ -5859,7 +5963,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_12 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd4]));
+  assign c$vec1_12 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd4]));
 
   // zipWith begin
   genvar n_35;
@@ -5878,7 +5982,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_13 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd9]));
+  assign c$vec1_13 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd9]));
 
   // zipWith begin
   genvar n_36;
@@ -5897,7 +6001,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_14 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd14]));
+  assign c$vec1_14 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd14]));
 
   // zipWith begin
   genvar n_37;
@@ -5916,9 +6020,9 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_15 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd19]));
+  assign c$vec1_15 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd19]));
 
-  assign c$vec2_5 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd24]));
+  assign c$vec2_5 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd24]));
 
   // zipWith begin
   genvar n_38;
@@ -5950,7 +6054,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_16 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd2]));
+  assign c$vec1_16 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd2]));
 
   // zipWith begin
   genvar n_39;
@@ -5969,7 +6073,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_17 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd7]));
+  assign c$vec1_17 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd7]));
 
   // zipWith begin
   genvar n_40;
@@ -5988,7 +6092,7 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_18 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd12]));
+  assign c$vec1_18 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd12]));
 
   // zipWith begin
   genvar n_41;
@@ -6007,9 +6111,9 @@ module Component_G512_i256o256_sponge7
   endgenerate
   // zipWith end
 
-  assign c$vec1_19 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd17]));
+  assign c$vec1_19 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd17]));
 
-  assign c$vec2_6 = (G512_I256_O256_types::array_of_64_logic_from_lv(state[64'sd22]));
+  assign c$vec2_6 = (dut_types::array_of_64_logic_from_lv(state_0[64'sd22]));
 
   // zipWith begin
   genvar n_42;
@@ -6031,13 +6135,13 @@ module Component_G512_i256o256_sponge7
   // unconcat begin
   genvar n_43;
   generate
-    for (n_43 = 0; n_43 < $size(state); n_43 = n_43 + 1) begin : unconcat_0
-      assign state[n_43] = {G512_I256_O256_types::array_of_64_logic_to_lv(c$state_app_arg[(n_43 * 64) : ((n_43 * 64) + 64 - 1)])};
+    for (n_43 = 0; n_43 < $size(state_0); n_43 = n_43 + 1) begin : unconcat_0
+      assign state_0[n_43] = {dut_types::array_of_64_logic_to_lv(c$state_app_arg[(n_43 * 64) : ((n_43 * 64) + 64 - 1)])};
     end
   endgenerate
   // unconcat end
 
-  assign c$vec_7 = (G512_I256_O256_types::array_of_1600_logic_vector_1_from_lv(eta5));
+  assign c$vec_7 = (dut_types::array_of_1600_logic_vector_1_from_lv(state));
 
   // map begin
   genvar n_44;
@@ -6053,6 +6157,123 @@ module Component_G512_i256o256_sponge7
   end
   endgenerate
   // map end
+
+  assign seenTLAST = ds1[1601:1600];
+
+  assign counter = ds1[1606:1602];
+
+  assign c$ds_case_alt_0 = (~ c$ds_bindCsr_2.AXI4Stream_sel1) ? {ds1
+                                                                ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                  ,1'b0
+                                                                  ,1'b0}
+                                                                 ,1'b1}} : result_11;
+
+  assign result_11 = (c$ds_bindCsr_2.AXI4Stream_sel2 & c$ds_app_arg) ? {{{2'b01,5'd0,2'd0}
+                                                                        ,result_12}
+                                                                       ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                         ,1'b0
+                                                                         ,1'b0}
+                                                                        ,1'b0}} : c$ds_case_alt_1;
+
+  assign result_12 = c$complementAt1_arg0_case_scrut_0 ? result_13 : result_14;
+
+  // replaceBit start
+  always_comb begin
+    result_13 = c$app_arg_5;
+    result_13[64'sd575] = (~ (c$app_arg_5[64'sd575]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_5 = result_14;
+
+  // replaceBit start
+  always_comb begin
+    result_14 = c$app_arg_7;
+    result_14[c$app_arg_6] = (~ (c$app_arg_7[c$app_arg_6]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_6 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0_0});
+
+  assign c$app_arg_7 = result_15;
+
+  // replaceBit start
+  always_comb begin
+    result_15 = c$app_arg_9;
+    result_15[c$app_arg_8] = (~ (c$app_arg_9[c$app_arg_8]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_8 = $unsigned({{(64-11) {1'b0}},c$complementAt1_arg0});
+
+  assign c$app_arg_9 = result_16;
+
+  // replaceBit start
+  always_comb begin
+    result_16 = c$app_arg_11;
+    result_16[c$app_arg_10] = (~ (c$app_arg_11[c$app_arg_10]));
+  end
+  // replaceBit end
+
+  assign c$i_8112 = c$complementAt1_tupIn.Tuple2_1_sel0;
+
+  assign c$app_arg_10 = $unsigned({{(64-11) {1'b0}},c$i_8112});
+
+  assign c$app_arg_11 = c$complementAt1_tupIn.Tuple2_1_sel1;
+
+  assign c$complementAt1_tupIn = c$complementAt1_arg0_case_scrut_0 ? {11'd257
+                                                                     ,result_0} : c$complementAt1_tupIn_case_alt;
+
+  assign c$complementAt1_tupIn_case_alt = c$complementAt1_arg0_case_scrut ? {11'd513
+                                                                            ,result_0} : {11'd1,result_0};
+
+  assign c$complementAt1_arg0 = c$complementAt1_arg0_case_scrut_0 ? 11'd265 : c$complementAt1_arg0_case_alt;
+
+  assign c$complementAt1_arg0_case_alt = c$complementAt1_arg0_case_scrut ? 11'd514 : 11'd2;
+
+  assign c$complementAt1_arg0_case_scrut = counter_0 == 2'd1;
+
+  assign c$complementAt1_arg0_0 = c$complementAt1_arg0_case_scrut_0 ? 11'd266 : 11'd575;
+
+  assign c$complementAt1_arg0_case_scrut_0 = counter_0 == 2'd0;
+
+  assign c$ds_case_alt_1 = c$ds_bindCsr_2.AXI4Stream_sel2 ? {{{2'b01,5'd0,2'd1}
+                                                             ,result_0}
+                                                            ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                              ,1'b0
+                                                              ,1'b0}
+                                                             ,1'b0}} : c$ds_case_alt_2;
+
+  assign c$ds_case_alt_2 = c$ds_app_arg ? {{{2'b00,counter_0 + 2'd1,5'bxxxxx}
+                                           ,result_0}
+                                          ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                            ,1'b0
+                                            ,1'b0}
+                                           ,1'b1}} : {{{2'b01,5'd0,2'd2},result_0}
+                                                     ,{{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+                                                       ,1'b0
+                                                       ,1'b0}
+                                                      ,1'b0}};
+
+  assign c$ds_app_arg = counter_0 < 2'd2;
+
+  assign counter_0 = ds1[1606:1605];
+
+  assign result_17 = (counter_1 == 1'd0) ? (c$app_arg_12[255 : 0]) : c$case_alt_4;
+
+  assign c$case_alt_4 = (counter_1 == 1'd1) ? (c$app_arg_12[511 : 256]) : ({256 {1'bx}});
+
+  assign c$app_arg_12 = state;
+
+  assign c$ds_app_arg_0 = (~ c$ds_bindCsr_3) ? ds1 : c$ds_case_alt_3;
+
+  assign c$ds_case_alt_3 = isLast ? {{2'b00,2'd0,5'bxxxxx}
+                                    ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000} : {{2'b10,counter_1 + 1'd1,6'bxxxxxx}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,state};
+
+  assign isLast = counter_1 == 1'd1;
+
+  assign counter_1 = ds1[1606:1606];
 
 
 endmodule

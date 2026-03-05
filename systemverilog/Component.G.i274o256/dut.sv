@@ -21,19 +21,19 @@ module dut
     );
   dut_types::State c$ds_app_arg = {{2'b00,5'bxxxxx}
 ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
-  dut_types::Tuple2_2 result_0;
-  logic [1599:0] result_1;
+  dut_types::Tuple2_2 wild;
+  logic [1599:0] result_0;
   logic [1599:0] c$app_arg;
-  logic [1599:0] result_2;
+  logic [1599:0] result_1;
   logic [1599:0] c$app_arg_0;
-  logic [1599:0] result_3;
+  logic [1599:0] result_2;
   logic [1599:0] c$app_arg_1;
   dut_types::Tuple2_3 c$case_alt;
   logic [6:0] c$app_arg_2;
-  dut_types::Tuple2_3 result_4;
+  dut_types::Tuple2_3 result_3;
   dut_types::State c$case_alt_0;
   dut_types::State c$app_arg_3;
-  logic [255:0] result_5;
+  logic [255:0] result_4;
   logic [255:0] c$case_alt_1;
   logic [1599:0] c$app_arg_4;
   dut_types::Tuple2_3 c$case_alt_2;
@@ -67,12 +67,16 @@ module dut
   end
   // register end
 
-  assign result_0 = c$case_alt_2.Tuple2_3_sel1;
+  assign result = {c$case_alt_2[257:0]
+                  ,c$case_alt_2[258:258]};
+
+  assign wild = {c$arg.Tuple2_4_sel1
+                ,c$arg.Tuple2_4_sel0};
 
   // replaceBit start
   always_comb begin
-    result_1 = c$app_arg;
-    result_1[64'sd265] = (~ (c$app_arg[64'sd265]));
+    result_0 = c$app_arg;
+    result_0[64'sd265] = (~ (c$app_arg[64'sd265]));
   end
   // replaceBit end
 
@@ -82,24 +86,24 @@ module dut
 
   // replaceBit start
   always_comb begin
-    result_2 = c$app_arg_0;
-    result_2[64'sd266] = (~ (c$app_arg_0[64'sd266]));
+    result_1 = c$app_arg_0;
+    result_1[64'sd266] = (~ (c$app_arg_0[64'sd266]));
   end
   // replaceBit end
 
-  assign c$app_arg_0 = result_1;
+  assign c$app_arg_0 = result_0;
 
   // replaceBit start
   always_comb begin
-    result_3 = c$app_arg_1;
-    result_3[64'sd575] = (~ (c$app_arg_1[64'sd575]));
+    result_2 = c$app_arg_1;
+    result_2[64'sd575] = (~ (c$app_arg_1[64'sd575]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_2;
+  assign c$app_arg_1 = result_1;
 
   assign c$case_alt = \input .AXI4Stream_sel1 ? {{{2'b01,5'd0}
-                                                 ,result_3}
+                                                 ,result_2}
                                                 ,{1'b0
                                                  ,{256'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
                                                   ,1'b0
@@ -113,7 +117,7 @@ module dut
 
   assign c$bv_0 = (\state' );
 
-  assign result_4 = (roundIdx == 5'd23) ? {{c$app_arg_2
+  assign result_3 = (roundIdx == 5'd23) ? {{c$app_arg_2
                                            ,\state' }
                                           ,{1'b0
                                            ,{c$bv_0[255 : 0]
@@ -130,7 +134,7 @@ module dut
 
   assign c$app_arg_3 = (~ outReady) ? c$ds_app_arg : c$case_alt_0;
 
-  assign result_5 = (idx == 1'd0) ? (c$app_arg_4[255 : 0]) : c$case_alt_1;
+  assign result_4 = (idx == 1'd0) ? (c$app_arg_4[255 : 0]) : c$case_alt_1;
 
   assign c$case_alt_1 = (idx == 1'd1) ? (c$app_arg_4[511 : 256]) : ({256 {1'bx}});
 
@@ -139,9 +143,9 @@ module dut
   always_comb begin
     case(phase[6:5])
       2'b00 : c$case_alt_2 = c$case_alt;
-      2'b01 : c$case_alt_2 = result_4;
+      2'b01 : c$case_alt_2 = result_3;
       default : c$case_alt_2 = {c$app_arg_3
-                               ,{1'b0,{result_5,1'b1,isLast}}};
+                               ,{1'b0,{result_4,1'b1,isLast}}};
     endcase
   end
 
@@ -149,11 +153,11 @@ module dut
 
   assign state = c$ds_app_arg.State_sel1;
 
-  assign outReady = c$arg.Tuple2_4_sel1;
+  assign outReady = wild.Tuple2_2_sel0;
 
-  assign \input  = c$arg.Tuple2_4_sel0;
+  assign \input  = wild.Tuple2_2_sel1;
 
-  Component_G_i274o256DUT_keccakF1600 Component_G_i274o256DUT_keccakF1600_state
+  Component_G_i274o256_keccakF1600 Component_G_i274o256_keccakF1600_state
     ( .result (\state' )
     , .roundIdx (roundIdx)
     , .x (state) );
@@ -163,9 +167,6 @@ module dut
   assign isLast = idx == 1'd1;
 
   assign idx = phase[4:4];
-
-  assign result = {result_0.Tuple2_2_sel1
-                  ,result_0.Tuple2_2_sel0};
 
   assign DIGEST = result.Tuple2_5_sel0;
 

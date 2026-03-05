@@ -1,9 +1,7 @@
 {
     "components": [
-        "Component_G512_i256o256_sponge7",
-        "Component_G512_i256o256_spongeFSM",
-        "Component_G512_i256o256_i256o256Stream",
-        "G512_I256_O256"
+        "Component_G512_i256o256_keccakF1600",
+        "dut"
     ],
     "dependencies": {
         "transitive": []
@@ -33,41 +31,37 @@
     },
     "files": [
         {
-            "name": "G512_I256_O256_shim.cpp",
-            "sha256": "a56735df3151d4a074ea1f394332af8da930c989a6e30f434eff74f375e45154"
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "G512_I256_O256.sdc",
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+        },
+        {
+            "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "G512_I256_O256_types.sv",
-            "sha256": "a5a25787c8527c9b5fa1293324b121c47f70b1736b94fb5b860b46b7569d4e55"
+            "name": "dut_types.sv",
+            "sha256": "5eaa5a03b7ebaf38d7188276b75709fb545e28407759a2803cefa3f5ea532e0c"
         },
         {
-            "name": "Component_G512_i256o256_sponge7.sv",
-            "sha256": "023ae5e464c0c398c05dc9b70f4fde36c55addd6aa2340cde3857200490fc5a5"
+            "name": "Component_G512_i256o256_keccakF1600.sv",
+            "sha256": "35898d3349200bc6aab499d42088fa2faa83e7de13d1c3db0cb8e75340bb35a2"
         },
         {
-            "name": "Component_G512_i256o256_spongeFSM.sv",
-            "sha256": "33d8558e395289db5c69c42fbd0b48f9ecf8db20cfa76e69f8a724ee9b96454e"
-        },
-        {
-            "name": "Component_G512_i256o256_i256o256Stream.sv",
-            "sha256": "ad735e80891521c6dfee79f5fb9cae0c50a313abb6850d066b5f383604dc68ca"
-        },
-        {
-            "name": "G512_I256_O256.sv",
-            "sha256": "0ecbeca14de9b522b684cb78860845720710c914611eba4ca794961b6bb97b8e"
+            "name": "dut.sv",
+            "sha256": "e49670497f62f8dae138301596208bcf9a18545417dbaa2345caca231ccab967"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "b5c25d51a3d2c93ac864a62e4e9fa13b62d1bc0f3c1ee526c8b77a39706b392e",
+    "hash": "aad13d442347cc2a469d040528ec7942cd3de8b17c17232b0ccf46791f71957d",
     "top_component": {
-        "name": "G512_I256_O256",
+        "name": "dut",
         "ports_flat": [
             {
                 "direction": "in",
@@ -96,13 +90,6 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "TREADY",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
                 "name": "MSG_TDATA",
                 "type_name": "logic [255:0]",
                 "width": 256
@@ -124,7 +111,7 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_FLUSH",
+                "name": "DIGEST_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
