@@ -6,7 +6,7 @@
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
-| 274  | 256   | 23895  | systemverilog/Component.G.i274o256/G_I274_O256.sv |
+| 274  | 256   | 23895  | systemverilog/Component.G.i274o256/dut.sv |
 
 ## ML-KEM-512 Components
 
@@ -14,7 +14,7 @@
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
-| 256  | 256   | 24536  | systemverilog/Component.G512.i256o256/G512_I256_O256.sv |
+| 256  | 256   | 24536  | systemverilog/Component.G512.i256o256/dut.sv |
 
 ### SampleNTT512
 

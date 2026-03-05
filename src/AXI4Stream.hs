@@ -9,8 +9,10 @@ module AXI4Stream
     Master,
     Slave,
     Pipe,
+    Pipe2,
     (~>),
     toDUT,
+    toDUT2,
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -91,6 +93,12 @@ type Pipe dom a b =
   (Signal dom Bool, Signal dom (AXI4Stream a)) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
+-- | Bundled pipe form used by modules that naturally operate on the
+-- first-order DUT shape.
+type Pipe2 dom a b =
+  Signal dom (AXI4Stream a, Bool) ->
+  Signal dom (AXI4Stream b, Bool)
+
 -- | Compose two stream stages, tying the intermediate @tready@ feedback loop.
 --
 -- The recursive @let@ is safe under Clash's lazy 'Signal' semantics provided
@@ -127,6 +135,18 @@ toDUT comp clk rst en inputSig =
     let (inputStream, outReady) = unbundle inputSig
         (inReady, outStream) = comp (outReady, inputStream)
      in bundle (outStream, inReady)
+
+-- | Adapt a component already written in bundled DUT shape.
+toDUT2 ::
+  KnownDomain dom =>
+  (HiddenClockResetEnable dom => Pipe2 dom a b) ->
+  Clock dom ->
+  Reset dom ->
+  Enable dom ->
+  Signal dom (AXI4Stream a, Bool) ->
+  Signal dom (AXI4Stream b, Bool)
+toDUT2 comp clk rst en inputSig =
+  withClockResetEnable clk rst en (comp inputSig)
 
 --------------------------------------------------------------------------------
 -- Utilities

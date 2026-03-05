@@ -12,27 +12,38 @@ import Component.G.Common qualified as Common
 import Parameter
 import Permutation qualified
 
+{-# OPAQUE spongeFSM #-}
+spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
+spongeFSM = Permutation.keccakF1600
+
 i256o256Core ::
   HiddenClockResetEnable dom =>
-  Pipe dom 256 256
-i256o256Core (outReady, inStream) =
-  let outSig = Common.sponge MLKEM512 Permutation.keccakF1600 (bundle (inStream, outReady, pure False))
-      (outStream, inReady) = unbundle outSig
-   in (inReady, outStream)
+  Pipe2 dom 256 256
+i256o256Core inputSig =
+  let (msgSig, treadySig) = unbundle inputSig
+   in i256o256Hidden treadySig (bundle (msgSig, pure False))
+
+{-# NOINLINE i256o256Hidden #-}
+i256o256Hidden ::
+  HiddenClockResetEnable dom =>
+  Signal dom Bool ->
+  Signal dom (AXI4Stream 256, Bool) ->
+  Signal dom (AXI4Stream 256, Bool)
+i256o256Hidden treadySig inputSig =
+  let (msgSig, flushSig) = unbundle inputSig
+   in Common.sponge MLKEM512 spongeFSM (bundle (msgSig, treadySig, flushSig))
 
 {-# NOINLINE i256o256Stream #-}
 i256o256Stream ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool -> -- output tready
-  Signal System (AXI4Stream 256, Bool) -> -- Input message with flush signal
-  Signal System (AXI4Stream 256, Bool) -- Output digest (AXI4-Stream), input tready
+  Signal System Bool ->
+  Signal System (AXI4Stream 256, Bool) ->
+  Signal System (AXI4Stream 256, Bool)
 i256o256Stream clk rst en treadySig inputSig =
-  withClockResetEnable clk rst en $
-    let (msgSig, _flushSig) = unbundle inputSig
-        (inReadySig, outStreamSig) = i256o256Core (treadySig, msgSig)
-     in bundle (outStreamSig, inReadySig)
+  withClockResetEnable clk rst en
+    $ i256o256Hidden treadySig inputSig
 
 {-# ANN
   i256o256
@@ -64,4 +75,4 @@ i256o256 ::
   Enable System ->
   Signal System (AXI4Stream 256, Bool) ->
   Signal System (AXI4Stream 256, Bool)
-i256o256 = toDUT i256o256Core
+i256o256 = toDUT2 i256o256Core

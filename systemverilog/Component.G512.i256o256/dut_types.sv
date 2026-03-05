@@ -8,9 +8,9 @@ package dut_types;
   } Tuple3;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef struct packed {
-    logic [10:0] Tuple2_1_sel0;
-    logic [1599:0] Tuple2_1_sel1;
-  } Tuple2_1;
+    logic [10:0] Tuple2_3_sel0;
+    logic [1599:0] Tuple2_3_sel1;
+  } Tuple2_3;
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
     logic [255:0] AXI4Stream_sel0;
@@ -18,13 +18,14 @@ package dut_types;
     logic AXI4Stream_sel2;
   } AXI4Stream;
   typedef struct packed {
+    AXI4Stream Tuple3_0_sel0;
+    logic Tuple3_0_sel1;
+    logic Tuple3_0_sel2;
+  } Tuple3_0;
+  typedef struct packed {
     AXI4Stream Tuple2_4_sel0;
     logic Tuple2_4_sel1;
   } Tuple2_4;
-  typedef struct packed {
-    logic Tuple2_5_sel0;
-    AXI4Stream Tuple2_5_sel1;
-  } Tuple2_5;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {
@@ -37,19 +38,19 @@ package dut_types;
   typedef logic  array_of_1600_logic [0:1599];
   typedef logic  array_of_64_logic [0:63];
   typedef struct packed {
-    logic Tuple2_2_sel0;
-    logic[0:63] Tuple2_2_sel1;
-  } Tuple2_2;
-  typedef Tuple2_2  array_of_7_Tuple2_2 [0:6];
+    logic Tuple2_1_sel0;
+    logic[0:63] Tuple2_1_sel1;
+  } Tuple2_1;
+  typedef Tuple2_1  array_of_7_Tuple2_1 [0:6];
   typedef logic [0:63] array_of_7_array_of_64_logic [0:6];
   typedef logic [0:63] array_of_8_array_of_64_logic [0:7];
   typedef logic [0:63] array_of_25_array_of_64_logic [0:24];
   typedef logic [0:63] array_of_24_array_of_64_logic [0:23];
   typedef logic  array_of_1_logic [0:0];
   typedef struct packed {
-    logic[0:7] Tuple2_3_sel0;
-    logic[0:0] Tuple2_3_sel1;
-  } Tuple2_3;
+    logic[0:7] Tuple2_2_sel0;
+    logic[0:0] Tuple2_2_sel1;
+  } Tuple2_2;
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
   typedef struct packed {
@@ -192,17 +193,17 @@ package dut_types;
     array_of_64_logic_cons[0] = x;
     array_of_64_logic_cons[1:63] = xs;
   endfunction
-  function automatic logic [0:6][64:0] array_of_7_Tuple2_2_to_lv(array_of_7_Tuple2_2 i);
+  function automatic logic [0:6][64:0] array_of_7_Tuple2_1_to_lv(array_of_7_Tuple2_1 i);
     for (int n = 0; n < 7; n=n+1)
-      array_of_7_Tuple2_2_to_lv[n] = i[n];
+      array_of_7_Tuple2_1_to_lv[n] = i[n];
   endfunction
-  function automatic array_of_7_Tuple2_2 array_of_7_Tuple2_2_from_lv(logic [0:6][64:0] i);
+  function automatic array_of_7_Tuple2_1 array_of_7_Tuple2_1_from_lv(logic [0:6][64:0] i);
     for (int n = 0; n < 7; n=n+1)
-      array_of_7_Tuple2_2_from_lv[n] = i[n];
+      array_of_7_Tuple2_1_from_lv[n] = i[n];
   endfunction
-  function automatic array_of_7_Tuple2_2 array_of_7_Tuple2_2_cons(Tuple2_2 x,Tuple2_2  xs [0:5]);
-    array_of_7_Tuple2_2_cons[0] = x;
-    array_of_7_Tuple2_2_cons[1:6] = xs;
+  function automatic array_of_7_Tuple2_1 array_of_7_Tuple2_1_cons(Tuple2_1 x,Tuple2_1  xs [0:5]);
+    array_of_7_Tuple2_1_cons[0] = x;
+    array_of_7_Tuple2_1_cons[1:6] = xs;
   endfunction
   function automatic logic [0:6][63:0] array_of_7_array_of_64_logic_to_lv(array_of_7_array_of_64_logic i);
     for (int n = 0; n < 7; n=n+1)

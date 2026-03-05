@@ -19,36 +19,28 @@ module dut
     , output logic DIGEST_TLAST
     , output logic MSG_TREADY
     );
-  dut_types::Tuple2_4 result_0;
-  dut_types::Tuple2_5 result_1;
-  logic outReady;
-  dut_types::AXI4Stream inStream;
-  dut_types::Tuple2_4 c$arg;
+  dut_types::Tuple2_4 inputSig;
+  logic result_fun_arg;
+  dut_types::AXI4Stream result_fun_arg_0;
   dut_types::Tuple2_4 result;
   dut_types::AXI4Stream DIGEST;
 
-  assign c$arg = {{MSG_TDATA
-                  ,MSG_TVALID
-                  ,MSG_TLAST}
-                 ,DIGEST_TREADY};
+  assign inputSig = {{MSG_TDATA
+                     ,MSG_TVALID
+                     ,MSG_TLAST}
+                    ,DIGEST_TREADY};
 
-  Component_G512_i256o256_keccakF1600 Component_G512_i256o256_keccakF1600_result_0
-    ( .result (result_0)
-    , .c$ds_bindCsr (CLK)
-    , .c$ds_bindCsr_0 (RST)
-    , .c$ds_bindCsr_1 (EN)
-    , .c$ds_bindCsr_2 (inStream)
-    , .c$ds_bindCsr_3 (outReady) );
+  assign result_fun_arg = inputSig.Tuple2_4_sel1;
 
-  assign result_1 = {result_0.Tuple2_4_sel1
-                    ,result_0.Tuple2_4_sel0};
+  assign result_fun_arg_0 = inputSig.Tuple2_4_sel0;
 
-  assign outReady = c$arg.Tuple2_4_sel1;
-
-  assign inStream = c$arg.Tuple2_4_sel0;
-
-  assign result = {result_1.Tuple2_5_sel1
-                  ,result_1.Tuple2_5_sel0};
+  Component_G512_i256o256_i256o256Hidden Component_G512_i256o256_i256o256Hidden_result
+    ( .result (result)
+    , .c$bindCsr (CLK)
+    , .c$bindCsr_0 (RST)
+    , .c$bindCsr_1 (EN)
+    , .eta (result_fun_arg)
+    , .c$bindCsr_2 (result_fun_arg_0) );
 
   assign DIGEST = result.Tuple2_4_sel0;
 

@@ -73,4 +73,3 @@ sponge mlkem permModule = mealy step (State (Absorb 0) 0)
     step (State (Absorb counter) state) (input, _tready, flush) = absorb padFn XOR.staticXOR512_256 counter state input flush
     step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule padFn (`squeezeSlice` 0) counter seenTLAST state tready
     step (State (Squeeze counter) state) (_msg, tready, _flush) = squeeze squeezeSlice counter state tready
-
