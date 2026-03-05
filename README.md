@@ -14,7 +14,7 @@
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
-| 256  | 256   | 24536  | systemverilog/Component.G512.i256o256/dut.sv |
+| 256  | 256   | 23887  | systemverilog/Component.G512.i256o256/dut.sv |
 
 ### SampleNTT512
 

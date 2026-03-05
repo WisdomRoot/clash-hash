@@ -1,8 +1,6 @@
 {
     "components": [
-        "Component_G512_i256o256_sponge14",
-        "Component_G512_i256o256_spongeFSM",
-        "Component_G512_i256o256_i256o256Hidden",
+        "Component_G512_i256o256_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -37,35 +35,31 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+        },
+        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "dut_types.sv",
-            "sha256": "cae3d568d64bdd864131892c1a93e4e7423b6a1f93f3b4804e04f578e93d52bd"
+            "sha256": "fb9d7bc80943d9f28e0432519a74cd3906c6a4dc6fc98cb1fa47c826f875007c"
         },
         {
-            "name": "Component_G512_i256o256_sponge14.sv",
-            "sha256": "8e571a979bd2f1620ac72cdc7d4b496454006286fbd9dcfa0fe28d52cd98fc85"
-        },
-        {
-            "name": "Component_G512_i256o256_spongeFSM.sv",
-            "sha256": "8c92225490a5844b2b765a30e3f6a70bb4e0dd06f926636784127e80fde1bf1a"
-        },
-        {
-            "name": "Component_G512_i256o256_i256o256Hidden.sv",
-            "sha256": "3e8cbd3ab6364020461dc18d0265ce9ecb34d56f5da69780747a2dd488127e44"
+            "name": "Component_G512_i256o256_keccakF1600.sv",
+            "sha256": "ad12bf35302240fd773c3da6a9c12ddb7e72cb3fe7f50055e9089f75e9a329cc"
         },
         {
             "name": "dut.sv",
-            "sha256": "71d3baf4b2c226ceca769ce1cd7328510331c67410bf7626ec0982b880dc29b1"
+            "sha256": "0a35545a6dd838c72e5488cb74e728c8bc572af40b2f193d8a3c025fcc433d17"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "511a4bd4757016d20a5fdfc370273cae3cc2a120758f001e379c5cb241d9d42c",
+    "hash": "f3ca5014a9269d4eb2587b257d99b00fa65e2de1c3eb39f8cd6035b545de8500",
     "top_component": {
         "name": "dut",
         "ports_flat": [

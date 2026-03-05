@@ -1,9 +1,7 @@
 {
     "components": [
-        "Component_G768_i256o256_sponge7",
-        "Component_G768_i256o256_spongeFSM",
-        "Component_G768_i256o256_i256o256Stream",
-        "G768_I256_O256"
+        "Component_G768_i256o256_keccakF1600",
+        "dut"
     ],
     "dependencies": {
         "transitive": []
@@ -33,41 +31,33 @@
     },
     "files": [
         {
-            "name": "G768_I256_O256_shim.cpp",
-            "sha256": "b89d763f9e5db98a932dc6ed5d612ccdfa427953c83bb0b1a3d6963d48a33a9c"
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "G768_I256_O256.sdc",
+            "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "G768_I256_O256_types.sv",
-            "sha256": "82e2fee47e017f57192bf88e5f89baad975a1bfee774d8e4b14fc4d148f94ec9"
+            "name": "dut_types.sv",
+            "sha256": "fb9d7bc80943d9f28e0432519a74cd3906c6a4dc6fc98cb1fa47c826f875007c"
         },
         {
-            "name": "Component_G768_i256o256_sponge7.sv",
-            "sha256": "a0bd0aa2ee0a0627ea8166dd7f0078a80812e9f48c260d2fc5d4cfdeb3d96e10"
+            "name": "Component_G768_i256o256_keccakF1600.sv",
+            "sha256": "7390a22cdfea8bfd0f8ec937fd8b6cc38acc50e06adf1f2a8a1a7edee1de82cf"
         },
         {
-            "name": "Component_G768_i256o256_spongeFSM.sv",
-            "sha256": "3b89911de50f6c22470d0e680cb557dce86b079ce1d28f355918437ee5ec6487"
-        },
-        {
-            "name": "Component_G768_i256o256_i256o256Stream.sv",
-            "sha256": "1b6d706b72fa78777cb1c8ff511af1b6dc0859dc4106e21c5041b99a64e546fe"
-        },
-        {
-            "name": "G768_I256_O256.sv",
-            "sha256": "eb5c9c72e61355dad1ceb2dc8c7b9b394cc54dd5eb9d2c3f09de4b80bb8c08d1"
+            "name": "dut.sv",
+            "sha256": "05b92717b605e696dc3e2191b6f824c4ca8bdac4ab22705d5472c3417bde7437"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "3bac86bf2d7744cb3ea3e325285db3e36edbe7ffcc6bd6315b74dac766175199",
+    "hash": "115700240cec0eadd9ba94cb7774047ac9605b0727feb4cdaaa28308fbfdb0fb",
     "top_component": {
-        "name": "G768_I256_O256",
+        "name": "dut",
         "ports_flat": [
             {
                 "direction": "in",
@@ -96,13 +86,6 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "TREADY",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
                 "name": "MSG_TDATA",
                 "type_name": "logic [255:0]",
                 "width": 256
@@ -124,7 +107,7 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_FLUSH",
+                "name": "DIGEST_TREADY",
                 "type_name": "logic",
                 "width": 1
             },

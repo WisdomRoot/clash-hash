@@ -1,60 +1,102 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Component.G768
   ( i256o256,
     i256o256Stream,
   )
 where
 
-import AXI4Stream (AXI4Stream (..))
+import AXI4Stream
 import Clash.Prelude hiding (tlast)
 import Component.G.Common qualified as Common
-import Parameter
 import Permutation qualified
+import Sponge.NonPipelinedN256 (complementAt)
 
---------------------------------------------------------------------------------
--- Component G768 (MK-KEM-768 / 256-bit input / 256-bit output)
---------------------------------------------------------------------------------
+type SqueezeBeats = Common.SqueezeBeats
 
--- Wrapper function for module naming control
--- OPAQUE ensures module boundary; function name determines module name
-{-# OPAQUE spongeFSM #-}
-spongeFSM :: Index 24 -> BitVector 1600 -> BitVector 1600
-spongeFSM = Permutation.keccakF1600
+data Phase
+  = Absorb
+  | Permute (Index 24)
+  | Squeeze (Index SqueezeBeats)
+  deriving (Show, Eq, Generic, NFDataX)
+
+data State = State Phase (BitVector 1600)
+  deriving (Show, Eq, Generic, NFDataX)
+
+absorb32k3 :: BitVector 256 -> BitVector 1600
+absorb32k3 msg256 =
+  let msg264 = (3 :: BitVector 8) ++# msg256
+      placed = (0 :: BitVector 1336) ++# msg264
+   in complementAt 575 . complementAt 266 . complementAt 265 $ placed
+
+stepI256 ::
+  State ->
+  (Bool, AXI4Stream 256) ->
+  (State, (Bool, AXI4Stream 256))
+stepI256 (State phase state) (outReady, input) =
+  case phase of
+    Absorb ->
+      if tvalid input
+        then (State (Permute 0) (absorb32k3 (tdata input)), (False, idleAXI4Stream))
+        else (State Absorb state, (True, idleAXI4Stream))
+    Permute roundIdx ->
+      let state' = Permutation.keccakF1600 roundIdx state
+       in if roundIdx == maxBound
+            then
+              let out0 = validBeat (Common.squeezeSlice state' 0) False
+                  nextPhase = if outReady then Squeeze 1 else Squeeze 0
+               in (State nextPhase state', (False, out0))
+            else (State (Permute (roundIdx + 1)) state', (False, idleAXI4Stream))
+    Squeeze idx ->
+      let isLast = idx == maxBound
+          outStream =
+            AXI4Stream
+              { tdata = Common.squeezeSlice state idx,
+                tvalid = True,
+                tlast = isLast
+              }
+          nextState
+            | not outReady = State (Squeeze idx) state
+            | isLast = State Absorb 0
+            | otherwise = State (Squeeze (idx + 1)) state
+       in (nextState, (False, outStream))
+
+i256o256Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 256 256
+i256o256Core (outReady, inStream) =
+  mealyB stepI256 (State Absorb 0) (outReady, inStream)
 
 {-# NOINLINE i256o256Stream #-}
 i256o256Stream ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool -> -- output tready
-  Signal System (AXI4Stream 256, Bool) -> -- Input message with flush signal
-  Signal System (AXI4Stream 256, Bool) -- Output digest (AXI4-Stream), input tready
+  Signal System Bool ->
+  Signal System (AXI4Stream 256, Bool) ->
+  Signal System (AXI4Stream 256, Bool)
 i256o256Stream clk rst en treadySig inputSig =
-  withClockResetEnable clk rst en
-    $ let (msgSig, flushSig) = unbundle inputSig
-       in Common.sponge @System MLKEM768 spongeFSM (bundle (msgSig, treadySig, flushSig))
+  withClockResetEnable clk rst en $
+    let (msgSig, _flushSig) = unbundle inputSig
+        (inReadySig, outStreamSig) = mealyB stepI256 (State Absorb 0) (treadySig, msgSig)
+     in bundle (outStreamSig, inReadySig)
 
 {-# ANN
   i256o256
   ( Synthesize
-      { t_name = "G768_I256_O256",
+      { t_name = "dut",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
-            PortName "TREADY",
-            PortName "MSG_TDATA",
-            PortName "MSG_TVALID",
-            PortName "MSG_TLAST",
-            PortName "MSG_FLUSH"
+            PortProduct
+              ""
+              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "DIGEST_TREADY"
+              ]
           ],
         t_output =
           PortProduct
             ""
-            [ PortName "DIGEST_TDATA",
-              PortName "DIGEST_TVALID",
-              PortName "DIGEST_TLAST",
+            [ PortProduct "DIGEST" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
               PortName "MSG_TREADY"
             ]
       }
@@ -65,14 +107,6 @@ i256o256 ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool -> -- TREADY
-  Signal System (BitVector 256) -> -- MSG_TDATA
-  Signal System Bool -> -- MSG_TVALID
-  Signal System Bool -> -- MSG_TLAST
-  Signal System Bool -> -- MSG_FLUSH
-  (Signal System (BitVector 256), Signal System Bool, Signal System Bool, Signal System Bool)
-i256o256 clk rst en treadySig msgTdataSig msgTvalidSig msgTlastSig msgFlushSig =
-  let msgSig = AXI4Stream <$> msgTdataSig <*> msgTvalidSig <*> msgTlastSig
-      outSig = i256o256Stream clk rst en treadySig (bundle (msgSig, msgFlushSig))
-      (outStream, msgTreadySig) = unbundle outSig
-   in (tdata <$> outStream, tvalid <$> outStream, tlast <$> outStream, msgTreadySig)
+  Signal System (AXI4Stream 256, Bool) ->
+  Signal System (AXI4Stream 256, Bool)
+i256o256 = toDUT i256o256Core

@@ -2,12 +2,12 @@
 
 #include <verilated.h>
 
-#include "VG768_I256_O256.h"
+#include "Vdut.h"
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
 
-  VG768_I256_O256 *top = new VG768_I256_O256;
+  Vdut *top = new Vdut;
 
   while(!Verilated::gotFinish()) {
     top->eval();
