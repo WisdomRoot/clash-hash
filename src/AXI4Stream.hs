@@ -8,9 +8,9 @@ module AXI4Stream
     AXI4Stream128,
     Master,
     Slave,
-    Stage,
+    Pipe,
     (~>),
-    stageTop,
+    toDUT,
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -84,10 +84,10 @@ type Master dom n = Signal dom Bool -> Signal dom (AXI4Stream n)
 -- > collector stream = (pure True, fmap tdata <$> stream)
 type Slave dom a b = Signal dom (AXI4Stream a) -> (Signal dom Bool, b)
 
--- | __Stage__ role.
+-- | __Pipe__ role.
 -- A one-step stream component with upstream/downstream ready visibility.
 -- Input tuple order: downstream ready, upstream stream.
-type Stage dom a b =
+type Pipe dom a b =
   (Signal dom Bool, Signal dom (AXI4Stream a)) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
@@ -98,7 +98,7 @@ type Stage dom a b =
 -- state-machine component has).
 --
 -- Chains left-associatively: @stageA '~>' stageB '~>' stageC@.
-(~>) :: Stage dom a b -> Stage dom b c -> Stage dom a c
+(~>) :: Pipe dom a b -> Pipe dom b c -> Pipe dom a c
 stageAB ~> stageBC = \(outReady, inStream) ->
   let (inReady, midStream) = stageAB (midReady, inStream)
       (midReady, outStream) = stageBC (outReady, midStream)
@@ -107,22 +107,22 @@ stageAB ~> stageBC = \(outReady, inStream) ->
 
 infixl 1 ~>
 
--- | Adapt a component expressed as @Stage dom a b@ into the
+-- | Adapt a component expressed as @Pipe dom a b@ into the
 -- first-order top-entity shape used in this codebase:
 --
 -- @Signal dom (AXI4Stream a, Bool) -> Signal dom (AXI4Stream b, Bool)@
 --
 -- where the input Bool is @tready@ for the output stream and the output Bool
 -- is @tready@ for the input stream.
-stageTop ::
+toDUT ::
   KnownDomain dom =>
-  (HiddenClockResetEnable dom => Stage dom a b) ->
+  (HiddenClockResetEnable dom => Pipe dom a b) ->
   Clock dom ->
   Reset dom ->
   Enable dom ->
   Signal dom (AXI4Stream a, Bool) ->
   Signal dom (AXI4Stream b, Bool)
-stageTop comp clk rst en inputSig =
+toDUT comp clk rst en inputSig =
   withClockResetEnable clk rst en $
     let (inputStream, outReady) = unbundle inputSig
         (inReady, outStream) = comp (outReady, inputStream)

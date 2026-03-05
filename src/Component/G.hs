@@ -93,11 +93,11 @@ i274o256 ::
   Enable System ->
   Signal System (AXI4Stream 274, Bool) ->
   Signal System (AXI4Stream 256, Bool)
-i274o256 = stageTop i274o256Core
+i274o256 = toDUT i274o256Core
 
 i274o256Core ::
   HiddenClockResetEnable dom =>
-  Stage dom 274 256
+  Pipe dom 274 256
 i274o256Core (outReady, inStream) =
   mealyB stepI274 (State Absorb 0) (outReady, inStream)
 

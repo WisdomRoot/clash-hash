@@ -135,7 +135,7 @@ step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case 
 
 i272o24l2 ::
   HiddenClockResetEnable dom =>
-  Stage dom 272 24
+  Pipe dom 272 24
 i272o24l2 (coeffReady, seedStream) =
   mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
@@ -170,7 +170,7 @@ i272o24l2Top ::
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24l2Top = stageTop i272o24l2
+i272o24l2Top = toDUT i272o24l2
 
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600

@@ -116,13 +116,13 @@ bufferStep buf (outReady, AXI4Stream chunk inValid _) =
 
 buffer ::
   HiddenClockResetEnable dom =>
-  Stage dom 48 24
+  Pipe dom 48 24
 buffer (coeffReady, coeff48Stream) =
   mealyB bufferStep Buffer0 (coeffReady, coeff48Stream)
 
 xof ::
   HiddenClockResetEnable dom =>
-  Stage dom 272 48
+  Pipe dom 272 48
 xof (xofReady, seedStream) =
   let widenSeed s =
         AXI4Stream
@@ -134,7 +134,7 @@ xof (xofReady, seedStream) =
 
 i272o24b60 ::
   HiddenClockResetEnable dom =>
-  Stage dom 272 24
+  Pipe dom 272 24
 i272o24b60 = xof ~> buffer
 
 {-# ANN
@@ -167,4 +167,4 @@ topEntity ::
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-topEntity = stageTop i272o24b60
+topEntity = toDUT i272o24b60
