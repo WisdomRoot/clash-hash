@@ -61,13 +61,13 @@ runHardware test =
         withClockResetEnable clockGen resetGen enableGen $
           feedInput274 (Common.testUpstreamStall test) msgBV
       treadySignal = makeBackpressureSignal (Common.testDownstreamBackpressure test)
+      (msgSignal, _flushSignal) = unbundle inputStream
       output =
-        G.i274o256Stream
+        G.i274o256
           clockGen
           resetGen
           enableGen
-          treadySignal
-          inputStream
+          (bundle (msgSignal, treadySignal))
       outputBits = Common.testOutputBytes test P.* 8
       outputBeats = (outputBits P.+ 255) `P.div` 256
       sampleCount =

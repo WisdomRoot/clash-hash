@@ -1,4 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Stream
@@ -23,7 +22,7 @@ module Stream
 where
 
 import AXI4Stream (AXI4Stream (..), Pipe)
-import Clash.Prelude (Bit, BitVector, Clock, Enable, HiddenClockResetEnable, KnownNat, Reset, Signal, System, Vec, bundle, clockGen, enableGen, fromList, natToNum, pack, resize, resetGen, sampleN, shiftL, unpack, withClockResetEnable)
+import Clash.Prelude (Bit, BitVector, Clock, Enable, KnownNat, Reset, Signal, System, Vec, bundle, clockGen, enableGen, fromList, natToNum, pack, resize, resetGen, sampleN, shiftL, unpack)
 import Clash.Prelude qualified as C
 import Data.Bits (setBit, testBit, (.|.))
 import Data.ByteString (ByteString)
@@ -240,7 +239,7 @@ runStreamInput topEntity simulate inputTiming backpressureTiming = do
 
 runPipeInput ::
   (KnownNat n, KnownNat m) =>
-  (forall dom. HiddenClockResetEnable dom => Pipe dom n m) ->
+  Pipe System n m ->
   (InputTiming n -> OutputTiming m) ->
   InputTiming n ->
   BackpressureTiming ->
@@ -261,9 +260,8 @@ runPipeInput pipeEntity simulate inputTiming backpressureTiming = do
       inputSignal = fromList (idleBeat : beats ++ repeat idleBeat)
       treadySignal = fromList (True : readyStream)
       output =
-        withClockResetEnable clockGen resetGen enableGen $
-          let (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
-           in bundle (outStream, inReady)
+        let (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
+         in bundle (outStream, inReady)
       samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
       actualAll =
         [ if tvalid stream && ready then Just (tdata stream) else Nothing

@@ -4,7 +4,8 @@
 
 module Test.G (spec) where
 
-import Clash.Prelude (BitVector)
+import AXI4Stream (Pipe)
+import Clash.Prelude (BitVector, System, bundle, clockGen, enableGen, resetGen, unbundle)
 import Component.G qualified as G
 import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
@@ -19,6 +20,12 @@ import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, shuffle, vectorOf)
 import Test.TestHarness.ExternalReference (callPythonReference)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
+
+i274o256AsPipe :: Pipe System 274 256
+i274o256AsPipe (outReady, inStream) =
+  let (outStream, inReady) =
+        unbundle (G.i274o256 clockGen resetGen enableGen (bundle (inStream, outReady)))
+   in (inReady, outStream)
 
 bv274ToBS :: BitVector 274 -> ByteString
 bv274ToBS bv = BS.pack [byteAt i | i <- [0 .. 32]]
@@ -91,14 +98,14 @@ spec :: Spec
 spec = describe "G (Stream)" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @274 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runStreamInput G.i274o256Stream simulate [Input [input]] [Ready 1]
+    runPipeInput i274o256AsPipe simulate [Input [input]] [Ready 1]
   it "matches expected output (upstream stall)" $ do
     let input = toBV @274 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runStreamInput G.i274o256Stream simulate [Hold 5, Input [input]] [Ready 1]
+    runPipeInput i274o256AsPipe simulate [Hold 5, Input [input]] [Ready 1]
   it "matches expected output (periodic backpressure)" $ do
     let input = toBV @274 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runStreamInput G.i274o256Stream simulate [Input [input]] [Ready 2, Backpress 1]
+    runPipeInput i274o256AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runStreamInput G.i274o256Stream simulate inputTiming backpressure
+        runPipeInput i274o256AsPipe simulate inputTiming backpressure

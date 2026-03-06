@@ -51,7 +51,6 @@ type GTopEntity256 =
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System Bool ->
   Signal System (AXI4Stream 256, Bool) ->
   Signal System (AXI4Stream 256, Bool)
 
@@ -94,8 +93,8 @@ mlkemToKByte MLKEM768 = 3
 mlkemToKByte MLKEM1024 = 4
 
 mlkemTopEntity :: MLKEM -> GTopEntity256
-mlkemTopEntity MLKEM512 = G512.i256o256Stream
-mlkemTopEntity MLKEM768 = G768.i256o256Stream
+mlkemTopEntity MLKEM512 = G512.i256o256
+mlkemTopEntity MLKEM768 = G768.i256o256
 mlkemTopEntity MLKEM1024 = error "Component.G1024 not implemented"
 
 gGenConfig :: ShakeGenConfig
@@ -150,14 +149,14 @@ runHardwareKnown params test beats beatsPerBlock =
         withClockResetEnable clockGen resetGen enableGen
           $ feedInput256 @beats beatsPerBlock (Common.testUpstreamStall test) messageWords
       treadySignal = makeBackpressureSignal (Common.testDownstreamBackpressure test)
+      (msgSignal, _flushSignal) = unbundle inputStream
       output =
         gpTopEntity
           params
           clockGen
           resetGen
           enableGen
-          treadySignal
-          inputStream
+          (bundle (msgSignal, treadySignal))
       outputBits = Common.testOutputBytes test P.* 8
       outputBeats = (outputBits P.+ 255) `P.div` 256
       squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock

@@ -4,7 +4,8 @@
 
 module Test.G512 (spec) where
 
-import Clash.Prelude (BitVector)
+import AXI4Stream (Pipe)
+import Clash.Prelude (BitVector, System, bundle, clockGen, enableGen, resetGen, unbundle)
 import Component.G512 qualified as G512
 import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
@@ -18,6 +19,12 @@ import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, shuffle, vectorOf)
 import Test.TestHarness.G.Common qualified as GReference
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
+
+i256o256AsPipe :: Pipe System 256 256
+i256o256AsPipe (outReady, inStream) =
+  let (outStream, inReady) =
+        unbundle (G512.i256o256 clockGen resetGen enableGen (bundle (inStream, outReady)))
+   in (inReady, outStream)
 
 bv256ToBS :: BitVector 256 -> ByteString
 bv256ToBS bv = BS.pack [byteAt i | i <- [0 .. 31]]
@@ -85,14 +92,14 @@ spec :: Spec
 spec = describe "G512 (Stream)" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @256 "0123456789abcdef0123456789abcdef"
-    runStreamInput G512.i256o256Stream simulate [Input [input]] [Ready 1]
+    runPipeInput i256o256AsPipe simulate [Input [input]] [Ready 1]
   it "matches expected output (upstream stall)" $ do
     let input = toBV @256 "0123456789abcdef0123456789abcdef"
-    runStreamInput G512.i256o256Stream simulate [Hold 5, Input [input]] [Ready 1]
+    runPipeInput i256o256AsPipe simulate [Hold 5, Input [input]] [Ready 1]
   it "matches expected output (periodic backpressure)" $ do
     let input = toBV @256 "0123456789abcdef0123456789abcdef"
-    runStreamInput G512.i256o256Stream simulate [Input [input]] [Ready 2, Backpress 1]
+    runPipeInput i256o256AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runStreamInput G512.i256o256Stream simulate inputTiming backpressure
+        runPipeInput i256o256AsPipe simulate inputTiming backpressure

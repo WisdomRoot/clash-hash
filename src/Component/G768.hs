@@ -1,6 +1,5 @@
 module Component.G768
-  ( i256o256,
-    i256o256Stream,
+  ( i256o256
   )
 where
 
@@ -16,20 +15,6 @@ i256o256Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 256 256
 i256o256Core = Common.core absorb32k3
-
-{-# NOINLINE i256o256Stream #-}
-i256o256Stream ::
-  Clock System ->
-  Reset System ->
-  Enable System ->
-  Signal System Bool ->
-  Signal System (AXI4Stream 256, Bool) ->
-  Signal System (AXI4Stream 256, Bool)
-i256o256Stream clk rst en treadySig inputSig =
-  withClockResetEnable clk rst en $
-    let (msgSig, _flushSig) = unbundle inputSig
-        (inReadySig, outStreamSig) = Common.core absorb32k3 (treadySig, msgSig)
-     in bundle (outStreamSig, inReadySig)
 
 {-# ANN
   i256o256
