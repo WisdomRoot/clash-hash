@@ -8,13 +8,10 @@ import Clash.Prelude hiding (tlast)
 import Component.G.Common qualified as Common
 import Parameter (MLKEM (MLKEM768))
 
-absorb32k3 :: BitVector 256 -> BitVector 1600
-absorb32k3 = Common.absorb32WithMLKEM MLKEM768
-
 i256o256Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 256 256
-i256o256Core = Common.core absorb32k3
+i256o256Core = Common.core (Common.absorb32WithMLKEM (Just MLKEM768))
 
 {-# ANN
   i256o256

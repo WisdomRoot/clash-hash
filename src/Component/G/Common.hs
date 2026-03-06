@@ -5,7 +5,7 @@ module Component.G.Common
   ( SqueezeBeats,
     Phase (..),
     State (..),
-    absorb274WithKInBand,
+    absorb274WithMLKEM,
     absorb32WithMLKEM,
     stepCore,
     core,
@@ -36,17 +36,21 @@ kByte MLKEM512 = 2
 kByte MLKEM768 = 3
 kByte MLKEM1024 = 4
 
-absorb274WithKInBand :: BitVector 274 -> BitVector 1600
-absorb274WithKInBand msg274 =
-  let msg264 = slice (SNat @263) (SNat @0) msg274
+msg264FromMode :: Maybe MLKEM -> BitVector 274 -> BitVector 264
+msg264FromMode Nothing msg274 = slice (SNat @263) (SNat @0) msg274
+msg264FromMode (Just mlkem) msg274 =
+  let msg256 = slice (SNat @255) (SNat @0) msg274
+   in kByte mlkem ++# msg256
+
+absorb274WithMLKEM :: Maybe MLKEM -> BitVector 274 -> BitVector 1600
+absorb274WithMLKEM mode msg274 =
+  let msg264 = msg264FromMode mode msg274
       placed = (0 :: BitVector 1336) ++# msg264
    in complementAt 575 . complementAt 266 . complementAt 265 $ placed
 
-absorb32WithMLKEM :: MLKEM -> BitVector 256 -> BitVector 1600
+absorb32WithMLKEM :: Maybe MLKEM -> BitVector 256 -> BitVector 1600
 absorb32WithMLKEM mlkem msg256 =
-  let msg264 = kByte mlkem ++# msg256
-      placed = (0 :: BitVector 1336) ++# msg264
-   in complementAt 575 . complementAt 266 . complementAt 265 $ placed
+  absorb274WithMLKEM mlkem ((0 :: BitVector 18) ++# msg256)
 
 -- | Squeeze phase bit slicing helper: extracts 256-bit chunks from the Keccak state.
 $( mkRead

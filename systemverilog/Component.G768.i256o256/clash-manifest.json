@@ -48,14 +48,14 @@
         },
         {
             "name": "dut.sv",
-            "sha256": "2a0835537203fad8f2814457b6e33fc7131a79b7454b57c7cf1cc462d68783fb"
+            "sha256": "83e68313607c7f9f38a7f2e6258c4782a8bdba788a5b8f43bec0e804a9758dad"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "e212cf50750cfee20863e13d0b58fd66b4a287d2cd2d7e7fa5741aab668e425c",
+    "hash": "d798c34c17e879a6f266054cfafa2a10e9ecf032345244bbe433eebab2a7c04b",
     "top_component": {
         "name": "dut",
         "ports_flat": [

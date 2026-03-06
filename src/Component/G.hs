@@ -42,4 +42,4 @@ i274o256 = toDUT i274o256Core
 i274o256Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 274 256
-i274o256Core = Common.core Common.absorb274WithKInBand
+i274o256Core = Common.core (Common.absorb274WithMLKEM Nothing)
