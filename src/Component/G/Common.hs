@@ -2,27 +2,23 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Component.G.Common
-  ( PadBeats,
-    SqueezeBeats,
+  ( SqueezeBeats,
     Phase (..),
     State (..),
+    absorb274WithKInBand,
     absorb32WithMLKEM,
     stepCore,
     core,
     squeezeSlice,
-    sponge,
   )
 where
 
 import AXI4Stream
-import Clash.Prelude hiding (permute, tlast)
+import Clash.Prelude hiding (tlast)
 import Parameter
 import Permutation qualified
-import Sponge.NonPipelinedN256 qualified as Sponge
-import Sponge.XOR qualified as XOR
+import Sponge.NonPipelinedN256 (complementAt)
 import TH (mkRead)
-
-type PadBeats = 3
 
 type SqueezeBeats = 2
 
@@ -40,31 +36,17 @@ kByte MLKEM512 = 2
 kByte MLKEM768 = 3
 kByte MLKEM1024 = 4
 
+absorb274WithKInBand :: BitVector 274 -> BitVector 1600
+absorb274WithKInBand msg274 =
+  let msg264 = slice (SNat @263) (SNat @0) msg274
+      placed = (0 :: BitVector 1336) ++# msg264
+   in complementAt 575 . complementAt 266 . complementAt 265 $ placed
+
 absorb32WithMLKEM :: MLKEM -> BitVector 256 -> BitVector 1600
 absorb32WithMLKEM mlkem msg256 =
   let msg264 = kByte mlkem ++# msg256
       placed = (0 :: BitVector 1336) ++# msg264
-   in Sponge.complementAt 575 . Sponge.complementAt 266 . Sponge.complementAt 265 $ placed
-
--- | Padding function + XOR, flips 3 bits depending on the current beatCounter.
--- | k is encoded by which bit near the (k || 0x1F) byte is flipped in the first beat:
--- | k=2 -> flip bit 257; k=3 -> flip bit 256; k=4 -> flip bit 258.
-pad512 :: Index PadBeats -> BitVector 1600 -> BitVector 1600
-pad512 0 = Sponge.complementAt 575 . Sponge.complementAt 266 . Sponge.complementAt 265 . Sponge.complementAt 257
-pad512 1 = Sponge.complementAt 575 . Sponge.complementAt 514 . Sponge.complementAt 513
-pad512 _ = Sponge.complementAt 575 . Sponge.complementAt 2 . Sponge.complementAt 1 -- special case for a whole 576-bit padding
-
--- | Padding function + XOR for k = 3.
-pad768 :: Index PadBeats -> BitVector 1600 -> BitVector 1600
-pad768 0 = Sponge.complementAt 575 . Sponge.complementAt 266 . Sponge.complementAt 265 . Sponge.complementAt 257 . Sponge.complementAt 256
-pad768 1 = Sponge.complementAt 575 . Sponge.complementAt 514 . Sponge.complementAt 513
-pad768 _ = Sponge.complementAt 575 . Sponge.complementAt 2 . Sponge.complementAt 1 -- special case for a whole 576-bit padding
-
--- | Padding function + XOR for k = 4.
-pad1024 :: Index PadBeats -> BitVector 1600 -> BitVector 1600
-pad1024 0 = Sponge.complementAt 575 . Sponge.complementAt 266 . Sponge.complementAt 265 . Sponge.complementAt 258
-pad1024 1 = Sponge.complementAt 575 . Sponge.complementAt 514 . Sponge.complementAt 513
-pad1024 _ = Sponge.complementAt 575 . Sponge.complementAt 2 . Sponge.complementAt 1 -- special case for a whole 576-bit padding
+   in complementAt 575 . complementAt 266 . complementAt 265 $ placed
 
 -- | Squeeze phase bit slicing helper: extracts 256-bit chunks from the Keccak state.
 $( mkRead
@@ -117,26 +99,3 @@ core ::
   Pipe dom n 256
 core absorbFn (outReady, inStream) =
   mealyB (stepCore absorbFn) (State Absorb 0) (outReady, inStream)
-
--- | Stateful sponge with AXI4-Stream backpressure support.
-{-# OPAQUE sponge #-}
-sponge ::
-  forall dom.
-  (HiddenClockResetEnable dom) =>
-  MLKEM ->
-  (Index 24 -> BitVector 1600 -> BitVector 1600) -> -- Permutation function
-  Signal dom (AXI4Stream 256, Bool, Bool) -> -- Input message, output tready, flush signal
-  Signal dom (AXI4Stream 256, Bool) -- Output digest (AXI4-Stream), input tready
-sponge mlkem permModule = mealy step (Sponge.State (Sponge.Absorb 0) 0)
-  where
-    padFn = case mlkem of
-      MLKEM512 -> pad512
-      MLKEM768 -> pad768
-      MLKEM1024 -> pad1024
-    step ::
-      Sponge.State PadBeats (Index SqueezeBeats) ->
-      (AXI4Stream 256, Bool, Bool) ->
-      (Sponge.State PadBeats (Index SqueezeBeats), (AXI4Stream 256, Bool))
-    step (Sponge.State (Sponge.Absorb counter) state) (input, _tready, flush) = Sponge.absorb padFn XOR.staticXOR512_256 counter state input flush
-    step (Sponge.State (Sponge.Permute counter seenTLAST) state) (_msg, tready, _flush) = Sponge.permute permModule padFn (`squeezeSlice` 0) counter seenTLAST state tready
-    step (Sponge.State (Sponge.Squeeze counter) state) (_msg, tready, _flush) = Sponge.squeeze squeezeSlice counter state tready
