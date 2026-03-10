@@ -1,7 +1,7 @@
 {
     "components": [
-        "Component_SamplePolyCBD512_i264o24_keccakF1600",
-        "SamplePolyCBD512_I264_O24"
+        "Component_SamplePolyCBD_i272o12_keccakF1600",
+        "dut"
     ],
     "dependencies": {
         "transitive": []
@@ -31,33 +31,33 @@
     },
     "files": [
         {
-            "name": "SamplePolyCBD512_I264_O24_shim.cpp",
-            "sha256": "9ec047c5603fca3d22c43fde2a111d0b7a64990ee47029050ee1f7278cc92848"
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "SamplePolyCBD512_I264_O24.sdc",
+            "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "SamplePolyCBD512_I264_O24_types.sv",
-            "sha256": "6fe3e0224d59df1d09274dba7f54767bb5c0c6872df766742501b9568ec01842"
+            "name": "dut_types.sv",
+            "sha256": "968136618644122d3e25d998ff3ababf6a3f79c19a7ccda19d483b7b766ae699"
         },
         {
-            "name": "Component_SamplePolyCBD512_i264o24_keccakF1600.sv",
-            "sha256": "cec1a3c2a25c65e6e732a2c99e5151ac201e0539eff906c1a2e869abfa812e3d"
+            "name": "Component_SamplePolyCBD_i272o12_keccakF1600.sv",
+            "sha256": "2c32cff4be8c56c0110f556e10c5f5fafb5699289288f254a1029cdfdfbc021a"
         },
         {
-            "name": "SamplePolyCBD512_I264_O24.sv",
-            "sha256": "15bb299cb58ec6662f2b29f51103d3d5fb1077caae49739904caa9d10cedf901"
+            "name": "dut.sv",
+            "sha256": "4465398cec20a53aa88122bf7ddc018a8a0a40dd21331385c9ba2bcdf34814b6"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "ae645194b9a0d13c8874706531644a4cbae4ab402181dcd91d0e52eebc906272",
+    "hash": "868ae74754993047283194402b0e28399255d11f307b930d96c38e4736abb254",
     "top_component": {
-        "name": "SamplePolyCBD512_I264_O24",
+        "name": "dut",
         "ports_flat": [
             {
                 "direction": "in",
@@ -86,28 +86,56 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_33B",
-                "type_name": "logic [263:0]",
-                "width": 264
+                "name": "MSG_TDATA",
+                "type_name": "logic [271:0]",
+                "width": 272
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "DIGEST_TREADY",
+                "name": "MSG_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "COEFF_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "DIGEST_TDATA",
-                "type_name": "logic [25:0]",
-                "width": 26
+                "name": "COEFF_TDATA",
+                "type_name": "logic [11:0]",
+                "width": 12
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "DIGEST_TVALID",
+                "name": "COEFF_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "COEFF_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "MSG_TREADY",
                 "type_name": "logic",
                 "width": 1
             }

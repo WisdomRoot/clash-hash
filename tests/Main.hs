@@ -21,6 +21,7 @@ import Test.SampleNTT512 qualified
 import Test.Permutation qualified
 import Test.PRF2 qualified
 import Test.PRF3 qualified
+import Test.SamplePolyCBD qualified
 import Test.SamplePolyCBD512 qualified
 import Test.Reference.SHA3 qualified
 import Test.Reference.SHAKE256 qualified
@@ -35,6 +36,7 @@ main = do
   prf2Tests <- testSpec "PRF2" Test.PRF2.spec
   prf3Tests <- testSpec "PRF3" Test.PRF3.spec
   samplePolyCBD512Tests <- testSpec "SamplePolyCBD512" Test.SamplePolyCBD512.spec
+  samplePolyCBDStreamTests <- testSpec "SamplePolyCBD Stream" Test.SamplePolyCBD.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
   n256NormalTests <- testSpec "NonPipelined SHA3-256 Normal" Test.NonPipelined.SHA3256Normal.spec
@@ -62,6 +64,7 @@ main = do
         prf2Tests,
         prf3Tests,
         samplePolyCBD512Tests,
+        samplePolyCBDStreamTests,
         combinationalTests,
         n256Tests,
         n256NormalTests,
