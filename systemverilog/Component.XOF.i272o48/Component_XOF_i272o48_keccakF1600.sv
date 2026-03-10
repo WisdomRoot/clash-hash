@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module keccakF1600
+module Component_XOF_i272o48_keccakF1600
     ( // Inputs
       input wire logic [4:0] roundIdx
     , input wire logic [1599:0] x
@@ -13,93 +13,93 @@ module keccakF1600
     );
   logic [63:0] lvl;
   logic [1599:0] c$app_arg;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_1 c$app_arg_0;
+  dut_types::array_of_1600_logic_vector_1 c$app_arg_0;
   logic [1599:0] result_0;
-  Component_XOF_topEntity_types::array_of_1600_logic result_1;
+  dut_types::array_of_1600_logic result_1;
   logic [1599:0] lvl1;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_1 result_2;
-  Component_XOF_topEntity_types::array_of_1600_logic c$lvl1_app_arg;
+  dut_types::array_of_1600_logic_vector_1 result_2;
+  dut_types::array_of_1600_logic c$lvl1_app_arg;
   logic [1599:0] lvl2;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_1 result_3;
-  Component_XOF_topEntity_types::array_of_1600_logic c$lvl2_app_arg;
+  dut_types::array_of_1600_logic_vector_1 result_3;
+  dut_types::array_of_1600_logic c$lvl2_app_arg;
   logic [1599:0] lvl3;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_1 result_4;
-  Component_XOF_topEntity_types::array_of_1600_logic c$lvl3_app_arg;
-  Component_XOF_topEntity_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
-  Component_XOF_topEntity_types::array_of_64_logic lvl8;
-  Component_XOF_topEntity_types::array_of_64_logic lvl7;
-  Component_XOF_topEntity_types::array_of_64_logic lvl6;
-  Component_XOF_topEntity_types::array_of_64_logic lvl5;
-  Component_XOF_topEntity_types::array_of_64_logic lvl4;
-  Component_XOF_topEntity_types::array_of_64_logic c$lvl8_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic parity4;
-  Component_XOF_topEntity_types::array_of_64_logic c$lvl7_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic parity1;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity4_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity4_app_arg_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity4_app_arg_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$lvl6_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic parity0;
-  Component_XOF_topEntity_types::array_of_64_logic c$lvl5_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic parity3;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity1_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity1_app_arg_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity1_app_arg_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity3_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity3_app_arg_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity3_app_arg_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$lvl4_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic parity2;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity2_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity2_app_arg_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity2_app_arg_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity0_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity0_app_arg_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$parity0_app_arg_1;
-  Component_XOF_topEntity_types::array_of_25_array_of_64_logic state;
-  Component_XOF_topEntity_types::array_of_1600_logic c$state_app_arg;
-  Component_XOF_topEntity_types::array_of_64_logic_vector_1 c$lvl_app_arg;
-  Component_XOF_topEntity_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
-  Component_XOF_topEntity_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
-  Component_XOF_topEntity_types::array_of_168_logic c$lvl_app_arg_2;
-  Component_XOF_topEntity_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
-  Component_XOF_topEntity_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
-  Component_XOF_topEntity_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
-  Component_XOF_topEntity_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
-  Component_XOF_topEntity_types::array_of_1600_Tuple3 c$vec;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_11 c$vec_0;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_11 c$vec_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_2;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_3;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec2;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_4;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_5;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_6;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_7;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_8;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec2_0;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_9;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_10;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_11;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec2_1;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_12;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_13;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_14;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_15;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec2_2;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_16;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_17;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec1_18;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec2_3;
-  Component_XOF_topEntity_types::array_of_1600_logic_vector_1 c$vec_2;
-  Component_XOF_topEntity_types::array_of_64_logic c$vec_3;
-  Component_XOF_topEntity_types::array_of_8_logic c$vec_4;
-  Component_XOF_topEntity_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
-  Component_XOF_topEntity_types::array_of_8_logic c$vec1_19;
-  Component_XOF_topEntity_types::array_of_8_logic c$vec2_5;
+  dut_types::array_of_1600_logic_vector_1 result_4;
+  dut_types::array_of_1600_logic c$lvl3_app_arg;
+  dut_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
+  dut_types::array_of_64_logic lvl8;
+  dut_types::array_of_64_logic lvl7;
+  dut_types::array_of_64_logic lvl6;
+  dut_types::array_of_64_logic lvl5;
+  dut_types::array_of_64_logic lvl4;
+  dut_types::array_of_64_logic c$lvl8_app_arg;
+  dut_types::array_of_64_logic parity4;
+  dut_types::array_of_64_logic c$lvl7_app_arg;
+  dut_types::array_of_64_logic parity1;
+  dut_types::array_of_64_logic c$parity4_app_arg;
+  dut_types::array_of_64_logic c$parity4_app_arg_0;
+  dut_types::array_of_64_logic c$parity4_app_arg_1;
+  dut_types::array_of_64_logic c$lvl6_app_arg;
+  dut_types::array_of_64_logic parity0;
+  dut_types::array_of_64_logic c$lvl5_app_arg;
+  dut_types::array_of_64_logic parity3;
+  dut_types::array_of_64_logic c$parity1_app_arg;
+  dut_types::array_of_64_logic c$parity1_app_arg_0;
+  dut_types::array_of_64_logic c$parity1_app_arg_1;
+  dut_types::array_of_64_logic c$parity3_app_arg;
+  dut_types::array_of_64_logic c$parity3_app_arg_0;
+  dut_types::array_of_64_logic c$parity3_app_arg_1;
+  dut_types::array_of_64_logic c$lvl4_app_arg;
+  dut_types::array_of_64_logic parity2;
+  dut_types::array_of_64_logic c$parity2_app_arg;
+  dut_types::array_of_64_logic c$parity2_app_arg_0;
+  dut_types::array_of_64_logic c$parity2_app_arg_1;
+  dut_types::array_of_64_logic c$parity0_app_arg;
+  dut_types::array_of_64_logic c$parity0_app_arg_0;
+  dut_types::array_of_64_logic c$parity0_app_arg_1;
+  dut_types::array_of_25_array_of_64_logic state;
+  dut_types::array_of_1600_logic c$state_app_arg;
+  dut_types::array_of_64_logic_vector_1 c$lvl_app_arg;
+  dut_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
+  dut_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
+  dut_types::array_of_168_logic c$lvl_app_arg_2;
+  dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
+  dut_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
+  dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
+  dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
+  dut_types::array_of_1600_Tuple3 c$vec;
+  dut_types::array_of_1600_logic_vector_11 c$vec_0;
+  dut_types::array_of_1600_logic_vector_11 c$vec_1;
+  dut_types::array_of_64_logic c$vec1;
+  dut_types::array_of_64_logic c$vec1_0;
+  dut_types::array_of_64_logic c$vec1_1;
+  dut_types::array_of_64_logic c$vec1_2;
+  dut_types::array_of_64_logic c$vec1_3;
+  dut_types::array_of_64_logic c$vec2;
+  dut_types::array_of_64_logic c$vec1_4;
+  dut_types::array_of_64_logic c$vec1_5;
+  dut_types::array_of_64_logic c$vec1_6;
+  dut_types::array_of_64_logic c$vec1_7;
+  dut_types::array_of_64_logic c$vec1_8;
+  dut_types::array_of_64_logic c$vec2_0;
+  dut_types::array_of_64_logic c$vec1_9;
+  dut_types::array_of_64_logic c$vec1_10;
+  dut_types::array_of_64_logic c$vec1_11;
+  dut_types::array_of_64_logic c$vec2_1;
+  dut_types::array_of_64_logic c$vec1_12;
+  dut_types::array_of_64_logic c$vec1_13;
+  dut_types::array_of_64_logic c$vec1_14;
+  dut_types::array_of_64_logic c$vec1_15;
+  dut_types::array_of_64_logic c$vec2_2;
+  dut_types::array_of_64_logic c$vec1_16;
+  dut_types::array_of_64_logic c$vec1_17;
+  dut_types::array_of_64_logic c$vec1_18;
+  dut_types::array_of_64_logic c$vec2_3;
+  dut_types::array_of_1600_logic_vector_1 c$vec_2;
+  dut_types::array_of_64_logic c$vec_3;
+  dut_types::array_of_8_logic c$vec_4;
+  dut_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
+  dut_types::array_of_8_logic c$vec1_19;
+  dut_types::array_of_8_logic c$vec2_5;
 
   // setSlice begin
   always_comb begin
@@ -108,7 +108,7 @@ module keccakF1600
   end
   // setSlice end
 
-  assign lvl = ({Component_XOF_topEntity_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
+  assign lvl = ({dut_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
 
   assign c$app_arg = result_0;
 
@@ -127,7 +127,7 @@ module keccakF1600
   endgenerate
   // map end
 
-  assign result_0 = ({Component_XOF_topEntity_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_0)});
+  assign result_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_0)});
 
   assign c$vec = '{0: {11'd1599,11'd1343,11'd1407}
                   ,1: {11'd1598,11'd1342,11'd1406}
@@ -1734,7 +1734,7 @@ module keccakF1600
   genvar n_0;
   generate
   for (n_0=0; n_0 < $size(result_1); n_0 = n_0 + 1) begin : map_0
-    Component_XOF_topEntity_types::Tuple3 map_in_0;
+    dut_types::Tuple3 map_in_0;
     assign map_in_0 = c$vec[n_0];
     logic map_out_0;
     logic [10:0] i0;
@@ -1757,7 +1757,7 @@ module keccakF1600
   endgenerate
   // map end
 
-  assign lvl1 = ({Component_XOF_topEntity_types::array_of_1600_logic_vector_1_to_lv(result_2)});
+  assign lvl1 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_2)});
 
   // map begin
   genvar n_1;
@@ -3390,7 +3390,7 @@ module keccakF1600
   endgenerate
   // map end
 
-  assign lvl2 = ({Component_XOF_topEntity_types::array_of_1600_logic_vector_1_to_lv(result_3)});
+  assign lvl2 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_3)});
 
   // map begin
   genvar n_3;
@@ -5023,7 +5023,7 @@ module keccakF1600
   endgenerate
   // map end
 
-  assign lvl3 = ({Component_XOF_topEntity_types::array_of_1600_logic_vector_1_to_lv(result_4)});
+  assign lvl3 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_4)});
 
   // map begin
   genvar n_5;
@@ -5044,7 +5044,7 @@ module keccakF1600
   genvar n_6;
   generate
     for (n_6=0; n_6 < $size(c$lvl3_app_arg_0); n_6 = n_6 + 1) begin : concat
-      assign c$lvl3_app_arg[n_6*64 : n_6*64+(64-1)] = Component_XOF_topEntity_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_6]);
+      assign c$lvl3_app_arg[n_6*64 : n_6*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_6]);
     end
   endgenerate
   // concat end
@@ -5055,15 +5055,15 @@ module keccakF1600
   for (n_8=0; n_8 < $size(c$lvl3_app_arg_0); n_8 = n_8 + 1) begin : imap
     logic [4:0] i;
     assign i = n_8;
-    Component_XOF_topEntity_types::array_of_64_logic imap_in;
-    assign imap_in = Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[n_8]);
-    Component_XOF_topEntity_types::array_of_64_logic imap_out;
+    dut_types::array_of_64_logic imap_in;
+    assign imap_in = dut_types::array_of_64_logic_from_lv(state[n_8]);
+    dut_types::array_of_64_logic imap_out;
     logic [2:0] ds;
-    Component_XOF_topEntity_types::array_of_64_logic c$zipWith_arg6;
-    Component_XOF_topEntity_types::array_of_64_logic result_5;
-    Component_XOF_topEntity_types::array_of_64_logic c$zipWith_arg6_case_alt;
-    Component_XOF_topEntity_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
-    Component_XOF_topEntity_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
+    dut_types::array_of_64_logic c$zipWith_arg6;
+    dut_types::array_of_64_logic result_5;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
     logic [4:0] c$bv;
     assign imap_out = result_5;
 
@@ -5097,7 +5097,7 @@ module keccakF1600
     assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl4 : lvl7;
 
 
-    assign c$lvl3_app_arg_0[n_8] = {Component_XOF_topEntity_types::array_of_64_logic_to_lv(imap_out)};
+    assign c$lvl3_app_arg_0[n_8] = {dut_types::array_of_64_logic_to_lv(imap_out)};
   end
   endgenerate
   // imap end
@@ -5200,7 +5200,7 @@ module keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd0]));
+  assign c$vec1 = (dut_types::array_of_64_logic_from_lv(state[64'sd0]));
 
   // zipWith begin
   genvar n_14;
@@ -5232,7 +5232,7 @@ module keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_0 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd3]));
+  assign c$vec1_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd3]));
 
   // zipWith begin
   genvar n_15;
@@ -5251,7 +5251,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd5]));
 
   // zipWith begin
   genvar n_16;
@@ -5270,7 +5270,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd10]));
+  assign c$vec1_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd10]));
 
   // zipWith begin
   genvar n_17;
@@ -5289,9 +5289,9 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_3 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd15]));
 
-  assign c$vec2 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd20]));
+  assign c$vec2 = (dut_types::array_of_64_logic_from_lv(state[64'sd20]));
 
   // zipWith begin
   genvar n_18;
@@ -5323,7 +5323,7 @@ module keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_4 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd4]));
+  assign c$vec1_4 = (dut_types::array_of_64_logic_from_lv(state[64'sd4]));
 
   // zipWith begin
   genvar n_19;
@@ -5355,7 +5355,7 @@ module keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_5 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd1]));
+  assign c$vec1_5 = (dut_types::array_of_64_logic_from_lv(state[64'sd1]));
 
   // zipWith begin
   genvar n_20;
@@ -5374,7 +5374,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_6 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd8]));
+  assign c$vec1_6 = (dut_types::array_of_64_logic_from_lv(state[64'sd8]));
 
   // zipWith begin
   genvar n_21;
@@ -5393,7 +5393,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_7 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd13]));
+  assign c$vec1_7 = (dut_types::array_of_64_logic_from_lv(state[64'sd13]));
 
   // zipWith begin
   genvar n_22;
@@ -5412,9 +5412,9 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_8 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd18]));
+  assign c$vec1_8 = (dut_types::array_of_64_logic_from_lv(state[64'sd18]));
 
-  assign c$vec2_0 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec2_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd23]));
 
   // zipWith begin
   genvar n_23;
@@ -5433,7 +5433,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd6]));
+  assign c$vec1_9 = (dut_types::array_of_64_logic_from_lv(state[64'sd6]));
 
   // zipWith begin
   genvar n_24;
@@ -5452,7 +5452,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_10 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_10 = (dut_types::array_of_64_logic_from_lv(state[64'sd11]));
 
   // zipWith begin
   genvar n_25;
@@ -5471,9 +5471,9 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd16]));
+  assign c$vec1_11 = (dut_types::array_of_64_logic_from_lv(state[64'sd16]));
 
-  assign c$vec2_1 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec2_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd21]));
 
   // zipWith begin
   genvar n_26;
@@ -5505,7 +5505,7 @@ module keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_12 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd2]));
+  assign c$vec1_12 = (dut_types::array_of_64_logic_from_lv(state[64'sd2]));
 
   // zipWith begin
   genvar n_27;
@@ -5524,7 +5524,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_13 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd7]));
+  assign c$vec1_13 = (dut_types::array_of_64_logic_from_lv(state[64'sd7]));
 
   // zipWith begin
   genvar n_28;
@@ -5543,7 +5543,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_14 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd12]));
+  assign c$vec1_14 = (dut_types::array_of_64_logic_from_lv(state[64'sd12]));
 
   // zipWith begin
   genvar n_29;
@@ -5562,9 +5562,9 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_15 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd17]));
+  assign c$vec1_15 = (dut_types::array_of_64_logic_from_lv(state[64'sd17]));
 
-  assign c$vec2_2 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd22]));
+  assign c$vec2_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd22]));
 
   // zipWith begin
   genvar n_30;
@@ -5583,7 +5583,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_16 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd9]));
+  assign c$vec1_16 = (dut_types::array_of_64_logic_from_lv(state[64'sd9]));
 
   // zipWith begin
   genvar n_31;
@@ -5602,7 +5602,7 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_17 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd14]));
+  assign c$vec1_17 = (dut_types::array_of_64_logic_from_lv(state[64'sd14]));
 
   // zipWith begin
   genvar n_32;
@@ -5621,9 +5621,9 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_18 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd19]));
+  assign c$vec1_18 = (dut_types::array_of_64_logic_from_lv(state[64'sd19]));
 
-  assign c$vec2_3 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(state[64'sd24]));
+  assign c$vec2_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd24]));
 
   // zipWith begin
   genvar n_33;
@@ -5646,12 +5646,12 @@ module keccakF1600
   genvar n_34;
   generate
     for (n_34 = 0; n_34 < $size(state); n_34 = n_34 + 1) begin : unconcat
-      assign state[n_34] = {Component_XOF_topEntity_types::array_of_64_logic_to_lv(c$state_app_arg[(n_34 * 64) : ((n_34 * 64) + 64 - 1)])};
+      assign state[n_34] = {dut_types::array_of_64_logic_to_lv(c$state_app_arg[(n_34 * 64) : ((n_34 * 64) + 64 - 1)])};
     end
   endgenerate
   // unconcat end
 
-  assign c$vec_2 = (Component_XOF_topEntity_types::array_of_1600_logic_vector_1_from_lv(x));
+  assign c$vec_2 = (dut_types::array_of_1600_logic_vector_1_from_lv(x));
 
   // map begin
   genvar n_35;
@@ -5668,7 +5668,7 @@ module keccakF1600
   endgenerate
   // map end
 
-  assign c$vec_3 = (Component_XOF_topEntity_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
+  assign c$vec_3 = (dut_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
 
   // map begin
   genvar n_36;
@@ -5689,17 +5689,17 @@ module keccakF1600
   genvar n_39;
   generate
   for (n_39=0; n_39 < $size(c$lvl_app_arg_0); n_39 = n_39 + 1) begin : map_8
-    Component_XOF_topEntity_types::array_of_7_logic map_in_8;
-    assign map_in_8 = Component_XOF_topEntity_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_39]);
-    Component_XOF_topEntity_types::array_of_64_logic map_out_8;
-    Component_XOF_topEntity_types::array_of_8_array_of_64_logic ws;
-    Component_XOF_topEntity_types::array_of_7_array_of_64_logic ws1;
-    Component_XOF_topEntity_types::array_of_64_logic result_6;
-    Component_XOF_topEntity_types::array_of_7_Tuple2_0 c$ws1_app_arg;
-    Component_XOF_topEntity_types::array_of_7_array_of_64_logic c$vec2_4;
+    dut_types::array_of_7_logic map_in_8;
+    assign map_in_8 = dut_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_39]);
+    dut_types::array_of_64_logic map_out_8;
+    dut_types::array_of_8_array_of_64_logic ws;
+    dut_types::array_of_7_array_of_64_logic ws1;
+    dut_types::array_of_64_logic result_6;
+    dut_types::array_of_7_Tuple2_0 c$ws1_app_arg;
+    dut_types::array_of_7_array_of_64_logic c$vec2_4;
     assign map_out_8 = result_6;
 
-    assign ws = Component_XOF_topEntity_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
+    assign ws = dut_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
 
     // imap begin
     genvar n_37;
@@ -5707,26 +5707,26 @@ module keccakF1600
     for (n_37=0; n_37 < $size(ws1); n_37 = n_37 + 1) begin : imap_0
       logic [2:0] i_0;
       assign i_0 = n_37;
-      Component_XOF_topEntity_types::Tuple2_0 imap_in_0;
+      dut_types::Tuple2_0 imap_in_0;
       assign imap_in_0 = c$ws1_app_arg[n_37];
-      Component_XOF_topEntity_types::array_of_64_logic imap_out_0;
-      Component_XOF_topEntity_types::array_of_64_logic y;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_0;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_1;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_2;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_3;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_4;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_5;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_6;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_7;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_8;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_9;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_10;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_11;
-    Component_XOF_topEntity_types::array_of_64_logic c$case_alt_12;
+      dut_types::array_of_64_logic imap_out_0;
+      dut_types::array_of_64_logic y;
+    dut_types::array_of_64_logic c$case_alt_0;
+    dut_types::array_of_64_logic c$case_alt_1;
+    dut_types::array_of_64_logic c$case_alt_2;
+    dut_types::array_of_64_logic c$case_alt_3;
+    dut_types::array_of_64_logic c$case_alt_4;
+    dut_types::array_of_64_logic c$case_alt_5;
+    dut_types::array_of_64_logic c$case_alt_6;
+    dut_types::array_of_64_logic c$case_alt_7;
+    dut_types::array_of_64_logic c$case_alt_8;
+    dut_types::array_of_64_logic c$case_alt_9;
+    dut_types::array_of_64_logic c$case_alt_10;
+    dut_types::array_of_64_logic c$case_alt_11;
+    dut_types::array_of_64_logic c$case_alt_12;
     assign imap_out_0 = c$case_alt_0;
 
-    assign y = Component_XOF_topEntity_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
+    assign y = dut_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
 
     assign c$case_alt_0 = (i_0 == 3'd0) ? c$case_alt_1 : c$case_alt_2;
 
@@ -5790,12 +5790,12 @@ module keccakF1600
     // replaceVec end
 
 
-      assign ws1[n_37] = {Component_XOF_topEntity_types::array_of_64_logic_to_lv(imap_out_0)};
+      assign ws1[n_37] = {dut_types::array_of_64_logic_to_lv(imap_out_0)};
     end
 
     // imap end
 
-    assign result_6 = Component_XOF_topEntity_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+    assign result_6 = dut_types::array_of_64_logic_from_lv(ws[$high(ws)]);
 
     assign c$vec2_4 = (ws[0 : $high(ws) - 1]);
 
@@ -5805,11 +5805,11 @@ module keccakF1600
     for (n_38 = 0; n_38 < $size(c$ws1_app_arg); n_38 = n_38 + 1) begin : zipWith_25
       logic zipWith_in1_25;
       assign zipWith_in1_25 = map_in_8[n_38];
-      Component_XOF_topEntity_types::array_of_64_logic zipWith_in2_25;
-      assign zipWith_in2_25 = Component_XOF_topEntity_types::array_of_64_logic_from_lv(c$vec2_4[n_38]);
-      Component_XOF_topEntity_types::Tuple2_0 zipWith_out_25;
+      dut_types::array_of_64_logic zipWith_in2_25;
+      assign zipWith_in2_25 = dut_types::array_of_64_logic_from_lv(c$vec2_4[n_38]);
+      dut_types::Tuple2_0 zipWith_out_25;
       assign zipWith_out_25 = {zipWith_in1_25
-                     ,{Component_XOF_topEntity_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
+                     ,{dut_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
 
 
       assign c$ws1_app_arg[n_38] = zipWith_out_25;
@@ -5818,7 +5818,7 @@ module keccakF1600
     // zipWith end
 
 
-    assign c$lvl_app_arg_0[n_39] = {Component_XOF_topEntity_types::array_of_64_logic_to_lv(map_out_8)};
+    assign c$lvl_app_arg_0[n_39] = {dut_types::array_of_64_logic_to_lv(map_out_8)};
   end
   endgenerate
   // map end
@@ -5827,7 +5827,7 @@ module keccakF1600
   genvar n_40;
   generate
     for (n_40 = 0; n_40 < $size(c$lvl_app_arg_1); n_40 = n_40 + 1) begin : unconcat_0
-      assign c$lvl_app_arg_1[n_40] = {Component_XOF_topEntity_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_40 * 7) : ((n_40 * 7) + 7 - 1)])};
+      assign c$lvl_app_arg_1[n_40] = {dut_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_40 * 7) : ((n_40 * 7) + 7 - 1)])};
     end
   endgenerate
   // unconcat end
@@ -5836,7 +5836,7 @@ module keccakF1600
   genvar n_41;
   generate
   for (n_41=0; n_41 < $size(c$lvl_app_arg_2); n_41 = n_41 + 1) begin : map_9
-    Component_XOF_topEntity_types::Tuple2 map_in_9;
+    dut_types::Tuple2 map_in_9;
     assign map_in_9 = \Permutation.Constants.iotaConstants_xs [n_41];
     logic map_out_9;
     assign map_out_9 = map_in_9.Tuple2_sel0;
@@ -5885,7 +5885,7 @@ module keccakF1600
     logic zipWith_in2_26;
     assign zipWith_in2_26 = c$vec2_5[n_42];
     logic zipWith_out_26;
-    Component_XOF_topEntity_types::array_of_8_logic c$vec_5;
+    dut_types::array_of_8_logic c$vec_5;
     assign c$vec_5 = '{0: 1'b1
                       ,1: 1'b0
                       ,2: 1'b0
@@ -5903,24 +5903,24 @@ module keccakF1600
   endgenerate
   // zipWith end
 
-  assign \Permutation.Constants.iotaConstants3  = Component_XOF_topEntity_types::array_of_169_Tuple2_cons({c$vec_4[0]
-                                                                                                          ,{Component_XOF_topEntity_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
+  assign \Permutation.Constants.iotaConstants3  = dut_types::array_of_169_Tuple2_cons({c$vec_4[0]
+                                                                                      ,{dut_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
 
   // map begin
   genvar n_44;
   generate
   for (n_44=0; n_44 < $size(\Permutation.Constants.iotaConstants4 ); n_44 = n_44 + 1) begin : map_10
-    Component_XOF_topEntity_types::Tuple2 map_in_10;
+    dut_types::Tuple2 map_in_10;
     assign map_in_10 = \Permutation.Constants.iotaConstants5 [n_44];
-    Component_XOF_topEntity_types::Tuple2 map_out_10;
-    Component_XOF_topEntity_types::array_of_8_logic result_8;
-    Component_XOF_topEntity_types::Tuple2_1 c$case_scrut;
+    dut_types::Tuple2 map_out_10;
+    dut_types::array_of_8_logic result_8;
+    dut_types::Tuple2_1 c$case_scrut;
     logic feedback;
-    Component_XOF_topEntity_types::array_of_8_logic x_0;
-    Component_XOF_topEntity_types::Tuple2 result_7;
-    Component_XOF_topEntity_types::array_of_8_logic c$vec2_6;
-    Component_XOF_topEntity_types::array_of_8_logic c$vec_6;
-    Component_XOF_topEntity_types::array_of_8_logic c$vec_7;
+    dut_types::array_of_8_logic x_0;
+    dut_types::Tuple2 result_7;
+    dut_types::array_of_8_logic c$vec2_6;
+    dut_types::array_of_8_logic c$vec_6;
+    dut_types::array_of_8_logic c$vec_7;
     assign map_out_10 = result_7;
 
     assign c$vec2_6 = '{0: 1'b1
@@ -5951,7 +5951,7 @@ module keccakF1600
 
     // splitAt begin
     logic [0:9-1] [0:1-1] vec;
-    assign vec = {Component_XOF_topEntity_types::array_of_9_logic_to_lv((Component_XOF_topEntity_types::array_of_9_logic_from_lv({{Component_XOF_topEntity_types::array_of_1_logic_to_lv('{0: 1'b0})},{Component_XOF_topEntity_types::array_of_8_logic_to_lv(Component_XOF_topEntity_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1))}})))};
+    assign vec = {dut_types::array_of_9_logic_to_lv((dut_types::array_of_9_logic_from_lv({{dut_types::array_of_1_logic_to_lv('{0: 1'b0})},{dut_types::array_of_8_logic_to_lv(dut_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1))}})))};
 
       if (8 == 9) begin : no_split
         assign c$case_scrut = {vec};
@@ -5963,16 +5963,16 @@ module keccakF1600
 
     // splitAt end
 
-    assign c$vec_6 = Component_XOF_topEntity_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
+    assign c$vec_6 = dut_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
 
     assign feedback = c$vec_6[$high(c$vec_6)];
 
-    assign x_0 = Component_XOF_topEntity_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
+    assign x_0 = dut_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
 
-    assign c$vec_7 = Component_XOF_topEntity_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
+    assign c$vec_7 = dut_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
 
     assign result_7 = {c$vec_7[0]
-                      ,{Component_XOF_topEntity_types::array_of_8_logic_to_lv(result_8)}};
+                      ,{dut_types::array_of_8_logic_to_lv(result_8)}};
 
 
     assign \Permutation.Constants.iotaConstants4 [n_44] = map_out_10;

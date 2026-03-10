@@ -2,12 +2,12 @@
 
 #include <verilated.h>
 
-#include "VtopEntity.h"
+#include "Vdut.h"
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
 
-  VtopEntity *top = new VtopEntity;
+  Vdut *top = new Vdut;
 
   while(!Verilated::gotFinish()) {
     top->eval();

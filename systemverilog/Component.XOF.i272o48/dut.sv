@@ -3,42 +3,42 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module topEntity
+module dut
     ( // Inputs
-      input wire logic c$arg  // clock
-    , input wire logic c$arg_0  // reset
-    , input wire logic c$arg_1  // enable
-    , input wire logic [273:0] c$arg_0_0
-    , input wire logic c$arg_0_1
-    , input wire logic c$arg_0_2
-    , input wire logic c$arg_1_3
+      input wire logic CLK  // clock
+    , input wire logic RST  // reset
+    , input wire logic EN  // enable
+    , input wire logic [271:0] MSG_TDATA
+    , input wire logic MSG_TVALID
+    , input wire logic MSG_TLAST
+    , input wire logic XOF_TREADY
 
       // Outputs
-    , output logic [47:0] result_0_0
-    , output logic result_0_1
-    , output logic result_0_2
-    , output logic result_1
+    , output logic [47:0] XOF_TDATA
+    , output logic XOF_TVALID
+    , output logic XOF_TLAST
+    , output logic MSG_TREADY
     );
-  Component_XOF_topEntity_types::State c$ds_app_arg = {{2'b00,5'bxxxxx}
+  dut_types::State c$ds_app_arg = {{2'b00,5'bxxxxx}
 ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
-  Component_XOF_topEntity_types::Tuple2_2 result_3;
+  dut_types::Tuple2_2 result_0;
   logic [1599:0] c$keccakF1600_out;
-  logic [1599:0] result_4;
+  logic [1599:0] result_1;
   logic [1599:0] c$app_arg;
-  logic [1599:0] result_5;
+  logic [1599:0] result_2;
   logic [1599:0] c$app_arg_0;
-  logic [1599:0] result_6;
+  logic [1599:0] result_3;
   logic [1599:0] c$app_arg_1;
-  logic [1599:0] result_7;
+  logic [1599:0] result_4;
   logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_8;
+  logic [1599:0] result_5;
   logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_9;
+  logic [1599:0] result_6;
   logic [1599:0] c$app_arg_4;
-  Component_XOF_topEntity_types::Tuple2_3 result_10;
-  Component_XOF_topEntity_types::State c$case_alt;
-  Component_XOF_topEntity_types::State c$app_arg_5;
-  logic [47:0] result_11;
+  dut_types::Tuple2_3 result_7;
+  dut_types::State c$case_alt;
+  dut_types::State c$app_arg_5;
+  logic [47:0] result_8;
   logic [47:0] c$case_alt_0;
   logic [47:0] c$case_alt_1;
   logic [47:0] c$case_alt_2;
@@ -67,114 +67,114 @@ module topEntity
   logic [47:0] c$case_alt_25;
   logic [47:0] c$case_alt_26;
   logic [1599:0] c$app_arg_6;
-  Component_XOF_topEntity_types::Tuple2_3 c$case_alt_27;
-  Component_XOF_topEntity_types::Tuple2_3 c$case_alt_28;
+  dut_types::Tuple2_3 c$case_alt_27;
+  dut_types::Tuple2_3 c$case_alt_28;
   logic [6:0] phase;
   logic [1599:0] state;
   logic tready;
-  logic [273:0] inputMsg;
+  logic [271:0] inputMsg;
   logic msgValid;
   logic [4:0] counter;
   logic [4:0] counter_0;
-  Component_XOF_topEntity_types::Tuple2_4 c$arg_2;
-  Component_XOF_topEntity_types::Tuple2_5 result;
-  Component_XOF_topEntity_types::AXI4Stream result_0;
+  dut_types::Tuple2_4 c$arg;
+  dut_types::Tuple2_5 result;
+  dut_types::AXI4Stream XOF;
 
-  assign c$arg_2 = {{c$arg_0_0
-                    ,c$arg_0_1
-                    ,c$arg_0_2}
-                   ,c$arg_1_3};
+  assign c$arg = {{MSG_TDATA
+                  ,MSG_TVALID
+                  ,MSG_TLAST}
+                 ,XOF_TREADY};
 
   // register begin
-  always_ff @(posedge c$arg or  posedge  c$arg_0) begin : c$ds_app_arg_register
-    if ( c$arg_0) begin
+  always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
+    if ( RST) begin
       c$ds_app_arg <= {{2'b00,5'bxxxxx}
   ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
-    end else  if (c$arg_1)  begin
+    end else  if (EN)  begin
       c$ds_app_arg <= c$case_alt_28.Tuple2_3_sel0;
     end
   end
   // register end
 
-  assign result_3 = c$case_alt_28.Tuple2_3_sel1;
+  assign result_0 = c$case_alt_28.Tuple2_3_sel1;
 
-  keccakF1600 keccakF1600_c$keccakF1600_out
+  Component_XOF_i272o48_keccakF1600 Component_XOF_i272o48_keccakF1600_c$keccakF1600_out
     ( .result (c$keccakF1600_out)
     , .roundIdx (counter)
     , .x (state) );
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg;
-    result_4[64'sd278] = (~ (c$app_arg[64'sd278]));
+    result_1 = c$app_arg;
+    result_1[64'sd276] = (~ (c$app_arg[64'sd276]));
   end
   // replaceBit end
 
-  assign c$app_arg = ({1326'b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
+  assign c$app_arg = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_0;
-    result_5[64'sd277] = (~ (c$app_arg_0[64'sd277]));
+    result_2 = c$app_arg_0;
+    result_2[64'sd275] = (~ (c$app_arg_0[64'sd275]));
   end
   // replaceBit end
 
-  assign c$app_arg_0 = result_4;
+  assign c$app_arg_0 = result_1;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_1;
-    result_6[64'sd276] = (~ (c$app_arg_1[64'sd276]));
+    result_3 = c$app_arg_1;
+    result_3[64'sd274] = (~ (c$app_arg_1[64'sd274]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_5;
+  assign c$app_arg_1 = result_2;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_2;
-    result_7[64'sd275] = (~ (c$app_arg_2[64'sd275]));
+    result_4 = c$app_arg_2;
+    result_4[64'sd273] = (~ (c$app_arg_2[64'sd273]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_6;
+  assign c$app_arg_2 = result_3;
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_3;
-    result_8[64'sd274] = (~ (c$app_arg_3[64'sd274]));
+    result_5 = c$app_arg_3;
+    result_5[64'sd272] = (~ (c$app_arg_3[64'sd272]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_7;
+  assign c$app_arg_3 = result_4;
 
   // replaceBit start
   always_comb begin
-    result_9 = c$app_arg_4;
-    result_9[64'sd1343] = (~ (c$app_arg_4[64'sd1343]));
+    result_6 = c$app_arg_4;
+    result_6[64'sd1343] = (~ (c$app_arg_4[64'sd1343]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = result_8;
+  assign c$app_arg_4 = result_5;
 
-  assign result_10 = (counter == 5'd23) ? {{{2'b10,5'd0}
-                                           ,c$keccakF1600_out}
-                                          ,{1'b0
-                                           ,{48'b000000000000000000000000000000000000000000000000
-                                            ,1'b0
-                                            ,1'b0}}} : {{{2'b01,counter + 5'd1}
-                                                        ,c$keccakF1600_out}
-                                                       ,{1'b0
-                                                        ,{48'b000000000000000000000000000000000000000000000000
-                                                         ,1'b0
-                                                         ,1'b0}}};
+  assign result_7 = (counter == 5'd23) ? {{{2'b10,5'd0}
+                                          ,c$keccakF1600_out}
+                                         ,{1'b0
+                                          ,{48'b000000000000000000000000000000000000000000000000
+                                           ,1'b0
+                                           ,1'b0}}} : {{{2'b01,counter + 5'd1}
+                                                       ,c$keccakF1600_out}
+                                                      ,{1'b0
+                                                       ,{48'b000000000000000000000000000000000000000000000000
+                                                        ,1'b0
+                                                        ,1'b0}}};
 
   assign c$case_alt = (counter_0 == 5'd27) ? {{2'b01,5'd0}
                                              ,state} : {{2'b10,counter_0 + 5'd1},state};
 
   assign c$app_arg_5 = tready ? c$case_alt : c$ds_app_arg;
 
-  assign result_11 = (counter_0 == 5'd0) ? (c$app_arg_6[47 : 0]) : c$case_alt_0;
+  assign result_8 = (counter_0 == 5'd0) ? (c$app_arg_6[47 : 0]) : c$case_alt_0;
 
   assign c$case_alt_0 = (counter_0 == 5'd1) ? (c$app_arg_6[95 : 48]) : c$case_alt_1;
 
@@ -233,7 +233,7 @@ module topEntity
   assign c$app_arg_6 = state;
 
   assign c$case_alt_27 = msgValid ? {{{2'b01,5'd0}
-                                     ,result_9}
+                                     ,result_6}
                                     ,{1'b0
                                      ,{48'b000000000000000000000000000000000000000000000000
                                       ,1'b0
@@ -246,9 +246,9 @@ module topEntity
   always_comb begin
     case(phase[6:5])
       2'b00 : c$case_alt_28 = c$case_alt_27;
-      2'b01 : c$case_alt_28 = result_10;
+      2'b01 : c$case_alt_28 = result_7;
       default : c$case_alt_28 = {c$app_arg_5
-                                ,{1'b0,{result_11,1'b1,1'b0}}};
+                                ,{1'b0,{result_8,1'b1,1'b0}}};
     endcase
   end
 
@@ -256,28 +256,28 @@ module topEntity
 
   assign state = c$ds_app_arg.State_sel1;
 
-  assign tready = c$arg_2.Tuple2_4_sel1;
+  assign tready = c$arg.Tuple2_4_sel1;
 
-  assign inputMsg = c$arg_2[276:3];
+  assign inputMsg = c$arg[274:3];
 
-  assign msgValid = c$arg_2[2:2];
+  assign msgValid = c$arg[2:2];
 
   assign counter = phase[4:0];
 
   assign counter_0 = phase[4:0];
 
-  assign result = {result_3.Tuple2_2_sel1
-                  ,result_3.Tuple2_2_sel0};
+  assign result = {result_0.Tuple2_2_sel1
+                  ,result_0.Tuple2_2_sel0};
 
-  assign result_0 = result.Tuple2_5_sel0;
+  assign XOF = result.Tuple2_5_sel0;
 
-  assign result_1 = result.Tuple2_5_sel1;
+  assign MSG_TREADY = result.Tuple2_5_sel1;
 
-  assign result_0_0 = result_0.AXI4Stream_sel0;
+  assign XOF_TDATA = XOF.AXI4Stream_sel0;
 
-  assign result_0_1 = result_0.AXI4Stream_sel1;
+  assign XOF_TVALID = XOF.AXI4Stream_sel1;
 
-  assign result_0_2 = result_0.AXI4Stream_sel2;
+  assign XOF_TLAST = XOF.AXI4Stream_sel2;
 
 
 endmodule

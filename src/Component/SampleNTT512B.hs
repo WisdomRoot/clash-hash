@@ -123,7 +123,7 @@ buffer (coeffReady, coeff48Stream) =
 xof ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 48
-xof = XOF.i272o48
+xof = XOF.i272o48Core
 
 i272o24b60 ::
   HiddenClockResetEnable dom =>

@@ -8,7 +8,7 @@
   "G768": "Component.G768.i256o256",
   "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
-  "XOF": "Component.XOF.topEntity",
+  "XOF": "Component.XOF.i272o48",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
   "PRF2": "Component.PRF2.topEntity",
   "PRF3": "Component.PRF3.topEntity",

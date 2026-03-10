@@ -2,7 +2,7 @@
 
 module Component.XOF
   ( i272o48,
-    topEntity,
+    i272o48Core,
   )
 where
 
@@ -59,19 +59,43 @@ step (State phase state) (tready, AXI4Stream inputMsg msgValid _) =
               else State (Squeeze counter) state
        in (nextState, (False, outStream))
 
-i272o48 ::
+i272o48Core ::
   HiddenClockResetEnable dom =>
   Pipe dom InputBits OutputBits
-i272o48 (outputReady, inputStream) =
+i272o48Core (outputReady, inputStream) =
   mealyB step (State Absorb 0) (outputReady, inputStream)
 
-topEntity ::
+{-# ANN
+  i272o48
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "XOF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "XOF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "MSG_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o48 #-}
+i272o48 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream InputBits, Bool) ->
   Signal System (AXI4Stream OutputBits, Bool)
-topEntity = toDUT i272o48
+i272o48 = toDUT i272o48Core
 
 absorbInput :: BitVector InputBits -> BitVector 1600
 absorbInput = padInput . placeMsg
