@@ -21,14 +21,14 @@ import Test.TestHarness.ExternalReference (callPythonReference)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
-i274o256AsPipe :: Pipe System 274 256
-i274o256AsPipe (outReady, inStream) =
+i272o256AsPipe :: Pipe System 272 256
+i272o256AsPipe (outReady, inStream) =
   let (outStream, inReady) =
-        unbundle (G.i274o256 clockGen resetGen enableGen (bundle (inStream, outReady)))
+        unbundle (G.i272o256 clockGen resetGen enableGen (bundle (inStream, outReady)))
    in (inReady, outStream)
 
-bv274ToBS :: BitVector 274 -> ByteString
-bv274ToBS bv = BS.pack [byteAt i | i <- [0 .. 32]]
+bv272ToBS :: BitVector 272 -> ByteString
+bv272ToBS bv = BS.pack [byteAt i | i <- [0 .. 32]]
   where
     byteAt :: P.Int -> Word8
     byteAt byteIdx =
@@ -43,7 +43,7 @@ gReference input =
   let output = callPythonReference ("reference" </> "kyber" </> "g.py") input
    in (BS.take 32 output, BS.drop 32 output)
 
-simulate :: InputTiming 274 -> OutputTiming 256
+simulate :: InputTiming 272 -> OutputTiming 256
 simulate inputTiming =
   let (inputPattern, inputValues) = expandInputTiming inputTiming
       inputBV =
@@ -54,17 +54,17 @@ simulate inputTiming =
         case L.findIndex isJust inputPattern of
           Just i -> i
           Nothing -> P.error "Test.G.simulate: no input provided"
-      inputBS = bv274ToBS inputBV
+      inputBS = bv272ToBS inputBV
       (rho, sigma) = gReference inputBS
       out0 = toBV @256 rho
       out1 = toBV @256 sigma
       base = [Silent 24, Output [out0, out1]]
    in if startSilence P.== 0 then base else Silent startSilence : base
 
-genInputBV :: Gen (BitVector 274)
+genInputBV :: Gen (BitVector 272)
 genInputBV = do
   bytes <- vectorOf 33 (arbitrary :: Gen Word8)
-  P.pure (toBV @274 (BS.pack bytes))
+  P.pure (toBV @272 (BS.pack bytes))
 
 compressBackpressure :: [P.Bool] -> BackpressureTiming
 compressBackpressure [] = []
@@ -83,7 +83,7 @@ genBackpressure = do
       )
   P.pure (compressBackpressure bools)
 
-genCase :: Gen (InputTiming 274, BackpressureTiming)
+genCase :: Gen (InputTiming 272, BackpressureTiming)
 genCase = do
   inputBV <- genInputBV
   backpressure <- genBackpressure
@@ -97,15 +97,15 @@ genCase = do
 spec :: Spec
 spec = describe "G (Stream)" $ do
   it "matches expected output (no backpressure)" $ do
-    let input = toBV @274 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runPipeInput i274o256AsPipe simulate [Input [input]] [Ready 1]
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
+    runPipeInput i272o256AsPipe simulate [Input [input]] [Ready 1]
   it "matches expected output (upstream stall)" $ do
-    let input = toBV @274 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runPipeInput i274o256AsPipe simulate [Hold 5, Input [input]] [Ready 1]
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
+    runPipeInput i272o256AsPipe simulate [Hold 5, Input [input]] [Ready 1]
   it "matches expected output (periodic backpressure)" $ do
-    let input = toBV @274 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runPipeInput i274o256AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
+    runPipeInput i272o256AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeInput i274o256AsPipe simulate inputTiming backpressure
+        runPipeInput i272o256AsPipe simulate inputTiming backpressure

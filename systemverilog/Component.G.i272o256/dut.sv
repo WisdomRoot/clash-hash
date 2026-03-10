@@ -8,7 +8,7 @@ module dut
       input wire logic CLK  // clock
     , input wire logic RST  // reset
     , input wire logic EN  // enable
-    , input wire logic [273:0] MSG_TDATA
+    , input wire logic [271:0] MSG_TDATA
     , input wire logic MSG_TVALID
     , input wire logic MSG_TLAST
     , input wire logic DIGEST_TREADY
@@ -46,7 +46,7 @@ module dut
   logic isLast;
   logic [0:0] idx;
   dut_types::Tuple2_4 c$arg;
-  logic [273:0] c$bv;
+  logic [271:0] c$bv;
   logic [1599:0] c$bv_0;
   dut_types::Tuple2_5 result;
   dut_types::AXI4Stream_0 DIGEST;
@@ -153,7 +153,7 @@ module dut
 
   assign \input  = c$arg.Tuple2_4_sel0;
 
-  Component_G_i274o256_keccakF1600 Component_G_i274o256_keccakF1600_state
+  Component_G_i272o256_keccakF1600 Component_G_i272o256_keccakF1600_state
     ( .result (\state' )
     , .roundIdx (roundIdx)
     , .x (state) );

@@ -56,14 +56,14 @@ runHardware :: GTest -> ByteString
 runHardware test =
   let msg = Common.testMessage test
       msgBits = bsToBitListHW msg
-      msgBV = bitsToWord274 msgBits
+      msgBV = bitsToWord272 msgBits
       inputStream =
         withClockResetEnable clockGen resetGen enableGen $
-          feedInput274 (Common.testUpstreamStall test) msgBV
+          feedInput272 (Common.testUpstreamStall test) msgBV
       treadySignal = makeBackpressureSignal (Common.testDownstreamBackpressure test)
       (msgSignal, _flushSignal) = unbundle inputStream
       output =
-        G.i274o256
+        G.i272o256
           clockGen
           resetGen
           enableGen
@@ -89,12 +89,12 @@ gReference input =
   let output = callPythonReference ("reference" </> "kyber" </> "g.py") input
    in BS.take 32 output
 
-feedInput274 ::
+feedInput272 ::
   HiddenClockResetEnable dom =>
   UpstreamStall ->
-  BitVector 274 ->
-  Signal dom (AXI4Stream 274, Bool)
-feedInput274 control msgWord = mealy step (P.True, stallPattern) (pure ())
+  BitVector 272 ->
+  Signal dom (AXI4Stream 272, Bool)
+feedInput272 control msgWord = mealy step (P.True, stallPattern) (pure ())
   where
     stallPattern = case control of
       NoUpstreamStall -> []
@@ -123,10 +123,10 @@ feedInput274 control msgWord = mealy step (P.True, stallPattern) (pure ())
               )
             else ((pending, ctrl'), (idle, P.False))
 
-bitsToWord274 :: [Bit] -> BitVector 274
-bitsToWord274 bits =
-  let paddedBits = P.take 274 (bits P.++ P.repeat 0)
-   in P.foldl accumBit 0 (P.zip [0 .. 273] paddedBits)
+bitsToWord272 :: [Bit] -> BitVector 272
+bitsToWord272 bits =
+  let paddedBits = P.take 272 (bits P.++ P.repeat 0)
+   in P.foldl accumBit 0 (P.zip [0 .. 271] paddedBits)
   where
     accumBit acc (i, b) = if b P.== 1 then Bits.setBit acc i else acc
 

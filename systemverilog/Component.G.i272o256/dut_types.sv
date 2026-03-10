@@ -13,15 +13,6 @@ package dut_types;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
-    logic [273:0] AXI4Stream_sel0;
-    logic AXI4Stream_sel1;
-    logic AXI4Stream_sel2;
-  } AXI4Stream;
-  typedef struct packed {
-    AXI4Stream Tuple2_4_sel0;
-    logic Tuple2_4_sel1;
-  } Tuple2_4;
-  typedef struct packed {
     logic [255:0] AXI4Stream_0_sel0;
     logic AXI4Stream_0_sel1;
     logic AXI4Stream_0_sel2;
@@ -65,6 +56,15 @@ package dut_types;
   } Tuple2_1;
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
+  typedef struct packed {
+    logic [271:0] AXI4Stream_sel0;
+    logic AXI4Stream_sel1;
+    logic AXI4Stream_sel2;
+  } AXI4Stream;
+  typedef struct packed {
+    AXI4Stream Tuple2_4_sel0;
+    logic Tuple2_4_sel1;
+  } Tuple2_4;
   function automatic logic [0:63][0:0] array_of_64_logic_vector_1_to_lv(array_of_64_logic_vector_1 i);
     for (int n = 0; n < 64; n=n+1)
       array_of_64_logic_vector_1_to_lv[n] = i[n];

@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_G_i274o256_keccakF1600",
+        "Component_G_i272o256_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -40,22 +40,22 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "3bf6038506de04fcd173cd822fd19996a3e3c39f14095c9c997df36808fb16e0"
+            "sha256": "2940760fef7563e0eebb49356443913de12fea4fcbd25159874acfd98da34d86"
         },
         {
-            "name": "Component_G_i274o256_keccakF1600.sv",
-            "sha256": "b18f2e786438e48a35e135ccaca324b31cfb4a384c85ec7dc6c216436cb54797"
+            "name": "Component_G_i272o256_keccakF1600.sv",
+            "sha256": "e94decb775ca7b6c4e6cefbe1b0dc7b76805c5a7c6400335f6dba5c38924930f"
         },
         {
             "name": "dut.sv",
-            "sha256": "fbce44fda0dc01dd3fef48472387a427c659f21403f01921c7e64e708f8d6c26"
+            "sha256": "a6e6d3dafaab8bc5988efa0c7110524cb92e51608c127b2de1617667c7ec4495"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "5eb570892f5c55ea83cefaa8eefb01b30b1138597638b83472338f25cefebc30",
+    "hash": "0c8c781c93581367f8ab0afbefd8cd9915e40613c23fd1f86768d7e411f540ee",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -87,8 +87,8 @@
                 "direction": "in",
                 "is_clock": false,
                 "name": "MSG_TDATA",
-                "type_name": "logic [273:0]",
-                "width": 274
+                "type_name": "logic [271:0]",
+                "width": 272
             },
             {
                 "direction": "in",

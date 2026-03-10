@@ -6,7 +6,7 @@
 
 |  In  |  Out  |  Area  |  Module  |
 |------|-------|--------|----------|
-| 274  | 256   | 23895  | systemverilog/Component.G.i274o256/dut.sv |
+| 272  | 256   | 23895  | systemverilog/Component.G.i272o256/dut.sv |
 
 ## ML-KEM-512 Components
 

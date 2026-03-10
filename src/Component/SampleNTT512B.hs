@@ -123,14 +123,7 @@ buffer (coeffReady, coeff48Stream) =
 xof ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 48
-xof (xofReady, seedStream) =
-  let widenSeed s =
-        AXI4Stream
-          { tdata = (0 :: BitVector 2) ++# tdata s,
-            tvalid = tvalid s,
-            tlast = tlast s
-          }
-   in XOF.i272o48 (xofReady, fmap widenSeed seedStream)
+xof = XOF.i272o48
 
 i272o24b60 ::
   HiddenClockResetEnable dom =>

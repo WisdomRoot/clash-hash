@@ -12,7 +12,7 @@ import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
 
-type InputBits = 274
+type InputBits = 272
 type OutputBits = 48
 
 data Phase
@@ -77,9 +77,7 @@ absorbInput :: BitVector InputBits -> BitVector 1600
 absorbInput = padInput . placeMsg
   where
     placeMsg :: BitVector InputBits -> BitVector 1600
-    placeMsg msg =
-      let seed = slice (SNat @271) (SNat @0) msg
-       in (0 :: BitVector 1328) ++# seed
+    placeMsg msg = (0 :: BitVector 1328) ++# msg
 
     padInput :: BitVector 1600 -> BitVector 1600
     padInput =
