@@ -1,8 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Component.SampleNTT512N
+module Component.SampleNTT
   ( i272o24l2,
-    i272o24l2Top,
+    i272o24l2Core,
   )
 where
 
@@ -133,19 +133,18 @@ step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case 
               then (State (Squeeze counter) state (Buffer3 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
               else (State (Squeeze counter) state (Buffer5 b0 b1 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
 
-i272o24l2 ::
+i272o24l2Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
-i272o24l2 (coeffReady, seedStream) =
+i272o24l2Core (coeffReady, seedStream) =
   mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
 {-# ANN
-  i272o24l2Top
+  i272o24l2
   ( Synthesize
-      { t_name = "SN512_I272_O24_L2",
+      { t_name = "dut",
         t_inputs =
-          [ PortName "LOOKAHEAD",
-            PortName "CLK",
+          [ PortName "CLK",
             PortName "RST",
             PortName "EN",
             PortProduct
@@ -163,14 +162,14 @@ i272o24l2 (coeffReady, seedStream) =
       }
   )
   #-}
-{-# NOINLINE i272o24l2Top #-}
-i272o24l2Top ::
+{-# NOINLINE i272o24l2 #-}
+i272o24l2 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24l2Top = toDUT i272o24l2
+i272o24l2 = toDUT i272o24l2Core
 
 -- | Absorb 34 bytes: place message and apply padding
 absorb34 :: BitVector 272 -> BitVector 1600

@@ -4,9 +4,7 @@ module Test.SampleNTT512 (spec) where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude (BitVector, bundle, clockGen, enableGen, fromList, resetGen, sampleN, (++#))
-import Component.SampleNTT512 qualified as SampleNTT512
-import Component.SampleNTT512B qualified as SampleNTT512B
-import Component.SampleNTT512N qualified as SampleNTT512N
+import Component.SampleNTT qualified as SampleNTT
 import Data.ByteString (ByteString)
 import Data.Foldable (for_)
 import Data.List qualified as L
@@ -30,10 +28,7 @@ import Prelude qualified as P
 
 spec :: Spec
 spec = describe "SampleNTT512 Stream" $ do
-  describe "i272o24l0" $ runAllTests 0 1 SampleNTT512.i272o24l0
-  describe "i272o24l1" $ runAllTests 1 1 (SampleNTT512.i272o24l1 SampleNTT512.Lookahead1)
-  describe "i272o24l2" $ runAllTests 2 5 SampleNTT512N.i272o24l2Top
-  describe "i272o24b60" $ runAllTests 2 5 SampleNTT512B.topEntity
+  describe "i272o24l2" $ runAllTests 2 5 SampleNTT.i272o24l2
   where
     runAllTests lookaheadCount bufferSize topEntityCore = do
       describe "Basic functionality tests (34-byte seeds)" $

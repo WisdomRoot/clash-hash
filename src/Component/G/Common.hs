@@ -2,8 +2,7 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Component.G.Common
-  ( SqueezeBeats,
-    Phase (..),
+  ( Phase (..),
     State (..),
     absorb272WithMLKEM,
     absorb32WithMLKEM,
@@ -20,12 +19,10 @@ import Permutation qualified
 import Sponge.NonPipelinedN256 (complementAt)
 import TH (mkRead)
 
-type SqueezeBeats = 2
-
 data Phase
   = Absorb
   | Permute (Index 24)
-  | Squeeze (Index SqueezeBeats)
+  | Squeeze (Index 2)
   deriving (Show, Eq, Generic, NFDataX)
 
 data State = State Phase (BitVector 1600)
