@@ -1,6 +1,8 @@
 module Component.SamplePolyCBD3
   ( i264o12,
     i264o12Core,
+    i264o24,
+    i264o24Core,
   )
 where
 
@@ -46,6 +48,38 @@ i264o12 ::
   Signal System (AXI4Stream 12, Bool)
 i264o12 = toDUT i264o12Core
 
+{-# ANN
+  i264o24
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "DIGEST_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "DIGEST" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "MSG_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i264o24 #-}
+i264o24 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 264, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i264o24 = toDUT i264o24Core
+
 -- | State machine for SamplePolyCBD3
 -- PRF(eta=3) outputs 192 bytes = 24 64-bit words
 -- This requires two Keccak blocks: 17 words from first, 7 from second
@@ -71,6 +105,12 @@ data State
       (Unsigned 8) -- valid bits in buffer (0-128)
       (BitVector 1600) -- Keccak state
   | Done
+  deriving (Show, Eq, Generic, NFDataX)
+
+data PairState
+  = NeedFirst
+  | NeedSecond (BitVector 12)
+  | HavePair (BitVector 24) Bool
   deriving (Show, Eq, Generic, NFDataX)
 
 samplePolyCBD3 ::
@@ -150,3 +190,33 @@ i264o12Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 264 12
 i264o12Core = samplePolyCBD3
+
+pairStep ::
+  PairState ->
+  (Bool, AXI4Stream 12) ->
+  (PairState, (Bool, AXI4Stream 24))
+pairStep st (outReady, inBeat) =
+  case st of
+    NeedFirst ->
+      if tvalid inBeat
+        then (NeedSecond (tdata inBeat), (True, idleAXI4Stream))
+        else (NeedFirst, (True, idleAXI4Stream))
+    NeedSecond c0 ->
+      if tvalid inBeat
+        then
+          let pairData = tdata inBeat ++# c0
+              outBeat = validBeat pairData (tlast inBeat)
+           in if outReady
+                then (NeedFirst, (True, outBeat))
+                else (HavePair pairData (tlast inBeat), (True, outBeat))
+        else (NeedSecond c0, (True, idleAXI4Stream))
+    HavePair pairData isLast ->
+      let outBeat = validBeat pairData isLast
+       in if outReady
+            then (NeedFirst, (False, outBeat))
+            else (HavePair pairData isLast, (False, outBeat))
+
+i264o24Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 264 24
+i264o24Core = i264o12Core ~> mealyB pairStep NeedFirst
