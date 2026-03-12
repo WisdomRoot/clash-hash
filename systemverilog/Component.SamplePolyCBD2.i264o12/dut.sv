@@ -3,25 +3,30 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_SamplePolyCBD2
+module dut
     ( // Inputs
       input wire logic CLK  // clock
     , input wire logic RST  // reset
     , input wire logic EN  // enable
-    , input wire logic [263:0] MSG_33B
+    , input wire logic [263:0] MSG_TDATA
+    , input wire logic MSG_TVALID
+    , input wire logic MSG_TLAST
     , input wire logic DIGEST_TREADY
 
       // Outputs
-    , output logic [13:0] DIGEST_TDATA
+    , output logic [11:0] DIGEST_TDATA
     , output logic DIGEST_TVALID
+    , output logic DIGEST_TLAST
+    , output logic MSG_TREADY
     );
   logic [1609:0] c$ds_app_arg = {2'b00,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-  Component_SamplePolyCBD2_types::Tuple2_2 c$case_alt;
-  logic [11:0] result_0;
+  dut_types::Tuple2_2 result_0;
+  dut_types::Tuple2_3 c$case_alt;
+  logic [11:0] result_1;
   logic [1:0] a;
   logic [1:0] b;
   logic [3:0] c$b_app_arg;
-  logic [3:0] result_1;
+  logic [3:0] result_2;
   logic [3:0] c$case_alt_0;
   logic [3:0] c$case_alt_1;
   logic [3:0] c$case_alt_2;
@@ -37,7 +42,7 @@ module Component_SamplePolyCBD2
   logic [3:0] c$case_alt_12;
   logic [3:0] c$case_alt_13;
   logic [63:0] c$app_arg;
-  logic [63:0] result_2;
+  logic [63:0] result_3;
   logic [63:0] c$case_alt_14;
   logic [63:0] c$case_alt_15;
   logic [63:0] c$case_alt_16;
@@ -55,6 +60,7 @@ module Component_SamplePolyCBD2
   logic [63:0] c$case_alt_28;
   logic [1599:0] c$app_arg_0;
   logic [1609:0] c$app_arg_1;
+  logic tready;
   logic [1609:0] c$case_alt_29;
   logic isLast;
   logic [1609:0] c$case_alt_30;
@@ -62,54 +68,61 @@ module Component_SamplePolyCBD2
   logic c$isLast_app_arg;
   logic [3:0] coeffIdx;
   logic [3:0] wordIdx;
-  Component_SamplePolyCBD2_types::Tuple2_2 result_3;
-  logic [1599:0] result_4;
-  logic [1599:0] c$app_arg_2;
+  dut_types::Tuple2_3 result_4;
+  dut_types::Tuple2_3 c$case_alt_31;
   logic [1599:0] result_5;
-  logic [1599:0] c$app_arg_3;
+  logic [1599:0] c$app_arg_2;
   logic [1599:0] result_6;
-  logic [1599:0] c$app_arg_4;
+  logic [1599:0] c$app_arg_3;
   logic [1599:0] result_7;
-  logic [1599:0] c$app_arg_5;
+  logic [1599:0] c$app_arg_4;
   logic [1599:0] result_8;
-  logic [1599:0] c$app_arg_6;
+  logic [1599:0] c$app_arg_5;
   logic [1599:0] result_9;
+  logic [1599:0] c$app_arg_6;
+  logic [1599:0] result_10;
   logic [1599:0] c$app_arg_7;
+  dut_types::AXI4Stream inBeat;
   logic [1599:0] c$keccakF1600Reversed_out;
   logic [1599:0] state_0;
   logic [4:0] roundIdx;
+  dut_types::Tuple2_4 c$arg;
   logic [0:0] c$bv;
   logic [0:0] c$bv_0;
   logic [0:0] c$bv_1;
   logic [0:0] c$bv_2;
-  Component_SamplePolyCBD2_types::Tuple2_3 result;
-  Component_SamplePolyCBD2_types::AXI4Stream DIGEST_TDATA_0;
+  dut_types::Tuple2_5 result;
+  dut_types::AXI4Stream_0 DIGEST;
+
+  assign c$arg = {{MSG_TDATA
+                  ,MSG_TVALID
+                  ,MSG_TLAST}
+                 ,DIGEST_TREADY};
 
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
     if ( RST) begin
       c$ds_app_arg <= {2'b00,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
     end else  if (EN)  begin
-      c$ds_app_arg <= c$case_alt.Tuple2_2_sel0;
+      c$ds_app_arg <= c$case_alt.Tuple2_3_sel0;
     end
   end
   // register end
 
-  assign result = c$case_alt.Tuple2_2_sel1;
+  assign result_0 = c$case_alt.Tuple2_3_sel1;
 
   always_comb begin
     case(c$ds_app_arg[1609:1608])
-      2'b00 : c$case_alt = {{2'b01,5'd0,result_9,3'bxxx}
-                           ,{{12'b000000000000,1'b0,1'b0},1'b1}};
-      2'b01 : c$case_alt = result_3;
+      2'b00 : c$case_alt = c$case_alt_31;
+      2'b01 : c$case_alt = result_4;
       2'b10 : c$case_alt = {c$app_arg_1
-                           ,{{result_0,1'b1,isLast},1'b0}};
+                           ,{1'b0,{result_1,1'b1,isLast}}};
       default : c$case_alt = {{2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                             ,{{12'b000000000000,1'b0,1'b0},1'b0}};
+                             ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
     endcase
   end
 
-  assign result_0 = (a >= b) ? ({10'b0000000000,(((a - b)))}) : (12'b110100000001 - ({10'b0000000000,(((b - a)))}));
+  assign result_1 = (a >= b) ? ({10'b0000000000,(((a - b)))}) : (12'b110100000001 - ({10'b0000000000,(((b - a)))}));
 
   assign c$bv = ((c$b_app_arg[3 : 3]));
 
@@ -123,9 +136,9 @@ module Component_SamplePolyCBD2
 
   assign b = ({{(2-1) {1'b0}},((c$b_app_arg[1 : 1]))}) + ({{(2-1) {1'b0}},((c$b_app_arg[0 : 0]))});
 
-  assign c$b_app_arg = result_1;
+  assign c$b_app_arg = result_2;
 
-  assign result_1 = (coeffIdx == 4'd0) ? (c$app_arg[63 : 60]) : c$case_alt_0;
+  assign result_2 = (coeffIdx == 4'd0) ? (c$app_arg[63 : 60]) : c$case_alt_0;
 
   assign c$case_alt_0 = (coeffIdx == 4'd1) ? (c$app_arg[59 : 56]) : c$case_alt_1;
 
@@ -155,9 +168,9 @@ module Component_SamplePolyCBD2
 
   assign c$case_alt_13 = (coeffIdx == 4'd14) ? (c$app_arg[7 : 4]) : (c$app_arg[3 : 0]);
 
-  assign c$app_arg = result_2;
+  assign c$app_arg = result_3;
 
-  assign result_2 = (({{(5-4) {1'b0}},wordIdx}) == 5'd0) ? (c$app_arg_0[1599 : 1536]) : c$case_alt_14;
+  assign result_3 = (({{(5-4) {1'b0}},wordIdx}) == 5'd0) ? (c$app_arg_0[1599 : 1536]) : c$case_alt_14;
 
   assign c$case_alt_14 = (({{(5-4) {1'b0}},wordIdx}) == 5'd1) ? (c$app_arg_0[1535 : 1472]) : c$case_alt_15;
 
@@ -191,7 +204,9 @@ module Component_SamplePolyCBD2
 
   assign c$app_arg_0 = state;
 
-  assign c$app_arg_1 = DIGEST_TREADY ? c$case_alt_29 : c$ds_app_arg;
+  assign c$app_arg_1 = tready ? c$case_alt_29 : c$ds_app_arg;
+
+  assign tready = c$arg.Tuple2_4_sel1;
 
   assign c$case_alt_29 = isLast ? {2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_30;
 
@@ -207,66 +222,77 @@ module Component_SamplePolyCBD2
 
   assign wordIdx = c$ds_app_arg[1607:1604];
 
-  assign result_3 = (roundIdx == 5'd23) ? {{2'b10,4'd0,4'd0,c$keccakF1600Reversed_out}
-                                          ,{{12'b000000000000,1'b0,1'b0}
-                                           ,1'b0}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600Reversed_out,3'bxxx}
-                                                     ,{{12'b000000000000,1'b0,1'b0},1'b0}};
+  assign result_4 = (roundIdx == 5'd23) ? {{2'b10,4'd0,4'd0,c$keccakF1600Reversed_out}
+                                          ,{1'b0
+                                           ,{12'b000000000000
+                                            ,1'b0
+                                            ,1'b0}}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600Reversed_out,3'bxxx}
+                                                       ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
+
+  assign c$case_alt_31 = inBeat.AXI4Stream_sel1 ? {{2'b01,5'd0,result_10,3'bxxx}
+                                                  ,{1'b0
+                                                   ,{12'b000000000000
+                                                    ,1'b0
+                                                    ,1'b0}}} : {{2'b00,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                               ,{1'b1,{12'b000000000000,1'b0,1'b0}}};
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg_2;
-    result_4[64'sd1331] = (~ (c$app_arg_2[64'sd1331]));
+    result_5 = c$app_arg_2;
+    result_5[64'sd1331] = (~ (c$app_arg_2[64'sd1331]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_5;
+  assign c$app_arg_2 = result_6;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_3;
-    result_5[64'sd1332] = (~ (c$app_arg_3[64'sd1332]));
+    result_6 = c$app_arg_3;
+    result_6[64'sd1332] = (~ (c$app_arg_3[64'sd1332]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_6;
+  assign c$app_arg_3 = result_7;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_4;
-    result_6[64'sd1333] = (~ (c$app_arg_4[64'sd1333]));
+    result_7 = c$app_arg_4;
+    result_7[64'sd1333] = (~ (c$app_arg_4[64'sd1333]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = result_7;
+  assign c$app_arg_4 = result_8;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_5;
-    result_7[64'sd1334] = (~ (c$app_arg_5[64'sd1334]));
+    result_8 = c$app_arg_5;
+    result_8[64'sd1334] = (~ (c$app_arg_5[64'sd1334]));
   end
   // replaceBit end
 
-  assign c$app_arg_5 = result_8;
+  assign c$app_arg_5 = result_9;
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_6;
-    result_8[64'sd1335] = (~ (c$app_arg_6[64'sd1335]));
+    result_9 = c$app_arg_6;
+    result_9[64'sd1335] = (~ (c$app_arg_6[64'sd1335]));
   end
   // replaceBit end
 
-  assign c$app_arg_6 = ({MSG_33B,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
+  assign c$app_arg_6 = ({inBeat.AXI4Stream_sel0,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
 
   // replaceBit start
   always_comb begin
-    result_9 = c$app_arg_7;
-    result_9[64'sd512] = (~ (c$app_arg_7[64'sd512]));
+    result_10 = c$app_arg_7;
+    result_10[64'sd512] = (~ (c$app_arg_7[64'sd512]));
   end
   // replaceBit end
 
-  assign c$app_arg_7 = result_4;
+  assign c$app_arg_7 = result_5;
 
-  Component_SamplePolyCBD2_topEntity_keccakF1600Reversed Component_SamplePolyCBD2_topEntity_keccakF1600Reversed_c$keccakF1600Reversed_out
+  assign inBeat = c$arg.Tuple2_4_sel0;
+
+  Component_SamplePolyCBD2_i264o12_keccakF1600Reversed Component_SamplePolyCBD2_i264o12_keccakF1600Reversed_c$keccakF1600Reversed_out
     ( .result (c$keccakF1600Reversed_out)
     , .roundIdx (roundIdx)
     , .x (state_0) );
@@ -275,11 +301,18 @@ module Component_SamplePolyCBD2
 
   assign roundIdx = c$ds_app_arg[1607:1603];
 
-  assign DIGEST_TDATA_0 = result.Tuple2_3_sel0;
+  assign result = {result_0.Tuple2_2_sel1
+                  ,result_0.Tuple2_2_sel0};
 
-  assign DIGEST_TVALID = result.Tuple2_3_sel1;
+  assign DIGEST = result.Tuple2_5_sel0;
 
-  assign DIGEST_TDATA = DIGEST_TDATA_0;
+  assign MSG_TREADY = result.Tuple2_5_sel1;
+
+  assign DIGEST_TDATA = DIGEST.AXI4Stream_0_sel0;
+
+  assign DIGEST_TVALID = DIGEST.AXI4Stream_0_sel1;
+
+  assign DIGEST_TLAST = DIGEST.AXI4Stream_0_sel2;
 
 
 endmodule

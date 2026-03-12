@@ -1,13 +1,30 @@
-package Component_SamplePolyCBD3_types;
+package dut_types;
   typedef struct packed {
-    logic [11:0] AXI4Stream_sel0;
+    logic [11:0] AXI4Stream_0_sel0;
+    logic AXI4Stream_0_sel1;
+    logic AXI4Stream_0_sel2;
+  } AXI4Stream_0;
+  typedef struct packed {
+    logic Tuple2_2_sel0;
+    AXI4Stream_0 Tuple2_2_sel1;
+  } Tuple2_2;
+  typedef struct packed {
+    logic [1609:0] Tuple2_3_sel0;
+    Tuple2_2 Tuple2_3_sel1;
+  } Tuple2_3;
+  typedef struct packed {
+    AXI4Stream_0 Tuple2_5_sel0;
+    logic Tuple2_5_sel1;
+  } Tuple2_5;
+  typedef struct packed {
+    logic [263:0] AXI4Stream_sel0;
     logic AXI4Stream_sel1;
     logic AXI4Stream_sel2;
   } AXI4Stream;
   typedef struct packed {
-    AXI4Stream Tuple2_3_sel0;
-    logic Tuple2_3_sel1;
-  } Tuple2_3;
+    AXI4Stream Tuple2_4_sel0;
+    logic Tuple2_4_sel1;
+  } Tuple2_4;
   typedef logic [0:0] array_of_64_logic_vector_1 [0:63];
   typedef logic [0:0] array_of_1600_logic_vector_1 [0:1599];
   typedef struct packed {
@@ -17,11 +34,6 @@ package Component_SamplePolyCBD3_types;
   } Tuple3;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
-  typedef struct packed {
-    logic [8:0] Tuple3_0_sel0;
-    logic [127:0] Tuple3_0_sel1;
-    logic [7:0] Tuple3_0_sel2;
-  } Tuple3_0;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {
@@ -49,10 +61,6 @@ package Component_SamplePolyCBD3_types;
   } Tuple2_1;
   typedef logic  array_of_7_logic [0:6];
   typedef logic [0:6] array_of_24_array_of_7_logic [0:23];
-  typedef struct packed {
-    logic [1757:0] Tuple2_2_sel0;
-    Tuple2_3 Tuple2_2_sel1;
-  } Tuple2_2;
   function automatic logic [0:63][0:0] array_of_64_logic_vector_1_to_lv(array_of_64_logic_vector_1 i);
     for (int n = 0; n < 64; n=n+1)
       array_of_64_logic_vector_1_to_lv[n] = i[n];
@@ -280,5 +288,5 @@ package Component_SamplePolyCBD3_types;
     array_of_24_array_of_7_logic_cons[0] = {array_of_7_logic_to_lv(x)};
     array_of_24_array_of_7_logic_cons[1:23] = xs;
   endfunction
-endpackage : Component_SamplePolyCBD3_types
+endpackage : dut_types
 

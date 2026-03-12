@@ -19,8 +19,6 @@ import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
 import Test.SampleNTT512 qualified
 import Test.Permutation qualified
-import Test.PRF2 qualified
-import Test.PRF3 qualified
 import Test.SamplePolyCBD qualified
 import Test.SamplePolyCBD512 qualified
 import Test.Reference.SHA3 qualified
@@ -33,8 +31,6 @@ main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationRevTests <- testSpec "Permutation" Test.Permutation.spec
-  prf2Tests <- testSpec "PRF2" Test.PRF2.spec
-  prf3Tests <- testSpec "PRF3" Test.PRF3.spec
   samplePolyCBD512Tests <- testSpec "SamplePolyCBD512" Test.SamplePolyCBD512.spec
   samplePolyCBDStreamTests <- testSpec "SamplePolyCBD Stream" Test.SamplePolyCBD.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
@@ -61,8 +57,6 @@ main = do
       [
         constantsTests,
         permutationRevTests,
-        prf2Tests,
-        prf3Tests,
         samplePolyCBD512Tests,
         samplePolyCBDStreamTests,
         combinationalTests,

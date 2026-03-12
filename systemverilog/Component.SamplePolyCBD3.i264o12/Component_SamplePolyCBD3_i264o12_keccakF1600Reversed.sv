@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
+module Component_SamplePolyCBD3_i264o12_keccakF1600Reversed
     ( // Inputs
       input wire logic [4:0] roundIdx
     , input wire logic [1599:0] x
@@ -11,95 +11,95 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
       // Outputs
     , output logic [1599:0] result
     );
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1 c$app_arg;
+  dut_types::array_of_1600_logic_vector_1 c$app_arg;
   logic [1599:0] result_0;
   logic [1599:0] lvl;
-  Component_SamplePolyCBD3_types::array_of_1600_logic result_1;
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1 c$lvl_app_arg;
+  dut_types::array_of_1600_logic result_1;
+  dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg;
   logic [1599:0] lvl_0;
-  Component_SamplePolyCBD3_types::array_of_1600_logic result_2;
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1 c$lvl_app_arg_0;
+  dut_types::array_of_1600_logic result_2;
+  dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg_0;
   logic [1599:0] lvl_1;
-  Component_SamplePolyCBD3_types::array_of_1600_logic result_3;
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1 c$lvl_app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_25_array_of_64_logic state;
-  Component_SamplePolyCBD3_types::array_of_64_logic parity0;
-  Component_SamplePolyCBD3_types::array_of_64_logic parity2;
-  Component_SamplePolyCBD3_types::array_of_64_logic lvl_2;
-  Component_SamplePolyCBD3_types::array_of_64_logic parity3;
-  Component_SamplePolyCBD3_types::array_of_64_logic lvl1;
-  Component_SamplePolyCBD3_types::array_of_64_logic parity1;
-  Component_SamplePolyCBD3_types::array_of_64_logic lvl2;
-  Component_SamplePolyCBD3_types::array_of_64_logic parity4;
-  Component_SamplePolyCBD3_types::array_of_64_logic lvl3;
-  Component_SamplePolyCBD3_types::array_of_64_logic lvl4;
-  Component_SamplePolyCBD3_types::array_of_1600_logic result_4;
-  Component_SamplePolyCBD3_types::array_of_25_array_of_64_logic c$app_arg_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$lvl4_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$lvl3_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity4_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity4_app_arg_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity4_app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$lvl2_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity1_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity1_app_arg_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity1_app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$lvl1_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity3_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity3_app_arg_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity3_app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$lvl_app_arg_2;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity2_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity2_app_arg_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity2_app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity0_app_arg;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity0_app_arg_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$parity0_app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_1600_logic c$app_arg_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic_vector_1 c$app_arg_2;
-  Component_SamplePolyCBD3_types::array_of_24_array_of_64_logic c$app_arg_3;
-  Component_SamplePolyCBD3_types::array_of_24_array_of_64_logic c$app_arg_4;
-  Component_SamplePolyCBD3_types::array_of_24_array_of_7_logic c$app_arg_5;
-  Component_SamplePolyCBD3_types::array_of_168_logic c$app_arg_6;
-  Component_SamplePolyCBD3_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
-  Component_SamplePolyCBD3_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
-  Component_SamplePolyCBD3_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
-  Component_SamplePolyCBD3_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
+  dut_types::array_of_1600_logic result_3;
+  dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg_1;
+  dut_types::array_of_25_array_of_64_logic state;
+  dut_types::array_of_64_logic parity0;
+  dut_types::array_of_64_logic parity2;
+  dut_types::array_of_64_logic lvl_2;
+  dut_types::array_of_64_logic parity3;
+  dut_types::array_of_64_logic lvl1;
+  dut_types::array_of_64_logic parity1;
+  dut_types::array_of_64_logic lvl2;
+  dut_types::array_of_64_logic parity4;
+  dut_types::array_of_64_logic lvl3;
+  dut_types::array_of_64_logic lvl4;
+  dut_types::array_of_1600_logic result_4;
+  dut_types::array_of_25_array_of_64_logic c$app_arg_0;
+  dut_types::array_of_64_logic c$lvl4_app_arg;
+  dut_types::array_of_64_logic c$lvl3_app_arg;
+  dut_types::array_of_64_logic c$parity4_app_arg;
+  dut_types::array_of_64_logic c$parity4_app_arg_0;
+  dut_types::array_of_64_logic c$parity4_app_arg_1;
+  dut_types::array_of_64_logic c$lvl2_app_arg;
+  dut_types::array_of_64_logic c$parity1_app_arg;
+  dut_types::array_of_64_logic c$parity1_app_arg_0;
+  dut_types::array_of_64_logic c$parity1_app_arg_1;
+  dut_types::array_of_64_logic c$lvl1_app_arg;
+  dut_types::array_of_64_logic c$parity3_app_arg;
+  dut_types::array_of_64_logic c$parity3_app_arg_0;
+  dut_types::array_of_64_logic c$parity3_app_arg_1;
+  dut_types::array_of_64_logic c$lvl_app_arg_2;
+  dut_types::array_of_64_logic c$parity2_app_arg;
+  dut_types::array_of_64_logic c$parity2_app_arg_0;
+  dut_types::array_of_64_logic c$parity2_app_arg_1;
+  dut_types::array_of_64_logic c$parity0_app_arg;
+  dut_types::array_of_64_logic c$parity0_app_arg_0;
+  dut_types::array_of_64_logic c$parity0_app_arg_1;
+  dut_types::array_of_1600_logic c$app_arg_1;
+  dut_types::array_of_64_logic_vector_1 c$app_arg_2;
+  dut_types::array_of_24_array_of_64_logic c$app_arg_3;
+  dut_types::array_of_24_array_of_64_logic c$app_arg_4;
+  dut_types::array_of_24_array_of_7_logic c$app_arg_5;
+  dut_types::array_of_168_logic c$app_arg_6;
+  dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
+  dut_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
+  dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
+  dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
   logic [1599:0] c$app_arg_7;
-  Component_SamplePolyCBD3_types::array_of_1600_Tuple3 c$vec;
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_11 c$vec_0;
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_11 c$vec_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_2;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_3;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_4;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_5;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_6;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec2;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_7;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_8;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_9;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec2_0;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_10;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_11;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_12;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec2_1;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_13;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_14;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_15;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec2_2;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_16;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_17;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec1_18;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec2_3;
-  Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1 c$vec_2;
-  Component_SamplePolyCBD3_types::array_of_64_logic c$vec_3;
-  Component_SamplePolyCBD3_types::array_of_8_logic c$vec_4;
-  Component_SamplePolyCBD3_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
-  Component_SamplePolyCBD3_types::array_of_8_logic c$vec1_19;
-  Component_SamplePolyCBD3_types::array_of_8_logic c$vec2_5;
+  dut_types::array_of_1600_Tuple3 c$vec;
+  dut_types::array_of_1600_logic_vector_11 c$vec_0;
+  dut_types::array_of_1600_logic_vector_11 c$vec_1;
+  dut_types::array_of_64_logic c$vec1;
+  dut_types::array_of_64_logic c$vec1_0;
+  dut_types::array_of_64_logic c$vec1_1;
+  dut_types::array_of_64_logic c$vec1_2;
+  dut_types::array_of_64_logic c$vec1_3;
+  dut_types::array_of_64_logic c$vec1_4;
+  dut_types::array_of_64_logic c$vec1_5;
+  dut_types::array_of_64_logic c$vec1_6;
+  dut_types::array_of_64_logic c$vec2;
+  dut_types::array_of_64_logic c$vec1_7;
+  dut_types::array_of_64_logic c$vec1_8;
+  dut_types::array_of_64_logic c$vec1_9;
+  dut_types::array_of_64_logic c$vec2_0;
+  dut_types::array_of_64_logic c$vec1_10;
+  dut_types::array_of_64_logic c$vec1_11;
+  dut_types::array_of_64_logic c$vec1_12;
+  dut_types::array_of_64_logic c$vec2_1;
+  dut_types::array_of_64_logic c$vec1_13;
+  dut_types::array_of_64_logic c$vec1_14;
+  dut_types::array_of_64_logic c$vec1_15;
+  dut_types::array_of_64_logic c$vec2_2;
+  dut_types::array_of_64_logic c$vec1_16;
+  dut_types::array_of_64_logic c$vec1_17;
+  dut_types::array_of_64_logic c$vec1_18;
+  dut_types::array_of_64_logic c$vec2_3;
+  dut_types::array_of_1600_logic_vector_1 c$vec_2;
+  dut_types::array_of_64_logic c$vec_3;
+  dut_types::array_of_8_logic c$vec_4;
+  dut_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
+  dut_types::array_of_8_logic c$vec1_19;
+  dut_types::array_of_8_logic c$vec2_5;
 
   // map begin
   genvar n;
@@ -116,9 +116,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // map end
 
-  assign result_0 = ({Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)});
+  assign result_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)});
 
-  assign lvl = ({Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg)});
+  assign lvl = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg)});
 
   assign c$vec = '{0: {11'd1599,11'd1535,11'd1471}
                   ,1: {11'd1598,11'd1534,11'd1470}
@@ -1725,7 +1725,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_0;
   generate
   for (n_0=0; n_0 < $size(result_1); n_0 = n_0 + 1) begin : map_0
-    Component_SamplePolyCBD3_types::Tuple3 map_in_0;
+    dut_types::Tuple3 map_in_0;
     assign map_in_0 = c$vec[n_0];
     logic map_out_0;
     logic [10:0] i0;
@@ -1763,7 +1763,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // map end
 
-  assign lvl_0 = ({Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_0)});
+  assign lvl_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_0)});
 
   assign c$vec_0 = '{0: 11'd1599
                     ,1: 11'd1598
@@ -3396,7 +3396,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // map end
 
-  assign lvl_1 = ({Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_1)});
+  assign lvl_1 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_1)});
 
   assign c$vec_1 = '{0: 11'd1599
                     ,1: 11'd1598
@@ -5033,12 +5033,12 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_6;
   generate
     for (n_6 = 0; n_6 < $size(state); n_6 = n_6 + 1) begin : unconcat
-      assign state[n_6] = {Component_SamplePolyCBD3_types::array_of_64_logic_to_lv(c$app_arg_1[(n_6 * 64) : ((n_6 * 64) + 64 - 1)])};
+      assign state[n_6] = {dut_types::array_of_64_logic_to_lv(c$app_arg_1[(n_6 * 64) : ((n_6 * 64) + 64 - 1)])};
     end
   endgenerate
   // unconcat end
 
-  assign c$vec1 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd0]));
+  assign c$vec1 = (dut_types::array_of_64_logic_from_lv(state[64'sd0]));
 
   // zipWith begin
   genvar n_7;
@@ -5057,7 +5057,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_0 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd2]));
+  assign c$vec1_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd2]));
 
   // zipWith begin
   genvar n_8;
@@ -5093,7 +5093,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd3]));
+  assign c$vec1_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd3]));
 
   // zipWith begin
   genvar n_10;
@@ -5129,7 +5129,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd1]));
+  assign c$vec1_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd1]));
 
   // zipWith begin
   genvar n_12;
@@ -5165,7 +5165,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_3 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd4]));
+  assign c$vec1_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd4]));
 
   // zipWith begin
   genvar n_14;
@@ -5222,7 +5222,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_17;
   generate
     for (n_17=0; n_17 < $size(c$app_arg_0); n_17 = n_17 + 1) begin : concat
-      assign result_4[n_17*64 : n_17*64+(64-1)] = Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
+      assign result_4[n_17*64 : n_17*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
     end
   endgenerate
   // concat end
@@ -5233,15 +5233,15 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   for (n_19=0; n_19 < $size(c$app_arg_0); n_19 = n_19 + 1) begin : imap
     logic [4:0] i;
     assign i = n_19;
-    Component_SamplePolyCBD3_types::array_of_64_logic imap_in;
-    assign imap_in = Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[n_19]);
-    Component_SamplePolyCBD3_types::array_of_64_logic imap_out;
+    dut_types::array_of_64_logic imap_in;
+    assign imap_in = dut_types::array_of_64_logic_from_lv(state[n_19]);
+    dut_types::array_of_64_logic imap_out;
     logic [2:0] ds;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$zipWith_arg6;
-    Component_SamplePolyCBD3_types::array_of_64_logic result_5;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$zipWith_arg6_case_alt;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
+    dut_types::array_of_64_logic c$zipWith_arg6;
+    dut_types::array_of_64_logic result_5;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
+    dut_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
     logic [4:0] c$bv;
     assign imap_out = result_5;
 
@@ -5275,7 +5275,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
     assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl3 : lvl1;
 
 
-    assign c$app_arg_0[n_19] = {Component_SamplePolyCBD3_types::array_of_64_logic_to_lv(imap_out)};
+    assign c$app_arg_0[n_19] = {dut_types::array_of_64_logic_to_lv(imap_out)};
   end
   endgenerate
   // imap end
@@ -5306,7 +5306,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // rotateRightS end
 
-  assign c$vec1_4 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd9]));
+  assign c$vec1_4 = (dut_types::array_of_64_logic_from_lv(state[64'sd9]));
 
   // zipWith begin
   genvar n_20;
@@ -5325,7 +5325,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_5 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd14]));
+  assign c$vec1_5 = (dut_types::array_of_64_logic_from_lv(state[64'sd14]));
 
   // zipWith begin
   genvar n_21;
@@ -5344,9 +5344,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_6 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd19]));
+  assign c$vec1_6 = (dut_types::array_of_64_logic_from_lv(state[64'sd19]));
 
-  assign c$vec2 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd24]));
+  assign c$vec2 = (dut_types::array_of_64_logic_from_lv(state[64'sd24]));
 
   // zipWith begin
   genvar n_22;
@@ -5378,7 +5378,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // rotateRightS end
 
-  assign c$vec1_7 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd6]));
+  assign c$vec1_7 = (dut_types::array_of_64_logic_from_lv(state[64'sd6]));
 
   // zipWith begin
   genvar n_23;
@@ -5397,7 +5397,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_8 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_8 = (dut_types::array_of_64_logic_from_lv(state[64'sd11]));
 
   // zipWith begin
   genvar n_24;
@@ -5416,9 +5416,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd16]));
+  assign c$vec1_9 = (dut_types::array_of_64_logic_from_lv(state[64'sd16]));
 
-  assign c$vec2_0 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec2_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd21]));
 
   // zipWith begin
   genvar n_25;
@@ -5450,7 +5450,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // rotateRightS end
 
-  assign c$vec1_10 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd8]));
+  assign c$vec1_10 = (dut_types::array_of_64_logic_from_lv(state[64'sd8]));
 
   // zipWith begin
   genvar n_26;
@@ -5469,7 +5469,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd13]));
+  assign c$vec1_11 = (dut_types::array_of_64_logic_from_lv(state[64'sd13]));
 
   // zipWith begin
   genvar n_27;
@@ -5488,9 +5488,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_12 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd18]));
+  assign c$vec1_12 = (dut_types::array_of_64_logic_from_lv(state[64'sd18]));
 
-  assign c$vec2_1 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec2_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd23]));
 
   // zipWith begin
   genvar n_28;
@@ -5522,7 +5522,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // rotateRightS end
 
-  assign c$vec1_13 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd7]));
+  assign c$vec1_13 = (dut_types::array_of_64_logic_from_lv(state[64'sd7]));
 
   // zipWith begin
   genvar n_29;
@@ -5541,7 +5541,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_14 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd12]));
+  assign c$vec1_14 = (dut_types::array_of_64_logic_from_lv(state[64'sd12]));
 
   // zipWith begin
   genvar n_30;
@@ -5560,9 +5560,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_15 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd17]));
+  assign c$vec1_15 = (dut_types::array_of_64_logic_from_lv(state[64'sd17]));
 
-  assign c$vec2_2 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd22]));
+  assign c$vec2_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd22]));
 
   // zipWith begin
   genvar n_31;
@@ -5581,7 +5581,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_16 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_16 = (dut_types::array_of_64_logic_from_lv(state[64'sd5]));
 
   // zipWith begin
   genvar n_32;
@@ -5600,7 +5600,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_17 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd10]));
+  assign c$vec1_17 = (dut_types::array_of_64_logic_from_lv(state[64'sd10]));
 
   // zipWith begin
   genvar n_33;
@@ -5619,9 +5619,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec1_18 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_18 = (dut_types::array_of_64_logic_from_lv(state[64'sd15]));
 
-  assign c$vec2_3 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(state[64'sd20]));
+  assign c$vec2_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd20]));
 
   // zipWith begin
   genvar n_34;
@@ -5640,7 +5640,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign c$vec_2 = (Component_SamplePolyCBD3_types::array_of_1600_logic_vector_1_from_lv(x));
+  assign c$vec_2 = (dut_types::array_of_1600_logic_vector_1_from_lv(x));
 
   // map begin
   genvar n_35;
@@ -5660,11 +5660,11 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   // setSlice begin
   always_comb begin
     result = c$app_arg_7;
-    result[1599 : 1536] = ((c$app_arg_7[1599 : 1536]) ^ (({Component_SamplePolyCBD3_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
+    result[1599 : 1536] = ((c$app_arg_7[1599 : 1536]) ^ (({dut_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
   end
   // setSlice end
 
-  assign c$vec_3 = (Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
+  assign c$vec_3 = (dut_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
 
   // map begin
   genvar n_36;
@@ -5685,9 +5685,9 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_38;
   generate
   for (n_38=0; n_38 < $size(c$app_arg_3); n_38 = n_38 + 1) begin : map_8
-    Component_SamplePolyCBD3_types::array_of_64_logic map_in_8;
-    assign map_in_8 = Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(c$app_arg_4[n_38]);
-    Component_SamplePolyCBD3_types::array_of_64_logic map_out_8;
+    dut_types::array_of_64_logic map_in_8;
+    assign map_in_8 = dut_types::array_of_64_logic_from_lv(c$app_arg_4[n_38]);
+    dut_types::array_of_64_logic map_out_8;
     // reverse begin
     genvar n_37_0;
 
@@ -5696,7 +5696,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
       end
 
     // reverse end
-    assign c$app_arg_3[n_38] = {Component_SamplePolyCBD3_types::array_of_64_logic_to_lv(map_out_8)};
+    assign c$app_arg_3[n_38] = {dut_types::array_of_64_logic_to_lv(map_out_8)};
   end
   endgenerate
   // map end
@@ -5705,17 +5705,17 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_41;
   generate
   for (n_41=0; n_41 < $size(c$app_arg_4); n_41 = n_41 + 1) begin : map_9
-    Component_SamplePolyCBD3_types::array_of_7_logic map_in_9;
-    assign map_in_9 = Component_SamplePolyCBD3_types::array_of_7_logic_from_lv(c$app_arg_5[n_41]);
-    Component_SamplePolyCBD3_types::array_of_64_logic map_out_9;
-    Component_SamplePolyCBD3_types::array_of_8_array_of_64_logic ws;
-    Component_SamplePolyCBD3_types::array_of_7_array_of_64_logic ws1;
-    Component_SamplePolyCBD3_types::array_of_64_logic result_6;
-    Component_SamplePolyCBD3_types::array_of_7_Tuple2_0 c$ws1_app_arg;
-    Component_SamplePolyCBD3_types::array_of_7_array_of_64_logic c$vec2_4;
+    dut_types::array_of_7_logic map_in_9;
+    assign map_in_9 = dut_types::array_of_7_logic_from_lv(c$app_arg_5[n_41]);
+    dut_types::array_of_64_logic map_out_9;
+    dut_types::array_of_8_array_of_64_logic ws;
+    dut_types::array_of_7_array_of_64_logic ws1;
+    dut_types::array_of_64_logic result_6;
+    dut_types::array_of_7_Tuple2_0 c$ws1_app_arg;
+    dut_types::array_of_7_array_of_64_logic c$vec2_4;
     assign map_out_9 = result_6;
 
-    assign ws = Component_SamplePolyCBD3_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
+    assign ws = dut_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
 
     // imap begin
     genvar n_39;
@@ -5723,26 +5723,26 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
     for (n_39=0; n_39 < $size(ws1); n_39 = n_39 + 1) begin : imap_0
       logic [2:0] i_0;
       assign i_0 = n_39;
-      Component_SamplePolyCBD3_types::Tuple2_0 imap_in_0;
+      dut_types::Tuple2_0 imap_in_0;
       assign imap_in_0 = c$ws1_app_arg[n_39];
-      Component_SamplePolyCBD3_types::array_of_64_logic imap_out_0;
-      Component_SamplePolyCBD3_types::array_of_64_logic y;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_0;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_1;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_2;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_3;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_4;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_5;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_6;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_7;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_8;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_9;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_10;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_11;
-    Component_SamplePolyCBD3_types::array_of_64_logic c$case_alt_12;
+      dut_types::array_of_64_logic imap_out_0;
+      dut_types::array_of_64_logic y;
+    dut_types::array_of_64_logic c$case_alt_0;
+    dut_types::array_of_64_logic c$case_alt_1;
+    dut_types::array_of_64_logic c$case_alt_2;
+    dut_types::array_of_64_logic c$case_alt_3;
+    dut_types::array_of_64_logic c$case_alt_4;
+    dut_types::array_of_64_logic c$case_alt_5;
+    dut_types::array_of_64_logic c$case_alt_6;
+    dut_types::array_of_64_logic c$case_alt_7;
+    dut_types::array_of_64_logic c$case_alt_8;
+    dut_types::array_of_64_logic c$case_alt_9;
+    dut_types::array_of_64_logic c$case_alt_10;
+    dut_types::array_of_64_logic c$case_alt_11;
+    dut_types::array_of_64_logic c$case_alt_12;
     assign imap_out_0 = c$case_alt_0;
 
-    assign y = Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
+    assign y = dut_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
 
     assign c$case_alt_0 = (i_0 == 3'd0) ? c$case_alt_1 : c$case_alt_2;
 
@@ -5806,12 +5806,12 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
     // replaceVec end
 
 
-      assign ws1[n_39] = {Component_SamplePolyCBD3_types::array_of_64_logic_to_lv(imap_out_0)};
+      assign ws1[n_39] = {dut_types::array_of_64_logic_to_lv(imap_out_0)};
     end
 
     // imap end
 
-    assign result_6 = Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+    assign result_6 = dut_types::array_of_64_logic_from_lv(ws[$high(ws)]);
 
     assign c$vec2_4 = (ws[0 : $high(ws) - 1]);
 
@@ -5821,11 +5821,11 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
     for (n_40 = 0; n_40 < $size(c$ws1_app_arg); n_40 = n_40 + 1) begin : zipWith_25
       logic zipWith_in1_25;
       assign zipWith_in1_25 = map_in_9[n_40];
-      Component_SamplePolyCBD3_types::array_of_64_logic zipWith_in2_25;
-      assign zipWith_in2_25 = Component_SamplePolyCBD3_types::array_of_64_logic_from_lv(c$vec2_4[n_40]);
-      Component_SamplePolyCBD3_types::Tuple2_0 zipWith_out_25;
+      dut_types::array_of_64_logic zipWith_in2_25;
+      assign zipWith_in2_25 = dut_types::array_of_64_logic_from_lv(c$vec2_4[n_40]);
+      dut_types::Tuple2_0 zipWith_out_25;
       assign zipWith_out_25 = {zipWith_in1_25
-                     ,{Component_SamplePolyCBD3_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
+                     ,{dut_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
 
 
       assign c$ws1_app_arg[n_40] = zipWith_out_25;
@@ -5834,7 +5834,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
     // zipWith end
 
 
-    assign c$app_arg_4[n_41] = {Component_SamplePolyCBD3_types::array_of_64_logic_to_lv(map_out_9)};
+    assign c$app_arg_4[n_41] = {dut_types::array_of_64_logic_to_lv(map_out_9)};
   end
   endgenerate
   // map end
@@ -5843,7 +5843,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_42;
   generate
     for (n_42 = 0; n_42 < $size(c$app_arg_5); n_42 = n_42 + 1) begin : unconcat_0
-      assign c$app_arg_5[n_42] = {Component_SamplePolyCBD3_types::array_of_7_logic_to_lv(c$app_arg_6[(n_42 * 7) : ((n_42 * 7) + 7 - 1)])};
+      assign c$app_arg_5[n_42] = {dut_types::array_of_7_logic_to_lv(c$app_arg_6[(n_42 * 7) : ((n_42 * 7) + 7 - 1)])};
     end
   endgenerate
   // unconcat end
@@ -5852,7 +5852,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   genvar n_43;
   generate
   for (n_43=0; n_43 < $size(c$app_arg_6); n_43 = n_43 + 1) begin : map_10
-    Component_SamplePolyCBD3_types::Tuple2 map_in_10;
+    dut_types::Tuple2 map_in_10;
     assign map_in_10 = \Permutation.Constants.iotaConstants_xs [n_43];
     logic map_out_10;
     assign map_out_10 = map_in_10.Tuple2_sel0;
@@ -5901,7 +5901,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
     logic zipWith_in2_26;
     assign zipWith_in2_26 = c$vec2_5[n_44];
     logic zipWith_out_26;
-    Component_SamplePolyCBD3_types::array_of_8_logic c$vec_5;
+    dut_types::array_of_8_logic c$vec_5;
     assign c$vec_5 = '{0: 1'b1
                       ,1: 1'b0
                       ,2: 1'b0
@@ -5919,24 +5919,24 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
   endgenerate
   // zipWith end
 
-  assign \Permutation.Constants.iotaConstants3  = Component_SamplePolyCBD3_types::array_of_169_Tuple2_cons({c$vec_4[0]
-                                                                                                           ,{Component_SamplePolyCBD3_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
+  assign \Permutation.Constants.iotaConstants3  = dut_types::array_of_169_Tuple2_cons({c$vec_4[0]
+                                                                                      ,{dut_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
 
   // map begin
   genvar n_46;
   generate
   for (n_46=0; n_46 < $size(\Permutation.Constants.iotaConstants4 ); n_46 = n_46 + 1) begin : map_11
-    Component_SamplePolyCBD3_types::Tuple2 map_in_11;
+    dut_types::Tuple2 map_in_11;
     assign map_in_11 = \Permutation.Constants.iotaConstants5 [n_46];
-    Component_SamplePolyCBD3_types::Tuple2 map_out_11;
-    Component_SamplePolyCBD3_types::array_of_8_logic result_8;
-    Component_SamplePolyCBD3_types::Tuple2_1 c$case_scrut;
+    dut_types::Tuple2 map_out_11;
+    dut_types::array_of_8_logic result_8;
+    dut_types::Tuple2_1 c$case_scrut;
     logic feedback;
-    Component_SamplePolyCBD3_types::array_of_8_logic x_0;
-    Component_SamplePolyCBD3_types::Tuple2 result_7;
-    Component_SamplePolyCBD3_types::array_of_8_logic c$vec2_6;
-    Component_SamplePolyCBD3_types::array_of_8_logic c$vec_6;
-    Component_SamplePolyCBD3_types::array_of_8_logic c$vec_7;
+    dut_types::array_of_8_logic x_0;
+    dut_types::Tuple2 result_7;
+    dut_types::array_of_8_logic c$vec2_6;
+    dut_types::array_of_8_logic c$vec_6;
+    dut_types::array_of_8_logic c$vec_7;
     assign map_out_11 = result_7;
 
     assign c$vec2_6 = '{0: 1'b1
@@ -5967,7 +5967,7 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
 
     // splitAt begin
     logic [0:9-1] [0:1-1] vec;
-    assign vec = {Component_SamplePolyCBD3_types::array_of_9_logic_to_lv((Component_SamplePolyCBD3_types::array_of_9_logic_from_lv({{Component_SamplePolyCBD3_types::array_of_1_logic_to_lv('{0: 1'b0})},{Component_SamplePolyCBD3_types::array_of_8_logic_to_lv(Component_SamplePolyCBD3_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1))}})))};
+    assign vec = {dut_types::array_of_9_logic_to_lv((dut_types::array_of_9_logic_from_lv({{dut_types::array_of_1_logic_to_lv('{0: 1'b0})},{dut_types::array_of_8_logic_to_lv(dut_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1))}})))};
 
       if (8 == 9) begin : no_split
         assign c$case_scrut = {vec};
@@ -5979,16 +5979,16 @@ module Component_SamplePolyCBD3_topEntity_keccakF1600Reversed
 
     // splitAt end
 
-    assign c$vec_6 = Component_SamplePolyCBD3_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1);
+    assign c$vec_6 = dut_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1);
 
     assign feedback = c$vec_6[$high(c$vec_6)];
 
-    assign x_0 = Component_SamplePolyCBD3_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
+    assign x_0 = dut_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
 
-    assign c$vec_7 = Component_SamplePolyCBD3_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1);
+    assign c$vec_7 = dut_types::array_of_8_logic_from_lv(map_in_11.Tuple2_sel1);
 
     assign result_7 = {c$vec_7[0]
-                      ,{Component_SamplePolyCBD3_types::array_of_8_logic_to_lv(result_8)}};
+                      ,{dut_types::array_of_8_logic_to_lv(result_8)}};
 
 
     assign \Permutation.Constants.iotaConstants4 [n_46] = map_out_11;

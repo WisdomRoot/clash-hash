@@ -1,7 +1,7 @@
 {
     "components": [
-        "Component_SamplePolyCBD3_topEntity_keccakF1600Reversed",
-        "Component_SamplePolyCBD3"
+        "Component_SamplePolyCBD2_i264o12_keccakF1600Reversed",
+        "dut"
     ],
     "dependencies": {
         "transitive": []
@@ -31,33 +31,33 @@
     },
     "files": [
         {
-            "name": "Component_SamplePolyCBD3_shim.cpp",
-            "sha256": "4547f50345a7b71f7774379e26b63b52303d87398a479b03271a86f0f36f23c0"
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "Component_SamplePolyCBD3.sdc",
+            "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "Component_SamplePolyCBD3_types.sv",
-            "sha256": "70ed690a074f7aaa5ce886f1adbe17cebe6b18b2d3f0a1854f46b83c01d61083"
+            "name": "dut_types.sv",
+            "sha256": "680b5e365d74c06711d358d7eb0aa48d2e6466439d7c3f2082d24b10be25446d"
         },
         {
-            "name": "Component_SamplePolyCBD3_topEntity_keccakF1600Reversed.sv",
-            "sha256": "62107e6167fc47a58729bf0b94bc1f408997f03991b2049d7e9069f13891441d"
+            "name": "Component_SamplePolyCBD2_i264o12_keccakF1600Reversed.sv",
+            "sha256": "2f6e0129f66bbce6025c3ab805880e4e9032afa7cf1f4342e7819a8fbfaa586c"
         },
         {
-            "name": "Component_SamplePolyCBD3.sv",
-            "sha256": "560230b22654092329c21ca13dc2046d56e1edf49facd9f3622807d92fe4375c"
+            "name": "dut.sv",
+            "sha256": "036c9fa741871dead7806707078fab015644f634b9d891da755b8edfb637a34f"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "682ea0ae6806469a5c8d0ab3526bb6927372c22c18e98964c5660bb6b7477c33",
+    "hash": "b7fa445a9dc233aef9cbe2150c0de051c1d3672832d2f3d1f2ddb0c2622d97df",
     "top_component": {
-        "name": "Component_SamplePolyCBD3",
+        "name": "dut",
         "ports_flat": [
             {
                 "direction": "in",
@@ -86,9 +86,23 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_33B",
+                "name": "MSG_TDATA",
                 "type_name": "logic [263:0]",
                 "width": 264
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_TLAST",
+                "type_name": "logic",
+                "width": 1
             },
             {
                 "direction": "in",
@@ -101,13 +115,27 @@
                 "direction": "out",
                 "is_clock": false,
                 "name": "DIGEST_TDATA",
-                "type_name": "logic [13:0]",
-                "width": 14
+                "type_name": "logic [11:0]",
+                "width": 12
             },
             {
                 "direction": "out",
                 "is_clock": false,
                 "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "MSG_TREADY",
                 "type_name": "logic",
                 "width": 1
             }

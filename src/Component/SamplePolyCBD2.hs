@@ -1,5 +1,6 @@
 module Component.SamplePolyCBD2
-  ( topEntity,
+  ( i264o12,
+    i264o12Core,
   )
 where
 
@@ -14,36 +15,36 @@ import Component.SamplePolyCBD.Common
 import Permutation qualified
 
 {-# ANN
-  topEntity
+  i264o12
   ( Synthesize
-      { t_name = "Component_SamplePolyCBD2",
+      { t_name = "dut",
         t_inputs =
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
-            PortName "MSG_33B",
-            PortName "DIGEST_TREADY"
+            PortProduct
+              ""
+              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "DIGEST_TREADY"
+              ]
           ],
         t_output =
           PortProduct
             ""
-            [ PortName "DIGEST_TDATA",
-              PortName "DIGEST_TVALID",
-              PortName "DIGEST_TLAST"
+            [ PortProduct "DIGEST" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "MSG_TREADY"
             ]
       }
   )
   #-}
-{-# NOINLINE topEntity #-}
-topEntity ::
+{-# NOINLINE i264o12 #-}
+i264o12 ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System (BitVector 264) ->
-  Signal System Bool ->
+  Signal System (AXI4Stream 264, Bool) ->
   Signal System (AXI4Stream 12, Bool)
-topEntity clk rst en msgSig treadySig =
-  withClockResetEnable clk rst en (samplePolyCBD2 msgSig treadySig)
+i264o12 = toDUT i264o12Core
 
 -- | State machine for SamplePolyCBD2
 -- PRF(eta=2) outputs 128 bytes = 16 64-bit words
@@ -59,25 +60,26 @@ data State
 samplePolyCBD2 ::
   forall dom.
   (HiddenClockResetEnable dom) =>
-  Signal dom (BitVector 264) ->
-  Signal dom Bool ->
-  Signal dom (AXI4Stream 12, Bool)
-samplePolyCBD2 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
+  Pipe dom 264 12
+samplePolyCBD2 (outReady, inStream) = mealyB step Absorb (outReady, inStream)
   where
     step ::
       State ->
-      (BitVector 264, Bool) ->
-      (State, (AXI4Stream 12, Bool))
-    step st (msg, tready) =
+      (Bool, AXI4Stream 264) ->
+      (State, (Bool, AXI4Stream 12))
+    step st (tready, inBeat) =
       case st of
         Absorb ->
-          let initState = absorb33 msg
-           in (Permute 0 initState, (idleAXI4Stream, True))
+          if tvalid inBeat
+            then
+              let initState = absorb33 (tdata inBeat)
+               in (Permute 0 initState, (False, idleAXI4Stream))
+            else (Absorb, (True, idleAXI4Stream))
         Permute roundIdx state ->
           let state' = Permutation.keccakF1600Reversed roundIdx state
            in if roundIdx == maxBound
-                then (Squeeze 0 0 state', (idleAXI4Stream, False))
-                else (Permute (roundIdx + 1) state', (idleAXI4Stream, False))
+                then (Squeeze 0 0 state', (False, idleAXI4Stream))
+                else (Permute (roundIdx + 1) state', (False, idleAXI4Stream))
         Squeeze wordIdx coeffIdx state ->
           let -- Extract 64-bit word from state
               word64 = squeezeSlice (resize wordIdx) state
@@ -103,5 +105,10 @@ samplePolyCBD2 msgSig treadySig = mealy step Absorb (bundle (msgSig, treadySig))
                           then Squeeze (wordIdx + 1) 0 state
                           else Squeeze wordIdx (coeffIdx + 1) state
                   else Squeeze wordIdx coeffIdx state
-           in (nextState, (outStream, False))
-        Done -> (Done, (idleAXI4Stream, False))
+           in (nextState, (False, outStream))
+        Done -> (Done, (False, idleAXI4Stream))
+
+i264o12Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 264 12
+i264o12Core = samplePolyCBD2

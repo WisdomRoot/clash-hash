@@ -2,12 +2,12 @@
 
 #include <verilated.h>
 
-#include "VComponent_SamplePolyCBD2.h"
+#include "Vdut.h"
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
 
-  VComponent_SamplePolyCBD2 *top = new VComponent_SamplePolyCBD2;
+  Vdut *top = new Vdut;
 
   while(!Verilated::gotFinish()) {
     top->eval();

@@ -1,7 +1,7 @@
 {
     "components": [
-        "Component_SamplePolyCBD2_topEntity_keccakF1600Reversed",
-        "Component_SamplePolyCBD2"
+        "Component_SamplePolyCBD3_i264o12_keccakF1600Reversed",
+        "dut"
     ],
     "dependencies": {
         "transitive": []
@@ -31,37 +31,33 @@
     },
     "files": [
         {
-            "name": "Component_SamplePolyCBD2_shim.cpp",
-            "sha256": "57bb62cf5e5b9f2f567689162e947d3537cc5c324d77f031ed2ef89414bf3096"
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "Component_SamplePolyCBD2_shim.cpp",
-            "sha256": "57bb62cf5e5b9f2f567689162e947d3537cc5c324d77f031ed2ef89414bf3096"
-        },
-        {
-            "name": "Component_SamplePolyCBD2.sdc",
+            "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "Component_SamplePolyCBD2_types.sv",
-            "sha256": "f893fe357bf095d3bd23ea06216ef27e9e490081b0d71bc17b4d43b5d64a9d42"
+            "name": "dut_types.sv",
+            "sha256": "64e11121a2465e5638ad4a83235a4c90dac950d8fb5283a962a0b171e581d10a"
         },
         {
-            "name": "Component_SamplePolyCBD2_topEntity_keccakF1600Reversed.sv",
-            "sha256": "ec0acff60d40b9171819874b368e74e6a65670d4675f2390d908427974484ee5"
+            "name": "Component_SamplePolyCBD3_i264o12_keccakF1600Reversed.sv",
+            "sha256": "85074b6ed2d37bf6a0c4de731b968a914605bf9352fb0965f8c69383ad5fca68"
         },
         {
-            "name": "Component_SamplePolyCBD2.sv",
-            "sha256": "4ea9254d33e6e8826f63cbec267b971fcb2cdc9f257ea15482e1cb7d227497a3"
+            "name": "dut.sv",
+            "sha256": "338c336ca5ac0aad8130580812c38b8bd02100f8245e056628503ddc0a0b66e3"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "daee310762db749c2e95f4b01b786a78717c4e62579edf6cf10e2730e366302b",
+    "hash": "dadf8f71349b05be9a097bc490702bfe7e9de0a34abdd68373b3221de26a8942",
     "top_component": {
-        "name": "Component_SamplePolyCBD2",
+        "name": "dut",
         "ports_flat": [
             {
                 "direction": "in",
@@ -90,9 +86,23 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_33B",
+                "name": "MSG_TDATA",
                 "type_name": "logic [263:0]",
                 "width": 264
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "MSG_TLAST",
+                "type_name": "logic",
+                "width": 1
             },
             {
                 "direction": "in",
@@ -105,13 +115,27 @@
                 "direction": "out",
                 "is_clock": false,
                 "name": "DIGEST_TDATA",
-                "type_name": "logic [13:0]",
-                "width": 14
+                "type_name": "logic [11:0]",
+                "width": 12
             },
             {
                 "direction": "out",
                 "is_clock": false,
                 "name": "DIGEST_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "DIGEST_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "MSG_TREADY",
                 "type_name": "logic",
                 "width": 1
             }
