@@ -18,7 +18,6 @@
   "CBD-O24": "Component.SamplePolyCBD.i272o24",
   "Dev": "Component.Dev.topEntity",
   "Perm": "Permutation.topEntity",
-  "PermRev": "Permutation.Reversed.topEntity",
   "Chi": "Permutation.Chi.topEntity",
   "Rho": "Permutation.Rho.topEntity",
   "Pi": "Permutation.Pi.topEntity",
