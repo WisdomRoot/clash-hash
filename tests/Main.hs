@@ -9,10 +9,8 @@ import Test.NonPipelined.SHA3256 qualified
 import Test.NonPipelined.SHA3256Normal qualified
 import Test.NonPipelined.SHA3512 qualified
 import Test.NonPipelined.SHA3512Normal qualified
-import Test.NonPipelined.G512 qualified
-import Test.NonPipelined.G768 qualified
-import Test.NonPipelined.G qualified
 import Test.G512 qualified
+import Test.G768 qualified
 import Test.G qualified
 import Test.XOF qualified
 import Test.NonPipelined.SHAKE256 qualified
@@ -33,18 +31,16 @@ main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationRevTests <- testSpec "Permutation" Test.Permutation.spec
   samplePolyCBD512Tests <- testSpec "SamplePolyCBD512" Test.SamplePolyCBD512.spec
-  samplePolyCBDStreamTests <- testSpec "SamplePolyCBD Stream" Test.SamplePolyCBD.spec
+  samplePolyCBDTests <- testSpec "SamplePolyCBD Stream" Test.SamplePolyCBD.spec
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
   n256NormalTests <- testSpec "NonPipelined SHA3-256 Normal" Test.NonPipelined.SHA3256Normal.spec
   n512Tests <- testSpec "NonPipelined SHA3-512" Test.NonPipelined.SHA3512.spec
   n512NormalTests <- testSpec "NonPipelined SHA3-512 Normal" Test.NonPipelined.SHA3512Normal.spec
-  gTests <- testSpec "G512" Test.NonPipelined.G512.spec
-  gStreamTests <- testSpec "G512 Stream" Test.G512.spec
-  g768Tests <- testSpec "G768" Test.NonPipelined.G768.spec
-  gGeneralTests <- testSpec "G" Test.NonPipelined.G.spec
-  gGeneralStreamTests <- testSpec "G Stream" Test.G.spec
-  xofStreamTests <- testSpec "XOF Stream" Test.XOF.spec
+  g512Tests <- testSpec "G512" Test.G512.spec
+  g768Tests <- testSpec "G768" Test.G768.spec
+  gTests <- testSpec "G" Test.G.spec
+  xofTests <- testSpec "XOF" Test.XOF.spec
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
@@ -60,18 +56,16 @@ main = do
         constantsTests,
         permutationRevTests,
         samplePolyCBD512Tests,
-        samplePolyCBDStreamTests,
+        samplePolyCBDTests,
         combinationalTests,
         n256Tests,
         n256NormalTests,
         n512Tests,
         n512NormalTests,
-        gTests,
-        gStreamTests,
+        g512Tests,
         g768Tests,
-        gGeneralTests,
-        gGeneralStreamTests,
-        xofStreamTests,
+        gTests,
+        xofTests,
         n256xTests,
         n128xTests,
         n128xbTests,

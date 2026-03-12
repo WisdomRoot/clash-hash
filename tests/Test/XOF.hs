@@ -96,7 +96,7 @@ genCase = do
   P.pure (inputTiming, backpressure)
 
 spec :: Spec
-spec = describe "XOF (Stream)" $ do
+spec = describe "XOF" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!!" :: ByteString)
     runPipeInput i272o48AsPipe simulate [Input [input]] [Ready 1]

@@ -89,7 +89,7 @@ genCase = do
   P.pure (inputTiming, backpressure)
 
 spec :: Spec
-spec = describe "G512 (Stream)" $ do
+spec = describe "G512" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @256 "0123456789abcdef0123456789abcdef"
     runPipeInput i256o256AsPipe simulate [Input [input]] [Ready 1]
