@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Test.SampleNTT512 (spec) where
+module Test.SampleNTT (spec) where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude (BitVector, bundle, clockGen, enableGen, fromList, resetGen, sampleN, (++#))
@@ -27,8 +27,8 @@ import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
 spec :: Spec
-spec = describe "SampleNTT512 Stream" $ do
-  describe "i272o24l2" $ runAllTests 2 5 SampleNTT.i272o24l2
+spec = describe "SN-O24-L2" $
+  runAllTests 2 5 SampleNTT.i272o24l2
   where
     runAllTests lookaheadCount bufferSize topEntityCore = do
       describe "Basic functionality tests (34-byte seeds)" $
@@ -76,14 +76,14 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
     else
       if lookaheadCount P.== 2
         then simulateL2
-        else P.error "SampleNTT512.simulate: unsupported lookahead/bufferSize"
+        else P.error "SampleNTT.simulate: unsupported lookahead/bufferSize"
   where
     simulateL01 =
       let (inputPattern, _) = expandInputTiming inputTiming
           startSilence =
             case L.findIndex isJust inputPattern of
               Just i -> i
-              Nothing -> P.error "SampleNTT512.simulate: no input provided"
+              Nothing -> P.error "SampleNTT.simulate: no input provided"
           (packedBytes, validityRaw) = getSampleNTTOutput seed
           validity =
             if P.odd (P.length validityRaw)
@@ -107,7 +107,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           startSilence =
             case L.findIndex isJust inputPattern of
               Just i -> i
-              Nothing -> P.error "SampleNTT512.simulateL2: no input provided"
+              Nothing -> P.error "SampleNTT.simulateL2: no input provided"
           (packedBytes, validityRaw) = getSampleNTTOutput seed
           coeffs = unpackPython384Bytes packedBytes
           validity = padToMultiple P.False 4 validityRaw
@@ -200,7 +200,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           then (P.reverse acc, buffer, pairs, emitted, vals)
           else
             case vals of
-              [] -> P.error "SampleNTT512.simulate: validity pattern exhausted"
+              [] -> P.error "SampleNTT.simulate: validity pattern exhausted"
               v0 : rest0 ->
                 let (v1, rest1) =
                       if remaining P.> 1
@@ -225,14 +225,14 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                       case lookaheadCount of
                         0 -> decide0 buffer v0 v1b
                         1 -> decide1 buffer v0 v1b v2b
-                        _ -> P.error "SampleNTT512.simulate: unsupported lookahead"
+                        _ -> P.error "SampleNTT.simulate: unsupported lookahead"
                     consumeN' = P.min consumeCount avail
                     restVals = P.drop consumeN' vals
                     (out, pairs', emitted') =
                       if emittedThis
                         then case pairs of
                           p : ps -> (Just p, ps, emitted P.+ 1)
-                          [] -> P.error "SampleNTT512.simulate: output exhausted"
+                          [] -> P.error "SampleNTT.simulate: output exhausted"
                         else (Nothing, pairs, emitted)
                  in runBlock restVals (remaining P.- consumeN') buffer' pairs' emitted' (out : acc)
 
@@ -257,7 +257,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
             else
               let (out, rs'') = runSqueeze (b : bs) rs'
                in (Nothing : out, rs'')
-        [] -> P.error "SampleNTT512.simulate: empty backpressure pattern"
+        [] -> P.error "SampleNTT.simulate: empty backpressure pattern"
 
     consumeN :: P.Int -> [P.Bool] -> ([Maybe (BitVector 24)], [P.Bool])
     consumeN n rs =
@@ -268,7 +268,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
             _ : rs' ->
               let (out, rs'') = consumeN (n P.- 1) rs'
                in (Nothing : out, rs'')
-            [] -> P.error "SampleNTT512.simulate: empty backpressure pattern"
+            [] -> P.error "SampleNTT.simulate: empty backpressure pattern"
 
     padToMultiple filler n xs =
       let r = P.length xs `P.mod` n
@@ -287,11 +287,11 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
         (chunk, rest) -> chunk : chunksOf n rest
 
     assignCandidates [] [] = []
-    assignCandidates [] _ = P.error "SampleNTT512.simulateL2: extra coefficients"
+    assignCandidates [] _ = P.error "SampleNTT.simulateL2: extra coefficients"
     assignCandidates (v : vs) coeffs' =
       if v
         then case coeffs' of
-          [] -> P.error "SampleNTT512.simulateL2: ran out of coefficients"
+          [] -> P.error "SampleNTT.simulateL2: ran out of coefficients"
           c : cs -> P.Just c : assignCandidates vs cs
         else P.Nothing : assignCandidates vs coeffs'
 
@@ -305,7 +305,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
       if emitted P.>= 128
         then ([], rs)
         else case blocks of
-          [] -> P.error "SampleNTT512.simulateL2: candidate blocks exhausted"
+          [] -> P.error "SampleNTT.simulateL2: candidate blocks exhausted"
           block : rest ->
             let (blockOut, buffer', rs', emitted') = runBlockL2 block buffer rs emitted
              in if emitted' P.>= 128
@@ -329,7 +329,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           | idx P.>= blockLen = (P.reverse acc, buf, ready, emitted')
           | P.otherwise =
             case ready of
-              [] -> P.error "SampleNTT512.simulateL2: empty backpressure pattern"
+              [] -> P.error "SampleNTT.simulateL2: empty backpressure pattern"
               r : rs' ->
                 let chunk = block P.!! idx
                     (rawOut, buf', advanceIdx, produced) = stepL2 buf chunk r
@@ -383,7 +383,7 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                       if P.length vals P.<= bufferSize
                         then (P.Nothing, vals, P.True, 0)
                         else (P.Nothing, [], P.False, 0)
-                _ -> P.error "SampleNTT512.simulateL2: invalid candidate chunk size"
+                _ -> P.error "SampleNTT.simulateL2: invalid candidate chunk size"
 
     mkPair a b = toBV12 b ++# toBV12 a
 
@@ -414,7 +414,7 @@ runStreamInputExpected topEntity expectedValues baselineNoBpLen inputTiming back
       startSilence =
         case L.findIndex isJust inputPattern of
           Just i -> i
-          Nothing -> P.error "SampleNTT512 Stream: no input provided"
+          Nothing -> P.error "SampleNTT Stream: no input provided"
       patternLen = P.max 1 (P.length readyPattern)
       readyCount = P.max 1 (P.length (P.filter P.id readyPattern))
       readyBudget = ceilDiv (expectedCount P.* patternLen) readyCount
@@ -463,20 +463,20 @@ runStreamInputExpected topEntity expectedValues baselineNoBpLen inputTiming back
               then P.Nothing
               else
                 P.Just
-                  ( "SampleNTT512 Stream: output changed during backpressure at cycle "
+                  ( "SampleNTT Stream: output changed during backpressure at cycle "
                       P.++ P.show (P.head outHoldViolations)
                   )
-          else P.Just "SampleNTT512 Stream: MSG_TVALID asserted without MSG_TREADY in previous cycle"
+          else P.Just "SampleNTT Stream: MSG_TVALID asserted without MSG_TREADY in previous cycle"
    in case protocolError of
         P.Just err -> P.error err
         P.Nothing ->
           if P.null inputHandshakes
-            then P.error "SampleNTT512 Stream: MSG_TVALID never asserted after MSG_TREADY"
+            then P.error "SampleNTT Stream: MSG_TVALID never asserted after MSG_TREADY"
             else
               if P.length handshakes P.< expectedCount
                 then
                   P.error
-                    ( "SampleNTT512 Stream: did not complete 128 outputs before timeout; got "
+                    ( "SampleNTT Stream: did not complete 128 outputs before timeout; got "
                         P.++ P.show (P.length handshakes)
                         P.++ ", expected "
                         P.++ P.show expectedCount

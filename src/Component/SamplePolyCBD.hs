@@ -4,7 +4,9 @@
 
 module Component.SamplePolyCBD
   ( i272o12,
-    i272o24
+    i272o24,
+    i272o12Core,
+    i272o24Core
   )
 where
 

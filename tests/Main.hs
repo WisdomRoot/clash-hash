@@ -16,10 +16,11 @@ import Test.XOF qualified
 import Test.NonPipelined.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
-import Test.SampleNTT512 qualified
+import Test.SampleNTT qualified
 import Test.Permutation qualified
 import Test.SamplePolyCBD qualified
-import Test.SamplePolyCBD512 qualified
+import Test.SamplePolyCBD2 qualified
+import Test.SamplePolyCBD3 qualified
 import Test.Reference.SHA3 qualified
 import Test.Reference.SHAKE256 qualified
 import Test.Tasty
@@ -30,8 +31,12 @@ main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationRevTests <- testSpec "Permutation" Test.Permutation.spec
-  samplePolyCBD512Tests <- testSpec "SamplePolyCBD512" Test.SamplePolyCBD512.spec
-  samplePolyCBDTests <- testSpec "SamplePolyCBD Stream" Test.SamplePolyCBD.spec
+  cbdo12Tests <- testSpec "CBD-O12" Test.SamplePolyCBD.specO12
+  cbdo24Tests <- testSpec "CBD-O24" Test.SamplePolyCBD.specO24
+  cbd2o12Tests <- testSpec "CBD2-O12" Test.SamplePolyCBD2.specO12
+  cbd2o24Tests <- testSpec "CBD2-O24" Test.SamplePolyCBD2.specO24
+  cbd3o12Tests <- testSpec "CBD3-O12" Test.SamplePolyCBD3.specO12
+  cbd3o24Tests <- testSpec "CBD3-O24" Test.SamplePolyCBD3.specO24
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   n256Tests <- testSpec "NonPipelined SHA3-256" Test.NonPipelined.SHA3256.spec
   n256NormalTests <- testSpec "NonPipelined SHA3-256 Normal" Test.NonPipelined.SHA3256Normal.spec
@@ -44,7 +49,7 @@ main = do
   n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
-  nSampleNTT512Tests <- testSpec "SampleNTT512" Test.SampleNTT512.spec
+  snO24L2Tests <- testSpec "SN-O24-L2" Test.SampleNTT.spec
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
 
@@ -55,8 +60,12 @@ main = do
       [
         constantsTests,
         permutationRevTests,
-        samplePolyCBD512Tests,
-        samplePolyCBDTests,
+        cbdo12Tests,
+        cbdo24Tests,
+        cbd2o12Tests,
+        cbd2o24Tests,
+        cbd3o12Tests,
+        cbd3o24Tests,
         combinationalTests,
         n256Tests,
         n256NormalTests,
@@ -71,5 +80,5 @@ main = do
         n128xbTests,
         refSha3Tests,
         refShake256Tests,
-        nSampleNTT512Tests
+        snO24L2Tests
       ]

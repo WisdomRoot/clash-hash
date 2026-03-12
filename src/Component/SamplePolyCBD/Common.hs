@@ -17,16 +17,16 @@ absorb33 :: BitVector 264 -> BitVector 1600
 absorb33 = pad33Bytes . placeMsg
   where
     placeMsg :: BitVector 264 -> BitVector 1600
-    placeMsg msg = msg ++# (0 :: BitVector 1336)
+    placeMsg msg = (0 :: BitVector 1336) ++# msg
 
     pad33Bytes :: BitVector 1600 -> BitVector 1600
     pad33Bytes =
-      complementAt 512
-        . complementAt 1331
-        . complementAt 1332
-        . complementAt 1333
-        . complementAt 1334
-        . complementAt 1335
+      complementAt 1087
+        . complementAt 264
+        . complementAt 265
+        . complementAt 266
+        . complementAt 267
+        . complementAt 268
 
 -- | Extract 64-bit output words in SHAKE256 order.
 squeezeSlice :: Index 17 -> BitVector 1600 -> BitVector 64

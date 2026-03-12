@@ -2,7 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.SamplePolyCBD (spec) where
+module Test.SamplePolyCBD
+  ( specO12,
+    specO24,
+  )
+where
 
 import AXI4Stream (Pipe)
 import Clash.Prelude (BitVector, SNat (..), System, (++#), bundle, clockGen, enableGen, resetGen, slice, unbundle)
@@ -122,8 +126,8 @@ genCase = do
           else [Hold holdLen, Input [inputBV]]
   P.pure (inputTiming, backpressure)
 
-spec :: Spec
-spec = describe "SamplePolyCBD (Stream)" $ do
+specO12 :: Spec
+specO12 = describe "CBD-O12" $ do
   it "matches expected output (eta=2, no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [2])
     runPipeInput i272o12AsPipe simulate [Input [input]] [Ready 1]
@@ -133,16 +137,19 @@ spec = describe "SamplePolyCBD (Stream)" $ do
   it "matches expected output (eta=3, periodic backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
     runPipeInput i272o12AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
-  it "i272o24 matches expected output (eta=2, no backpressure)" $ do
-    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [2])
-    runPipeInput i272o24AsPipe simulate24 [Input [input]] [Ready 1]
-  it "i272o24 matches expected output (eta=3, no backpressure)" $ do
-    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
-    runPipeInput i272o24AsPipe simulate24 [Input [input]] [Ready 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
         runPipeInput i272o12AsPipe simulate inputTiming backpressure
+
+specO24 :: Spec
+specO24 = describe "CBD-O24" $ do
+  it "matches expected output (eta=2, no backpressure)" $ do
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [2])
+    runPipeInput i272o24AsPipe simulate24 [Input [input]] [Ready 1]
+  it "matches expected output (eta=3, no backpressure)" $ do
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
+    runPipeInput i272o24AsPipe simulate24 [Input [input]] [Ready 1]
   describe "QuickCheck property tests (i272o24)" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
