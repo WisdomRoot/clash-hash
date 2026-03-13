@@ -5,7 +5,8 @@ This document defines the expected implementation style for reusable components 
 ## 1) Interface and Top-Level Shape
 
 - Internal component implementation should use `Pipe dom inBits outBits`.
-- Top-level synthesis-facing entity should be first-order and exposed via `toDUT`.
+- If an input control sideband is required (for example `flush`), use `PipeCtrl dom ctrl inBits outBits`.
+- Top-level synthesis-facing entity should be first-order and exposed via `toDUT` (or `toDUTCtrl` for `PipeCtrl`).
 - Follow the `G`-style split:
   - `<name>Core` for the internal `Pipe` implementation (for example `i272o256Core`)
   - `<name>` for the synthesized DUT wrapper (for example `i272o256`)

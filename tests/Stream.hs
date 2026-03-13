@@ -16,12 +16,13 @@ module Stream
     StreamTopEntityIn,
     runStreamInput,
     runPipeInput,
+    runPipeCtrlInput,
     toBV,
     bsToBVRev8,
   )
 where
 
-import AXI4Stream (AXI4Stream (..), Pipe)
+import AXI4Stream (AXI4Stream (..), Pipe, PipeCtrl)
 import Clash.Prelude (Bit, BitVector, Clock, Enable, KnownNat, Reset, Signal, System, Vec, bundle, clockGen, enableGen, fromList, natToNum, pack, resize, resetGen, sampleN, shiftL, unpack)
 import Clash.Prelude qualified as C
 import Data.Bits (setBit, testBit, (.|.))
@@ -261,6 +262,59 @@ runPipeInput pipeEntity simulate inputTiming backpressureTiming = do
       treadySignal = fromList (True : readyStream)
       output =
         let (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
+         in bundle (outStream, inReady)
+      samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
+      actualAll =
+        [ if tvalid stream && ready then Just (tdata stream) else Nothing
+          | ((stream, _), ready) <- samples
+        ]
+      actual = drop 1 actualAll
+  actual `shouldBe` expectedBase
+  where
+    mkBeat lastIdx i mv =
+      AXI4Stream
+        { tdata = case mv of
+            Just v -> v
+            Nothing -> 0,
+          tvalid = isJust mv,
+          tlast = case (lastIdx, mv) of
+            (Just j, Just _) -> i == j
+            _ -> False
+        }
+    idleBeat =
+      AXI4Stream
+        { tdata = 0,
+          tvalid = False,
+          tlast = False
+        }
+
+runPipeCtrlInput ::
+  (KnownNat n, KnownNat m, C.NFDataX c) =>
+  PipeCtrl System c n m ->
+  c ->
+  [c] ->
+  ([c] -> InputTiming n -> OutputTiming m) ->
+  InputTiming n ->
+  BackpressureTiming ->
+  IO ()
+runPipeCtrlInput pipeEntity ctrlDefault ctrlPattern simulate inputTiming backpressureTiming = do
+  let base = expandOutputTiming (simulate ctrlPattern inputTiming)
+      expectedHandshakes = length [() | Just _ <- base]
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> repeat True
+        _ -> cycle readyPattern
+      expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
+      (inputPattern, _inputValues) = expandInputTiming inputTiming
+      lastJustIdx = case [i | (i, Just _) <- zip ([0 ..] :: [Int]) inputPattern] of
+        [] -> Nothing
+        xs -> Just (last xs)
+      beats = zipWith (mkBeat lastJustIdx) ([0 ..] :: [Int]) inputPattern
+      inputSignal = fromList (idleBeat : beats ++ repeat idleBeat)
+      ctrlSignal = fromList (ctrlDefault : ctrlPattern ++ repeat ctrlDefault)
+      treadySignal = fromList (True : readyStream)
+      output =
+        let (inReady, outStream) = pipeEntity (treadySignal, ctrlSignal, inputSignal)
          in bundle (outStream, inReady)
       samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
       actualAll =
