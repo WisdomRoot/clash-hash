@@ -62,7 +62,7 @@ stack test -- run all tests
 
 * N256: Non-pipelined SHA3-256 at `Hash.NonPipelined.SHA3256` (Clash)
 * N256N: Non-pipelined SHA3-256 (Normal) at `Hash.NonPipelined.SHA3256Normal` (Clash)
-* N256X: Non-pipelined SHAKE-256 (Clash)
+* SHAKE3-256: Non-pipelined SHAKE-256 (normal order, Clash)
 * N128X: Non-pipelined SHAKE-128 (Clash)
 * N128XB: Non-pipelined SHAKE-128 Byte-stream (8-bit) (Clash)
 * H256: Pipelined *high_speed_core* SHA3-256 by *Team Keccak*

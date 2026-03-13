@@ -5,7 +5,7 @@
   "G512": "Component.G512.i256o256",
   "G768": "Component.G768.i256o256",
   "SHAKE3-256": "Component.SHAKE256.i64o64",
-  "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
+  "SHAKE3-128": "Component.SHAKE128.i64o64",
   "XOF": "Component.XOF.i272o48",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
   "CBD2-O12": "Component.SamplePolyCBD2.i264o12",

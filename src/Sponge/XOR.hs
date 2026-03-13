@@ -14,6 +14,7 @@ module Sponge.XOR
     staticXOR512',
     staticXOR512_256,
     staticXOR128,
+    staticXOR128',
     staticXOR128B,
   )
 where
@@ -129,6 +130,10 @@ $(mkMap "staticXOR256'" "xor" 1600
 -- Generated via Template Haskell.
 $(mkMap "staticXOR512'" "xor" 1600
     [ (i, i * 64, 64) | i <- [0 :: Integer .. 8] ])
+
+-- | Static XOR for 21 beats (normal-order SHAKE128 rate).
+$(mkMap "staticXOR128'" "xor" 1600
+    [ (i, i * 64, 64) | i <- [0 :: Integer .. 20] ])
 
 -- | Static XOR for 3 beats of 256-bit input (SHA3-512 rate 576).
 --   Beat 2 uses only the low 64 bits to stay within the 576-bit rate.
