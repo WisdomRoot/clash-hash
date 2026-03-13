@@ -11,7 +11,7 @@ import Test.G512 qualified
 import Test.G768 qualified
 import Test.G qualified
 import Test.XOF qualified
-import Test.NonPipelined.SHAKE256 qualified
+import Test.SHAKE256 qualified
 import Test.NonPipelined.SHAKE128 qualified
 import Test.NonPipelined.SHAKE128B qualified
 import Test.SampleNTT qualified
@@ -42,7 +42,7 @@ main = do
   g768Tests <- testSpec "G768" Test.G768.spec
   gTests <- testSpec "G" Test.G.spec
   xofTests <- testSpec "XOF" Test.XOF.spec
-  n256xTests <- testSpec "NonPipelined SHAKE-256" Test.NonPipelined.SHAKE256.spec
+  shake3256Tests <- testSpec "SHAKE3-256" Test.SHAKE256.spec
   n128xTests <- testSpec "NonPipelined SHAKE-128" Test.NonPipelined.SHAKE128.spec
   n128xbTests <- testSpec "NonPipelined SHAKE-128B" Test.NonPipelined.SHAKE128B.spec
   snO24L2Tests <- testSpec "SN-O24-L2" Test.SampleNTT.spec
@@ -69,7 +69,7 @@ main = do
         g768Tests,
         gTests,
         xofTests,
-        n256xTests,
+        shake3256Tests,
         n128xTests,
         n128xbTests,
         refSha3Tests,

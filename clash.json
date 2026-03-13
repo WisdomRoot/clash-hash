@@ -4,7 +4,7 @@
   "G": "Component.G.i272o256",
   "G512": "Component.G512.i256o256",
   "G768": "Component.G768.i256o256",
-  "N256X": "Hash.NonPipelined.SHAKE256.topEntity",
+  "SHAKE3-256": "Component.SHAKE256.i64o64",
   "N128X": "Hash.NonPipelined.SHAKE128.topEntity",
   "XOF": "Component.XOF.i272o48",
   "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
