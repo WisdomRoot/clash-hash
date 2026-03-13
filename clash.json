@@ -1,6 +1,5 @@
 {
-  "N256": "Hash.NonPipelined.SHA3256.topEntity",
-  "N256N": "Hash.NonPipelined.SHA3256Normal.topEntity",
+  "SHA3-256": "Component.SHA3256.i64o64",
   "N512": "Hash.NonPipelined.SHA3512.topEntity",
   "N512N": "Hash.NonPipelined.SHA3512Normal.topEntity",
   "G": "Component.G.i272o256",
