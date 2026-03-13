@@ -6,8 +6,7 @@ module Main (main) where
 import Test.Combinational qualified
 import Test.Constants qualified
 import Test.SHA3256 qualified
-import Test.NonPipelined.SHA3512 qualified
-import Test.NonPipelined.SHA3512Normal qualified
+import Test.SHA3512 qualified
 import Test.G512 qualified
 import Test.G768 qualified
 import Test.G qualified
@@ -38,8 +37,7 @@ main = do
   cbd3o24Tests <- testSpec "CBD3-O24" Test.SamplePolyCBD3.specO24
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   sha3256Tests <- testSpec "SHA3-256" Test.SHA3256.spec
-  n512Tests <- testSpec "NonPipelined SHA3-512" Test.NonPipelined.SHA3512.spec
-  n512NormalTests <- testSpec "NonPipelined SHA3-512 Normal" Test.NonPipelined.SHA3512Normal.spec
+  sha3512Tests <- testSpec "SHA3-512" Test.SHA3512.spec
   g512Tests <- testSpec "G512" Test.G512.spec
   g768Tests <- testSpec "G768" Test.G768.spec
   gTests <- testSpec "G" Test.G.spec
@@ -66,8 +64,7 @@ main = do
         cbd3o24Tests,
         combinationalTests,
         sha3256Tests,
-        n512Tests,
-        n512NormalTests,
+        sha3512Tests,
         g512Tests,
         g768Tests,
         gTests,
