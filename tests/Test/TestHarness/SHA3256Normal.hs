@@ -13,12 +13,12 @@ where
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude hiding (tlast)
 import Clash.Sized.Vector qualified as V
+import Component.SHA3256 qualified as SHA3256
 import Data.Bits qualified as Bits
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
-import Hash.NonPipelined.SHA3256Normal qualified as SHA3256Normal
 import Reference.Crypton qualified as Crypton
 import Test.Hspec (Expectation, shouldBe)
 import Test.QuickCheck (Gen)
@@ -45,7 +45,7 @@ sha3256NormalParams =
   ShakeParams
     { spBeatsPerBlock = 17,
       spReference = const Crypton.sha3,
-      spTopEntity = SHA3256Normal.topEntity
+      spTopEntity = SHA3256.i64o64
     }
 
 sha3256NormalGenConfig :: ShakeGenConfig

@@ -10,9 +10,11 @@ module AXI4Stream
     Slave,
     Pipe,
     Pipe2,
+    PipeCtrl,
     (~>),
     toDUT,
     toDUT2,
+    toDUTCtrl,
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -99,6 +101,15 @@ type Pipe2 dom a b =
   Signal dom (AXI4Stream a, Bool) ->
   Signal dom (AXI4Stream b, Bool)
 
+-- | Pipe with an additional control sideband sampled alongside the input stream.
+-- Tuple order follows step style: downstream ready, control, upstream stream.
+type PipeCtrl dom c a b =
+  ( Signal dom Bool,
+    Signal dom c,
+    Signal dom (AXI4Stream a)
+  ) ->
+  (Signal dom Bool, Signal dom (AXI4Stream b))
+
 -- | Compose two stream stages, tying the intermediate @tready@ feedback loop.
 --
 -- The recursive @let@ is safe under Clash's lazy 'Signal' semantics provided
@@ -147,6 +158,23 @@ toDUT2 ::
   Signal dom (AXI4Stream b, Bool)
 toDUT2 comp clk rst en inputSig =
   withClockResetEnable clk rst en (comp inputSig)
+
+-- | Adapt a component expressed as @PipeCtrl dom c a b@ into a first-order
+-- top-entity shape with explicit downstream @tready@ and input-side control.
+toDUTCtrl ::
+  KnownDomain dom =>
+  (HiddenClockResetEnable dom => PipeCtrl dom c a b) ->
+  Clock dom ->
+  Reset dom ->
+  Enable dom ->
+  Signal dom Bool ->
+  Signal dom (AXI4Stream a, c) ->
+  Signal dom (AXI4Stream b, Bool)
+toDUTCtrl comp clk rst en outReady inputSig =
+  withClockResetEnable clk rst en $
+    let (inputStream, ctrlSig) = unbundle inputSig
+        (inReady, outStream) = comp (outReady, ctrlSig, inputStream)
+     in bundle (outStream, inReady)
 
 --------------------------------------------------------------------------------
 -- Utilities

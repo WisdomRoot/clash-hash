@@ -12,13 +12,15 @@ import Test.Hspec
 import Test.QuickCheck
 import Test.TestHarness.SHA3256Normal
 import Test.TestHarness.SHAKESamples qualified as Samples
-import Test.TestHarness.SHAKECommon (makeBasicTest)
+import Test.TestHarness.SHAKECommon (makeBackpressureTest, makeBasicTest)
 
 spec :: Spec
 spec = describe "NonPipelined SHA3-256 (Normal) Tests" $ do
   let emptyFlushCase = makeBasicTest BS.empty 32
+  let emptyFlushBackpressureCase = makeBackpressureTest BS.empty 32 [False, False, True]
 
   it "0-bit input, 256-bit output (flush-only)" $ runTest emptyFlushCase
+  it "0-bit input, 256-bit output (flush-only, with backpressure)" $ runTest emptyFlushBackpressureCase
 
   describe "Basic functionality tests" $
     for_ Samples.sha3BasicCases $

@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Component.SHA3256
   ( i64o64,
     i64o64Core,
@@ -20,9 +18,9 @@ spongeFSM = Permutation.keccakF1600
 
 i64o64Core ::
   HiddenClockResetEnable dom =>
-  Pipe dom InputBits OutputBits
-i64o64Core (outputReady, inputStream) =
-  let inputWithFlush = bundle (inputStream, outputReady, pure False)
+  PipeCtrl dom Bool InputBits OutputBits
+i64o64Core (outputReady, flushSig, inputStream) =
+  let inputWithFlush = bundle (inputStream, outputReady, flushSig)
       (outputStream, inputReady) = unbundle (SHA3256N.sponge spongeFSM inputWithFlush)
    in (inputReady, outputStream)
 
@@ -34,10 +32,13 @@ i64o64Core (outputReady, inputStream) =
           [ PortName "CLK",
             PortName "RST",
             PortName "EN",
+            PortName "SHA3_TREADY",
             PortProduct
-              ""
-              [ PortProduct "MSG" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
-                PortName "SHA3_TREADY"
+              "MSG"
+              [ PortName "TDATA",
+                PortName "TVALID",
+                PortName "TLAST",
+                PortName "FLUSH"
               ]
           ],
         t_output =
@@ -54,6 +55,7 @@ i64o64 ::
   Clock System ->
   Reset System ->
   Enable System ->
+  Signal System Bool ->
   Signal System (AXI4Stream InputBits, Bool) ->
   Signal System (AXI4Stream OutputBits, Bool)
-i64o64 = toDUT i64o64Core
+i64o64 = toDUTCtrl i64o64Core
