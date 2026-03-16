@@ -1,5 +1,5 @@
-module Component.G512
-  ( i256o256
+module Component.G2
+  ( i256o512
   )
 where
 
@@ -8,13 +8,13 @@ import Clash.Prelude hiding (tlast)
 import Component.G.Common qualified as Common
 import Parameter (MLKEM (MLKEM512))
 
-i256o256Core ::
+i256o512Core ::
   HiddenClockResetEnable dom =>
-  Pipe dom 256 256
-i256o256Core = Common.core (Common.absorb32WithMLKEM (Just MLKEM512))
+  Pipe dom 256 512
+i256o512Core = Common.core512 (Common.absorb32WithMLKEM (Just MLKEM512))
 
 {-# ANN
-  i256o256
+  i256o512
   ( Synthesize
       { t_name = "dut",
         t_inputs =
@@ -36,11 +36,11 @@ i256o256Core = Common.core (Common.absorb32WithMLKEM (Just MLKEM512))
       }
   )
   #-}
-{-# NOINLINE i256o256 #-}
-i256o256 ::
+{-# NOINLINE i256o512 #-}
+i256o512 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 256, Bool) ->
-  Signal System (AXI4Stream 256, Bool)
-i256o256 = toDUT i256o256Core
+  Signal System (AXI4Stream 512, Bool)
+i256o512 = toDUT i256o512Core

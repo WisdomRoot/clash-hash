@@ -23,7 +23,7 @@ import Data.Maybe (fromJust)
 import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
 import Parameter (MLKEM (..))
-import Component.G512 qualified as G512
+import Component.G2 qualified as G2
 import Component.G768 qualified as G768
 import Reference.Crypton qualified as Crypton
 import System.FilePath ((</>))
@@ -54,11 +54,22 @@ type GTopEntity256 =
   Signal System (AXI4Stream 256, Bool) ->
   Signal System (AXI4Stream 256, Bool)
 
+type GTopEntity512 =
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 256, Bool) ->
+  Signal System (AXI4Stream 512, Bool)
+
+data GBackend
+  = GBackend256 GTopEntity256
+  | GBackend512 GTopEntity512
+
 data GParams = GParams
   { gpBeatsPerBlock :: Int,
     gpKByte :: Word8,
     gpReference :: Int -> ByteString -> ByteString,
-    gpTopEntity :: GTopEntity256
+    gpBackend :: GBackend
   }
 
 -- | Reference implementation of G (SHA3-512 split into two 32-byte outputs)
@@ -84,7 +95,7 @@ gParamsFor mlkem =
         { gpBeatsPerBlock = 3,
           gpKByte = kByte,
           gpReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 (msg <> BS.pack [kByte])),
-          gpTopEntity = mlkemTopEntity mlkem
+          gpBackend = mlkemBackend mlkem
         }
 
 mlkemToKByte :: MLKEM -> Word8
@@ -92,10 +103,10 @@ mlkemToKByte MLKEM512 = 2
 mlkemToKByte MLKEM768 = 3
 mlkemToKByte MLKEM1024 = 4
 
-mlkemTopEntity :: MLKEM -> GTopEntity256
-mlkemTopEntity MLKEM512 = G512.i256o256
-mlkemTopEntity MLKEM768 = G768.i256o256
-mlkemTopEntity MLKEM1024 = error "Component.G1024 not implemented"
+mlkemBackend :: MLKEM -> GBackend
+mlkemBackend MLKEM512 = GBackend512 G2.i256o512
+mlkemBackend MLKEM768 = GBackend256 G768.i256o256
+mlkemBackend MLKEM1024 = error "Component.G1024 not implemented"
 
 gGenConfig :: ShakeGenConfig
 gGenConfig =
@@ -150,26 +161,46 @@ runHardwareKnown params test beats beatsPerBlock =
           $ feedInput256 @beats beatsPerBlock (Common.testUpstreamStall test) messageWords
       treadySignal = makeBackpressureSignal (Common.testDownstreamBackpressure test)
       (msgSignal, _flushSignal) = unbundle inputStream
-      output =
-        gpTopEntity
-          params
-          clockGen
-          resetGen
-          enableGen
-          (bundle (msgSignal, treadySignal))
       outputBits = Common.testOutputBytes test P.* 8
-      outputBeats = (outputBits P.+ 255) `P.div` 256
-      squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
-      sampleCount =
-        beats P.* 2
-          P.+ 24
-          P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
-          P.+ 200
-      samples = sampleN @System sampleCount output
-      validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
-      outputWordBits = P.concatMap wordToBitsNormal256 (P.take outputBeats validOutputs)
-      resultBits = P.take outputBits outputWordBits
-   in bitListToBSHW resultBits
+   in case gpBackend params of
+        GBackend256 topEntity ->
+          let output =
+                topEntity
+                  clockGen
+                  resetGen
+                  enableGen
+                  (bundle (msgSignal, treadySignal))
+              outputBeats = (outputBits P.+ 255) `P.div` 256
+              squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
+              sampleCount =
+                beats P.* 2
+                  P.+ 24
+                  P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
+                  P.+ 200
+              samples = sampleN @System sampleCount output
+              validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
+              outputWordBits = P.concatMap wordToBitsNormal256 (P.take outputBeats validOutputs)
+              resultBits = P.take outputBits outputWordBits
+           in bitListToBSHW resultBits
+        GBackend512 topEntity ->
+          let output =
+                topEntity
+                  clockGen
+                  resetGen
+                  enableGen
+                  (bundle (msgSignal, treadySignal))
+              outputBeats = (outputBits P.+ 511) `P.div` 512
+              squeezesNeeded = (outputBeats P.+ beatsPerBlock - 1) `P.div` beatsPerBlock
+              sampleCount =
+                beats P.* 2
+                  P.+ 24
+                  P.+ squeezesNeeded P.* (beatsPerBlock P.+ 24)
+                  P.+ 200
+              samples = sampleN @System sampleCount output
+              validOutputs = [tdata stream | (stream, _) <- samples, tvalid stream]
+              outputWordBits = P.concatMap wordToBitsNormal512 (P.take outputBeats validOutputs)
+              resultBits = P.take outputBits outputWordBits
+           in bitListToBSHW resultBits
 
 bitListToWordsNormal256 :: forall beats. (KnownNat beats) => Int -> [Bit] -> Vec beats (BitVector 256)
 bitListToWordsNormal256 n bits =
@@ -187,3 +218,6 @@ bitListToWordsNormal256 n bits =
 
 wordToBitsNormal256 :: BitVector 256 -> [Bit]
 wordToBitsNormal256 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 255]]
+
+wordToBitsNormal512 :: BitVector 512 -> [Bit]
+wordToBitsNormal512 w = [if Bits.testBit w i then 1 else 0 | i <- [0 .. 511]]

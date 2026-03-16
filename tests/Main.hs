@@ -7,7 +7,7 @@ import Test.Combinational qualified
 import Test.Constants qualified
 import Test.SHA3256 qualified
 import Test.SHA3512 qualified
-import Test.G512 qualified
+import Test.G2 qualified
 import Test.G768 qualified
 import Test.G qualified
 import Test.XOF qualified
@@ -37,7 +37,7 @@ main = do
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
   sha3256Tests <- testSpec "SHA3-256" Test.SHA3256.spec
   sha3512Tests <- testSpec "SHA3-512" Test.SHA3512.spec
-  g512Tests <- testSpec "G512" Test.G512.spec
+  g2Tests <- testSpec "G2" Test.G2.spec
   g768Tests <- testSpec "G768" Test.G768.spec
   gTests <- testSpec "G" Test.G.spec
   xofTests <- testSpec "XOF" Test.XOF.spec
@@ -63,7 +63,7 @@ main = do
         combinationalTests,
         sha3256Tests,
         sha3512Tests,
-        g512Tests,
+        g2Tests,
         g768Tests,
         gTests,
         xofTests,

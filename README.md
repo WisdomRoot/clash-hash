@@ -4,19 +4,23 @@
 
 ### G (General)
 
+- ID: `G`
 - Description: General ML-KEM `G`, with `k` carried in-band.
 - In: `32-byte d || 1-byte k`
 - Out: `32-byte rho || 32-byte sigma`
 - Module: `systemverilog/Component.G.i272o512/dut.sv`
-- Area: `23895`
+- Area: 24527.594
+
+### G (k = 2)
+
+- ID: `G2`
+- Description: Specialization of `G` with `k = 2` for ML-KEM-512.
+- In: `32-byte d`
+- Out: `32-byte rho || 32-byte sigma`
+- Module: `systemverilog/Component.G2.i256o512/dut.sv`
+- Area: 24517.220
 
 ## ML-KEM-512 Components
-
-### G
-
-|  In  |  Out  |  Area  |  Module  |
-|------|-------|--------|----------|
-| 256  | 256   | 23887  | systemverilog/Component.G512.i256o256/dut.sv |
 
 ### SampleNTT
 
