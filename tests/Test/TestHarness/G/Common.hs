@@ -25,6 +25,7 @@ import Data.Word (Word8)
 import Parameter (MLKEM (..))
 import Component.G2 qualified as G2
 import Component.G3 qualified as G3
+import Component.G4 qualified as G4
 import Reference.Crypton qualified as Crypton
 import System.FilePath ((</>))
 import Test.Hspec (Expectation, shouldBe)
@@ -47,29 +48,29 @@ import Prelude qualified as P
 
 type GTest = ShakeTest
 
-type GTopEntity256 =
+type O256 =
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 256, Bool) ->
   Signal System (AXI4Stream 256, Bool)
 
-type GTopEntity512 =
+type O512 =
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 256, Bool) ->
   Signal System (AXI4Stream 512, Bool)
 
-data GBackend
-  = GBackend256 GTopEntity256
-  | GBackend512 GTopEntity512
+data Backend
+  = Backend256 O256
+  | Backend512 O512
 
-data GParams = GParams
+data Params = Params
   { gpBeatsPerBlock :: Int,
     gpKByte :: Word8,
     gpReference :: Int -> ByteString -> ByteString,
-    gpBackend :: GBackend
+    gpBackend :: Backend
   }
 
 -- | Reference implementation of G (SHA3-512 split into two 32-byte outputs)
@@ -88,10 +89,10 @@ gReferenceK k input =
   let output = callPythonReference ("reference" </> "kyber" </> "g.py") (input P.<> BS.pack [k])
    in (BS.take 32 output, BS.drop 32 output)
 
-gParamsFor :: MLKEM -> GParams
+gParamsFor :: MLKEM -> Params
 gParamsFor mlkem =
   let kByte = mlkemToKByte mlkem
-   in GParams
+   in Params
         { gpBeatsPerBlock = 3,
           gpKByte = kByte,
           gpReference = \outBytes msg -> BS.take outBytes (Crypton.sha3_512 (msg <> BS.pack [kByte])),
@@ -103,10 +104,10 @@ mlkemToKByte MLKEM512 = 2
 mlkemToKByte MLKEM768 = 3
 mlkemToKByte MLKEM1024 = 4
 
-mlkemBackend :: MLKEM -> GBackend
-mlkemBackend MLKEM512 = GBackend512 G2.i256o512
-mlkemBackend MLKEM768 = GBackend512 G3.i256o512
-mlkemBackend MLKEM1024 = error "Component.G1024 not implemented"
+mlkemBackend :: MLKEM -> Backend
+mlkemBackend MLKEM512 = Backend512 G2.i256o512
+mlkemBackend MLKEM768 = Backend512 G3.i256o512
+mlkemBackend MLKEM1024 = Backend512 G4.i256o512
 
 gGenConfig :: ShakeGenConfig
 gGenConfig =
@@ -121,7 +122,7 @@ gGenConfig =
 gGen :: Gen GTest
 gGen = genShakeTest gGenConfig
 
-runTest :: GParams -> GTest -> Expectation
+runTest :: Params -> GTest -> Expectation
 runTest params test = do
   let outBytes = Common.testOutputBytes test
       msg = Common.testMessage test
@@ -132,7 +133,7 @@ runTest params test = do
   actual `shouldBe` expectedPython
   actual `shouldBe` expectedCrypton
 
-runHardware :: GParams -> GTest -> ByteString
+runHardware :: Params -> GTest -> ByteString
 runHardware params test =
   let inputBytes = BS.length (Common.testMessage test)
       beats = (inputBytes P.+ 31) `P.div` 32
@@ -146,7 +147,7 @@ testLabel = Common.testLabel
 runHardwareKnown ::
   forall beats.
   (KnownNat beats) =>
-  GParams ->
+  Params ->
   GTest ->
   Int ->
   Int ->
@@ -163,7 +164,7 @@ runHardwareKnown params test beats beatsPerBlock =
       (msgSignal, _flushSignal) = unbundle inputStream
       outputBits = Common.testOutputBytes test P.* 8
    in case gpBackend params of
-        GBackend256 topEntity ->
+        Backend256 topEntity ->
           let output =
                 topEntity
                   clockGen
@@ -182,7 +183,7 @@ runHardwareKnown params test beats beatsPerBlock =
               outputWordBits = P.concatMap wordToBitsNormal256 (P.take outputBeats validOutputs)
               resultBits = P.take outputBits outputWordBits
            in bitListToBSHW resultBits
-        GBackend512 topEntity ->
+        Backend512 topEntity ->
           let output =
                 topEntity
                   clockGen

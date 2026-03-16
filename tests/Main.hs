@@ -9,6 +9,7 @@ import Test.SHA3256 qualified
 import Test.SHA3512 qualified
 import Test.G2 qualified
 import Test.G3 qualified
+import Test.G4 qualified
 import Test.G qualified
 import Test.XOF qualified
 import Test.SHAKE256 qualified
@@ -39,6 +40,7 @@ main = do
   sha3512Tests <- testSpec "SHA3-512" Test.SHA3512.spec
   g2Tests <- testSpec "G2" Test.G2.spec
   g3Tests <- testSpec "G3" Test.G3.spec
+  g4Tests <- testSpec "G4" Test.G4.spec
   gTests <- testSpec "G" Test.G.spec
   xofTests <- testSpec "XOF" Test.XOF.spec
   shake3256Tests <- testSpec "SHAKE3-256" Test.SHAKE256.spec
@@ -65,6 +67,7 @@ main = do
         sha3512Tests,
         g2Tests,
         g3Tests,
+        g4Tests,
         gTests,
         xofTests,
         shake3256Tests,

@@ -29,6 +29,15 @@
 - Module: `systemverilog/Component.G3.i256o512/dut.sv`
 - Area: 24517.486
 
+### G (k = 4)
+
+- ID: `G4`
+- Description: Specialization of `G` with `k = 4` for ML-KEM-1024.
+- In: `32-byte d`
+- Out: `32-byte rho || 32-byte sigma`
+- Module: `systemverilog/Component.G4.i256o512/dut.sv`
+- Area: 24517.220
+
 ### SampleNTT
 
 - ID: `SN-O24-L2`
