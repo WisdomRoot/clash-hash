@@ -5,18 +5,16 @@
 module Test.G (spec) where
 
 import AXI4Stream (Pipe)
-import Clash.Prelude (BitVector, System, (++#), bundle, clockGen, enableGen, resetGen, unbundle)
+import Clash.Prelude (System, (++#), bundle, clockGen, enableGen, resetGen, unbundle)
 import Component.G qualified as G
-import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.List qualified as L
 import Data.Maybe (isJust)
-import Data.Word (Word8)
 import Stream
 import System.FilePath ((</>))
 import Test.Hspec (Spec, describe, it)
-import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
+import Test.QuickCheck (Gen, chooseInt, forAll)
 import Test.TestHarness.ExternalReference (callPythonReference)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
@@ -26,17 +24,6 @@ i272o512AsPipe (outReady, inStream) =
   let (outStream, inReady) =
         unbundle (G.i272o512 clockGen resetGen enableGen (bundle (inStream, outReady)))
    in (inReady, outStream)
-
-bv272ToBS :: BitVector 272 -> ByteString
-bv272ToBS bv = BS.pack [byteAt i | i <- [0 .. 32]]
-  where
-    byteAt :: P.Int -> Word8
-    byteAt byteIdx =
-      let base = byteIdx P.* 8
-       in P.foldl
-            (\acc bitIdx -> if testBit bv (base P.+ bitIdx) then setBit acc bitIdx else acc)
-            (0 :: Word8)
-            [0 .. 7]
 
 gReference :: ByteString -> (ByteString, ByteString)
 gReference input =
@@ -54,21 +41,16 @@ simulate inputTiming =
         case L.findIndex isJust inputPattern of
           Just i -> i
           Nothing -> P.error "Test.G.simulate: no input provided"
-      inputBS = bv272ToBS inputBV
+      inputBS = bvToBS 33 inputBV
       (rho, sigma) = gReference inputBS
       out0 = toBV @256 rho
       out1 = toBV @256 sigma
       base = [Silent 24, Output [out1 ++# out0]]
    in if startSilence P.== 0 then base else Silent startSilence : base
 
-genInputBV :: Gen (BitVector 272)
-genInputBV = do
-  bytes <- vectorOf 33 (arbitrary :: Gen Word8)
-  P.pure (toBV @272 (BS.pack bytes))
-
 genCase :: Gen (InputTiming 272, BackpressureTiming)
 genCase = do
-  inputBV <- genInputBV
+  inputBV <- Stream.genInputBV @272 33
   backpressure <- genBackpressure
   holdLen <- chooseInt (0, 5)
   let inputTiming =

@@ -92,15 +92,15 @@ simulate24 inputTiming =
     pairCoeffs [c0] = [(0 :: BitVector 12) ++# c0]
     pairCoeffs [] = []
 
-genInputBV :: Gen (BitVector 272)
-genInputBV = do
+genInputBVGeneral :: Gen (BitVector 272)
+genInputBVGeneral = do
   msgBytes <- vectorOf 33 (arbitrary :: Gen Word8)
   etaByte <- elements [2, 3]
   P.pure (toBV @272 (BS.pack (msgBytes P.++ [etaByte])))
 
 genCase :: Gen (InputTiming 272, BackpressureTiming)
 genCase = do
-  inputBV <- genInputBV
+  inputBV <- genInputBVGeneral
   backpressure <- genBackpressure
   holdLen <- chooseInt (0, 5)
   let inputTiming =

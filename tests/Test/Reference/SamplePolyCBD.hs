@@ -8,28 +8,18 @@ where
 
 import Clash.Prelude (BitVector, Unsigned, pack)
 import Component.PRF.Common (Eta (..))
-import Data.Bits (setBit, testBit, (.&.))
+import Data.Bits ((.&.))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Word (Word16, Word8)
+import Data.Word (Word16)
 import System.FilePath ((</>))
+import Stream (bvToBS)
 import Test.TestHarness.ExternalReference (callPythonReference)
 import Prelude qualified as P
 
-bv264ToBS :: BitVector 264 -> ByteString
-bv264ToBS bv = BS.pack [byteAt i | i <- [0 .. 32]]
-  where
-    byteAt :: P.Int -> Word8
-    byteAt byteIdx =
-      let base = byteIdx P.* 8
-       in P.foldl
-            (\acc bitIdx -> if testBit bv (base P.+ bitIdx) then setBit acc bitIdx else acc)
-            (0 :: Word8)
-            [0 .. 7]
-
 run :: Eta -> BitVector 264 -> [BitVector 12]
 run eta msg =
-  let bs = bv264ToBS msg
+  let bs = bvToBS 33 msg
       padded = BS.take 33 (bs P.<> BS.replicate 33 0)
       seed = BS.take 32 padded
       b = BS.last padded

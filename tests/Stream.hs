@@ -20,6 +20,8 @@ module Stream
     runPipeInput,
     runPipeCtrlInput,
     toBV,
+    bvToBS,
+    genInputBV,
     bsToBVRev8,
   )
 where
@@ -33,7 +35,7 @@ import Data.ByteString qualified as BS
 import Data.Maybe (isJust, isNothing)
 import Data.Word (Word8)
 import Test.Hspec (shouldBe)
-import Test.QuickCheck (Gen, shuffle)
+import Test.QuickCheck (Arbitrary (arbitrary), Gen, shuffle, vectorOf)
 import Prelude
 
 --------------------------------------------------------------------------------
@@ -370,6 +372,22 @@ toBV bs =
     word8ToBits :: Word8 -> [Bit]
     word8ToBits w = [if testBit w i then 1 else 0 | i <- [0 .. 7]]
     accumBit acc (i, b) = if b == 1 then setBit acc i else acc
+
+bvToBS :: forall n. (KnownNat n) => Int -> BitVector n -> ByteString
+bvToBS byteCount bv = BS.pack [byteAt i | i <- [0 .. byteCount - 1]]
+  where
+    byteAt :: Int -> Word8
+    byteAt byteIdx =
+      let base = byteIdx * 8
+       in foldl
+            (\acc bitIdx -> if testBit bv (base + bitIdx) then setBit acc bitIdx else acc)
+            (0 :: Word8)
+            [0 .. 7]
+
+genInputBV :: forall n. (KnownNat n) => Int -> Gen (BitVector n)
+genInputBV byteCount = do
+  bytes <- vectorOf byteCount arbitrary
+  pure (toBV @n (BS.pack bytes))
 
 bsToBVRev8 :: forall n. (KnownNat n) => ByteString -> BitVector n
 bsToBVRev8 bs =

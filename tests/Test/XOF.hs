@@ -7,16 +7,14 @@ module Test.XOF (spec) where
 import AXI4Stream (Pipe)
 import Clash.Prelude (BitVector, System, bundle, clockGen, enableGen, resetGen, unbundle)
 import Component.XOF qualified as XOF
-import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.List qualified as L
 import Data.Maybe (isJust)
-import Data.Word (Word8)
 import Reference.Crypton qualified as Crypton
 import Stream
 import Test.Hspec (Spec, describe, it)
-import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
+import Test.QuickCheck (Gen, chooseInt, forAll)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
@@ -25,17 +23,6 @@ i272o48AsPipe (outReady, inStream) =
   let (outStream, inReady) =
         unbundle (XOF.i272o48 clockGen resetGen enableGen (bundle (inStream, outReady)))
    in (inReady, outStream)
-
-bv272ToBS :: BitVector 272 -> ByteString
-bv272ToBS bv = BS.pack [byteAt i | i <- [0 .. 33]]
-  where
-    byteAt :: P.Int -> Word8
-    byteAt byteIdx =
-      let base = byteIdx P.* 8
-       in P.foldl
-            (\acc bitIdx -> if testBit bv (base P.+ bitIdx) then setBit acc bitIdx else acc)
-            (0 :: Word8)
-            [0 .. 7]
 
 toChunks48 :: ByteString -> [BitVector 48]
 toChunks48 bs
@@ -55,21 +42,16 @@ simulate inputTiming =
         case L.findIndex isJust inputPattern of
           Just i -> i
           Nothing -> P.error "Test.XOF.simulate: no input provided"
-      inputBS = bv272ToBS inputBV
+      inputBS = bvToBS 34 inputBV
       outputBS = Crypton.shake128 (56 P.* 6) inputBS
       chunks = toChunks48 outputBS
       (firstBlock, secondBlock) = P.splitAt 28 chunks
       base = [Silent 25, Output firstBlock, Silent 24, Output secondBlock]
    in if startSilence P.== 0 then base else Silent startSilence : base
 
-genInputBV :: Gen (BitVector 272)
-genInputBV = do
-  bytes <- vectorOf 34 (arbitrary :: Gen Word8)
-  P.pure (toBV @272 (BS.pack bytes))
-
 genCase :: Gen (InputTiming 272, BackpressureTiming)
 genCase = do
-  inputBV <- genInputBV
+  inputBV <- Stream.genInputBV @272 34
   backpressure <- genBackpressure
   holdLen <- chooseInt (0, 5)
   let inputTiming =

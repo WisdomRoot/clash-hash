@@ -15,10 +15,9 @@ import Component.SamplePolyCBD2 qualified as SamplePolyCBD2
 import Data.ByteString qualified as BS
 import Data.List qualified as L
 import Data.Maybe (isJust)
-import Data.Word (Word8)
 import Stream
 import Test.Hspec (Spec, describe, it)
-import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
+import Test.QuickCheck (Gen, chooseInt, forAll)
 import Test.Reference.SamplePolyCBD qualified as Reference
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
@@ -70,14 +69,9 @@ simulate24 inputTiming =
     pairCoeffs [c0] = [(0 :: BitVector 12) ++# c0]
     pairCoeffs [] = []
 
-genInputBV :: Gen (BitVector 264)
-genInputBV = do
-  bytes <- vectorOf 33 (arbitrary :: Gen Word8)
-  P.pure (toBV @264 (BS.pack bytes))
-
 genCase :: Gen (InputTiming 264, BackpressureTiming)
 genCase = do
-  inputBV <- genInputBV
+  inputBV <- Stream.genInputBV @264 33
   backpressure <- genBackpressure
   holdLen <- chooseInt (0, 5)
   let inputTiming =
