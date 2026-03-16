@@ -7,7 +7,6 @@
   "SHAKE3-256": "Component.SHAKE256.i64o64",
   "SHAKE3-128": "Component.SHAKE128.i64o64",
   "XOF": "Component.XOF.i272o48",
-  "N128XB": "Hash.NonPipelined.SHAKE128B.topEntity",
   "CBD2-O12": "Component.SamplePolyCBD2.i264o12",
   "CBD2-O24": "Component.SamplePolyCBD2.i264o24",
   "CBD3-O12": "Component.SamplePolyCBD3.i264o12",
