@@ -40,13 +40,32 @@
 
 Note: The probability of successfully emitting 2 valid coefficients per cycle is 99.2732% in this implementation.
 
-### SamplePolyCBD+PRF
+### SamplePolyCBD+PRF (General)
 
-|  In  |  Out  |  Area  |  Module  |
-|------|-------|--------|----------|
-| 264  | 24    | 28004  | systemverilog/Component.SamplePolyCBD512.i264o24/SamplePolyCBD512_I264_O24.sv |
+- ID: `CBD-O24`
+- Description: Composition of `PRF` and `SamplePolyCBD`, 2 coefficients per cycle, `η₁` carried in-band.
+- In: `32-byte seed || 1-byte nonce || 1-byte η₁`
+- Out: `12-bit coeff0 || 12-bit coeff1`
+- Module: `systemverilog/Component.SamplePolyCBD.i272o24/dut.sv`
+- Area: 35512.330
 
-Timing: Permute 25, Output 90 pairs, Permute 25, Output 38 pairs (128 handshakes total).
+### SamplePolyCBD+PRF (η₁ = 2)
+
+- ID: `CBD2-O24`
+- Description: Composition of `PRF` and `SamplePolyCBD`, specialized for `η₁ = 2`, 2 coefficients per cycle.
+- In: `32-byte seed || 1-byte nonce`
+- Out: `12-bit coeff0 || 12-bit coeff1`
+- Module: `systemverilog/Component.SamplePolyCBD2.i264o24/dut.sv`
+- Area: 35314.692
+
+### SamplePolyCBD+PRF (η₁ = 3)
+
+- ID: `CBD3-O24`
+- Description: Composition of `PRF` and `SamplePolyCBD`, specialized for `η₁ = 3`, 2 coefficients per cycle.
+- In: `32-byte seed || 1-byte nonce`
+- Out: `12-bit coeff0 || 12-bit coeff1`
+- Module: `systemverilog/Component.SamplePolyCBD3.i264o24/dut.sv`
+- Area: 35253.512
 
 ## Scripts / Commands
 

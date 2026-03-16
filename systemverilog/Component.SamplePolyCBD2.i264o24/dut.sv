@@ -8,15 +8,15 @@ module dut
       input wire logic CLK  // clock
     , input wire logic RST  // reset
     , input wire logic EN  // enable
-    , input wire logic [271:0] MSG_TDATA
+    , input wire logic [263:0] MSG_TDATA
     , input wire logic MSG_TVALID
     , input wire logic MSG_TLAST
-    , input wire logic COEFF_TREADY
+    , input wire logic DIGEST_TREADY
 
       // Outputs
-    , output logic [23:0] COEFF_TDATA
-    , output logic COEFF_TVALID
-    , output logic COEFF_TLAST
+    , output logic [23:0] DIGEST_TDATA
+    , output logic DIGEST_TVALID
+    , output logic DIGEST_TLAST
     , output logic MSG_TREADY
     );
   logic [1623:0] c$ds_app_arg = {3'b000,1621'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
@@ -568,7 +568,6 @@ module dut
   logic [1623:0] c$app_arg_5;
   logic [1623:0] c$case_alt_513;
   logic isLast_0;
-  logic outReady;
   logic [1599:0] state;
   logic [6:0] pairIdx_0;
   dut_types::Tuple2_3 c$case_alt_514;
@@ -1131,6 +1130,12 @@ module dut
   logic [4:0] roundIdx;
   logic [1599:0] state_1;
   logic [4:0] roundIdx_0;
+  dut_types::Tuple2_2 result_22;
+  logic [263:0] msg;
+  logic valid;
+  logic lastBeat;
+  logic outReady;
+  dut_types::AXI4Stream_0 inStream_0;
   dut_types::Tuple2_6 c$arg;
   logic [0:0] c$bv;
   logic [0:0] c$bv_0;
@@ -1158,12 +1163,12 @@ module dut
   logic [7:0] c$i_805;
   logic [7:0] c$i_882;
   dut_types::Tuple2_7 result;
-  dut_types::AXI4Stream_0 COEFF;
+  dut_types::AXI4Stream_1 DIGEST;
 
   assign c$arg = {{MSG_TDATA
                   ,MSG_TVALID
                   ,MSG_TLAST}
-                 ,COEFF_TREADY};
+                 ,DIGEST_TREADY};
 
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
@@ -2345,8 +2350,6 @@ module dut
 
   assign isLast_0 = pairIdx_1 == 7'd127;
 
-  assign outReady = c$arg.Tuple2_6_sel1;
-
   assign state = c$ds_app_arg[1613:14];
 
   assign pairIdx_0 = c$ds_app_arg[1615:1609];
@@ -2369,7 +2372,7 @@ module dut
 
   assign result_fun_arg_0 = c$keccakF1600_tupIn.Tuple2_5_sel1;
 
-  Component_SamplePolyCBD_i272o24_keccakF1600 Component_SamplePolyCBD_i272o24_keccakF1600_result_10
+  Component_SamplePolyCBD2_i264o24_keccakF1600 Component_SamplePolyCBD2_i264o24_keccakF1600_result_10
     ( .result (result_10)
     , .roundIdx (result_fun_arg)
     , .x (result_fun_arg_0) );
@@ -3494,7 +3497,9 @@ module dut
 
   assign c$i272o12Core2359_out_app_arg = inStream.AXI4Stream_sel0;
 
-  assign inStream = c$arg.Tuple2_6_sel0;
+  assign inStream = {{8'b00000010,msg}
+                    ,valid
+                    ,lastBeat};
 
   always_comb begin
     case(c$ds_app_arg[1623:1621])
@@ -3541,18 +3546,31 @@ module dut
 
   assign roundIdx_0 = c$ds_app_arg[1620:1616];
 
-  assign result = {result_0.Tuple2_2_sel1
-                  ,result_0.Tuple2_2_sel0};
+  assign result_22 = {result_0.Tuple2_2_sel0
+                     ,result_0.Tuple2_2_sel1};
 
-  assign COEFF = result.Tuple2_7_sel0;
+  assign msg = inStream_0.AXI4Stream_0_sel0;
+
+  assign valid = inStream_0.AXI4Stream_0_sel1;
+
+  assign lastBeat = inStream_0.AXI4Stream_0_sel2;
+
+  assign outReady = c$arg.Tuple2_6_sel1;
+
+  assign inStream_0 = c$arg.Tuple2_6_sel0;
+
+  assign result = {result_22.Tuple2_2_sel1
+                  ,result_22.Tuple2_2_sel0};
+
+  assign DIGEST = result.Tuple2_7_sel0;
 
   assign MSG_TREADY = result.Tuple2_7_sel1;
 
-  assign COEFF_TDATA = COEFF.AXI4Stream_0_sel0;
+  assign DIGEST_TDATA = DIGEST.AXI4Stream_1_sel0;
 
-  assign COEFF_TVALID = COEFF.AXI4Stream_0_sel1;
+  assign DIGEST_TVALID = DIGEST.AXI4Stream_1_sel1;
 
-  assign COEFF_TLAST = COEFF.AXI4Stream_0_sel2;
+  assign DIGEST_TLAST = DIGEST.AXI4Stream_1_sel2;
 
 
 endmodule

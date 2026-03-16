@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SamplePolyCBD_i272o24_keccakF1600",
+        "Component_SamplePolyCBD2_i264o24_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -40,22 +40,22 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "af132dbfadb7ec5ae7beb2737ac14157edcbf1870c8e9bbdc5d948e561104330"
+            "sha256": "6cde6e247e3e42ed79f58866a64e48b97ba66ef92cf0b9648a52a8702c27d98f"
         },
         {
-            "name": "Component_SamplePolyCBD_i272o24_keccakF1600.sv",
-            "sha256": "53e72f37126a55df751d0ed431b9332b52a1c766da8dad847e39cc16ffd6073b"
+            "name": "Component_SamplePolyCBD2_i264o24_keccakF1600.sv",
+            "sha256": "9a82e7f79bb438b38a3bbccf6c7c08faeb3894bce7707acce7006ef036db53c4"
         },
         {
             "name": "dut.sv",
-            "sha256": "83b0c4f2e7f57835eca8a0fedb09e9da8b06f929a586d6292c23258c1c69e154"
+            "sha256": "8fb7545057b4dd323749e14bfd7f0628961679ad586ddfc839fbe706686654aa"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "8a6f2de9c9d20a11a480ce5ebd58dfd8ee8b5d72e55c94551c90c1ff6343c61b",
+    "hash": "df1ff88501617f46791288fbac31cded0f6fa3ff36f67ba3f5d0e9327cfad453",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -87,8 +87,8 @@
                 "direction": "in",
                 "is_clock": false,
                 "name": "MSG_TDATA",
-                "type_name": "logic [271:0]",
-                "width": 272
+                "type_name": "logic [263:0]",
+                "width": 264
             },
             {
                 "direction": "in",
@@ -107,28 +107,28 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "COEFF_TREADY",
+                "name": "DIGEST_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TDATA",
+                "name": "DIGEST_TDATA",
                 "type_name": "logic [23:0]",
                 "width": 24
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TVALID",
+                "name": "DIGEST_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TLAST",
+                "name": "DIGEST_TLAST",
                 "type_name": "logic",
                 "width": 1
             },

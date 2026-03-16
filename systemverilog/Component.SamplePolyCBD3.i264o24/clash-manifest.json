@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SamplePolyCBD_i272o24_keccakF1600",
+        "Component_SamplePolyCBD3_i264o24_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -35,27 +35,31 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+        },
+        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "dut_types.sv",
-            "sha256": "af132dbfadb7ec5ae7beb2737ac14157edcbf1870c8e9bbdc5d948e561104330"
+            "sha256": "6cde6e247e3e42ed79f58866a64e48b97ba66ef92cf0b9648a52a8702c27d98f"
         },
         {
-            "name": "Component_SamplePolyCBD_i272o24_keccakF1600.sv",
-            "sha256": "53e72f37126a55df751d0ed431b9332b52a1c766da8dad847e39cc16ffd6073b"
+            "name": "Component_SamplePolyCBD3_i264o24_keccakF1600.sv",
+            "sha256": "8a8e1d9496dcbfdd99d9e66d777250c5d61ba7ac20a19cf0513e4c0b6b1c0e14"
         },
         {
             "name": "dut.sv",
-            "sha256": "83b0c4f2e7f57835eca8a0fedb09e9da8b06f929a586d6292c23258c1c69e154"
+            "sha256": "811e24d60e9174f49adf4acb2be620e443b9b6c74272f6121f859bff6fd6758c"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "8a6f2de9c9d20a11a480ce5ebd58dfd8ee8b5d72e55c94551c90c1ff6343c61b",
+    "hash": "bbcfec6d2aa79b35201856063a130fa9b49669153dca93f7826ff052c22c2c95",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -87,8 +91,8 @@
                 "direction": "in",
                 "is_clock": false,
                 "name": "MSG_TDATA",
-                "type_name": "logic [271:0]",
-                "width": 272
+                "type_name": "logic [263:0]",
+                "width": 264
             },
             {
                 "direction": "in",
@@ -107,28 +111,28 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "COEFF_TREADY",
+                "name": "DIGEST_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TDATA",
+                "name": "DIGEST_TDATA",
                 "type_name": "logic [23:0]",
                 "width": 24
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TVALID",
+                "name": "DIGEST_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TLAST",
+                "name": "DIGEST_TLAST",
                 "type_name": "logic",
                 "width": 1
             },
