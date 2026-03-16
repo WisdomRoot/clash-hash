@@ -16,7 +16,7 @@ import Data.Word (Word8)
 import Reference.Crypton qualified as Crypton
 import Stream
 import Test.Hspec (Spec, describe, it)
-import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, shuffle, vectorOf)
+import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
@@ -61,23 +61,6 @@ simulate inputTiming =
       (firstBlock, secondBlock) = P.splitAt 28 chunks
       base = [Silent 25, Output firstBlock, Silent 24, Output secondBlock]
    in if startSilence P.== 0 then base else Silent startSilence : base
-
-compressBackpressure :: [P.Bool] -> BackpressureTiming
-compressBackpressure [] = []
-compressBackpressure (b : bs) =
-  let (same, rest) = P.span (P.== b) bs
-      len = 1 P.+ P.length same
-      tag = if b then Ready len else Backpress len
-   in tag : compressBackpressure rest
-
-genBackpressure :: Gen BackpressureTiming
-genBackpressure = do
-  bools <-
-    shuffle
-      ( P.replicate 8 P.True
-          P.++ P.replicate 2 P.False
-      )
-  P.pure (compressBackpressure bools)
 
 genInputBV :: Gen (BitVector 272)
 genInputBV = do

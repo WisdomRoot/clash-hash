@@ -18,7 +18,7 @@ import Data.Maybe (isJust)
 import Data.Word (Word8)
 import Stream
 import Test.Hspec (Spec, describe, it)
-import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, shuffle, vectorOf)
+import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
 import Test.Reference.SamplePolyCBD qualified as Reference
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
@@ -69,23 +69,6 @@ simulate24 inputTiming =
     pairCoeffs (c0 : c1 : rest) = (c1 ++# c0) : pairCoeffs rest
     pairCoeffs [c0] = [(0 :: BitVector 12) ++# c0]
     pairCoeffs [] = []
-
-compressBackpressure :: [P.Bool] -> BackpressureTiming
-compressBackpressure [] = []
-compressBackpressure (b : bs) =
-  let (same, rest) = P.span (P.== b) bs
-      len = 1 P.+ P.length same
-      tag = if b then Ready len else Backpress len
-   in tag : compressBackpressure rest
-
-genBackpressure :: Gen BackpressureTiming
-genBackpressure = do
-  bools <-
-    shuffle
-      ( P.replicate 8 P.True
-          P.++ P.replicate 2 P.False
-      )
-  P.pure (compressBackpressure bools)
 
 genInputBV :: Gen (BitVector 264)
 genInputBV = do

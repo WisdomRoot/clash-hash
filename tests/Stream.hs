@@ -10,6 +10,8 @@ module Stream
     Backpressure (..),
     BackpressureTiming,
     expandBackpressureTiming,
+    compressBackpressure,
+    genBackpressure,
     applyBackpressure,
     StreamTopEntity,
     run,
@@ -31,6 +33,7 @@ import Data.ByteString qualified as BS
 import Data.Maybe (isJust, isNothing)
 import Data.Word (Word8)
 import Test.Hspec (shouldBe)
+import Test.QuickCheck (Gen, shuffle)
 import Prelude
 
 --------------------------------------------------------------------------------
@@ -75,6 +78,23 @@ expandBackpressureTiming = concatMap expand
     expand :: Backpressure -> [Bool]
     expand (Ready n) = replicate n True
     expand (Backpress n) = replicate n False
+
+compressBackpressure :: [Bool] -> BackpressureTiming
+compressBackpressure [] = []
+compressBackpressure (b : bs) =
+  let (same, rest) = span (== b) bs
+      len = 1 + length same
+      tag = if b then Ready len else Backpress len
+   in tag : compressBackpressure rest
+
+genBackpressure :: Gen BackpressureTiming
+genBackpressure = do
+  bools <-
+    shuffle
+      ( replicate 8 True
+          ++ replicate 2 False
+      )
+  pure (compressBackpressure bools)
 
 expandOutputTiming :: OutputTiming n -> [Maybe (BitVector n)]
 expandOutputTiming = concatMap expand

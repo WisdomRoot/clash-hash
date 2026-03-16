@@ -16,7 +16,7 @@ import Data.Word (Word8)
 import Stream
 import System.FilePath ((</>))
 import Test.Hspec (Spec, describe, it)
-import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, shuffle, vectorOf)
+import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
 import Test.TestHarness.ExternalReference (callPythonReference)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
@@ -65,23 +65,6 @@ genInputBV :: Gen (BitVector 272)
 genInputBV = do
   bytes <- vectorOf 33 (arbitrary :: Gen Word8)
   P.pure (toBV @272 (BS.pack bytes))
-
-compressBackpressure :: [P.Bool] -> BackpressureTiming
-compressBackpressure [] = []
-compressBackpressure (b : bs) =
-  let (same, rest) = P.span (P.== b) bs
-      len = 1 P.+ P.length same
-      tag = if b then Ready len else Backpress len
-   in tag : compressBackpressure rest
-
-genBackpressure :: Gen BackpressureTiming
-genBackpressure = do
-  bools <-
-    shuffle
-      ( P.replicate 8 P.True
-          P.++ P.replicate 2 P.False
-      )
-  P.pure (compressBackpressure bools)
 
 genCase :: Gen (InputTiming 272, BackpressureTiming)
 genCase = do
