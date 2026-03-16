@@ -29,32 +29,16 @@
 - Module: `systemverilog/Component.G3.i256o512/dut.sv`
 - Area: 24517.486
 
-## ML-KEM-512 Components
-
 ### SampleNTT
 
-|  In  |  Out  |  Area  |  Module  |
-|------|-------|--------|----------|
-| 272  | 24    | 28209  | systemverilog/Component.SampleNTT512.i272o24/SampleNTT512_I272_O24.sv |
+- ID: `SN-O24-L2`
+- Description: ML-KEM `SampleNTT`, samples 4 coefficients to outputs 2 coefficients per cycle.
+- In: `32-byte rho || 1-byte i || 1-byte j`
+- Out: `12-bit coeff0 || 12-bit coeff1`
+- Module: `systemverilog/Component.SampleNTT.i272o24l2/dut.sv`
+- Area: 26203.394
 
-#### Lookahead Analysis
-
-* Acceptance per candidate: p = 3329/4096 ≈ 0.81274414
-* Rejection per candidate: q = 767/4096 ≈ 0.18725586
-* If we inspect `n = 2 + L` candidates:
-    * The probability of having 0 valid candidates is `q^n`
-    * The probability of having 1 valid candidate is `p * q^(n-1) * n`
-    * Failure rate is `q^n + p * q^(n-1) * n`
-
-| Lookahead (L) | Failure rate  | Expected cycles (128 pairs) |
-|---:|---:|---:|
-| 0 | 33.9447% | 193.78 |
-| 1 | 9.2062% | 140.98 |
-| 2 | 2.2576% | 130.96 |
-| 3 | 0.5227% | 128.67 |
-| 4 | 0.1166% | 128.15 |
-| 5 | 0.0253% | 128.03 |
-| 6 | 0.0054% | 128.01 |
+Note: The probability of successfully emitting 2 valid coefficients per cycle is 99.2732% in this implementation.
 
 ### SamplePolyCBD+PRF
 
@@ -72,7 +56,7 @@ synth N256 -- convert Clash to Verilog & SystemVerilog and run Yosys synthesis
 bench N256 -- run benchmark for N256 target
 stack test -- run all tests
 ```
-
+<!-- 
 ### Targets
 
 * N256: Non-pipelined SHA3-256 at `Hash.NonPipelined.SHA3256` (Clash)
@@ -82,6 +66,7 @@ stack test -- run all tests
 * H256: Pipelined *high_speed_core* SHA3-256 by *Team Keccak*
 
 These targets can be used with the `synth` and `bench` commands. They are defined in `clash.json` and `vhdl.json`.
+ -->
 
 ## Clash Pitfalls
 
