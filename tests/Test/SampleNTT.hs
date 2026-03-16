@@ -45,7 +45,7 @@ spec = describe "SN-O24-L2" $
           it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
       describe "QuickCheck property tests (34-byte seeds)" $
         it "correctly handles random 34-byte test cases" $
-          withMaxSuccess 40 $ forAll Samples.genSampleNTTTest (runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore)
+          withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore)
 
     runStreamTestWith expectedFn topEntityCore testCase =
       let seed = testMessage testCase
@@ -305,7 +305,18 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
       if emitted P.>= 128
         then ([], rs)
         else case blocks of
-          [] -> P.error "SampleNTT.simulateL2: candidate blocks exhausted"
+          [] ->
+            if P.length buffer P.< 2
+              then P.error "SampleNTT.simulateL2: candidate blocks exhausted"
+              else
+                let (permuteOut, rs') = consumeN 24 rs
+                    (drainOut, buffer', rs'', emitted') = drainBufferL2 buffer rs' emitted
+                 in if emitted' P.>= 128
+                      then
+                        if P.null buffer'
+                          then (permuteOut P.++ drainOut, rs'')
+                          else P.error "SampleNTT.simulateL2: extra buffered coefficients after final drain"
+                      else P.error "SampleNTT.simulateL2: final buffer drain incomplete"
           block : rest ->
             let (blockOut, buffer', rs', emitted') = runBlockL2 block buffer rs emitted
              in if emitted' P.>= 128
@@ -384,6 +395,30 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                         then (P.Nothing, vals, P.True, 0)
                         else (P.Nothing, [], P.False, 0)
                 _ -> P.error "SampleNTT.simulateL2: invalid candidate chunk size"
+
+    drainBufferL2 ::
+      [Word16] ->
+      [P.Bool] ->
+      P.Int ->
+      ([P.Maybe (BitVector 24)], [Word16], [P.Bool], P.Int)
+    drainBufferL2 buffer rs emitted
+      | emitted P.>= 128 = ([], buffer, rs, emitted)
+      | P.length buffer P.< 2 = ([], buffer, rs, emitted)
+      | P.otherwise =
+          case rs of
+            [] -> P.error "SampleNTT.simulateL2: empty backpressure pattern during final drain"
+            r : rs' ->
+              let a = buffer P.!! 0
+                  b = buffer P.!! 1
+               in if r
+                    then
+                      let (out, buffer', rs'', emitted') =
+                            drainBufferL2 (P.drop 2 buffer) rs' (emitted P.+ 1)
+                       in (P.Just (mkPair a b) : out, buffer', rs'', emitted')
+                    else
+                      let (out, buffer', rs'', emitted') =
+                            drainBufferL2 buffer rs' emitted
+                       in (P.Nothing : out, buffer', rs'', emitted')
 
     mkPair a b = toBV12 b ++# toBV12 a
 

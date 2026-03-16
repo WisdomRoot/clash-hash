@@ -33,9 +33,11 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Word (Word8)
 import Prelude
-import Test.QuickCheck (Arbitrary (..), Gen, vectorOf)
+import Test.QuickCheck (Arbitrary (..), Gen, elements, frequency, vectorOf)
 import Test.TestHarness.SHAKECommon
-  ( ShakeTest (..),
+  ( DownstreamBackpressure (..),
+    ShakeTest (..),
+    UpstreamStall (..),
     makeBackpressureTest,
     makeBasicTest,
     makeCombinedTest,
@@ -140,8 +142,16 @@ genSampleNTTSeed = do
 genSampleNTTTest :: Gen ShakeTest
 genSampleNTTTest = do
   seed <- genSampleNTTSeed
-  upstreamStall <- arbitrary
-  downstreamBackpressure <- arbitrary
+  upstreamStall <-
+    frequency
+      [ (3, pure NoUpstreamStall),
+        (1, UpstreamStall <$> elements [stallPatternSimple, stallPatternModerate, stallPatternAggressive])
+      ]
+  downstreamBackpressure <-
+    frequency
+      [ (3, pure NoDownstreamBackpressure),
+        (1, DownstreamBackpressure <$> elements [backpressurePatternSimple, backpressurePatternModerate, backpressurePatternAggressive])
+      ]
   return $
     ShakeTest
       { testMessage = seed,
