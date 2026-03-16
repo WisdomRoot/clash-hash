@@ -13,6 +13,23 @@ package dut_types;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
+    logic [511:0] AXI4Stream_0_sel0;
+    logic AXI4Stream_0_sel1;
+    logic AXI4Stream_0_sel2;
+  } AXI4Stream_0;
+  typedef struct packed {
+    AXI4Stream_0 Tuple2_5_sel0;
+    logic Tuple2_5_sel1;
+  } Tuple2_5;
+  typedef struct packed {
+    logic Tuple2_2_sel0;
+    AXI4Stream_0 Tuple2_2_sel1;
+  } Tuple2_2;
+  typedef struct packed {
+    State Tuple2_3_sel0;
+    Tuple2_2 Tuple2_3_sel1;
+  } Tuple2_3;
+  typedef struct packed {
     logic [255:0] AXI4Stream_sel0;
     logic AXI4Stream_sel1;
     logic AXI4Stream_sel2;
@@ -21,14 +38,6 @@ package dut_types;
     AXI4Stream Tuple2_4_sel0;
     logic Tuple2_4_sel1;
   } Tuple2_4;
-  typedef struct packed {
-    logic Tuple2_2_sel0;
-    AXI4Stream Tuple2_2_sel1;
-  } Tuple2_2;
-  typedef struct packed {
-    State Tuple2_3_sel0;
-    Tuple2_2 Tuple2_3_sel1;
-  } Tuple2_3;
   typedef logic  array_of_168_logic [0:167];
   typedef logic  array_of_8_logic [0:7];
   typedef struct packed {

@@ -3,7 +3,7 @@
   "SHA3-512": "Component.SHA3512.i64o64",
   "G": "Component.G.i272o512",
   "G2": "Component.G2.i256o512",
-  "G768": "Component.G768.i256o256",
+  "G3": "Component.G3.i256o512",
   "SHAKE3-256": "Component.SHAKE256.i64o64",
   "SHAKE3-128": "Component.SHAKE128.i64o64",
   "XOF": "Component.XOF.i272o48",

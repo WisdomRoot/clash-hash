@@ -20,6 +20,15 @@
 - Module: `systemverilog/Component.G2.i256o512/dut.sv`
 - Area: 24517.220
 
+### G (k = 3)
+
+- ID: `G3`
+- Description: Specialization of `G` with `k = 3` for ML-KEM-768.
+- In: `32-byte d`
+- Out: `32-byte rho || 32-byte sigma`
+- Module: `systemverilog/Component.G3.i256o512/dut.sv`
+- Area: 24517.486
+
 ## ML-KEM-512 Components
 
 ### SampleNTT

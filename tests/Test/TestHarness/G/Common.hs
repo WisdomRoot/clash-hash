@@ -24,7 +24,7 @@ import Data.Proxy (Proxy (..))
 import Data.Word (Word8)
 import Parameter (MLKEM (..))
 import Component.G2 qualified as G2
-import Component.G768 qualified as G768
+import Component.G3 qualified as G3
 import Reference.Crypton qualified as Crypton
 import System.FilePath ((</>))
 import Test.Hspec (Expectation, shouldBe)
@@ -105,7 +105,7 @@ mlkemToKByte MLKEM1024 = 4
 
 mlkemBackend :: MLKEM -> GBackend
 mlkemBackend MLKEM512 = GBackend512 G2.i256o512
-mlkemBackend MLKEM768 = GBackend256 G768.i256o256
+mlkemBackend MLKEM768 = GBackend512 G3.i256o512
 mlkemBackend MLKEM1024 = error "Component.G1024 not implemented"
 
 gGenConfig :: ShakeGenConfig
