@@ -8,7 +8,10 @@ module Component.G.Common
     absorb32WithMLKEM,
     stepCore,
     core,
+    stepCore512,
+    core512,
     squeezeSlice,
+    squeezeSlice512,
   )
 where
 
@@ -60,6 +63,10 @@ $( mkRead
 
 {-# INLINE squeezeSlice #-}
 
+$(mkRead "squeezeSlice512" 1600 [(0, 0, 512)])
+
+{-# INLINE squeezeSlice512 #-}
+
 stepCore ::
   KnownNat n =>
   (BitVector n -> BitVector 1600) ->
@@ -100,3 +107,35 @@ core ::
   Pipe dom n 256
 core absorbFn (outReady, inStream) =
   mealyB (stepCore absorbFn) (State Absorb 0) (outReady, inStream)
+
+stepCore512 ::
+  KnownNat n =>
+  (BitVector n -> BitVector 1600) ->
+  State ->
+  (Bool, AXI4Stream n) ->
+  (State, (Bool, AXI4Stream 512))
+stepCore512 absorbFn (State phase state) (outReady, input) =
+  case phase of
+    Absorb ->
+      if tvalid input
+        then (State (Permute 0) (absorbFn (tdata input)), (False, idleAXI4Stream))
+        else (State Absorb state, (True, idleAXI4Stream))
+    Permute roundIdx ->
+      let state' = Permutation.keccakF1600 roundIdx state
+       in if roundIdx == maxBound
+            then
+              let outStream = validBeat (squeezeSlice512 state' 0) True
+                  nextState = if outReady then State Absorb 0 else State (Squeeze 0) state'
+               in (nextState, (False, outStream))
+            else (State (Permute (roundIdx + 1)) state', (False, idleAXI4Stream))
+    Squeeze _ ->
+      let outStream = validBeat (squeezeSlice512 state 0) True
+          nextState = if outReady then State Absorb 0 else State (Squeeze 0) state
+       in (nextState, (False, outStream))
+
+core512 ::
+  (HiddenClockResetEnable dom, KnownNat n) =>
+  (BitVector n -> BitVector 1600) ->
+  Pipe dom n 512
+core512 absorbFn (outReady, inStream) =
+  mealyB (stepCore512 absorbFn) (State Absorb 0) (outReady, inStream)

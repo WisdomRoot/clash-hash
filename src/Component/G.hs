@@ -1,5 +1,5 @@
 module Component.G
-  ( i272o256
+  ( i272o512
   )
 where
 
@@ -8,7 +8,7 @@ import Clash.Prelude hiding (tlast)
 import Component.G.Common qualified as Common
 
 {-# ANN
-  i272o256
+  i272o512
   ( Synthesize
       { t_name = "dut",
         t_inputs =
@@ -30,16 +30,16 @@ import Component.G.Common qualified as Common
       }
   )
   #-}
-{-# NOINLINE i272o256 #-}
-i272o256 ::
+{-# NOINLINE i272o512 #-}
+i272o512 ::
   Clock System ->
   Reset System ->
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
-  Signal System (AXI4Stream 256, Bool)
-i272o256 = toDUT i272o256Core
+  Signal System (AXI4Stream 512, Bool)
+i272o512 = toDUT i272o512Core
 
-i272o256Core ::
+i272o512Core ::
   HiddenClockResetEnable dom =>
-  Pipe dom 272 256
-i272o256Core = Common.core (Common.absorb272WithMLKEM Nothing)
+  Pipe dom 272 512
+i272o512Core = Common.core512 (Common.absorb272WithMLKEM Nothing)

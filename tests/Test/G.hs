@@ -5,7 +5,7 @@
 module Test.G (spec) where
 
 import AXI4Stream (Pipe)
-import Clash.Prelude (BitVector, System, bundle, clockGen, enableGen, resetGen, unbundle)
+import Clash.Prelude (BitVector, System, (++#), bundle, clockGen, enableGen, resetGen, unbundle)
 import Component.G qualified as G
 import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
@@ -21,10 +21,10 @@ import Test.TestHarness.ExternalReference (callPythonReference)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
-i272o256AsPipe :: Pipe System 272 256
-i272o256AsPipe (outReady, inStream) =
+i272o512AsPipe :: Pipe System 272 512
+i272o512AsPipe (outReady, inStream) =
   let (outStream, inReady) =
-        unbundle (G.i272o256 clockGen resetGen enableGen (bundle (inStream, outReady)))
+        unbundle (G.i272o512 clockGen resetGen enableGen (bundle (inStream, outReady)))
    in (inReady, outStream)
 
 bv272ToBS :: BitVector 272 -> ByteString
@@ -43,7 +43,7 @@ gReference input =
   let output = callPythonReference ("reference" </> "kyber" </> "g.py") input
    in (BS.take 32 output, BS.drop 32 output)
 
-simulate :: InputTiming 272 -> OutputTiming 256
+simulate :: InputTiming 272 -> OutputTiming 512
 simulate inputTiming =
   let (inputPattern, inputValues) = expandInputTiming inputTiming
       inputBV =
@@ -58,7 +58,7 @@ simulate inputTiming =
       (rho, sigma) = gReference inputBS
       out0 = toBV @256 rho
       out1 = toBV @256 sigma
-      base = [Silent 24, Output [out0, out1]]
+      base = [Silent 24, Output [out1 ++# out0]]
    in if startSilence P.== 0 then base else Silent startSilence : base
 
 genInputBV :: Gen (BitVector 272)
@@ -98,14 +98,14 @@ spec :: Spec
 spec = describe "G" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runPipeInput i272o256AsPipe simulate [Input [input]] [Ready 1]
+    runPipeInput i272o512AsPipe simulate [Input [input]] [Ready 1]
   it "matches expected output (upstream stall)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runPipeInput i272o256AsPipe simulate [Hold 5, Input [input]] [Ready 1]
+    runPipeInput i272o512AsPipe simulate [Hold 5, Input [input]] [Ready 1]
   it "matches expected output (periodic backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
-    runPipeInput i272o256AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
+    runPipeInput i272o512AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeInput i272o256AsPipe simulate inputTiming backpressure
+        runPipeInput i272o512AsPipe simulate inputTiming backpressure

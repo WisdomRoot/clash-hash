@@ -1,12 +1,14 @@
 # clash-hash
 
-## General ML-KEM Components
+## ML-KEM Components
 
-### G
+### G (General)
 
-|  In  |  Out  |  Area  |  Module  |
-|------|-------|--------|----------|
-| 272  | 256   | 23895  | systemverilog/Component.G.i272o256/dut.sv |
+- Description: General ML-KEM `G`, with `k` carried in-band.
+- In: `32-byte d || 1-byte k`
+- Out: `32-byte rho || 32-byte sigma`
+- Module: `systemverilog/Component.G.i272o512/dut.sv`
+- Area: `23895`
 
 ## ML-KEM-512 Components
 

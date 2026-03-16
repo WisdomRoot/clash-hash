@@ -13,7 +13,7 @@ package dut_types;
   typedef Tuple3  array_of_1600_Tuple3 [0:1599];
   typedef logic [10:0] array_of_1600_logic_vector_11 [0:1599];
   typedef struct packed {
-    logic [255:0] AXI4Stream_0_sel0;
+    logic [511:0] AXI4Stream_0_sel0;
     logic AXI4Stream_0_sel1;
     logic AXI4Stream_0_sel2;
   } AXI4Stream_0;

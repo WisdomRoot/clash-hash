@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Component_G_i272o256_keccakF1600
+module Component_G_i272o512_keccakF1600
     ( // Inputs
       input wire logic [4:0] roundIdx
     , input wire logic [1599:0] x
