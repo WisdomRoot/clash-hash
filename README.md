@@ -38,7 +38,7 @@
 - Module: `systemverilog/Component.G4.i256o512/dut.sv`
 - Area: 24517.220
 
-### SampleNTT
+### SampleNTT (lookahead = 2)
 
 - ID: `SN-O24-L2`
 - Description: ML-KEM `SampleNTT`, samples 4 coefficients to outputs 2 coefficients per cycle.
@@ -47,7 +47,29 @@
 - Module: `systemverilog/Component.SampleNTT.i272o24l2/dut.sv`
 - Area: 26203.394
 
-Note: The probability of successfully emitting 2 valid coefficients per cycle is 99.2732% in this implementation.
+Note: The probability of successfully emitting 2 valid coefficients per cycle is 0.99273073.
+
+### SampleNTT (lookahead = 4)
+
+- ID: `SN-O24-L4`
+- Description: ML-KEM `SampleNTT`, samples 6 coefficients to output 2 coefficients per cycle.
+- In: `32-byte rho || 1-byte i || 1-byte j`
+- Out: `12-bit coeff0 || 12-bit coeff1`
+- Module: `systemverilog/Component.SampleNTT4.i272o24l4/dut.sv`
+- Area: 27400.660
+
+Note: The probability of successfully emitting 2 valid coefficients per cycle is 0.99975214116.
+
+### SampleNTT (lookahead = 6)
+
+- ID: `SN-O24-L6`
+- Description: ML-KEM `SampleNTT`, samples 8 coefficients to output 2 coefficients per cycle.
+- In: `32-byte rho || 1-byte i || 1-byte j`
+- Out: `12-bit coeff0 || 12-bit coeff1`
+- Module: `systemverilog/Component.SampleNTT6.i272o24l6/dut.sv`
+- Area: 27189.988
+
+Note: The probability of successfully emitting 2 valid coefficients per cycle is 0.99999146181.
 
 ### SamplePolyCBD+PRF (General)
 
