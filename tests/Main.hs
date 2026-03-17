@@ -42,7 +42,8 @@ main = do
   xofTests <- testSpec "XOF" Test.XOF.spec
   shake3256Tests <- testSpec "SHAKE3-256" Test.SHAKE256.spec
   shake3128Tests <- testSpec "SHAKE3-128" Test.SHAKE128.spec
-  snO24L2Tests <- testSpec "SN-O24-L2" Test.SampleNTT.spec
+  snO24L2Tests <- testSpec "SN-O24-L2" Test.SampleNTT.specL2
+  snO24L6Tests <- testSpec "SN-O24-L6" Test.SampleNTT.specL6
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
 
@@ -71,5 +72,6 @@ main = do
         shake3128Tests,
         refSha3Tests,
         refShake256Tests,
-        snO24L2Tests
+        snO24L2Tests,
+        snO24L6Tests
       ]

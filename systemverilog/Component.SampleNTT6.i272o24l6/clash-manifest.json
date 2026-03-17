@@ -1,0 +1,145 @@
+{
+    "components": [
+        "Component_SampleNTT6_i272o24l6_keccakF1600",
+        "dut"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+        },
+        {
+            "name": "dut.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "dut_types.sv",
+            "sha256": "a00c563a3c9d82426981432e21cab50118e5f99b143090e0efa8118a85c679da"
+        },
+        {
+            "name": "Component_SampleNTT6_i272o24l6_keccakF1600.sv",
+            "sha256": "b289b2ef1bf89dac6ecfa19b33e4269722f6f251674cd0208b3ff77b8141b247"
+        },
+        {
+            "name": "dut.sv",
+            "sha256": "442483b73870b7ab0e52e0ec9c280da575badbdbbd7085cc192ee215334dba05"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "07a6cc2c363bbbe9b7aaf6b326ec019ec6797091a175e81c8a069af4412dd3e6",
+    "top_component": {
+        "name": "dut",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "SEED_TDATA",
+                "type_name": "logic [271:0]",
+                "width": 272
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "SEED_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "SEED_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "COEFF_TREADY",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "COEFF_TDATA",
+                "type_name": "logic [23:0]",
+                "width": 24
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "COEFF_TVALID",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "COEFF_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "SEED_TREADY",
+                "type_name": "logic",
+                "width": 1
+            }
+        ]
+    },
+    "version": "unstable"
+}
