@@ -1,10 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 
-module Test.SampleNTT (spec, specL2, specL6) where
+module Test.SampleNTT (spec, specL2, specL4, specL6) where
 
 import AXI4Stream (AXI4Stream (..))
 import Clash.Prelude (BitVector, Clock, Enable, Reset, Signal, System, bundle, clockGen, enableGen, fromList, resetGen, sampleN, (++#))
 import Component.SampleNTT qualified as SampleNTT
+import Component.SampleNTT4 qualified as SampleNTT4
 import Component.SampleNTT6 qualified as SampleNTT6
 import Data.ByteString (ByteString)
 import Data.Foldable (for_)
@@ -32,6 +33,9 @@ spec = specL2
 
 specL2 :: Spec
 specL2 = sampleNTTSpec "SN-O24-L2" 2 5 SampleNTT.i272o24l2
+
+specL4 :: Spec
+specL4 = sampleNTTSpec "SN-O24-L4" 4 7 SampleNTT4.i272o24l4
 
 specL6 :: Spec
 specL6 = sampleNTTSpec "SN-O24-L6" 6 9 SampleNTT6.i272o24l6
@@ -138,15 +142,11 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           (packedBytes, validityRaw) = getSampleNTTOutput seed
           coeffs = unpackPython384Bytes packedBytes
           chunkWidth = lookaheadCount P.+ 2
-          chunksPerBlock =
-            if 112 `P.mod` chunkWidth P./= 0
-              then P.error "SampleNTT.simulateBuffered: unsupported chunk width"
-              else 112 `P.div` chunkWidth
+          chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
+          paddedBlockCandidates = chunksPerBlock P.* chunkWidth
           expectedBufferSize = chunkWidth P.+ 1
-          validity = padToMultiple P.False chunkWidth validityRaw
-          candidates = assignCandidates validity coeffs
-          chunks = chunksOf chunkWidth (padToMultiple P.Nothing chunkWidth candidates)
-          blocks = chunksOf chunksPerBlock (padChunks chunksPerBlock chunkWidth chunks)
+          candidates = assignCandidates validityRaw coeffs
+          blocks = buildBufferedBlocks 112 paddedBlockCandidates chunkWidth candidates
           readyPattern = expandBackpressureTiming backpressureTiming
           readyStream = case readyPattern of
             [] -> P.repeat P.True
@@ -304,21 +304,17 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                in (Nothing : out, rs'')
             [] -> P.error "SampleNTT.simulate: empty backpressure pattern"
 
-    padToMultiple filler n xs =
-      let r = P.length xs `P.mod` n
-          pad = if r P.== 0 then 0 else n P.- r
-       in xs P.++ P.replicate pad filler
-
-    padChunks n chunkWidth xs =
-      let r = P.length xs `P.mod` n
-          pad = if r P.== 0 then 0 else n P.- r
-          filler = P.replicate chunkWidth P.Nothing
-       in xs P.++ P.replicate pad filler
-
     chunksOf n xs =
       case P.splitAt n xs of
         ([], _) -> []
         (chunk, rest) -> chunk : chunksOf n rest
+
+    buildBufferedBlocks realPerBlock paddedPerBlock chunkWidth candidates
+      | P.null candidates = []
+      | P.otherwise =
+          let (realBlock, rest) = P.splitAt realPerBlock candidates
+              paddedBlock = realBlock P.++ P.replicate (paddedPerBlock P.- P.length realBlock) P.Nothing
+           in chunksOf chunkWidth paddedBlock : buildBufferedBlocks realPerBlock paddedPerBlock chunkWidth rest
 
     assignCandidates [] [] = []
     assignCandidates [] _ = P.error "SampleNTT.simulateBuffered: extra coefficients"
