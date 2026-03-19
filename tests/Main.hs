@@ -8,7 +8,9 @@ import Test.G2 qualified
 import Test.G3 qualified
 import Test.G4 qualified
 import Test.G qualified
+import Test.Lookahead4 qualified
 import Test.XOF qualified
+import Test.XOF6 qualified
 import Test.SHAKE256 qualified
 import Test.SHAKE128 qualified
 import Test.SampleNTT qualified
@@ -40,6 +42,8 @@ main = do
   g4Tests <- testSpec "G4" Test.G4.spec
   gTests <- testSpec "G" Test.G.spec
   xofTests <- testSpec "XOF" Test.XOF.spec
+  xof6Tests <- testSpec "XOF6" Test.XOF6.spec
+  lookahead4Tests <- testSpec "lookahead4" Test.Lookahead4.spec
   shake3256Tests <- testSpec "SHAKE3-256" Test.SHAKE256.spec
   shake3128Tests <- testSpec "SHAKE3-128" Test.SHAKE128.spec
   snO24L2Tests <- testSpec "SN-O24-L2" Test.SampleNTT.specL2
@@ -69,6 +73,8 @@ main = do
         g4Tests,
         gTests,
         xofTests,
+        xof6Tests,
+        lookahead4Tests,
         shake3256Tests,
         shake3128Tests,
         refSha3Tests,

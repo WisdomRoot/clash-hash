@@ -1,6 +1,7 @@
 module Component.SampleNTT4
   ( i272o24l4,
     i272o24l4Core,
+    lookahead4,
   )
 where
 

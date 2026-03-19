@@ -1,4 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Replace case with fromMaybe" #-}
+{-# HLINT ignore "Use catMaybes" #-}
 
 module Stream
   ( Output (..),
@@ -10,29 +13,25 @@ module Stream
     Backpressure (..),
     BackpressureTiming,
     expandBackpressureTiming,
-    compressBackpressure,
     genBackpressure,
-    applyBackpressure,
     StreamTopEntity,
     run,
     StreamTopEntityIn,
     runStreamInput,
     runPipeInput,
+    runPipeInputExact,
     runPipeCtrlInput,
     toBV,
     bvToBS,
-    genInputBV,
-    bsToBVRev8,
+    genInputBV
   )
 where
 
 import AXI4Stream (AXI4Stream (..), Pipe, PipeCtrl)
-import Clash.Prelude (Bit, BitVector, Clock, Enable, KnownNat, Reset, Signal, System, Vec, bundle, clockGen, enableGen, fromList, natToNum, pack, resize, resetGen, sampleN, shiftL, unpack)
-import Clash.Prelude qualified as C
-import Data.Bits (setBit, testBit, (.|.))
+import Clash.Prelude (Bit, BitVector, Clock, Enable, KnownNat, NFDataX, Reset, Signal, System, bundle, clockGen, enableGen, fromList, natToNum, register, resetGen, sampleN, withClockResetEnable)
+import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.Maybe (isJust, isNothing)
 import Data.Word (Word8)
 import Test.Hspec (shouldBe)
 import Test.QuickCheck (Arbitrary (arbitrary), Gen, shuffle, vectorOf)
@@ -105,45 +104,6 @@ expandOutputTiming = concatMap expand
     expand (Silent n) = replicate n Nothing
     expand (Output xs) = map Just xs
 
-applyBackpressure :: BackpressureTiming -> OutputTiming o -> OutputTiming o
-applyBackpressure backpressureTiming outputTiming =
-  let ready = expandBackpressureTiming backpressureTiming
-      base = expandOutputTiming outputTiming
-      (out, rest) = go base ready
-   in if any isJust rest
-        then error "Stream.applyBackpressure: backpressure pattern too short"
-        else compress out
-  where
-    go base [] = ([], base)
-    go base (r : rs) =
-      case base of
-        [] ->
-          let (out, rest) = go [] rs
-           in (Nothing : out, rest)
-        (b : bs) ->
-          case b of
-            Nothing ->
-              let (out, rest) = go bs rs
-               in (Nothing : out, rest)
-            Just _ ->
-              if r
-                then
-                  let (out, rest) = go bs rs
-                   in (b : out, rest)
-                else
-                  let (out, rest) = go base rs
-                   in (Nothing : out, rest)
-
-    compress [] = []
-    compress xs =
-      case span isNothing xs of
-        (nothings, rest) | not (null nothings) ->
-          Silent (length nothings) : compress rest
-        _ ->
-          let (justs, rest) = span isJust xs
-              vals = [v | Just v <- justs]
-           in Output vals : compress rest
-
 type StreamTopEntity m n =
   Clock System ->
   Reset System ->
@@ -192,18 +152,16 @@ run topEntity simulate inputTiming backpressureTiming = do
   actual `shouldBe` expectedBase
 
 applyBackpressureUntil :: Int -> [Maybe (BitVector m)] -> [Bool] -> [Maybe (BitVector m)]
-applyBackpressureUntil target = go target
-  where
-    go 0 _ _ = []
-    go _ [] _ = error "Stream.run: expected output shorter than handshake count"
-    go n bs [] = go n bs (repeat True)
-    go n (b : bs) (r : rs) =
+applyBackpressureUntil 0 _ _ = []
+applyBackpressureUntil _ [] _ = error "Stream.run: expected output shorter than handshake count"
+applyBackpressureUntil n bs [] = applyBackpressureUntil n bs (repeat True)
+applyBackpressureUntil n (b : bs) (r : rs) =
       case b of
-        Nothing -> Nothing : go n bs rs
+        Nothing -> Nothing : applyBackpressureUntil n bs rs
         Just _ ->
           if r
-            then b : go (n - 1) bs rs
-            else Nothing : go n (b : bs) rs
+            then b : applyBackpressureUntil (n - 1) bs rs
+            else Nothing : applyBackpressureUntil n (b : bs) rs
 
 runStreamInput ::
   (KnownNat n, KnownNat m) =>
@@ -221,20 +179,19 @@ runStreamInput topEntity simulate inputTiming backpressureTiming = do
         _ -> cycle readyPattern
       expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
       (inputPattern, _inputValues) = expandInputTiming inputTiming
-      lastJustIdx = case [i | (i, Just _) <- zip ([0 ..] :: [Int]) inputPattern] of
-        [] -> Nothing
-        xs -> Just (last xs)
-      beats = zipWith (mkBeat lastJustIdx) ([0 ..] :: [Int]) inputPattern
-      inputSignal = fromList (idleBeat : beats ++ repeat idleBeat)
       flushSignal = pure False
       treadySignal = fromList (True : readyStream)
       output =
-        topEntity
-          clockGen
-          resetGen
-          enableGen
-          treadySignal
-          (bundle (inputSignal, flushSignal))
+        let inputSignal = driveInput inputPattern inReady
+            out =
+              topEntity
+                clockGen
+                resetGen
+                enableGen
+                treadySignal
+                (bundle (inputSignal, flushSignal))
+            inReady = fmap snd out
+         in out
       samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
       actualAll =
         [ if tvalid stream && ready then Just (tdata stream) else Nothing
@@ -242,23 +199,6 @@ runStreamInput topEntity simulate inputTiming backpressureTiming = do
         ]
       actual = drop 1 actualAll
   actual `shouldBe` expectedBase
-  where
-    mkBeat lastIdx i mv =
-      AXI4Stream
-        { tdata = case mv of
-            Just v -> v
-            Nothing -> 0,
-          tvalid = isJust mv,
-          tlast = case (lastIdx, mv) of
-            (Just j, Just _) -> i == j
-            _ -> False
-        }
-    idleBeat =
-      AXI4Stream
-        { tdata = 0,
-          tvalid = False,
-          tlast = False
-        }
 
 runPipeInput ::
   (KnownNat n, KnownNat m) =>
@@ -276,14 +216,10 @@ runPipeInput pipeEntity simulate inputTiming backpressureTiming = do
         _ -> cycle readyPattern
       expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
       (inputPattern, _inputValues) = expandInputTiming inputTiming
-      lastJustIdx = case [i | (i, Just _) <- zip ([0 ..] :: [Int]) inputPattern] of
-        [] -> Nothing
-        xs -> Just (last xs)
-      beats = zipWith (mkBeat lastJustIdx) ([0 ..] :: [Int]) inputPattern
-      inputSignal = fromList (idleBeat : beats ++ repeat idleBeat)
       treadySignal = fromList (True : readyStream)
       output =
-        let (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
+        let inputSignal = driveInput inputPattern inReady
+            (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
          in bundle (outStream, inReady)
       samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
       actualAll =
@@ -292,26 +228,36 @@ runPipeInput pipeEntity simulate inputTiming backpressureTiming = do
         ]
       actual = drop 1 actualAll
   actual `shouldBe` expectedBase
-  where
-    mkBeat lastIdx i mv =
-      AXI4Stream
-        { tdata = case mv of
-            Just v -> v
-            Nothing -> 0,
-          tvalid = isJust mv,
-          tlast = case (lastIdx, mv) of
-            (Just j, Just _) -> i == j
-            _ -> False
-        }
-    idleBeat =
-      AXI4Stream
-        { tdata = 0,
-          tvalid = False,
-          tlast = False
-        }
+
+runPipeInputExact ::
+  (KnownNat n, KnownNat m) =>
+  Pipe System n m ->
+  (InputTiming n -> BackpressureTiming -> OutputTiming m) ->
+  InputTiming n ->
+  BackpressureTiming ->
+  IO ()
+runPipeInputExact pipeEntity simulate inputTiming backpressureTiming = do
+  let expectedBase = expandOutputTiming (simulate inputTiming backpressureTiming)
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> repeat True
+        _ -> cycle readyPattern
+      (inputPattern, _inputValues) = expandInputTiming inputTiming
+      treadySignal = fromList (True : readyStream)
+      output =
+        let inputSignal = driveInput inputPattern inReady
+            (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
+         in bundle (outStream, inReady)
+      samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
+      actualAll =
+        [ if tvalid stream && ready then Just (tdata stream) else Nothing
+          | ((stream, _), ready) <- samples
+        ]
+      actual = drop 1 actualAll
+  actual `shouldBe` expectedBase
 
 runPipeCtrlInput ::
-  (KnownNat n, KnownNat m, C.NFDataX c) =>
+  (KnownNat n, KnownNat m, NFDataX c) =>
   PipeCtrl System c n m ->
   c ->
   [c] ->
@@ -328,15 +274,11 @@ runPipeCtrlInput pipeEntity ctrlDefault ctrlPattern simulate inputTiming backpre
         _ -> cycle readyPattern
       expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
       (inputPattern, _inputValues) = expandInputTiming inputTiming
-      lastJustIdx = case [i | (i, Just _) <- zip ([0 ..] :: [Int]) inputPattern] of
-        [] -> Nothing
-        xs -> Just (last xs)
-      beats = zipWith (mkBeat lastJustIdx) ([0 ..] :: [Int]) inputPattern
-      inputSignal = fromList (idleBeat : beats ++ repeat idleBeat)
       ctrlSignal = fromList (ctrlDefault : ctrlPattern ++ repeat ctrlDefault)
       treadySignal = fromList (True : readyStream)
       output =
-        let (inReady, outStream) = pipeEntity (treadySignal, ctrlSignal, inputSignal)
+        let inputSignal = driveInput inputPattern inReady
+            (inReady, outStream) = pipeEntity (treadySignal, ctrlSignal, inputSignal)
          in bundle (outStream, inReady)
       samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
       actualAll =
@@ -345,17 +287,41 @@ runPipeCtrlInput pipeEntity ctrlDefault ctrlPattern simulate inputTiming backpre
         ]
       actual = drop 1 actualAll
   actual `shouldBe` expectedBase
+
+driveInput ::
+  KnownNat n =>
+  [Maybe (BitVector n)] ->
+  Signal System Bool ->
+  Signal System (AXI4Stream n)
+driveInput inputPattern readySig =
+  withClockResetEnable clockGen resetGen enableGen $
+    let state = register annotated (advance <$> state <*> readySig)
+     in render <$> state
   where
-    mkBeat lastIdx i mv =
+    lastJustIdx =
+      case [i | (i, Just _) <- zip ([0 ..] :: [Int]) inputPattern] of
+        [] -> Nothing
+        xs -> Just (last xs)
+    annotated =
+      zipWith
+        (\i mv -> (\v -> (v, Just i == lastJustIdx)) <$> mv)
+        ([0 ..] :: [Int])
+        inputPattern
+
+    advance [] _ = []
+    advance (Nothing : rest) _ = rest
+    advance pending@(Just _ : rest) ready =
+      if ready then rest else pending
+
+    render [] = idleBeat
+    render (Nothing : _) = idleBeat
+    render (Just (v, isLast) : _) =
       AXI4Stream
-        { tdata = case mv of
-            Just v -> v
-            Nothing -> 0,
-          tvalid = isJust mv,
-          tlast = case (lastIdx, mv) of
-            (Just j, Just _) -> i == j
-            _ -> False
+        { tdata = v,
+          tvalid = True,
+          tlast = isLast
         }
+
     idleBeat =
       AXI4Stream
         { tdata = 0,
@@ -388,15 +354,3 @@ genInputBV :: forall n. (KnownNat n) => Int -> Gen (BitVector n)
 genInputBV byteCount = do
   bytes <- vectorOf byteCount arbitrary
   pure (toBV @n (BS.pack bytes))
-
-bsToBVRev8 :: forall n. (KnownNat n) => ByteString -> BitVector n
-bsToBVRev8 bs =
-  let byteCount = (natToNum @n + 7) `div` 8
-      padded = BS.take byteCount (bs <> BS.replicate byteCount 0)
-      step acc w =
-        (acc `shiftL` 8)
-          .|. resize (reverseBits8 (pack (fromIntegral w :: BitVector 8)))
-   in foldl step 0 (BS.unpack padded)
-  where
-    reverseBits8 :: BitVector 8 -> BitVector 8
-    reverseBits8 bv = pack (C.reverse (unpack bv :: Vec 8 Bit))
