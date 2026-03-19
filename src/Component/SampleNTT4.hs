@@ -5,9 +5,8 @@ module Component.SampleNTT4
 where
 
 import AXI4Stream
-import Clash.Prelude hiding (permute, tlast)
-import Permutation qualified
-import Sponge.NonPipelined (complementAt)
+import Clash.Prelude hiding (tlast)
+import Component.XOF6 qualified as XOF6
 
 data Buffer
   = Buffer0
@@ -19,39 +18,6 @@ data Buffer
   | Buffer6 (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12)
   | Buffer7 (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12)
   deriving (Show, Eq, Generic, NFDataX)
-
-data Phase = Absorb | Permute (Index 24) | Squeeze (Index 19)
-  deriving (Show, Eq, Generic, NFDataX)
-
-data State
-  = State Phase (BitVector 1600) Buffer
-  deriving (Show, Eq, Generic, NFDataX)
-
-squeezeCoeff72 :: BitVector 1600 -> Index 19 -> BitVector 72
-squeezeCoeff72 state idx = case idx of
-  0 -> slice (SNat @71) (SNat @0) state
-  1 -> slice (SNat @143) (SNat @72) state
-  2 -> slice (SNat @215) (SNat @144) state
-  3 -> slice (SNat @287) (SNat @216) state
-  4 -> slice (SNat @359) (SNat @288) state
-  5 -> slice (SNat @431) (SNat @360) state
-  6 -> slice (SNat @503) (SNat @432) state
-  7 -> slice (SNat @575) (SNat @504) state
-  8 -> slice (SNat @647) (SNat @576) state
-  9 -> slice (SNat @719) (SNat @648) state
-  10 -> slice (SNat @791) (SNat @720) state
-  11 -> slice (SNat @863) (SNat @792) state
-  12 -> slice (SNat @935) (SNat @864) state
-  13 -> slice (SNat @1007) (SNat @936) state
-  14 -> slice (SNat @1079) (SNat @1008) state
-  15 -> slice (SNat @1151) (SNat @1080) state
-  16 -> slice (SNat @1223) (SNat @1152) state
-  17 -> slice (SNat @1295) (SNat @1224) state
-  _ ->
-    ((0xfff :: BitVector 12) ++# (0xfff :: BitVector 12))
-      ++# slice (SNat @1343) (SNat @1296) state
-
-{-# INLINE squeezeCoeff72 #-}
 
 data Candidates
   = Valid0
@@ -102,84 +68,91 @@ popPair (Buffer6 a b c d e f) = (b ++# a, Buffer4 c d e f)
 popPair (Buffer7 a b c d e f g) = (b ++# a, Buffer5 c d e f g)
 popPair _ = error "Component.SampleNTT4.popPair: buffer underflow"
 
-step ::
-  State ->
-  (Bool, AXI4Stream 272) ->
-  (State, (Bool, AXI4Stream 24))
-step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case phase of
-  Absorb ->
-    if msgValid
-      then (State (Permute 0) (absorb34 inputMsg) Buffer0, (False, idleAXI4Stream))
-      else (State Absorb state buffer, (True, idleAXI4Stream))
-  Permute counter ->
-    let state' = Permutation.keccakF1600 counter state
-     in if counter == maxBound
-          then (State (Squeeze 0) state' buffer, (False, idleAXI4Stream))
-          else (State (Permute (counter + 1)) state' buffer, (False, idleAXI4Stream))
-  Squeeze counter ->
-    let chunk = squeezeCoeff72 state counter
-        nextPhase = if counter == maxBound then Permute 0 else Squeeze (counter + 1)
-     in case buffer of
-          Buffer0 -> case screenCandidates chunk of
-            Valid0 -> (State nextPhase state Buffer0, (False, idleAXI4Stream))
-            Valid1 c0 -> (State nextPhase state (Buffer1 c0), (False, idleAXI4Stream))
-            Valid2 c0 c1 ->
-              if tready
-                then (State nextPhase state Buffer0, (False, validBeat (c1 ++# c0) False))
-                else (State nextPhase state (Buffer2 c0 c1), (False, idleAXI4Stream))
-            Valid3 c0 c1 c2 ->
-              if tready
-                then (State nextPhase state (Buffer1 c2), (False, validBeat (c1 ++# c0) False))
-                else (State nextPhase state (Buffer3 c0 c1 c2), (False, idleAXI4Stream))
-            Valid4 c0 c1 c2 c3 ->
-              if tready
-                then (State nextPhase state (Buffer2 c2 c3), (False, validBeat (c1 ++# c0) False))
-                else (State nextPhase state (Buffer4 c0 c1 c2 c3), (False, idleAXI4Stream))
-            Valid5 c0 c1 c2 c3 c4 ->
-              if tready
-                then (State nextPhase state (Buffer3 c2 c3 c4), (False, validBeat (c1 ++# c0) False))
-                else (State nextPhase state (Buffer5 c0 c1 c2 c3 c4), (False, idleAXI4Stream))
-            Valid6 c0 c1 c2 c3 c4 c5 ->
-              if tready
-                then (State nextPhase state (Buffer4 c2 c3 c4 c5), (False, validBeat (c1 ++# c0) False))
-                else (State nextPhase state (Buffer6 c0 c1 c2 c3 c4 c5), (False, idleAXI4Stream))
-          Buffer1 b0 -> case screenCandidates chunk of
-            Valid0 -> (State nextPhase state (Buffer1 b0), (False, idleAXI4Stream))
-            Valid1 c0 ->
-              if tready
-                then (State nextPhase state Buffer0, (False, validBeat (c0 ++# b0) False))
-                else (State nextPhase state (Buffer2 b0 c0), (False, idleAXI4Stream))
-            Valid2 c0 c1 ->
-              if tready
-                then (State nextPhase state (Buffer1 c1), (False, validBeat (c0 ++# b0) False))
-                else (State nextPhase state (Buffer3 b0 c0 c1), (False, idleAXI4Stream))
-            Valid3 c0 c1 c2 ->
-              if tready
-                then (State nextPhase state (Buffer2 c1 c2), (False, validBeat (c0 ++# b0) False))
-                else (State nextPhase state (Buffer4 b0 c0 c1 c2), (False, idleAXI4Stream))
-            Valid4 c0 c1 c2 c3 ->
-              if tready
-                then (State nextPhase state (Buffer3 c1 c2 c3), (False, validBeat (c0 ++# b0) False))
-                else (State nextPhase state (Buffer5 b0 c0 c1 c2 c3), (False, idleAXI4Stream))
-            Valid5 c0 c1 c2 c3 c4 ->
-              if tready
-                then (State nextPhase state (Buffer4 c1 c2 c3 c4), (False, validBeat (c0 ++# b0) False))
-                else (State nextPhase state (Buffer6 b0 c0 c1 c2 c3 c4), (False, idleAXI4Stream))
-            Valid6 c0 c1 c2 c3 c4 c5 ->
-              if tready
-                then (State nextPhase state (Buffer5 c1 c2 c3 c4 c5), (False, validBeat (c0 ++# b0) False))
-                else (State nextPhase state (Buffer7 b0 c0 c1 c2 c3 c4 c5), (False, idleAXI4Stream))
-          _ ->
-            let (pair, buffer') = popPair buffer
-             in if tready
-                  then (State (Squeeze counter) state buffer', (False, validBeat pair False))
-                  else (State (Squeeze counter) state buffer, (False, validBeat pair False))
+stepLookahead4 ::
+  Buffer ->
+  (Bool, AXI4Stream 72) ->
+  (Buffer, (Bool, AXI4Stream 24))
+stepLookahead4 buffer (coeffReady, candidateStream) =
+  case buffer of
+    Buffer0 ->
+      if tvalid candidateStream
+        then consumeChunk Buffer0 (screenCandidates (tdata candidateStream))
+        else (Buffer0, (True, idleAXI4Stream))
+    Buffer1 b0 ->
+      if tvalid candidateStream
+        then consumeChunk (Buffer1 b0) (screenCandidates (tdata candidateStream))
+        else (Buffer1 b0, (True, idleAXI4Stream))
+    _ -> drainBuffer buffer
+  where
+    drainBuffer pending =
+      let (pair, pending') = popPair pending
+          outStream = validBeat pair False
+       in if coeffReady
+            then (pending', (False, outStream))
+            else (pending, (False, outStream))
+
+    consumeChunk current candidates = case current of
+      Buffer0 -> case candidates of
+        Valid0 -> (Buffer0, (True, idleAXI4Stream))
+        Valid1 c0 -> (Buffer1 c0, (True, idleAXI4Stream))
+        Valid2 c0 c1 ->
+          if coeffReady
+            then (Buffer0, (True, validBeat (c1 ++# c0) False))
+            else (Buffer2 c0 c1, (True, idleAXI4Stream))
+        Valid3 c0 c1 c2 ->
+          if coeffReady
+            then (Buffer1 c2, (True, validBeat (c1 ++# c0) False))
+            else (Buffer3 c0 c1 c2, (True, idleAXI4Stream))
+        Valid4 c0 c1 c2 c3 ->
+          if coeffReady
+            then (Buffer2 c2 c3, (True, validBeat (c1 ++# c0) False))
+            else (Buffer4 c0 c1 c2 c3, (True, idleAXI4Stream))
+        Valid5 c0 c1 c2 c3 c4 ->
+          if coeffReady
+            then (Buffer3 c2 c3 c4, (True, validBeat (c1 ++# c0) False))
+            else (Buffer5 c0 c1 c2 c3 c4, (True, idleAXI4Stream))
+        Valid6 c0 c1 c2 c3 c4 c5 ->
+          if coeffReady
+            then (Buffer4 c2 c3 c4 c5, (True, validBeat (c1 ++# c0) False))
+            else (Buffer6 c0 c1 c2 c3 c4 c5, (True, idleAXI4Stream))
+      Buffer1 b0 -> case candidates of
+        Valid0 -> (Buffer1 b0, (True, idleAXI4Stream))
+        Valid1 c0 ->
+          if coeffReady
+            then (Buffer0, (True, validBeat (c0 ++# b0) False))
+            else (Buffer2 b0 c0, (True, idleAXI4Stream))
+        Valid2 c0 c1 ->
+          if coeffReady
+            then (Buffer1 c1, (True, validBeat (c0 ++# b0) False))
+            else (Buffer3 b0 c0 c1, (True, idleAXI4Stream))
+        Valid3 c0 c1 c2 ->
+          if coeffReady
+            then (Buffer2 c1 c2, (True, validBeat (c0 ++# b0) False))
+            else (Buffer4 b0 c0 c1 c2, (True, idleAXI4Stream))
+        Valid4 c0 c1 c2 c3 ->
+          if coeffReady
+            then (Buffer3 c1 c2 c3, (True, validBeat (c0 ++# b0) False))
+            else (Buffer5 b0 c0 c1 c2 c3, (True, idleAXI4Stream))
+        Valid5 c0 c1 c2 c3 c4 ->
+          if coeffReady
+            then (Buffer4 c1 c2 c3 c4, (True, validBeat (c0 ++# b0) False))
+            else (Buffer6 b0 c0 c1 c2 c3 c4, (True, idleAXI4Stream))
+        Valid6 c0 c1 c2 c3 c4 c5 ->
+          if coeffReady
+            then (Buffer5 c1 c2 c3 c4 c5, (True, validBeat (c0 ++# b0) False))
+            else (Buffer7 b0 c0 c1 c2 c3 c4 c5, (True, idleAXI4Stream))
+      _ -> error "Component.SampleNTT4.consumeChunk: invalid buffer state"
+
+lookahead4 ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 72 24
+lookahead4 (coeffReady, candidateStream) =
+  mealyB stepLookahead4 Buffer0 (coeffReady, candidateStream)
 
 i272o24l4Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
-i272o24l4Core (coeffReady, seedStream) =
-  mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
+i272o24l4Core = XOF6.i272o72Core ~> lookahead4
 
 {-# ANN
   i272o24l4
@@ -212,18 +185,3 @@ i272o24l4 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
 i272o24l4 = toDUT i272o24l4Core
-
-absorb34 :: BitVector 272 -> BitVector 1600
-absorb34 = pad34Bytes . placeMsg
-  where
-    placeMsg :: BitVector 272 -> BitVector 1600
-    placeMsg msg = (0 :: BitVector 1328) ++# msg
-
-    pad34Bytes :: BitVector 1600 -> BitVector 1600
-    pad34Bytes =
-      complementAt 1343
-        . complementAt 272
-        . complementAt 273
-        . complementAt 274
-        . complementAt 275
-        . complementAt 276
