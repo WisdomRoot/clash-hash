@@ -12,9 +12,6 @@ import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
 
-type InputBits = 272
-type OutputBits = 48
-
 data Phase
   = Absorb
   | Permute (Index 24)
@@ -34,8 +31,8 @@ $( mkRead
 
 step ::
   State ->
-  (Bool, AXI4Stream InputBits) ->
-  (State, (Bool, AXI4Stream OutputBits))
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 48))
 step (State phase state) (tready, AXI4Stream inputMsg msgValid _) =
   case phase of
     Absorb ->
@@ -61,7 +58,7 @@ step (State phase state) (tready, AXI4Stream inputMsg msgValid _) =
 
 i272o48Core ::
   HiddenClockResetEnable dom =>
-  Pipe dom InputBits OutputBits
+  Pipe dom 272 48
 i272o48Core (outputReady, inputStream) =
   mealyB step (State Absorb 0) (outputReady, inputStream)
 
@@ -93,14 +90,14 @@ i272o48 ::
   Clock System ->
   Reset System ->
   Enable System ->
-  Signal System (AXI4Stream InputBits, Bool) ->
-  Signal System (AXI4Stream OutputBits, Bool)
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 48, Bool)
 i272o48 = toDUT i272o48Core
 
-absorbInput :: BitVector InputBits -> BitVector 1600
+absorbInput :: BitVector 272 -> BitVector 1600
 absorbInput = padInput . placeMsg
   where
-    placeMsg :: BitVector InputBits -> BitVector 1600
+    placeMsg :: BitVector 272 -> BitVector 1600
     placeMsg msg = (0 :: BitVector 1328) ++# msg
 
     padInput :: BitVector 1600 -> BitVector 1600
