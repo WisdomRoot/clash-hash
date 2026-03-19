@@ -1,5 +1,9 @@
 module Component.SampleNTT4
-  ( i272o24l4,
+  ( Buffer (..),
+    PairCount (..),
+    stepLookahead4,
+    stepTake128,
+    i272o24l4,
     i272o24l4Core,
     lookahead4,
   )
@@ -30,6 +34,9 @@ data Candidates
   | Valid6 (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12) (BitVector 12)
   deriving (Show, Eq, Generic, NFDataX)
 
+newtype PairCount = PairCount (Unsigned 8)
+  deriving (Show, Eq, Generic, NFDataX)
+
 pushCandidate :: Candidates -> BitVector 12 -> Candidates
 pushCandidate Valid0 c0 = Valid1 c0
 pushCandidate (Valid1 c0) c1 = Valid2 c0 c1
@@ -47,18 +54,13 @@ screenCandidates chunk =
       c3 = slice (SNat @47) (SNat @36) chunk
       c4 = slice (SNat @59) (SNat @48) chunk
       c5 = slice (SNat @71) (SNat @60) chunk
-      candidates =
-        (c0, c0 < 3329)
-          :> (c1, c1 < 3329)
-          :> (c2, c2 < 3329)
-          :> (c3, c3 < 3329)
-          :> (c4, c4 < 3329)
-          :> (c5, c5 < 3329)
-          :> Nil
-   in foldl
-        (\valid (candidate, isValid) -> if isValid then pushCandidate valid candidate else valid)
-        Valid0
-        candidates
+      valid0 = if c0 < 3329 then pushCandidate Valid0 c0 else Valid0
+      valid1 = if c1 < 3329 then pushCandidate valid0 c1 else valid0
+      valid2 = if c2 < 3329 then pushCandidate valid1 c2 else valid1
+      valid3 = if c3 < 3329 then pushCandidate valid2 c3 else valid2
+      valid4 = if c4 < 3329 then pushCandidate valid3 c4 else valid3
+   in if c5 < 3329 then pushCandidate valid4 c5 else valid4
+{-# INLINE screenCandidates #-}
 
 popPair :: Buffer -> (BitVector 24, Buffer)
 popPair (Buffer2 a b) = (b ++# a, Buffer0)
@@ -77,11 +79,17 @@ stepLookahead4 buffer (coeffReady, candidateStream) =
   case buffer of
     Buffer0 ->
       if tvalid candidateStream
-        then consumeChunk Buffer0 (screenCandidates (tdata candidateStream))
+        then
+          let chunk = tdata candidateStream
+              screened = screenCandidates chunk
+           in chunk `deepseqX` consumeChunk Buffer0 screened
         else (Buffer0, (True, idleAXI4Stream))
     Buffer1 b0 ->
       if tvalid candidateStream
-        then consumeChunk (Buffer1 b0) (screenCandidates (tdata candidateStream))
+        then
+          let chunk = tdata candidateStream
+              screened = screenCandidates chunk
+           in chunk `deepseqX` consumeChunk (Buffer1 b0) screened
         else (Buffer1 b0, (True, idleAXI4Stream))
     _ -> drainBuffer buffer
   where
@@ -143,17 +151,41 @@ stepLookahead4 buffer (coeffReady, candidateStream) =
             then (Buffer5 c1 c2 c3 c4 c5, (True, validBeat (c0 ++# b0) False))
             else (Buffer7 b0 c0 c1 c2 c3 c4 c5, (True, idleAXI4Stream))
       _ -> error "Component.SampleNTT4.consumeChunk: invalid buffer state"
+{-# INLINE stepLookahead4 #-}
 
 lookahead4 ::
   HiddenClockResetEnable dom =>
   Pipe dom 72 24
 lookahead4 (coeffReady, candidateStream) =
   mealyB stepLookahead4 Buffer0 (coeffReady, candidateStream)
+{-# INLINE lookahead4 #-}
+
+stepTake128 ::
+  PairCount ->
+  (Bool, AXI4Stream 24) ->
+  (PairCount, (Bool, AXI4Stream 24))
+stepTake128 (PairCount count) (coeffReady, coeffStream)
+  | count == 128 = (PairCount count, (False, idleAXI4Stream))
+  | tvalid coeffStream =
+      let isLast = count == 127
+          outStream = coeffStream{tlast = isLast}
+          count' = if coeffReady then count + 1 else count
+       in (PairCount count', (coeffReady, outStream))
+  | otherwise = (PairCount count, (coeffReady, idleAXI4Stream))
+{-# INLINE stepTake128 #-}
+
+take128 ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 24 24
+take128 (coeffReady, coeffStream) =
+  mealyB stepTake128 (PairCount 0) (coeffReady, coeffStream)
+{-# INLINE take128 #-}
 
 i272o24l4Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
-i272o24l4Core = XOF6.i272o72Core ~> lookahead4
+i272o24l4Core = XOF6.i272o72Core ~> lookahead4 ~> take128
+{-# INLINE i272o24l4Core #-}
 
 {-# ANN
   i272o24l4

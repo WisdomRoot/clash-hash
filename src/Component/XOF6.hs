@@ -1,7 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Component.XOF6
-  ( i272o72,
+  ( Phase (..),
+    State (..),
+    step,
+    i272o72,
     i272o72Core,
   )
 where
@@ -96,15 +99,17 @@ step (State phase state) (tready, AXI4Stream inputMsg msgValid _) =
 
     stepSqueeze chunk nextState =
       let outStream = validBeat chunk False
-       in if tready
+       in chunk `deepseqX` if tready
             then (nextState, (False, outStream))
             else (State phase state, (False, outStream))
+{-# INLINE step #-}
 
 i272o72Core ::
   HiddenClockResetEnable dom =>
   Pipe dom InputBits OutputBits
 i272o72Core (outputReady, inputStream) =
   mealyB step (State Absorb 0) (outputReady, inputStream)
+{-# INLINE i272o72Core #-}
 
 {-# ANN
   i272o72

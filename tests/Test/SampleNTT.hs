@@ -2,11 +2,12 @@
 
 module Test.SampleNTT (spec, specL2, specL4, specL6) where
 
-import AXI4Stream (AXI4Stream (..))
-import Clash.Prelude (BitVector, Clock, Enable, Reset, Signal, System, bundle, clockGen, enableGen, fromList, resetGen, sampleN, (++#))
+import AXI4Stream (AXI4Stream (..), Pipe)
+import Clash.Prelude (BitVector, System, clockGen, enableGen, resetGen, withClockResetEnable, (++#))
 import Component.SampleNTT qualified as SampleNTT
 import Component.SampleNTT4 qualified as SampleNTT4
 import Component.SampleNTT6 qualified as SampleNTT6
+import Component.XOF6 qualified as XOF6
 import Data.ByteString (ByteString)
 import Data.Foldable (for_)
 import Data.List qualified as L
@@ -32,54 +33,71 @@ spec :: Spec
 spec = specL2
 
 specL2 :: Spec
-specL2 = sampleNTTSpec "SN-O24-L2" 2 5 SampleNTT.i272o24l2
+specL2 = sampleNTTSpec "SN-O24-L2" 2 5 i272o24l2AsPipe
 
 specL4 :: Spec
-specL4 = sampleNTTSpec "SN-O24-L4" 4 7 SampleNTT4.i272o24l4
+specL4 = sampleNTTSpecL4 "SN-O24-L4"
 
 specL6 :: Spec
-specL6 = sampleNTTSpec "SN-O24-L6" 6 9 SampleNTT6.i272o24l6
+specL6 = sampleNTTSpec "SN-O24-L6" 6 9 i272o24l6AsPipe
+
+i272o24l2AsPipe :: Pipe System 272 24
+i272o24l2AsPipe args =
+  withClockResetEnable clockGen resetGen enableGen (SampleNTT.i272o24l2Core args)
+
+i272o24l6AsPipe :: Pipe System 272 24
+i272o24l6AsPipe args =
+  withClockResetEnable clockGen resetGen enableGen (SampleNTT6.i272o24l6Core args)
+
+sampleNTTSpecL4 :: P.String -> Spec
+sampleNTTSpecL4 name =
+  describe name $ do
+    describe "Basic functionality tests (34-byte seeds)" $
+      for_ Samples.basicSeedCases $ \testCase ->
+        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
+    describe "Upstream stall handling (34-byte seeds)" $
+      for_ Samples.stallSeedCases $ \testCase ->
+        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
+    describe "Downstream backpressure handling (34-byte seeds)" $
+      for_ Samples.backpressureSeedCases $ \testCase ->
+        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
+    describe "Combined stress tests (34-byte seeds)" $
+      for_ Samples.combinedSeedCases $ \testCase ->
+        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
+    describe "QuickCheck property tests (34-byte seeds)" $
+      it "correctly handles random 34-byte test cases" $
+        withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runStepTestWith (simulate 4 7))
 
 sampleNTTSpec ::
   P.String ->
   P.Int ->
   P.Int ->
-  ( Clock System ->
-    Reset System ->
-    Enable System ->
-    Signal System (AXI4Stream 272, P.Bool) ->
-    Signal System (AXI4Stream 24, P.Bool)
-  ) ->
+  Pipe System 272 24 ->
   Spec
-sampleNTTSpec name lookaheadCount bufferSize topEntityCore =
+sampleNTTSpec name lookaheadCount bufferSize pipeEntity =
   describe name $ do
     describe "Basic functionality tests (34-byte seeds)" $
       for_ Samples.basicSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
+        it (testLabel testCase) $ runPipeTestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
     describe "Upstream stall handling (34-byte seeds)" $
       for_ Samples.stallSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
+        it (testLabel testCase) $ runPipeTestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
     describe "Downstream backpressure handling (34-byte seeds)" $
       for_ Samples.backpressureSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
+        it (testLabel testCase) $ runPipeTestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
     describe "Combined stress tests (34-byte seeds)" $
       for_ Samples.combinedSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore testCase
+        it (testLabel testCase) $ runPipeTestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
     describe "QuickCheck property tests (34-byte seeds)" $
       it "correctly handles random 34-byte test cases" $
-        withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runStreamTestWith (simulate lookaheadCount bufferSize) topEntityCore)
+        withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runPipeTestWith (simulate lookaheadCount bufferSize) pipeEntity)
 
-runStreamTestWith ::
+runPipeTestWith ::
   (ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24) ->
-  ( Clock System ->
-    Reset System ->
-    Enable System ->
-    Signal System (AXI4Stream 272, P.Bool) ->
-    Signal System (AXI4Stream 24, P.Bool)
-  ) ->
+  Pipe System 272 24 ->
   ShakeTest ->
   P.IO ()
-runStreamTestWith expectedFn topEntityCore testCase =
+runPipeTestWith expectedFn pipeEntity testCase =
   let seed = testMessage testCase
       holdCycles =
         case testUpstreamStall testCase of
@@ -94,12 +112,95 @@ runStreamTestWith expectedFn topEntityCore testCase =
         [ if b then Ready (P.length grp) else Backpress (P.length grp)
           | grp@(b : _) <- L.group bpPattern
         ]
-      topEntity clk rst en treadySig inputSig =
-        topEntityCore clk rst en (bundle (P.fmap P.fst inputSig, treadySig))
-      (packedBytes, _) = getSampleNTTOutput seed
-      expectedValues = coeffPairsFromPacked packedBytes
-      baselineNoBpLen = P.length (expandOutputTiming (expectedFn seed [Ready 1] inputTiming))
-   in runStreamInputExpected topEntity expectedValues baselineNoBpLen inputTiming backpressureTiming
+      simulateCase inputTiming' backpressureTiming' =
+        expectedFn seed backpressureTiming' inputTiming'
+   in runPipeInputExact pipeEntity simulateCase inputTiming backpressureTiming
+
+runStepTestWith ::
+  (ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24) ->
+  ShakeTest ->
+  P.IO ()
+runStepTestWith expectedFn testCase =
+  let seed = testMessage testCase
+      holdCycles =
+        case testUpstreamStall testCase of
+          NoUpstreamStall -> 0
+          UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
+      inputTiming =
+        if holdCycles P.== 0
+          then [Input [bsToBV272Normal seed]]
+          else [Hold holdCycles, Input [bsToBV272Normal seed]]
+      bpPattern = backpressurePattern (testDownstreamBackpressure testCase)
+      backpressureTiming =
+        [ if b then Ready (P.length grp) else Backpress (P.length grp)
+          | grp@(b : _) <- L.group bpPattern
+        ]
+      expectedBase = expandOutputTiming (expectedFn seed backpressureTiming inputTiming)
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> P.repeat P.True
+        _ -> P.cycle readyPattern
+      actual = simulateL4DUT (P.length expectedBase) (P.fst (expandInputTiming inputTiming)) readyStream
+   in actual `shouldBe` expectedBase
+
+simulateL4DUT ::
+  P.Int ->
+  [Maybe (BitVector 272)] ->
+  [P.Bool] ->
+  [Maybe (BitVector 24)]
+simulateL4DUT sampleLen inputPattern readyStream =
+  go sampleLen annotatedInputs readyStream (XOF6.State XOF6.Absorb 0) SampleNTT4.Buffer0 (SampleNTT4.PairCount 0)
+  where
+    lastJustIdx =
+      case [i | (i, Just _) <- P.zip ([0 ..] :: [P.Int]) inputPattern] of
+        [] -> Nothing
+        xs -> Just (P.last xs)
+
+    annotatedInputs =
+      P.zipWith
+        (\i mv -> P.fmap (\v -> (v, Just i P.== lastJustIdx)) mv)
+        ([0 ..] :: [P.Int])
+        inputPattern
+
+    go 0 _ _ _ _ _ = []
+    go _ _ [] _ _ _ = P.error "Test.SampleNTT.simulateL4DUT: empty ready stream"
+    go n inputs (coeffReady : restReady) xofState lookState takeState =
+      let inputBeat = currentInputBeat inputs
+          (_xofStallState, (_seedReady, candidateStream)) = XOF6.step xofState (P.False, inputBeat)
+          (lookStateFalse, (xofReadyFalse, coeffStreamFalse)) =
+            SampleNTT4.stepLookahead4 lookState (P.False, candidateStream)
+          (_, (midReadyFalse, _)) =
+            SampleNTT4.stepTake128 takeState (coeffReady, coeffStreamFalse)
+          (lookStateTrue, (xofReadyTrue, coeffStreamTrue)) =
+            SampleNTT4.stepLookahead4 lookState (P.True, candidateStream)
+          (_, (midReadyTrue, _)) =
+            SampleNTT4.stepTake128 takeState (coeffReady, coeffStreamTrue)
+          (_midReady, lookState', xofReady, coeffStream) =
+            if midReadyFalse P.== P.False
+              then (P.False, lookStateFalse, xofReadyFalse, coeffStreamFalse)
+              else
+                if midReadyTrue P.== P.True
+                  then (P.True, lookStateTrue, xofReadyTrue, coeffStreamTrue)
+                  else P.error "Test.SampleNTT.simulateL4DUT: no ready fixed point"
+          (takeState', (_, outStream)) =
+            SampleNTT4.stepTake128 takeState (coeffReady, coeffStream)
+          (xofState', (seedReady', _)) =
+            XOF6.step xofState (xofReady, inputBeat)
+          inputs' = advanceInputs seedReady' inputs
+          outBeat =
+            if tvalid outStream P.&& coeffReady
+              then P.Just (tdata outStream)
+              else P.Nothing
+       in outBeat : go (n P.- 1) inputs' restReady xofState' lookState' takeState'
+
+    currentInputBeat [] = AXI4Stream 0 P.False P.False
+    currentInputBeat (P.Nothing : _) = AXI4Stream 0 P.False P.False
+    currentInputBeat (P.Just (v, isLast) : _) = AXI4Stream v P.True isLast
+
+    advanceInputs _ [] = []
+    advanceInputs _ (P.Nothing : rest) = rest
+    advanceInputs seedReady inputs@(P.Just _ : rest) =
+      if seedReady then rest else inputs
 
 simulate :: P.Int -> P.Int -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
 simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
@@ -142,11 +243,15 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           (packedBytes, validityRaw) = getSampleNTTOutput seed
           coeffs = unpackPython384Bytes packedBytes
           chunkWidth = lookaheadCount P.+ 2
-          chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
-          paddedBlockCandidates = chunksPerBlock P.* chunkWidth
           expectedBufferSize = chunkWidth P.+ 1
           candidates = assignCandidates validityRaw coeffs
-          blocks = buildBufferedBlocks 112 paddedBlockCandidates chunkWidth candidates
+          blocks =
+            if lookaheadCount P.== 4
+              then buildL4Blocks candidates
+              else
+                let chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
+                    paddedBlockCandidates = chunksPerBlock P.* chunkWidth
+                 in buildBufferedBlocks 112 paddedBlockCandidates chunkWidth candidates
           readyPattern = expandBackpressureTiming backpressureTiming
           readyStream = case readyPattern of
             [] -> P.repeat P.True
@@ -316,6 +421,15 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
               paddedBlock = realBlock P.++ P.replicate (paddedPerBlock P.- P.length realBlock) P.Nothing
            in chunksOf chunkWidth paddedBlock : buildBufferedBlocks realPerBlock paddedPerBlock chunkWidth rest
 
+    buildL4Blocks candidates = go candidates (P.cycle [18, 19, 19])
+      where
+        go candidates' phases
+          | P.null candidates' = []
+          | P.otherwise =
+              let phaseChunks = P.head phases
+                  (phaseCandidates, rest) = P.splitAt (phaseChunks P.* 6) candidates'
+               in chunksOf 6 phaseCandidates : go rest (P.tail phases)
+
     assignCandidates [] [] = []
     assignCandidates [] _ = P.error "SampleNTT.simulateBuffered: extra coefficients"
     assignCandidates (v : vs) coeffs' =
@@ -336,25 +450,24 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
         then ([], rs)
         else case blocks of
           [] ->
-            if P.length buffer P.< 2
-              then P.error "SampleNTT.simulateBuffered: candidate blocks exhausted"
-              else
-                let (permuteOut, rs') = consumeN 24 rs
-                    (drainOut, buffer', rs'', emitted') = drainBuffer buffer rs' emitted
-                 in if emitted' P.>= 128
-                      then
-                        if P.null buffer'
-                          then (permuteOut P.++ drainOut, rs'')
-                          else P.error "SampleNTT.simulateBuffered: extra buffered coefficients after final drain"
+            let (gapOut, buffer', rs', emitted') = runGapBuffered 24 buffer rs emitted
+             in if emitted' P.>= 128
+                  then (gapOut, rs')
+                  else
+                    if P.length buffer' P.< 2
+                      then P.error "SampleNTT.simulateBuffered: candidate blocks exhausted"
                       else P.error "SampleNTT.simulateBuffered: final buffer drain incomplete"
           block : rest ->
             let (blockOut, buffer', rs', emitted') = runBlockBuffered block buffer rs emitted
              in if emitted' P.>= 128
                   then (blockOut, rs')
                   else
-                    let (permuteOut, rs'') = consumeN 24 rs'
-                        (moreOut, rs''') = runBlocksBuffered rest buffer' rs'' emitted'
-                     in (blockOut P.++ permuteOut P.++ moreOut, rs''')
+                    let (gapOut, buffer'', rs'', emitted'') = runGapBuffered 24 buffer' rs' emitted'
+                     in if emitted'' P.>= 128
+                          then (blockOut P.++ gapOut, rs'')
+                          else
+                            let (moreOut, rs''') = runBlocksBuffered rest buffer'' rs'' emitted''
+                             in (blockOut P.++ gapOut P.++ moreOut, rs''')
 
     runBlockBuffered ::
       [[P.Maybe Word16]] ->
@@ -407,29 +520,29 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                     then (P.Just (mkPair c0 c1), restVals, P.True, 1)
                     else (P.Nothing, vals, P.True, 0)
 
-    drainBuffer ::
+    runGapBuffered ::
+      P.Int ->
       [Word16] ->
       [P.Bool] ->
       P.Int ->
       ([P.Maybe (BitVector 24)], [Word16], [P.Bool], P.Int)
-    drainBuffer buffer rs emitted
+    runGapBuffered n buffer rs emitted
+      | n P.<= 0 = ([], buffer, rs, emitted)
       | emitted P.>= 128 = ([], buffer, rs, emitted)
-      | P.length buffer P.< 2 = ([], buffer, rs, emitted)
       | P.otherwise =
           case rs of
-            [] -> P.error "SampleNTT.simulateBuffered: empty backpressure pattern during final drain"
+            [] -> P.error "SampleNTT.simulateBuffered: empty backpressure pattern during permute gap"
             r : rs' ->
-              let a = buffer P.!! 0
-                  b = buffer P.!! 1
-               in if r
-                    then
-                      let (out, buffer', rs'', emitted') =
-                            drainBuffer (P.drop 2 buffer) rs' (emitted P.+ 1)
-                       in (P.Just (mkPair a b) : out, buffer', rs'', emitted')
-                    else
-                      let (out, buffer', rs'', emitted') =
-                            drainBuffer buffer rs' emitted
-                       in (P.Nothing : out, buffer', rs'', emitted')
+              let (outMaybe, buffer', produced) =
+                    case buffer of
+                      a : b : rest ->
+                        if r
+                          then (P.Just (mkPair a b), rest, 1)
+                          else (P.Nothing, buffer, 0)
+                      _ -> (P.Nothing, buffer, 0)
+                  (out, buffer'', rs'', emitted') =
+                    runGapBuffered (n P.- 1) buffer' rs' (emitted P.+ produced)
+               in (outMaybe : out, buffer'', rs'', emitted')
 
     mkPair a b = toBV12 b ++# toBV12 a
 
@@ -442,118 +555,3 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           let (justs, rest) = P.span isJust xs
               vals = [v | Just v <- justs]
            in Output vals : compress rest
-
-runStreamInputExpected ::
-  StreamTopEntityIn 24 272 ->
-  [BitVector 24] ->
-  P.Int ->
-  InputTiming 272 ->
-  BackpressureTiming ->
-  P.IO ()
-runStreamInputExpected topEntity expectedValues baselineNoBpLen inputTiming backpressureTiming = do
-  let expectedCount = P.length expectedValues
-      readyPattern = expandBackpressureTiming backpressureTiming
-      readyStream = case readyPattern of
-        [] -> P.repeat P.True
-        _ -> P.cycle readyPattern
-      (inputPattern, _inputValues) = expandInputTiming inputTiming
-      startSilence =
-        case L.findIndex isJust inputPattern of
-          Just i -> i
-          Nothing -> P.error "SampleNTT Stream: no input provided"
-      patternLen = P.max 1 (P.length readyPattern)
-      readyCount = P.max 1 (P.length (P.filter P.id readyPattern))
-      readyBudget = ceilDiv (expectedCount P.* patternLen) readyCount
-      sampleLen = P.max (baselineNoBpLen P.+ 300) (startSilence P.+ 25 P.+ readyBudget P.+ 300)
-      lastJustIdx = case [i | (i, Just _) <- P.zip ([0 ..] :: [P.Int]) inputPattern] of
-        [] -> Nothing
-        xs -> Just (P.last xs)
-      beats = P.zipWith (mkBeat lastJustIdx) ([0 ..] :: [P.Int]) inputPattern
-      inputSignal = fromList (idleBeat : beats P.++ P.repeat idleBeat)
-      treadySignal = fromList (P.True : readyStream)
-      output =
-        topEntity
-          clockGen
-          resetGen
-          enableGen
-          treadySignal
-          (bundle (inputSignal, P.pure P.False))
-      samples = sampleN sampleLen (bundle (output, treadySignal, inputSignal))
-      handshakes =
-        [ tdata stream
-          | ((stream, _), ready, _) <- P.drop 1 samples,
-            tvalid stream P.&& ready
-        ]
-      outSamples =
-        [ (stream, ready)
-          | ((stream, _), ready, _) <- P.drop 1 samples
-        ]
-      outHoldViolations =
-        [ idx
-          | (idx, ((prevStream, prevReady), (currStream, _))) <-
-              P.zip ([1 ..] :: [P.Int]) (P.zip outSamples (P.drop 1 outSamples)),
-            tvalid prevStream P.&& P.not prevReady,
-            tvalid currStream P./= P.True
-              P.|| tdata currStream P./= tdata prevStream
-              P.|| tlast currStream P./= tlast prevStream
-        ]
-      inputValids = [tvalid inStream | (_, _, inStream) <- samples]
-      readyPrev = P.True : [seedReady | ((_, seedReady), _, _) <- P.init samples]
-      readyViolations = [() | (valid, ready) <- P.zip inputValids readyPrev, valid P.&& P.not ready]
-      inputHandshakes = [() | (valid, ready) <- P.zip inputValids readyPrev, valid P.&& ready]
-      actualPrefix = P.take expectedCount handshakes
-      protocolError =
-        if P.null readyViolations
-          then
-            if P.null outHoldViolations
-              then P.Nothing
-              else
-                P.Just
-                  ( "SampleNTT Stream: output changed during backpressure at cycle "
-                      P.++ P.show (P.head outHoldViolations)
-                  )
-          else P.Just "SampleNTT Stream: MSG_TVALID asserted without MSG_TREADY in previous cycle"
-   in case protocolError of
-        P.Just err -> P.error err
-        P.Nothing ->
-          if P.null inputHandshakes
-            then P.error "SampleNTT Stream: MSG_TVALID never asserted after MSG_TREADY"
-            else
-              if P.length handshakes P.< expectedCount
-                then
-                  P.error
-                    ( "SampleNTT Stream: did not complete 128 outputs before timeout; got "
-                        P.++ P.show (P.length handshakes)
-                        P.++ ", expected "
-                        P.++ P.show expectedCount
-                        P.++ ", sampleLen="
-                        P.++ P.show sampleLen
-                    )
-                else actualPrefix `shouldBe` expectedValues
-  where
-    ceilDiv x y = (x P.+ y P.- 1) `P.div` y
-    mkBeat lastIdx i mv =
-      AXI4Stream
-        { tdata = case mv of
-            Just v -> v
-            Nothing -> 0,
-          tvalid = isJust mv,
-          tlast = case (lastIdx, mv) of
-            (Just j, Just _) -> i P.== j
-            _ -> P.False
-        }
-    idleBeat =
-      AXI4Stream
-        { tdata = 0,
-          tvalid = P.False,
-          tlast = P.False
-        }
-
-coeffPairsFromPacked :: ByteString -> [BitVector 24]
-coeffPairsFromPacked packed = go (unpackPython384Bytes packed)
-  where
-    go (a : b : rest) =
-      let a12 = P.fromIntegral a :: BitVector 12
-          b12 = P.fromIntegral b :: BitVector 12
-       in (b12 ++# a12) : go rest
-    go _ = []
