@@ -1,6 +1,7 @@
 {
     "components": [
-        "Component_SampleNTT4_i272o24l4_keccakF1600",
+        "Component_SHA3256_i64o64_pad",
+        "Component_SHA3256_i64o64_spongeFSM",
         "dut"
     ],
     "dependencies": {
@@ -35,27 +36,39 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+        },
+        {
+            "name": "dut_shim.cpp",
+            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+        },
+        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "dut_types.sv",
-            "sha256": "54e282b8161e171c8e7da7d88964776e80ce517e53d697b5430b97eb088a1184"
+            "sha256": "d783907f32587aa79419a820300c4d21856e6d23c413f0032e1fdab743f860df"
         },
         {
-            "name": "Component_SampleNTT4_i272o24l4_keccakF1600.sv",
-            "sha256": "0460f1be0b51834ab736a38a30625e5aba16f6120d4f45e2b1a04567da99a7d7"
+            "name": "Component_SHA3256_i64o64_pad.sv",
+            "sha256": "ae07ed91347e67951dd5fc108ce484aa132a01a5787cea286b1ef1629bbea7a0"
+        },
+        {
+            "name": "Component_SHA3256_i64o64_spongeFSM.sv",
+            "sha256": "8f1e14a26fb30e32a51cf7d3b41a6563495003925e06c4568c6a505ac6ccd829"
         },
         {
             "name": "dut.sv",
-            "sha256": "874bc90da4149599af529819ef188a51d5f49c4618d67a8d0c2e77e0e858f6c5"
+            "sha256": "5cd1c56c9bd84aebe7f14ecb027007eb314c6a45d78a8e380606461a279db7b1"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "9c77e16b64c91b9e118f8d27c5591688d9b777315553716c70a38812c51f2758",
+    "hash": "043a9ca8c10ad7a18742f9f1c4490e59902961be1a5bb9b0e0302e5d66195f50",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -86,56 +99,49 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "SEED_TDATA",
-                "type_name": "logic [271:0]",
-                "width": 272
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "SEED_TVALID",
+                "name": "SHA3_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "SEED_TLAST",
-                "type_name": "logic",
-                "width": 1
+                "name": "MSG_TDATA",
+                "type_name": "logic [65:0]",
+                "width": 66
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "COEFF_TREADY",
+                "name": "MSG_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TDATA",
-                "type_name": "logic [23:0]",
-                "width": 24
+                "name": "SHA3_TDATA",
+                "type_name": "logic [63:0]",
+                "width": 64
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TVALID",
+                "name": "SHA3_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TLAST",
+                "name": "SHA3_TLAST",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "SEED_TREADY",
+                "name": "MSG_TREADY",
                 "type_name": "logic",
                 "width": 1
             }

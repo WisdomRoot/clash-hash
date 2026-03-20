@@ -2,16 +2,13 @@
 {-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 module Sponge.NonPipelined.SHAKE256N
-  ( initState,
-    step,
-    sponge,
+  ( sponge,
   )
 where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
 import Sponge.NonPipelinedN
-import Sponge.NonPipelinedN qualified as N
 import Sponge.XOR qualified as XOR
 import TH (mkRead)
 
@@ -142,34 +139,6 @@ pad _ =
 
 $(mkRead "squeezeSlice" 1600 [(i, i * 64, 64) | i <- [0 .. 16]])
 
-type SpongeState = N.State PadBeats (Index RateBeats)
-
-initState :: SpongeState
-initState = State (Absorb 0) 0
-
-step ::
-  (Index 24 -> BitVector 1600 -> BitVector 1600) ->
-  SpongeState ->
-  (AXI4Stream MsgBits, Bool, Bool) ->
-  (SpongeState, (AXI4Stream DigestBits, Bool))
-step _permModule (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR256' counter state input flush
-step permModule (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
-step _permModule (State (Squeeze counter) state) (_msg, tready, _flush)
-  | counter == maxBound =
-      let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = False}
-          nextState =
-            if tready
-              then State (Permute 0 SeenTLASTAndPadded) state
-              else State (Squeeze maxBound) state
-       in (nextState, (outStream, False))
-  | otherwise =
-      let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = False}
-          nextState =
-            if tready
-              then State (Squeeze (counter + 1)) state
-              else State (Squeeze counter) state
-       in (nextState, (outStream, False))
-
 {-# OPAQUE sponge #-}
 sponge ::
   forall dom n.
@@ -182,4 +151,26 @@ sponge ::
   (Index 24 -> BitVector 1600 -> BitVector 1600) ->
   Signal dom (AXI4Stream MsgBits, Bool, Bool) ->
   Signal dom (AXI4Stream DigestBits, Bool)
-sponge permModule = mealy (step permModule) initState
+sponge permModule = mealy step (State (Absorb 0) 0)
+  where
+    step ::
+      State PadBeats (Index RateBeats) ->
+      (AXI4Stream MsgBits, Bool, Bool) ->
+      (State PadBeats (Index RateBeats), (AXI4Stream DigestBits, Bool))
+    step (State (Absorb counter) state) (input, _tready, flush) = absorb pad XOR.staticXOR256' counter state input flush
+    step (State (Permute counter seenTLAST) state) (_msg, tready, _flush) = permute permModule pad counter seenTLAST state tready
+    step (State (Squeeze counter) state) (_msg, tready, _flush)
+      | counter == maxBound =
+          let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = False}
+              nextState =
+                if tready
+                  then State (Permute 0 SeenTLASTAndPadded) state
+                  else State (Squeeze maxBound) state
+           in (nextState, (outStream, False))
+      | otherwise =
+          let outStream = AXI4Stream {tdata = squeezeSlice state counter, tvalid = True, tlast = False}
+              nextState =
+                if tready
+                  then State (Squeeze (counter + 1)) state
+                  else State (Squeeze counter) state
+           in (nextState, (outStream, False))

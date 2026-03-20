@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module AXI4Stream
@@ -106,6 +107,7 @@ data Pipe2 dom a b = forall s.
   Pipe2
     (s -> (Bool, AXI4Stream a) -> (s, (Bool, AXI4Stream b)))
     s
+  | Pipe2Fn (HiddenClockResetEnable dom => Pipe dom a b)
 
 -- | Pipe with an additional control sideband sampled alongside the input stream.
 -- Tuple order follows step style: downstream ready, control, upstream stream.
@@ -121,12 +123,14 @@ data PipeCtrl2 dom c a b = forall s.
   PipeCtrl2
     (s -> (Bool, c, AXI4Stream a) -> (s, (Bool, AXI4Stream b)))
     s
+  | PipeCtrl2Fn (HiddenClockResetEnable dom => PipeCtrl dom c a b)
 
 runPipe2 ::
   HiddenClockResetEnable dom =>
   Pipe2 dom a b ->
   Pipe dom a b
 runPipe2 (Pipe2 step initState) = mealyB step initState
+runPipe2 (Pipe2Fn pipeFn) = pipeFn
 {-# INLINE runPipe2 #-}
 
 runPipeCtrl2 ::
@@ -135,6 +139,7 @@ runPipeCtrl2 ::
   PipeCtrl dom c a b
 runPipeCtrl2 (PipeCtrl2 step initState) (outReady, ctrlSig, inStream) =
   mealyB step initState (outReady, ctrlSig, inStream)
+runPipeCtrl2 (PipeCtrl2Fn pipeFn) args = pipeFn args
 {-# INLINE runPipeCtrl2 #-}
 
 composeSteps ::
@@ -159,6 +164,7 @@ composeSteps stepAB stepBC (stateAB, stateBC) (outReady, inStream) =
 (~>>) :: Pipe2 dom a b -> Pipe2 dom b c -> Pipe2 dom a c
 Pipe2 stepAB initAB ~>> Pipe2 stepBC initBC =
   Pipe2 (composeSteps stepAB stepBC) (initAB, initBC)
+lhs ~>> rhs = Pipe2Fn (runPipe2 lhs ~> runPipe2 rhs)
 {-# INLINE (~>>) #-}
 
 infixl 1 ~>>
@@ -208,6 +214,7 @@ toDUT2 ::
   Enable dom ->
   Signal dom (AXI4Stream a, Bool) ->
   Signal dom (AXI4Stream b, Bool)
+toDUT2 (Pipe2Fn pipeFn) clk rst en inputSig = toDUT pipeFn clk rst en inputSig
 toDUT2 comp clk rst en inputSig =
   withClockResetEnable clk rst en $
     let (inputStream, outReady) = unbundle inputSig
@@ -240,6 +247,7 @@ toDUTCtrl2 ::
   Signal dom Bool ->
   Signal dom (AXI4Stream a, c) ->
   Signal dom (AXI4Stream b, Bool)
+toDUTCtrl2 (PipeCtrl2Fn pipeFn) clk rst en outReady inputSig = toDUTCtrl pipeFn clk rst en outReady inputSig
 toDUTCtrl2 comp clk rst en outReady inputSig =
   withClockResetEnable clk rst en $
     let (inputStream, ctrlSig) = unbundle inputSig

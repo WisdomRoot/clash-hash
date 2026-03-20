@@ -19,9 +19,10 @@ spongeFSM = Permutation.keccakF1600
 i64o64Core ::
   PipeCtrl2 dom Bool InputBits OutputBits
 i64o64Core =
-  PipeCtrl2
-    (\st (outReady, flushSig, inputStream) -> swapIO (SHAKE128N.step spongeFSM st (inputStream, outReady, flushSig)))
-    SHAKE128N.initState
+  PipeCtrl2Fn $ \(outputReady, flushSig, inputStream) ->
+    let inputWithFlush = bundle (inputStream, outputReady, flushSig)
+        (outputStream, inputReady) = unbundle (SHAKE128N.sponge spongeFSM inputWithFlush)
+     in (inputReady, outputStream)
 
 {-# ANN
   i64o64
@@ -58,6 +59,3 @@ i64o64 ::
   Signal System (AXI4Stream InputBits, Bool) ->
   Signal System (AXI4Stream OutputBits, Bool)
 i64o64 = toDUTCtrl2 i64o64Core
-
-swapIO :: (s, (AXI4Stream OutputBits, Bool)) -> (s, (Bool, AXI4Stream OutputBits))
-swapIO (st, (outStream, inReady)) = (st, (inReady, outStream))
