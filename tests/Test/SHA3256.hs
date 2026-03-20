@@ -4,8 +4,8 @@
 
 module Test.SHA3256 (spec) where
 
-import AXI4Stream (PipeCtrl)
-import Clash.Prelude (BitVector, System, bundle, clockGen, enableGen, resetGen, unbundle)
+import AXI4Stream (PipeCtrl2)
+import Clash.Prelude (BitVector, System)
 import Component.SHA3256 qualified as SHA3256
 import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
@@ -19,11 +19,8 @@ import Test.QuickCheck (Gen, arbitrary, chooseInt, forAll, vectorOf)
 import Prelude (Bool (..), Int, Maybe (..), ($))
 import Prelude qualified as P
 
-i64o64AsPipeCtrl :: PipeCtrl System Bool 64 64
-i64o64AsPipeCtrl (outReady, flushSig, inStream) =
-  let (outStream, inReady) =
-        unbundle (SHA3256.i64o64 clockGen resetGen enableGen outReady (bundle (inStream, flushSig)))
-   in (inReady, outStream)
+i64o64AsPipeCtrl :: PipeCtrl2 System Bool 64 64
+i64o64AsPipeCtrl = SHA3256.i64o64Core
 
 bv64ToBytes :: BitVector 64 -> [Word8]
 bv64ToBytes bv = [byteAt i | i <- [0 .. 7]]
@@ -81,16 +78,16 @@ genCase = do
 spec :: Spec
 spec = describe "SHA3-256" $ do
   it "matches expected output (flush-only, empty input)" $
-    runPipeCtrlInput i64o64AsPipeCtrl False [True] simulate [] [Ready 1]
+    runPipeCtrl2Input i64o64AsPipeCtrl False [True] simulate [] [Ready 1]
   it "matches expected output (flush-only with periodic backpressure)" $
-    runPipeCtrlInput i64o64AsPipeCtrl False [True] simulate [] [Ready 2, Backpress 1]
+    runPipeCtrl2Input i64o64AsPipeCtrl False [True] simulate [] [Ready 2, Backpress 1]
   it "matches expected output (single-beat input, no backpressure)" $ do
     let input = toBV @64 ("01234567" :: ByteString)
-    runPipeCtrlInput i64o64AsPipeCtrl False [False] simulate [Input [input]] [Ready 1]
+    runPipeCtrl2Input i64o64AsPipeCtrl False [False] simulate [Input [input]] [Ready 1]
   it "matches expected output (17-beat input boundary case)" $ do
     let block = P.replicate 17 (toBV @64 ("ABCDEFGH" :: ByteString))
-    runPipeCtrlInput i64o64AsPipeCtrl False [False] simulate [Input block] [Ready 1]
+    runPipeCtrl2Input i64o64AsPipeCtrl False [False] simulate [Input block] [Ready 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeCtrlInput i64o64AsPipeCtrl False [False] simulate inputTiming backpressure
+        runPipeCtrl2Input i64o64AsPipeCtrl False [False] simulate inputTiming backpressure

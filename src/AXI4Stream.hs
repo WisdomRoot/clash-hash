@@ -12,12 +12,15 @@ module AXI4Stream
     Pipe,
     Pipe2 (..),
     PipeCtrl,
+    PipeCtrl2 (..),
     runPipe2,
+    runPipeCtrl2,
     (~>),
     (~>>),
     toDUT,
     toDUT2,
     toDUTCtrl,
+    toDUTCtrl2,
     idleAXI4Stream,
     validBeat,
     handshake,
@@ -113,12 +116,26 @@ type PipeCtrl dom c a b =
   ) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
+data PipeCtrl2 dom c a b = forall s.
+  NFDataX s =>
+  PipeCtrl2
+    (s -> (Bool, c, AXI4Stream a) -> (s, (Bool, AXI4Stream b)))
+    s
+
 runPipe2 ::
   HiddenClockResetEnable dom =>
   Pipe2 dom a b ->
   Pipe dom a b
 runPipe2 (Pipe2 step initState) = mealyB step initState
 {-# INLINE runPipe2 #-}
+
+runPipeCtrl2 ::
+  HiddenClockResetEnable dom =>
+  PipeCtrl2 dom c a b ->
+  PipeCtrl dom c a b
+runPipeCtrl2 (PipeCtrl2 step initState) (outReady, ctrlSig, inStream) =
+  mealyB step initState (outReady, ctrlSig, inStream)
+{-# INLINE runPipeCtrl2 #-}
 
 composeSteps ::
   (s1 -> (Bool, AXI4Stream a) -> (s1, (Bool, AXI4Stream b))) ->
@@ -212,6 +229,21 @@ toDUTCtrl comp clk rst en outReady inputSig =
   withClockResetEnable clk rst en $
     let (inputStream, ctrlSig) = unbundle inputSig
         (inReady, outStream) = comp (outReady, ctrlSig, inputStream)
+     in bundle (outStream, inReady)
+
+toDUTCtrl2 ::
+  KnownDomain dom =>
+  PipeCtrl2 dom c a b ->
+  Clock dom ->
+  Reset dom ->
+  Enable dom ->
+  Signal dom Bool ->
+  Signal dom (AXI4Stream a, c) ->
+  Signal dom (AXI4Stream b, Bool)
+toDUTCtrl2 comp clk rst en outReady inputSig =
+  withClockResetEnable clk rst en $
+    let (inputStream, ctrlSig) = unbundle inputSig
+        (inReady, outStream) = runPipeCtrl2 comp (outReady, ctrlSig, inputStream)
      in bundle (outStream, inReady)
 
 --------------------------------------------------------------------------------
