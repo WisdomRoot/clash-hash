@@ -2,19 +2,18 @@
 
 module Test.SampleNTT (spec, specL2, specL4, specL6) where
 
-import AXI4Stream (AXI4Stream (..), Pipe)
+import AXI4Stream (Pipe)
 import Clash.Prelude (BitVector, System, clockGen, enableGen, resetGen, withClockResetEnable, (++#))
 import Component.SampleNTT qualified as SampleNTT
 import Component.SampleNTT4 qualified as SampleNTT4
 import Component.SampleNTT6 qualified as SampleNTT6
-import Component.XOF6 qualified as XOF6
 import Data.ByteString (ByteString)
 import Data.Foldable (for_)
 import Data.List qualified as L
 import Data.Maybe (catMaybes, isJust)
 import Data.Word (Word16)
 import Stream
-import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (forAll, withMaxSuccess)
 import Test.TestHarness.SampleNTT.Common
   ( ShakeTest (..),
@@ -36,7 +35,7 @@ specL2 :: Spec
 specL2 = sampleNTTSpec "SN-O24-L2" 2 5 i272o24l2AsPipe
 
 specL4 :: Spec
-specL4 = sampleNTTSpecL4 "SN-O24-L4"
+specL4 = sampleNTTSpec "SN-O24-L4" 4 7 i272o24l4AsPipe
 
 specL6 :: Spec
 specL6 = sampleNTTSpec "SN-O24-L6" 6 9 i272o24l6AsPipe
@@ -45,28 +44,13 @@ i272o24l2AsPipe :: Pipe System 272 24
 i272o24l2AsPipe args =
   withClockResetEnable clockGen resetGen enableGen (SampleNTT.i272o24l2Core args)
 
+i272o24l4AsPipe :: Pipe System 272 24
+i272o24l4AsPipe args =
+  withClockResetEnable clockGen resetGen enableGen (SampleNTT4.i272o24l4Core args)
+
 i272o24l6AsPipe :: Pipe System 272 24
 i272o24l6AsPipe args =
   withClockResetEnable clockGen resetGen enableGen (SampleNTT6.i272o24l6Core args)
-
-sampleNTTSpecL4 :: P.String -> Spec
-sampleNTTSpecL4 name =
-  describe name $ do
-    describe "Basic functionality tests (34-byte seeds)" $
-      for_ Samples.basicSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
-    describe "Upstream stall handling (34-byte seeds)" $
-      for_ Samples.stallSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
-    describe "Downstream backpressure handling (34-byte seeds)" $
-      for_ Samples.backpressureSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
-    describe "Combined stress tests (34-byte seeds)" $
-      for_ Samples.combinedSeedCases $ \testCase ->
-        it (testLabel testCase) $ runStepTestWith (simulate 4 7) testCase
-    describe "QuickCheck property tests (34-byte seeds)" $
-      it "correctly handles random 34-byte test cases" $
-        withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runStepTestWith (simulate 4 7))
 
 sampleNTTSpec ::
   P.String ->
@@ -115,92 +99,6 @@ runPipeTestWith expectedFn pipeEntity testCase =
       simulateCase inputTiming' backpressureTiming' =
         expectedFn seed backpressureTiming' inputTiming'
    in runPipeInputExact pipeEntity simulateCase inputTiming backpressureTiming
-
-runStepTestWith ::
-  (ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24) ->
-  ShakeTest ->
-  P.IO ()
-runStepTestWith expectedFn testCase =
-  let seed = testMessage testCase
-      holdCycles =
-        case testUpstreamStall testCase of
-          NoUpstreamStall -> 0
-          UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
-      inputTiming =
-        if holdCycles P.== 0
-          then [Input [bsToBV272Normal seed]]
-          else [Hold holdCycles, Input [bsToBV272Normal seed]]
-      bpPattern = backpressurePattern (testDownstreamBackpressure testCase)
-      backpressureTiming =
-        [ if b then Ready (P.length grp) else Backpress (P.length grp)
-          | grp@(b : _) <- L.group bpPattern
-        ]
-      expectedBase = expandOutputTiming (expectedFn seed backpressureTiming inputTiming)
-      readyPattern = expandBackpressureTiming backpressureTiming
-      readyStream = case readyPattern of
-        [] -> P.repeat P.True
-        _ -> P.cycle readyPattern
-      actual = simulateL4DUT (P.length expectedBase) (P.fst (expandInputTiming inputTiming)) readyStream
-   in actual `shouldBe` expectedBase
-
-simulateL4DUT ::
-  P.Int ->
-  [Maybe (BitVector 272)] ->
-  [P.Bool] ->
-  [Maybe (BitVector 24)]
-simulateL4DUT sampleLen inputPattern readyStream =
-  go sampleLen annotatedInputs readyStream (XOF6.State XOF6.Absorb 0) SampleNTT4.Buffer0 (SampleNTT4.PairCount 0)
-  where
-    lastJustIdx =
-      case [i | (i, Just _) <- P.zip ([0 ..] :: [P.Int]) inputPattern] of
-        [] -> Nothing
-        xs -> Just (P.last xs)
-
-    annotatedInputs =
-      P.zipWith
-        (\i mv -> P.fmap (\v -> (v, Just i P.== lastJustIdx)) mv)
-        ([0 ..] :: [P.Int])
-        inputPattern
-
-    go 0 _ _ _ _ _ = []
-    go _ _ [] _ _ _ = P.error "Test.SampleNTT.simulateL4DUT: empty ready stream"
-    go n inputs (coeffReady : restReady) xofState lookState takeState =
-      let inputBeat = currentInputBeat inputs
-          (_xofStallState, (_seedReady, candidateStream)) = XOF6.step xofState (P.False, inputBeat)
-          (lookStateFalse, (xofReadyFalse, coeffStreamFalse)) =
-            SampleNTT4.stepLookahead4 lookState (P.False, candidateStream)
-          (_, (midReadyFalse, _)) =
-            SampleNTT4.stepTake128 takeState (coeffReady, coeffStreamFalse)
-          (lookStateTrue, (xofReadyTrue, coeffStreamTrue)) =
-            SampleNTT4.stepLookahead4 lookState (P.True, candidateStream)
-          (_, (midReadyTrue, _)) =
-            SampleNTT4.stepTake128 takeState (coeffReady, coeffStreamTrue)
-          (_midReady, lookState', xofReady, coeffStream) =
-            if midReadyFalse P.== P.False
-              then (P.False, lookStateFalse, xofReadyFalse, coeffStreamFalse)
-              else
-                if midReadyTrue P.== P.True
-                  then (P.True, lookStateTrue, xofReadyTrue, coeffStreamTrue)
-                  else P.error "Test.SampleNTT.simulateL4DUT: no ready fixed point"
-          (takeState', (_, outStream)) =
-            SampleNTT4.stepTake128 takeState (coeffReady, coeffStream)
-          (xofState', (seedReady', _)) =
-            XOF6.step xofState (xofReady, inputBeat)
-          inputs' = advanceInputs seedReady' inputs
-          outBeat =
-            if tvalid outStream P.&& coeffReady
-              then P.Just (tdata outStream)
-              else P.Nothing
-       in outBeat : go (n P.- 1) inputs' restReady xofState' lookState' takeState'
-
-    currentInputBeat [] = AXI4Stream 0 P.False P.False
-    currentInputBeat (P.Nothing : _) = AXI4Stream 0 P.False P.False
-    currentInputBeat (P.Just (v, isLast) : _) = AXI4Stream v P.True isLast
-
-    advanceInputs _ [] = []
-    advanceInputs _ (P.Nothing : rest) = rest
-    advanceInputs seedReady inputs@(P.Just _ : rest) =
-      if seedReady then rest else inputs
 
 simulate :: P.Int -> P.Int -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
 simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =

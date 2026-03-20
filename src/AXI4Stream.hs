@@ -9,11 +9,11 @@ module AXI4Stream
     Master,
     Slave,
     Pipe,
-    Pipe2,
     PipeCtrl,
+    composeSteps,
+    mealyCompose,
     (~>),
     toDUT,
-    toDUT2,
     toDUTCtrl,
     idleAXI4Stream,
     validBeat,
@@ -95,12 +95,6 @@ type Pipe dom a b =
   (Signal dom Bool, Signal dom (AXI4Stream a)) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
--- | Bundled pipe form used by modules that naturally operate on the
--- first-order DUT shape.
-type Pipe2 dom a b =
-  Signal dom (AXI4Stream a, Bool) ->
-  Signal dom (AXI4Stream b, Bool)
-
 -- | Pipe with an additional control sideband sampled alongside the input stream.
 -- Tuple order follows step style: downstream ready, control, upstream stream.
 type PipeCtrl dom c a b =
@@ -109,6 +103,36 @@ type PipeCtrl dom c a b =
     Signal dom (AXI4Stream a)
   ) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
+
+composeSteps ::
+  (s1 -> (Bool, AXI4Stream a) -> (s1, (Bool, AXI4Stream b))) ->
+  (s2 -> (Bool, AXI4Stream b) -> (s2, (Bool, AXI4Stream c))) ->
+  (s1, s2) ->
+  (Bool, AXI4Stream a) ->
+  ((s1, s2), (Bool, AXI4Stream c))
+composeSteps stepAB stepBC (stateAB, stateBC) (outReady, inStream) =
+  let (stateABFalse, (inReadyFalse, midStreamFalse)) = stepAB stateAB (False, inStream)
+      (stateBCFalse, (midReadyFalse, outStreamFalse)) = stepBC stateBC (outReady, midStreamFalse)
+   in if not midReadyFalse
+        then ((stateABFalse, stateBCFalse), (inReadyFalse, outStreamFalse))
+        else
+          let (stateABTrue, (inReadyTrue, midStreamTrue)) = stepAB stateAB (True, inStream)
+              (stateBCTrue, (midReadyTrue, outStreamTrue)) = stepBC stateBC (outReady, midStreamTrue)
+           in if midReadyTrue
+                then ((stateABTrue, stateBCTrue), (inReadyTrue, outStreamTrue))
+                else error "AXI4Stream.composeSteps: no ready fixed point"
+{-# INLINE composeSteps #-}
+
+mealyCompose ::
+  (HiddenClockResetEnable dom, NFDataX s1, NFDataX s2) =>
+  (s1 -> (Bool, AXI4Stream a) -> (s1, (Bool, AXI4Stream b))) ->
+  s1 ->
+  (s2 -> (Bool, AXI4Stream b) -> (s2, (Bool, AXI4Stream c))) ->
+  s2 ->
+  Pipe dom a c
+mealyCompose stepAB initAB stepBC initBC (outReady, inStream) =
+  mealyB (composeSteps stepAB stepBC) (initAB, initBC) (outReady, inStream)
+{-# INLINE mealyCompose #-}
 
 -- | Compose two stream stages, tying the intermediate @tready@ feedback loop.
 --
@@ -146,18 +170,6 @@ toDUT comp clk rst en inputSig =
     let (inputStream, outReady) = unbundle inputSig
         (inReady, outStream) = comp (outReady, inputStream)
      in bundle (outStream, inReady)
-
--- | Adapt a component already written in bundled DUT shape.
-toDUT2 ::
-  KnownDomain dom =>
-  (HiddenClockResetEnable dom => Pipe2 dom a b) ->
-  Clock dom ->
-  Reset dom ->
-  Enable dom ->
-  Signal dom (AXI4Stream a, Bool) ->
-  Signal dom (AXI4Stream b, Bool)
-toDUT2 comp clk rst en inputSig =
-  withClockResetEnable clk rst en (comp inputSig)
 
 -- | Adapt a component expressed as @PipeCtrl dom c a b@ into a first-order
 -- top-entity shape with explicit downstream @tready@ and input-side control.

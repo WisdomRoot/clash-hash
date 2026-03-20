@@ -1,3 +1,5 @@
+{-# LANGUAGE DerivingStrategies #-}
+
 module Component.SampleNTT4
   ( Buffer (..),
     PairCount (..),
@@ -35,7 +37,8 @@ data Candidates
   deriving (Show, Eq, Generic, NFDataX)
 
 newtype PairCount = PairCount (Unsigned 8)
-  deriving (Show, Eq, Generic, NFDataX)
+  deriving stock (Show, Eq, Generic)
+  deriving anyclass (NFDataX)
 
 pushCandidate :: Candidates -> BitVector 12 -> Candidates
 pushCandidate Valid0 c0 = Valid1 c0
@@ -174,17 +177,15 @@ stepTake128 (PairCount count) (coeffReady, coeffStream)
   | otherwise = (PairCount count, (coeffReady, idleAXI4Stream))
 {-# INLINE stepTake128 #-}
 
-take128 ::
-  HiddenClockResetEnable dom =>
-  Pipe dom 24 24
-take128 (coeffReady, coeffStream) =
-  mealyB stepTake128 (PairCount 0) (coeffReady, coeffStream)
-{-# INLINE take128 #-}
-
 i272o24l4Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
-i272o24l4Core = XOF6.i272o72Core ~> lookahead4 ~> take128
+i272o24l4Core =
+  mealyCompose
+    (composeSteps XOF6.step stepLookahead4)
+    (XOF6.State XOF6.Absorb 0, Buffer0)
+    stepTake128
+    (PairCount 0)
 {-# INLINE i272o24l4Core #-}
 
 {-# ANN
