@@ -2,7 +2,7 @@
 
 module Test.SampleNTT (spec, specL2, specL4, specL6) where
 
-import AXI4Stream (Pipe)
+import AXI4Stream (Pipe, Pipe2)
 import Clash.Prelude (BitVector, System, clockGen, enableGen, resetGen, withClockResetEnable, (++#))
 import Component.SampleNTT qualified as SampleNTT
 import Component.SampleNTT4 qualified as SampleNTT4
@@ -35,7 +35,7 @@ specL2 :: Spec
 specL2 = sampleNTTSpec "SN-O24-L2" 2 5 i272o24l2AsPipe
 
 specL4 :: Spec
-specL4 = sampleNTTSpec "SN-O24-L4" 4 7 i272o24l4AsPipe
+specL4 = sampleNTTSpec2 "SN-O24-L4" 4 7 SampleNTT4.i272o24l4Core
 
 specL6 :: Spec
 specL6 = sampleNTTSpec "SN-O24-L6" 6 9 i272o24l6AsPipe
@@ -43,10 +43,6 @@ specL6 = sampleNTTSpec "SN-O24-L6" 6 9 i272o24l6AsPipe
 i272o24l2AsPipe :: Pipe System 272 24
 i272o24l2AsPipe args =
   withClockResetEnable clockGen resetGen enableGen (SampleNTT.i272o24l2Core args)
-
-i272o24l4AsPipe :: Pipe System 272 24
-i272o24l4AsPipe args =
-  withClockResetEnable clockGen resetGen enableGen (SampleNTT4.i272o24l4Core args)
 
 i272o24l6AsPipe :: Pipe System 272 24
 i272o24l6AsPipe args =
@@ -99,6 +95,54 @@ runPipeTestWith expectedFn pipeEntity testCase =
       simulateCase inputTiming' backpressureTiming' =
         expectedFn seed backpressureTiming' inputTiming'
    in runPipeInputExact pipeEntity simulateCase inputTiming backpressureTiming
+
+sampleNTTSpec2 ::
+  P.String ->
+  P.Int ->
+  P.Int ->
+  Pipe2 System 272 24 ->
+  Spec
+sampleNTTSpec2 name lookaheadCount bufferSize pipeEntity =
+  describe name $ do
+    describe "Basic functionality tests (34-byte seeds)" $
+      for_ Samples.basicSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipe2TestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
+    describe "Upstream stall handling (34-byte seeds)" $
+      for_ Samples.stallSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipe2TestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
+    describe "Downstream backpressure handling (34-byte seeds)" $
+      for_ Samples.backpressureSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipe2TestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
+    describe "Combined stress tests (34-byte seeds)" $
+      for_ Samples.combinedSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipe2TestWith (simulate lookaheadCount bufferSize) pipeEntity testCase
+    describe "QuickCheck property tests (34-byte seeds)" $
+      it "correctly handles random 34-byte test cases" $
+        withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runPipe2TestWith (simulate lookaheadCount bufferSize) pipeEntity)
+
+runPipe2TestWith ::
+  (ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24) ->
+  Pipe2 System 272 24 ->
+  ShakeTest ->
+  P.IO ()
+runPipe2TestWith expectedFn pipeEntity testCase =
+  let seed = testMessage testCase
+      holdCycles =
+        case testUpstreamStall testCase of
+          NoUpstreamStall -> 0
+          UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
+      inputTiming =
+        if holdCycles P.== 0
+          then [Input [bsToBV272Normal seed]]
+          else [Hold holdCycles, Input [bsToBV272Normal seed]]
+      bpPattern = backpressurePattern (testDownstreamBackpressure testCase)
+      backpressureTiming =
+        [ if b then Ready (P.length grp) else Backpress (P.length grp)
+          | grp@(b : _) <- L.group bpPattern
+        ]
+      simulateCase inputTiming' backpressureTiming' =
+        expectedFn seed backpressureTiming' inputTiming'
+   in runPipe2InputExact pipeEntity simulateCase inputTiming backpressureTiming
 
 simulate :: P.Int -> P.Int -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
 simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =

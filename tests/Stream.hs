@@ -20,6 +20,8 @@ module Stream
     runStreamInput,
     runPipeInput,
     runPipeInputExact,
+    runPipe2Input,
+    runPipe2InputExact,
     runPipeCtrlInput,
     toBV,
     bvToBS,
@@ -27,7 +29,7 @@ module Stream
   )
 where
 
-import AXI4Stream (AXI4Stream (..), Pipe, PipeCtrl)
+import AXI4Stream (AXI4Stream (..), Pipe, Pipe2, PipeCtrl, runPipe2)
 import Clash.Prelude (Bit, BitVector, Clock, Enable, KnownNat, NFDataX, Reset, Signal, System, bundle, clockGen, enableGen, fromList, natToNum, register, resetGen, sampleN, withClockResetEnable)
 import Data.Bits (setBit, testBit)
 import Data.ByteString (ByteString)
@@ -229,6 +231,36 @@ runPipeInput pipeEntity simulate inputTiming backpressureTiming = do
       actual = drop 1 actualAll
   actual `shouldBe` expectedBase
 
+runPipe2Input ::
+  (KnownNat n, KnownNat m) =>
+  Pipe2 System n m ->
+  (InputTiming n -> OutputTiming m) ->
+  InputTiming n ->
+  BackpressureTiming ->
+  IO ()
+runPipe2Input pipeEntity simulate inputTiming backpressureTiming = do
+  let base = expandOutputTiming (simulate inputTiming)
+      expectedHandshakes = length [() | Just _ <- base]
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> repeat True
+        _ -> cycle readyPattern
+      expectedBase = applyBackpressureUntil expectedHandshakes base readyStream
+      (inputPattern, _inputValues) = expandInputTiming inputTiming
+      treadySignal = fromList (True : readyStream)
+      output =
+        withClockResetEnable clockGen resetGen enableGen $
+          let inputSignal = driveInput inputPattern inReady
+              (inReady, outStream) = runPipe2 pipeEntity (treadySignal, inputSignal)
+           in bundle (outStream, inReady)
+      samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
+      actualAll =
+        [ if tvalid stream && ready then Just (tdata stream) else Nothing
+          | ((stream, _), ready) <- samples
+        ]
+      actual = drop 1 actualAll
+  actual `shouldBe` expectedBase
+
 runPipeInputExact ::
   (KnownNat n, KnownNat m) =>
   Pipe System n m ->
@@ -248,6 +280,34 @@ runPipeInputExact pipeEntity simulate inputTiming backpressureTiming = do
         let inputSignal = driveInput inputPattern inReady
             (inReady, outStream) = pipeEntity (treadySignal, inputSignal)
          in bundle (outStream, inReady)
+      samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
+      actualAll =
+        [ if tvalid stream && ready then Just (tdata stream) else Nothing
+          | ((stream, _), ready) <- samples
+        ]
+      actual = drop 1 actualAll
+  actual `shouldBe` expectedBase
+
+runPipe2InputExact ::
+  (KnownNat n, KnownNat m) =>
+  Pipe2 System n m ->
+  (InputTiming n -> BackpressureTiming -> OutputTiming m) ->
+  InputTiming n ->
+  BackpressureTiming ->
+  IO ()
+runPipe2InputExact pipeEntity simulate inputTiming backpressureTiming = do
+  let expectedBase = expandOutputTiming (simulate inputTiming backpressureTiming)
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> repeat True
+        _ -> cycle readyPattern
+      (inputPattern, _inputValues) = expandInputTiming inputTiming
+      treadySignal = fromList (True : readyStream)
+      output =
+        withClockResetEnable clockGen resetGen enableGen $
+          let inputSignal = driveInput inputPattern inReady
+              (inReady, outStream) = runPipe2 pipeEntity (treadySignal, inputSignal)
+           in bundle (outStream, inReady)
       samples = sampleN @System (length expectedBase + 1) (bundle (output, treadySignal))
       actualAll =
         [ if tvalid stream && ready then Just (tdata stream) else Nothing

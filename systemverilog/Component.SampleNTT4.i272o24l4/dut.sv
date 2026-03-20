@@ -19,121 +19,62 @@ module dut
     , output logic COEFF_TLAST
     , output logic SEED_TREADY
     );
-  logic [86:0] c$ds_app_arg = {3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-  dut_types::State c$ds5_app_arg = {{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
-  logic [7:0] c$ds_app_arg_0 = 8'd0;
-  logic [7:0] c$app_arg;
-  dut_types::Tuple2_2 c$case_alt;
-  dut_types::Tuple2_2 c$case_alt_0;
-  logic coeffReady;
-  dut_types::AXI4Stream coeffStream;
+  dut_types::Tuple2_2 c$app_arg = {{{{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+  ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000}
+ ,{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
+,8'd0};
   dut_types::Tuple2_3 result_0;
-  dut_types::Tuple2_3 c$case_alt_1;
-  logic msgValid;
-  logic [1599:0] result_1;
-  logic [1599:0] c$app_arg_0;
-  logic [1599:0] result_2;
-  logic [1599:0] c$app_arg_1;
-  logic [1599:0] result_3;
-  logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_4;
-  logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_5;
-  logic [1599:0] c$app_arg_4;
-  logic [1599:0] result_6;
-  logic [1599:0] c$app_arg_5;
-  logic [271:0] inputMsg;
-  dut_types::Tuple2_3 result_7;
-  dut_types::State result_8;
-  logic [47:0] carry48;
-  logic [23:0] carry24;
-  logic [56:0] c$app_arg_6;
-  logic [47:0] carry48_0;
-  logic [23:0] carry24_0;
-  logic [4:0] c$app_arg_7;
-  logic [1599:0] c$keccakF1600_out;
-  dut_types::Tuple2_3 result_9;
-  logic tready;
-  logic [4:0] c$step_stepPermute_arg5;
-  logic [4:0] counter;
-  logic [4:0] counter_0;
-  logic [4:0] counter_1;
-  dut_types::Tuple2_4 c$step_stepSqueeze_tupIn;
-  dut_types::State c$step_stepSqueeze_tupIn_app_arg;
-  logic [71:0] result_10;
-  logic [71:0] c$case_alt_2;
-  logic [71:0] c$case_alt_3;
-  logic [71:0] c$case_alt_4;
-  logic [71:0] c$case_alt_5;
-  logic [71:0] c$case_alt_6;
-  logic [71:0] c$case_alt_7;
-  logic [71:0] c$case_alt_8;
-  logic [71:0] c$case_alt_9;
-  logic [71:0] c$case_alt_10;
-  logic [71:0] c$case_alt_11;
-  logic [71:0] c$case_alt_12;
-  logic [71:0] c$case_alt_13;
-  logic [71:0] c$case_alt_14;
-  logic [71:0] c$case_alt_15;
-  logic [71:0] c$case_alt_16;
-  logic [71:0] c$case_alt_17;
-  logic [71:0] c$case_alt_18;
-  logic [1599:0] c$app_arg_8;
-  logic [4:0] counter_2;
-  logic [47:0] carry48_1;
-  dut_types::State c$step_stepSqueeze_tupIn_app_arg_0;
-  logic [71:0] result_11;
-  logic [71:0] c$case_alt_19;
-  logic [71:0] c$case_alt_20;
-  logic [71:0] c$case_alt_21;
-  logic [71:0] c$case_alt_22;
-  logic [71:0] c$case_alt_23;
-  logic [71:0] c$case_alt_24;
-  logic [71:0] c$case_alt_25;
-  logic [71:0] c$case_alt_26;
-  logic [71:0] c$case_alt_27;
-  logic [71:0] c$case_alt_28;
-  logic [71:0] c$case_alt_29;
-  logic [71:0] c$case_alt_30;
-  logic [71:0] c$case_alt_31;
-  logic [71:0] c$case_alt_32;
-  logic [71:0] c$case_alt_33;
-  logic [71:0] c$case_alt_34;
-  logic [71:0] c$case_alt_35;
-  logic [1599:0] c$app_arg_9;
-  logic [4:0] counter_3;
-  logic [23:0] carry24_1;
-  dut_types::State c$step_stepSqueeze_tupIn_app_arg_1;
-  logic [1599:0] c$step_stepSqueeze_tupIn_app_arg_2;
-  logic [71:0] result_12;
-  logic [71:0] c$case_alt_36;
-  logic [71:0] c$case_alt_37;
-  logic [71:0] c$case_alt_38;
-  logic [71:0] c$case_alt_39;
-  logic [71:0] c$case_alt_40;
-  logic [71:0] c$case_alt_41;
-  logic [71:0] c$case_alt_42;
-  logic [71:0] c$case_alt_43;
-  logic [71:0] c$case_alt_44;
-  logic [71:0] c$case_alt_45;
-  logic [71:0] c$case_alt_46;
-  logic [71:0] c$case_alt_47;
-  logic [71:0] c$case_alt_48;
-  logic [71:0] c$case_alt_49;
-  logic [71:0] c$case_alt_50;
-  logic [71:0] c$case_alt_51;
-  logic [71:0] c$case_alt_52;
-  logic [1599:0] c$app_arg_10;
-  logic [4:0] counter_4;
-  logic [56:0] phase;
-  logic [1599:0] state;
-  dut_types::Tuple2_5 result_13;
-  dut_types::Tuple2_5 c$case_alt_53;
-  dut_types::Tuple2_5 c$case_alt_54;
-  dut_types::Tuple2_5 c$case_alt_55;
-  dut_types::Tuple2_5 result_14;
-  dut_types::Tuple2_6 ds1;
+  dut_types::Tuple2_3 c$case_alt;
+  logic midReadyTrue;
+  dut_types::AXI4Stream outStreamTrue;
+  logic [7:0] stateBCTrue;
+  dut_types::Tuple2_4 c$case_scrut;
+  dut_types::Tuple2_4 c$case_alt_0;
+  dut_types::AXI4Stream midStreamTrue;
+  logic inReadyTrue;
+  dut_types::Tuple2_5 stateABTrue;
+  dut_types::Tuple2_6 result_1;
+  dut_types::Tuple2_6 c$case_alt_1;
+  logic midReadyTrue_0;
+  dut_types::AXI4Stream outStreamTrue_0;
+  logic [86:0] stateBCTrue_0;
+  dut_types::Tuple2_7 result_2;
+  dut_types::Tuple2_7 c$case_alt_2;
+  dut_types::Tuple2_7 c$case_alt_3;
+  dut_types::Tuple2_7 c$case_alt_4;
+  dut_types::Tuple2_7 result_3;
+  dut_types::Tuple2_7 c$case_alt_5;
+  dut_types::Tuple2_7 c$case_alt_6;
+  logic [11:0] b0;
+  logic [11:0] c1;
+  logic [11:0] c0;
+  logic [11:0] c5;
+  logic [11:0] c4;
+  logic [11:0] c3;
+  logic [11:0] c2;
+  logic [11:0] c1_0;
+  logic [11:0] c0_0;
+  logic [11:0] c4_0;
+  logic [11:0] c3_0;
+  logic [11:0] c2_0;
+  logic [11:0] c1_1;
+  logic [11:0] c0_1;
+  logic [11:0] c3_1;
+  logic [11:0] c2_1;
+  logic [11:0] c1_2;
+  logic [11:0] c0_2;
+  logic [11:0] c2_2;
+  logic [11:0] c1_3;
+  logic [11:0] c0_3;
+  logic [11:0] c0_4;
+  dut_types::AXI4Stream outStreamFalse;
+  logic midReadyFalse;
+  logic [86:0] stateBCFalse;
+  dut_types::Tuple2_7 result_4;
+  dut_types::Tuple2_7 c$ds1_case_alt;
+  dut_types::Tuple2_7 c$ds1_case_alt_0;
+  dut_types::Tuple2_7 c$ds1_case_alt_1;
+  dut_types::Tuple2_8 ds1;
   logic [11:0] g;
   logic [11:0] f;
   logic [11:0] e;
@@ -161,64 +102,51 @@ module dut
   logic [11:0] a_3;
   logic [11:0] b_4;
   logic [11:0] a_4;
-  dut_types::Tuple2_5 result_15;
-  dut_types::Tuple2_5 c$case_alt_56;
-  dut_types::Tuple2_5 c$case_alt_57;
-  dut_types::Tuple2_5 c$case_alt_58;
-  dut_types::Tuple2_5 c$case_alt_59;
-  dut_types::Tuple2_5 c$case_alt_60;
-  dut_types::Tuple2_5 c$case_alt_61;
-  dut_types::Tuple2_5 c$case_alt_62;
-  dut_types::Tuple2_5 c$case_alt_63;
-  logic [11:0] b0;
-  dut_types::Tuple2_5 c$case_alt_64;
-  dut_types::Tuple2_5 c$case_alt_65;
-  dut_types::Tuple2_5 c$case_alt_66;
-  dut_types::Tuple2_5 c$case_alt_67;
-  dut_types::Tuple2_5 c$case_alt_68;
-  logic [11:0] c5;
-  logic [11:0] c4;
-  logic [11:0] c3;
-  logic [11:0] c2;
-  logic [11:0] c1;
-  logic [11:0] c0;
-  logic [11:0] c4_0;
-  logic [11:0] c3_0;
-  logic [11:0] c2_0;
-  logic [11:0] c1_0;
-  logic [11:0] c0_0;
-  logic [11:0] c3_1;
-  logic [11:0] c2_1;
-  logic [11:0] c1_1;
-  logic [11:0] c0_1;
-  logic [11:0] c2_2;
-  logic [11:0] c1_2;
-  logic [11:0] c0_2;
-  logic [11:0] c1_3;
-  logic [11:0] c0_3;
-  logic [11:0] c0_4;
-  logic coeffReady_0;
-  dut_types::Tuple2_7 c$stepLookahead4_consumeChunk_tupIn;
+  dut_types::Tuple2_7 result_5;
+  dut_types::Tuple2_7 c$case_alt_7;
+  dut_types::Tuple2_7 c$case_alt_8;
   logic [11:0] b0_0;
-  logic [74:0] result_16;
   logic [11:0] c1_4;
-  logic [11:0] c1_5;
-  logic [11:0] c2_3;
-  logic [11:0] c1_6;
-  logic [11:0] c2_4;
-  logic [11:0] c3_2;
-  logic [11:0] c1_7;
-  logic [11:0] c2_5;
-  logic [11:0] c3_3;
-  logic [11:0] c4_1;
-  logic [11:0] c1_8;
-  logic [11:0] c2_6;
-  logic [11:0] c3_4;
-  logic [11:0] c4_2;
+  logic [11:0] c0_5;
   logic [11:0] c5_0;
-  logic [74:0] result_17;
-  logic [74:0] valid4;
+  logic [11:0] c4_1;
+  logic [11:0] c3_2;
+  logic [11:0] c2_3;
+  logic [11:0] c1_5;
+  logic [11:0] c0_6;
+  logic [11:0] c4_2;
+  logic [11:0] c3_3;
+  logic [11:0] c2_4;
+  logic [11:0] c1_6;
+  logic [11:0] c0_7;
+  logic [11:0] c3_4;
+  logic [11:0] c2_5;
+  logic [11:0] c1_7;
+  logic [11:0] c0_8;
+  logic [11:0] c2_6;
+  logic [11:0] c1_8;
+  logic [11:0] c0_9;
+  logic [11:0] c0_10;
+  dut_types::Tuple2_9 c$stepLookahead4_consumeChunk_tupIn;
+  logic [74:0] result_6;
+  logic [11:0] c1_9;
+  logic [11:0] c1_10;
+  logic [11:0] c2_7;
+  logic [11:0] c1_11;
+  logic [11:0] c2_8;
+  logic [11:0] c3_5;
+  logic [11:0] c1_12;
+  logic [11:0] c2_9;
+  logic [11:0] c3_6;
+  logic [11:0] c4_3;
+  logic [11:0] c1_13;
+  logic [11:0] c2_10;
+  logic [11:0] c3_7;
+  logic [11:0] c4_4;
   logic [11:0] c5_1;
+  logic [74:0] result_7;
+  logic [74:0] valid4;
+  logic [11:0] c5_2;
   logic [74:0] c$valid4_case_alt;
   logic [11:0] c11;
   logic [11:0] c10;
@@ -236,7 +164,7 @@ module dut
   logic [11:0] c7_2;
   logic [11:0] c7_3;
   logic [74:0] valid3;
-  logic [11:0] c4_3;
+  logic [11:0] c4_5;
   logic [74:0] c$valid3_case_alt;
   logic [11:0] c11_0;
   logic [11:0] c10_1;
@@ -254,7 +182,7 @@ module dut
   logic [11:0] c7_7;
   logic [11:0] c7_8;
   logic [74:0] valid2;
-  logic [11:0] c3_5;
+  logic [11:0] c3_8;
   logic [74:0] c$valid2_case_alt;
   logic [11:0] c11_1;
   logic [11:0] c10_3;
@@ -272,7 +200,7 @@ module dut
   logic [11:0] c7_12;
   logic [11:0] c7_13;
   logic [74:0] valid1;
-  logic [11:0] c2_7;
+  logic [11:0] c2_11;
   logic [74:0] c$valid1_case_alt;
   logic [11:0] c11_2;
   logic [11:0] c10_5;
@@ -290,15 +218,634 @@ module dut
   logic [11:0] c7_17;
   logic [11:0] c7_18;
   logic [74:0] valid0;
-  logic [11:0] c1_9;
-  logic [11:0] c0_5;
+  logic [11:0] c1_14;
+  logic [11:0] c0_11;
   logic [71:0] c$c5_app_arg;
-  dut_types::AXI4Stream_0 candidateStream;
-  dut_types::Tuple2_8 c$arg;
-  logic [86:0] result_selection_10;
-  logic [74:0] c$case_alt_selection_60;
-  logic [74:0] c$case_alt_selection_63;
-  dut_types::Tuple2_9 result;
+  dut_types::State stateABTrue_0;
+  dut_types::AXI4Stream_0 midStreamTrue_0;
+  logic inReadyTrue_0;
+  dut_types::Tuple2_10 result_8;
+  dut_types::Tuple2_10 result_9;
+  dut_types::Tuple2_9 c$stepLookahead4_consumeChunk_tupIn_0;
+  logic [11:0] b0_1;
+  logic [74:0] result_10;
+  logic [11:0] c1_15;
+  logic [11:0] c1_16;
+  logic [11:0] c2_12;
+  logic [11:0] c1_17;
+  logic [11:0] c2_13;
+  logic [11:0] c3_9;
+  logic [11:0] c1_18;
+  logic [11:0] c2_14;
+  logic [11:0] c3_10;
+  logic [11:0] c4_6;
+  logic [11:0] c1_19;
+  logic [11:0] c2_15;
+  logic [11:0] c3_11;
+  logic [11:0] c4_7;
+  logic [11:0] c5_3;
+  logic [74:0] result_11;
+  logic [74:0] valid4_0;
+  logic [11:0] c5_4;
+  logic [74:0] c$valid4_case_alt_0;
+  logic [11:0] c11_3;
+  logic [11:0] c10_7;
+  logic [11:0] c9_11;
+  logic [11:0] c8_15;
+  logic [11:0] c7_19;
+  logic [11:0] c10_8;
+  logic [11:0] c9_12;
+  logic [11:0] c8_16;
+  logic [11:0] c7_20;
+  logic [11:0] c9_13;
+  logic [11:0] c8_17;
+  logic [11:0] c7_21;
+  logic [11:0] c8_18;
+  logic [11:0] c7_22;
+  logic [11:0] c7_23;
+  logic [74:0] valid3_0;
+  logic [11:0] c4_8;
+  logic [74:0] c$valid3_case_alt_0;
+  logic [11:0] c11_4;
+  logic [11:0] c10_9;
+  logic [11:0] c9_14;
+  logic [11:0] c8_19;
+  logic [11:0] c7_24;
+  logic [11:0] c10_10;
+  logic [11:0] c9_15;
+  logic [11:0] c8_20;
+  logic [11:0] c7_25;
+  logic [11:0] c9_16;
+  logic [11:0] c8_21;
+  logic [11:0] c7_26;
+  logic [11:0] c8_22;
+  logic [11:0] c7_27;
+  logic [11:0] c7_28;
+  logic [74:0] valid2_0;
+  logic [11:0] c3_12;
+  logic [74:0] c$valid2_case_alt_0;
+  logic [11:0] c11_5;
+  logic [11:0] c10_11;
+  logic [11:0] c9_17;
+  logic [11:0] c8_23;
+  logic [11:0] c7_29;
+  logic [11:0] c10_12;
+  logic [11:0] c9_18;
+  logic [11:0] c8_24;
+  logic [11:0] c7_30;
+  logic [11:0] c9_19;
+  logic [11:0] c8_25;
+  logic [11:0] c7_31;
+  logic [11:0] c8_26;
+  logic [11:0] c7_32;
+  logic [11:0] c7_33;
+  logic [74:0] valid1_0;
+  logic [11:0] c2_16;
+  logic [74:0] c$valid1_case_alt_0;
+  logic [11:0] c11_6;
+  logic [11:0] c10_13;
+  logic [11:0] c9_20;
+  logic [11:0] c8_27;
+  logic [11:0] c7_34;
+  logic [11:0] c10_14;
+  logic [11:0] c9_21;
+  logic [11:0] c8_28;
+  logic [11:0] c7_35;
+  logic [11:0] c9_22;
+  logic [11:0] c8_29;
+  logic [11:0] c7_36;
+  logic [11:0] c8_30;
+  logic [11:0] c7_37;
+  logic [11:0] c7_38;
+  logic [74:0] valid0_0;
+  logic [11:0] c1_20;
+  logic [11:0] c0_12;
+  logic [71:0] c$c5_app_arg_0;
+  logic [86:0] stateBC;
+  dut_types::AXI4Stream_0 midStreamFalse;
+  logic inReadyFalse;
+  dut_types::State stateABFalse;
+  dut_types::Tuple2_10 result_12;
+  dut_types::Tuple2_10 c$ds_case_alt;
+  logic msgValid;
+  logic [1599:0] result_13;
+  logic [1599:0] c$app_arg_0;
+  logic [1599:0] result_14;
+  logic [1599:0] c$app_arg_1;
+  logic [1599:0] result_15;
+  logic [1599:0] c$app_arg_2;
+  logic [1599:0] result_16;
+  logic [1599:0] c$app_arg_3;
+  logic [1599:0] result_17;
+  logic [1599:0] c$app_arg_4;
+  logic [1599:0] result_18;
+  logic [1599:0] c$app_arg_5;
+  logic [271:0] inputMsg;
+  dut_types::Tuple2_10 result_19;
+  dut_types::State result_20;
+  logic [47:0] carry48;
+  logic [23:0] carry24;
+  logic [56:0] c$app_arg_6;
+  logic [47:0] carry48_0;
+  logic [23:0] carry24_0;
+  logic [4:0] c$app_arg_7;
+  logic [1599:0] c$keccakF1600_out;
+  dut_types::Tuple2_10 result_21;
+  logic [4:0] c$stepLookahead4_stepPermute_arg5;
+  logic [4:0] counter;
+  logic [4:0] counter_0;
+  logic [4:0] counter_1;
+  dut_types::Tuple2_11 c$stepLookahead4_stepSqueeze_tupIn;
+  dut_types::State c$stepLookahead4_stepSqueeze_tupIn_app_arg;
+  logic [71:0] result_22;
+  logic [71:0] c$case_alt_9;
+  logic [71:0] c$case_alt_10;
+  logic [71:0] c$case_alt_11;
+  logic [71:0] c$case_alt_12;
+  logic [71:0] c$case_alt_13;
+  logic [71:0] c$case_alt_14;
+  logic [71:0] c$case_alt_15;
+  logic [71:0] c$case_alt_16;
+  logic [71:0] c$case_alt_17;
+  logic [71:0] c$case_alt_18;
+  logic [71:0] c$case_alt_19;
+  logic [71:0] c$case_alt_20;
+  logic [71:0] c$case_alt_21;
+  logic [71:0] c$case_alt_22;
+  logic [71:0] c$case_alt_23;
+  logic [71:0] c$case_alt_24;
+  logic [71:0] c$case_alt_25;
+  logic [1599:0] c$app_arg_8;
+  logic [4:0] counter_2;
+  logic [47:0] carry48_1;
+  dut_types::State c$stepLookahead4_stepSqueeze_tupIn_app_arg_0;
+  logic [71:0] result_23;
+  logic [71:0] c$case_alt_26;
+  logic [71:0] c$case_alt_27;
+  logic [71:0] c$case_alt_28;
+  logic [71:0] c$case_alt_29;
+  logic [71:0] c$case_alt_30;
+  logic [71:0] c$case_alt_31;
+  logic [71:0] c$case_alt_32;
+  logic [71:0] c$case_alt_33;
+  logic [71:0] c$case_alt_34;
+  logic [71:0] c$case_alt_35;
+  logic [71:0] c$case_alt_36;
+  logic [71:0] c$case_alt_37;
+  logic [71:0] c$case_alt_38;
+  logic [71:0] c$case_alt_39;
+  logic [71:0] c$case_alt_40;
+  logic [71:0] c$case_alt_41;
+  logic [71:0] c$case_alt_42;
+  logic [1599:0] c$app_arg_9;
+  logic [4:0] counter_3;
+  logic [23:0] carry24_1;
+  dut_types::State c$stepLookahead4_stepSqueeze_tupIn_app_arg_1;
+  logic [1599:0] c$stepLookahead4_stepSqueeze_tupIn_app_arg_2;
+  logic [71:0] result_24;
+  logic [71:0] c$case_alt_43;
+  logic [71:0] c$case_alt_44;
+  logic [71:0] c$case_alt_45;
+  logic [71:0] c$case_alt_46;
+  logic [71:0] c$case_alt_47;
+  logic [71:0] c$case_alt_48;
+  logic [71:0] c$case_alt_49;
+  logic [71:0] c$case_alt_50;
+  logic [71:0] c$case_alt_51;
+  logic [71:0] c$case_alt_52;
+  logic [71:0] c$case_alt_53;
+  logic [71:0] c$case_alt_54;
+  logic [71:0] c$case_alt_55;
+  logic [71:0] c$case_alt_56;
+  logic [71:0] c$case_alt_57;
+  logic [71:0] c$case_alt_58;
+  logic [71:0] c$case_alt_59;
+  logic [1599:0] c$app_arg_10;
+  logic [4:0] counter_4;
+  logic [56:0] phase;
+  logic [1599:0] state;
+  dut_types::State stateAB;
+  dut_types::AXI4Stream outStreamFalse_0;
+  logic midReadyFalse_0;
+  logic [7:0] stateBCFalse_0;
+  dut_types::Tuple2_4 c$ds1_case_scrut;
+  logic c$ds1_case_scrut_0;
+  dut_types::Tuple2_4 c$ds1_case_alt_2;
+  logic c$ds1_app_arg;
+  logic [7:0] c$ds1_app_arg_0;
+  logic [7:0] stateBC_0;
+  logic outReady;
+  dut_types::AXI4Stream midStreamFalse_0;
+  logic inReadyFalse_0;
+  dut_types::Tuple2_5 stateABFalse_0;
+  dut_types::Tuple2_6 result_25;
+  dut_types::Tuple2_6 c$case_alt_60;
+  logic midReadyTrue_1;
+  dut_types::AXI4Stream outStreamTrue_1;
+  logic [86:0] stateBCTrue_1;
+  dut_types::Tuple2_7 result_26;
+  dut_types::Tuple2_7 c$case_alt_61;
+  dut_types::Tuple2_7 c$case_alt_62;
+  dut_types::Tuple2_7 c$case_alt_63;
+  dut_types::Tuple2_7 result_27;
+  dut_types::Tuple2_7 c$case_alt_64;
+  dut_types::Tuple2_7 c$case_alt_65;
+  logic [11:0] b0_2;
+  logic [11:0] c5_5;
+  logic [11:0] c4_9;
+  logic [11:0] c3_13;
+  logic [11:0] c2_17;
+  logic [11:0] c1_21;
+  logic [11:0] c0_13;
+  logic [11:0] c4_10;
+  logic [11:0] c3_14;
+  logic [11:0] c2_18;
+  logic [11:0] c1_22;
+  logic [11:0] c0_14;
+  logic [11:0] c3_15;
+  logic [11:0] c2_19;
+  logic [11:0] c1_23;
+  logic [11:0] c0_15;
+  logic [11:0] c2_20;
+  logic [11:0] c1_24;
+  logic [11:0] c0_16;
+  logic [11:0] c1_25;
+  logic [11:0] c0_17;
+  logic [11:0] c0_18;
+  dut_types::AXI4Stream outStreamFalse_1;
+  logic midReadyFalse_1;
+  logic [86:0] stateBCFalse_1;
+  dut_types::Tuple2_7 result_28;
+  dut_types::Tuple2_7 c$ds1_case_alt_3;
+  dut_types::Tuple2_7 c$ds1_case_alt_4;
+  dut_types::Tuple2_7 c$ds1_case_alt_5;
+  dut_types::Tuple2_8 ds1_0;
+  logic [11:0] g_0;
+  logic [11:0] f_1;
+  logic [11:0] e_2;
+  logic [11:0] d_3;
+  logic [11:0] c_4;
+  logic [11:0] b_5;
+  logic [11:0] a_5;
+  logic [11:0] f_2;
+  logic [11:0] e_3;
+  logic [11:0] d_4;
+  logic [11:0] c_5;
+  logic [11:0] b_6;
+  logic [11:0] a_6;
+  logic [11:0] e_4;
+  logic [11:0] d_5;
+  logic [11:0] c_6;
+  logic [11:0] b_7;
+  logic [11:0] a_7;
+  logic [11:0] d_6;
+  logic [11:0] c_7;
+  logic [11:0] b_8;
+  logic [11:0] a_8;
+  logic [11:0] c_8;
+  logic [11:0] b_9;
+  logic [11:0] a_9;
+  logic [11:0] b_10;
+  logic [11:0] a_10;
+  dut_types::Tuple2_7 result_29;
+  dut_types::Tuple2_7 c$case_alt_66;
+  dut_types::Tuple2_7 c$case_alt_67;
+  logic [11:0] b0_3;
+  logic [11:0] c5_6;
+  logic [11:0] c4_11;
+  logic [11:0] c3_16;
+  logic [11:0] c2_21;
+  logic [11:0] c1_26;
+  logic [11:0] c0_19;
+  logic [11:0] c4_12;
+  logic [11:0] c3_17;
+  logic [11:0] c2_22;
+  logic [11:0] c1_27;
+  logic [11:0] c0_20;
+  logic [11:0] c3_18;
+  logic [11:0] c2_23;
+  logic [11:0] c1_28;
+  logic [11:0] c0_21;
+  logic [11:0] c2_24;
+  logic [11:0] c1_29;
+  logic [11:0] c0_22;
+  logic [11:0] c1_30;
+  logic [11:0] c0_23;
+  logic [11:0] c0_24;
+  dut_types::Tuple2_9 c$stepLookahead4_consumeChunk_tupIn_1;
+  logic [74:0] result_30;
+  logic [11:0] c1_31;
+  logic [11:0] c1_32;
+  logic [11:0] c2_25;
+  logic [11:0] c1_33;
+  logic [11:0] c2_26;
+  logic [11:0] c3_19;
+  logic [11:0] c1_34;
+  logic [11:0] c2_27;
+  logic [11:0] c3_20;
+  logic [11:0] c4_13;
+  logic [11:0] c1_35;
+  logic [11:0] c2_28;
+  logic [11:0] c3_21;
+  logic [11:0] c4_14;
+  logic [11:0] c5_7;
+  logic [74:0] result_31;
+  logic [74:0] valid4_1;
+  logic [11:0] c5_8;
+  logic [74:0] c$valid4_case_alt_1;
+  logic [11:0] c11_7;
+  logic [11:0] c10_15;
+  logic [11:0] c9_23;
+  logic [11:0] c8_31;
+  logic [11:0] c7_39;
+  logic [11:0] c10_16;
+  logic [11:0] c9_24;
+  logic [11:0] c8_32;
+  logic [11:0] c7_40;
+  logic [11:0] c9_25;
+  logic [11:0] c8_33;
+  logic [11:0] c7_41;
+  logic [11:0] c8_34;
+  logic [11:0] c7_42;
+  logic [11:0] c7_43;
+  logic [74:0] valid3_1;
+  logic [11:0] c4_15;
+  logic [74:0] c$valid3_case_alt_1;
+  logic [11:0] c11_8;
+  logic [11:0] c10_17;
+  logic [11:0] c9_26;
+  logic [11:0] c8_35;
+  logic [11:0] c7_44;
+  logic [11:0] c10_18;
+  logic [11:0] c9_27;
+  logic [11:0] c8_36;
+  logic [11:0] c7_45;
+  logic [11:0] c9_28;
+  logic [11:0] c8_37;
+  logic [11:0] c7_46;
+  logic [11:0] c8_38;
+  logic [11:0] c7_47;
+  logic [11:0] c7_48;
+  logic [74:0] valid2_1;
+  logic [11:0] c3_22;
+  logic [74:0] c$valid2_case_alt_1;
+  logic [11:0] c11_9;
+  logic [11:0] c10_19;
+  logic [11:0] c9_29;
+  logic [11:0] c8_39;
+  logic [11:0] c7_49;
+  logic [11:0] c10_20;
+  logic [11:0] c9_30;
+  logic [11:0] c8_40;
+  logic [11:0] c7_50;
+  logic [11:0] c9_31;
+  logic [11:0] c8_41;
+  logic [11:0] c7_51;
+  logic [11:0] c8_42;
+  logic [11:0] c7_52;
+  logic [11:0] c7_53;
+  logic [74:0] valid1_1;
+  logic [11:0] c2_29;
+  logic [74:0] c$valid1_case_alt_1;
+  logic [11:0] c11_10;
+  logic [11:0] c10_21;
+  logic [11:0] c9_32;
+  logic [11:0] c8_43;
+  logic [11:0] c7_54;
+  logic [11:0] c10_22;
+  logic [11:0] c9_33;
+  logic [11:0] c8_44;
+  logic [11:0] c7_55;
+  logic [11:0] c9_34;
+  logic [11:0] c8_45;
+  logic [11:0] c7_56;
+  logic [11:0] c8_46;
+  logic [11:0] c7_57;
+  logic [11:0] c7_58;
+  logic [74:0] valid0_1;
+  logic [11:0] c1_36;
+  logic [11:0] c0_25;
+  logic [71:0] c$c5_app_arg_1;
+  dut_types::AXI4Stream_0 midStreamTrue_1;
+  logic inReadyTrue_1;
+  dut_types::State stateABTrue_1;
+  dut_types::Tuple2_10 result_32;
+  dut_types::Tuple2_10 result_33;
+  dut_types::Tuple2_9 c$stepLookahead4_consumeChunk_tupIn_2;
+  logic [11:0] b0_4;
+  logic [74:0] result_34;
+  logic [11:0] c1_37;
+  logic [11:0] c1_38;
+  logic [11:0] c2_30;
+  logic [11:0] c1_39;
+  logic [11:0] c2_31;
+  logic [11:0] c3_23;
+  logic [11:0] c1_40;
+  logic [11:0] c2_32;
+  logic [11:0] c3_24;
+  logic [11:0] c4_16;
+  logic [11:0] c1_41;
+  logic [11:0] c2_33;
+  logic [11:0] c3_25;
+  logic [11:0] c4_17;
+  logic [11:0] c5_9;
+  logic [74:0] result_35;
+  logic [74:0] valid4_2;
+  logic [11:0] c5_10;
+  logic [74:0] c$valid4_case_alt_2;
+  logic [11:0] c11_11;
+  logic [11:0] c10_23;
+  logic [11:0] c9_35;
+  logic [11:0] c8_47;
+  logic [11:0] c7_59;
+  logic [11:0] c10_24;
+  logic [11:0] c9_36;
+  logic [11:0] c8_48;
+  logic [11:0] c7_60;
+  logic [11:0] c9_37;
+  logic [11:0] c8_49;
+  logic [11:0] c7_61;
+  logic [11:0] c8_50;
+  logic [11:0] c7_62;
+  logic [11:0] c7_63;
+  logic [74:0] valid3_2;
+  logic [11:0] c4_18;
+  logic [74:0] c$valid3_case_alt_2;
+  logic [11:0] c11_12;
+  logic [11:0] c10_25;
+  logic [11:0] c9_38;
+  logic [11:0] c8_51;
+  logic [11:0] c7_64;
+  logic [11:0] c10_26;
+  logic [11:0] c9_39;
+  logic [11:0] c8_52;
+  logic [11:0] c7_65;
+  logic [11:0] c9_40;
+  logic [11:0] c8_53;
+  logic [11:0] c7_66;
+  logic [11:0] c8_54;
+  logic [11:0] c7_67;
+  logic [11:0] c7_68;
+  logic [74:0] valid2_2;
+  logic [11:0] c3_26;
+  logic [74:0] c$valid2_case_alt_2;
+  logic [11:0] c11_13;
+  logic [11:0] c10_27;
+  logic [11:0] c9_41;
+  logic [11:0] c8_55;
+  logic [11:0] c7_69;
+  logic [11:0] c10_28;
+  logic [11:0] c9_42;
+  logic [11:0] c8_56;
+  logic [11:0] c7_70;
+  logic [11:0] c9_43;
+  logic [11:0] c8_57;
+  logic [11:0] c7_71;
+  logic [11:0] c8_58;
+  logic [11:0] c7_72;
+  logic [11:0] c7_73;
+  logic [74:0] valid1_2;
+  logic [11:0] c2_34;
+  logic [74:0] c$valid1_case_alt_2;
+  logic [11:0] c11_14;
+  logic [11:0] c10_29;
+  logic [11:0] c9_44;
+  logic [11:0] c8_59;
+  logic [11:0] c7_74;
+  logic [11:0] c10_30;
+  logic [11:0] c9_45;
+  logic [11:0] c8_60;
+  logic [11:0] c7_75;
+  logic [11:0] c9_46;
+  logic [11:0] c8_61;
+  logic [11:0] c7_76;
+  logic [11:0] c8_62;
+  logic [11:0] c7_77;
+  logic [11:0] c7_78;
+  logic [74:0] valid0_2;
+  logic [11:0] c1_42;
+  logic [11:0] c0_26;
+  logic [71:0] c$c5_app_arg_2;
+  logic [86:0] stateBC_1;
+  dut_types::AXI4Stream_0 midStreamFalse_1;
+  logic inReadyFalse_1;
+  dut_types::State stateABFalse_1;
+  dut_types::Tuple2_10 result_36;
+  dut_types::Tuple2_10 c$ds_case_alt_0;
+  logic msgValid_0;
+  logic [1599:0] result_37;
+  logic [1599:0] c$app_arg_11;
+  logic [1599:0] result_38;
+  logic [1599:0] c$app_arg_12;
+  logic [1599:0] result_39;
+  logic [1599:0] c$app_arg_13;
+  logic [1599:0] result_40;
+  logic [1599:0] c$app_arg_14;
+  logic [1599:0] result_41;
+  logic [1599:0] c$app_arg_15;
+  logic [1599:0] result_42;
+  logic [1599:0] c$app_arg_16;
+  logic [271:0] inputMsg_0;
+  dut_types::Tuple2_10 result_43;
+  dut_types::State result_44;
+  logic [47:0] carry48_2;
+  logic [23:0] carry24_2;
+  logic [56:0] c$app_arg_17;
+  logic [47:0] carry48_3;
+  logic [23:0] carry24_3;
+  logic [4:0] c$app_arg_18;
+  logic [1599:0] c$keccakF1600_out_0;
+  dut_types::Tuple2_10 result_45;
+  logic [4:0] c$stepLookahead4_stepPermute_arg5_0;
+  logic [4:0] counter_5;
+  logic [4:0] counter_6;
+  logic [4:0] counter_7;
+  dut_types::Tuple2_11 c$stepLookahead4_stepSqueeze_tupIn_0;
+  dut_types::State c$stepLookahead4_stepSqueeze_tupIn_app_arg_3;
+  logic [71:0] result_46;
+  logic [71:0] c$case_alt_68;
+  logic [71:0] c$case_alt_69;
+  logic [71:0] c$case_alt_70;
+  logic [71:0] c$case_alt_71;
+  logic [71:0] c$case_alt_72;
+  logic [71:0] c$case_alt_73;
+  logic [71:0] c$case_alt_74;
+  logic [71:0] c$case_alt_75;
+  logic [71:0] c$case_alt_76;
+  logic [71:0] c$case_alt_77;
+  logic [71:0] c$case_alt_78;
+  logic [71:0] c$case_alt_79;
+  logic [71:0] c$case_alt_80;
+  logic [71:0] c$case_alt_81;
+  logic [71:0] c$case_alt_82;
+  logic [71:0] c$case_alt_83;
+  logic [71:0] c$case_alt_84;
+  logic [1599:0] c$app_arg_19;
+  logic [4:0] counter_8;
+  logic [47:0] carry48_4;
+  dut_types::State c$stepLookahead4_stepSqueeze_tupIn_app_arg_4;
+  logic [71:0] result_47;
+  logic [71:0] c$case_alt_85;
+  logic [71:0] c$case_alt_86;
+  logic [71:0] c$case_alt_87;
+  logic [71:0] c$case_alt_88;
+  logic [71:0] c$case_alt_89;
+  logic [71:0] c$case_alt_90;
+  logic [71:0] c$case_alt_91;
+  logic [71:0] c$case_alt_92;
+  logic [71:0] c$case_alt_93;
+  logic [71:0] c$case_alt_94;
+  logic [71:0] c$case_alt_95;
+  logic [71:0] c$case_alt_96;
+  logic [71:0] c$case_alt_97;
+  logic [71:0] c$case_alt_98;
+  logic [71:0] c$case_alt_99;
+  logic [71:0] c$case_alt_100;
+  logic [71:0] c$case_alt_101;
+  logic [1599:0] c$app_arg_20;
+  logic [4:0] counter_9;
+  logic [23:0] carry24_4;
+  dut_types::State c$stepLookahead4_stepSqueeze_tupIn_app_arg_5;
+  logic [1599:0] c$stepLookahead4_stepSqueeze_tupIn_app_arg_6;
+  logic [71:0] result_48;
+  logic [71:0] c$case_alt_102;
+  logic [71:0] c$case_alt_103;
+  logic [71:0] c$case_alt_104;
+  logic [71:0] c$case_alt_105;
+  logic [71:0] c$case_alt_106;
+  logic [71:0] c$case_alt_107;
+  logic [71:0] c$case_alt_108;
+  logic [71:0] c$case_alt_109;
+  logic [71:0] c$case_alt_110;
+  logic [71:0] c$case_alt_111;
+  logic [71:0] c$case_alt_112;
+  logic [71:0] c$case_alt_113;
+  logic [71:0] c$case_alt_114;
+  logic [71:0] c$case_alt_115;
+  logic [71:0] c$case_alt_116;
+  logic [71:0] c$case_alt_117;
+  logic [71:0] c$case_alt_118;
+  logic [1599:0] c$app_arg_21;
+  logic [4:0] counter_10;
+  logic [56:0] phase_0;
+  logic [1599:0] state_0;
+  dut_types::State stateAB_0;
+  dut_types::AXI4Stream_1 inStream;
+  dut_types::Tuple2_5 stateAB_1;
+  dut_types::Tuple2_12 c$arg;
+  logic [86:0] result_selection_4;
+  logic [74:0] c$case_alt_selection_9;
+  logic [74:0] c$case_alt_selection_12;
+  logic [86:0] result_selection_8;
+  logic [74:0] c$case_alt_selection_15;
+  logic [74:0] c$case_alt_selection_18;
+  logic [86:0] result_selection_24;
+  logic [74:0] c$case_alt_selection_77;
+  logic [74:0] c$case_alt_selection_80;
+  logic [86:0] result_selection_28;
+  logic [74:0] c$case_alt_selection_83;
+  logic [74:0] c$case_alt_selection_86;
+  dut_types::Tuple2_13 result;
   dut_types::AXI4Stream COEFF;
 
   assign c$arg = {{SEED_TDATA
@@ -307,397 +854,219 @@ module dut
                  ,COEFF_TREADY};
 
   // register begin
-  always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
+  always_ff @(posedge CLK or  posedge  RST) begin : c$app_arg_register
     if ( RST) begin
-      c$ds_app_arg <= {3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      c$app_arg <= {{{{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+    ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000}
+   ,{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}}
+  ,8'd0};
     end else  if (EN)  begin
-      c$ds_app_arg <= result_13.Tuple2_5_sel0;
+      c$app_arg <= result_0.Tuple2_3_sel0;
     end
   end
   // register end
 
-  // register begin
-  always_ff @(posedge CLK or  posedge  RST) begin : c$ds5_app_arg_register
-    if ( RST) begin
-      c$ds5_app_arg <= {{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-  ,1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000};
-    end else  if (EN)  begin
-      c$ds5_app_arg <= result_0.Tuple2_3_sel0;
-    end
-  end
-  // register end
+  assign result_0 = (~ midReadyFalse_0) ? {{stateABFalse_0
+                                           ,stateBCFalse_0}
+                                          ,{inReadyFalse_0
+                                           ,outStreamFalse_0}} : c$case_alt;
 
-  // register begin
-  always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_0_register
-    if ( RST) begin
-      c$ds_app_arg_0 <= 8'd0;
-    end else  if (EN)  begin
-      c$ds_app_arg_0 <= c$case_alt_0.Tuple2_2_sel0;
-    end
-  end
-  // register end
+  assign c$case_alt = midReadyTrue ? {{stateABTrue
+                                      ,stateBCTrue}
+                                     ,{inReadyTrue,outStreamTrue}} : ({1779 {1'bx}});
 
-  assign result = {c$case_alt_0[25:0]
-                  ,result_0[74:74]};
+  assign midReadyTrue = c$case_scrut[26:26];
 
-  assign c$app_arg = coeffReady ? (c$ds_app_arg_0 + 8'd1) : c$ds_app_arg_0;
+  assign outStreamTrue = c$case_scrut[25:0];
 
-  assign c$case_alt = coeffStream.AXI4Stream_sel1 ? {c$app_arg
-                                                    ,{coeffReady
-                                                     ,{coeffStream.AXI4Stream_sel0
-                                                      ,1'b1
-                                                      ,c$ds_app_arg_0 == 8'd127}}} : {c$ds_app_arg_0
-                                                                                     ,{coeffReady
-                                                                                      ,{24'b000000000000000000000000
-                                                                                       ,1'b0
-                                                                                       ,1'b0}}};
+  assign stateBCTrue = c$case_scrut.Tuple2_4_sel0;
 
-  assign c$case_alt_0 = (c$ds_app_arg_0 == 8'd128) ? {c$ds_app_arg_0
-                                                     ,{1'b0
-                                                      ,{24'b000000000000000000000000
-                                                       ,1'b0
-                                                       ,1'b0}}} : c$case_alt;
+  assign c$case_scrut = c$ds1_case_scrut_0 ? {stateBC_0
+                                             ,{1'b0
+                                              ,{24'b000000000000000000000000
+                                               ,1'b0
+                                               ,1'b0}}} : c$case_alt_0;
 
-  assign coeffReady = c$arg.Tuple2_8_sel1;
+  assign c$case_alt_0 = midStreamTrue.AXI4Stream_sel1 ? {c$ds1_app_arg_0
+                                                        ,{outReady
+                                                         ,{midStreamTrue.AXI4Stream_sel0
+                                                          ,1'b1
+                                                          ,c$ds1_app_arg}}} : {stateBC_0
+                                                                              ,{outReady
+                                                                               ,{24'b000000000000000000000000
+                                                                                ,1'b0
+                                                                                ,1'b0}}};
 
-  assign coeffStream = result_13[25:0];
+  assign midStreamTrue = result_1[25:0];
+
+  assign inReadyTrue = result_1[26:26];
+
+  assign stateABTrue = result_1.Tuple2_6_sel0;
+
+  assign result_1 = (~ midReadyFalse) ? {{stateABFalse
+                                         ,stateBCFalse}
+                                        ,{inReadyFalse,outStreamFalse}} : c$case_alt_1;
+
+  assign c$case_alt_1 = midReadyTrue_0 ? {{stateABTrue_0
+                                          ,stateBCTrue_0}
+                                         ,{inReadyTrue_0
+                                          ,outStreamTrue_0}} : ({1771 {1'bx}});
+
+  assign midReadyTrue_0 = result_2[26:26];
+
+  assign outStreamTrue_0 = result_2[25:0];
+
+  assign stateBCTrue_0 = result_2.Tuple2_7_sel0;
 
   always_comb begin
-    case(phase[56:53])
-      4'b0000 : result_0 = c$case_alt_1;
-      4'b0001 : result_0 = result_7;
-      4'b0010 : result_0 = result_7;
-      4'b0011 : result_0 = result_7;
-      4'b0100 : result_0 = result_9;
-      4'b0101 : result_0 = result_9;
-      4'b0110 : result_0 = result_9;
-      4'b0111 : result_0 = result_9;
-      default : result_0 = result_9;
+    case(stateBC[86:84])
+      3'b000 : result_2 = c$case_alt_3;
+      3'b001 : result_2 = c$case_alt_2;
+      default : result_2 = {ds1.Tuple2_8_sel1
+                           ,{1'b0,{ds1.Tuple2_8_sel0,1'b1,1'b0}}};
     endcase
   end
 
-  assign c$case_alt_1 = msgValid ? {{{4'b0001,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                    ,result_6}
-                                   ,{1'b0
-                                    ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
-                                     ,1'b0
-                                     ,1'b0}}} : {{{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                 ,state}
-                                                ,{1'b1
-                                                 ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
-                                                  ,1'b0
-                                                  ,1'b0}}};
+  assign c$case_alt_2 = midStreamTrue_0.AXI4Stream_0_sel1 ? c$case_alt_4 : {{3'b001,b0_1,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                           ,{1'b1
+                                                                            ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign msgValid = c$arg[2:2];
+  assign c$case_alt_3 = midStreamTrue_0.AXI4Stream_0_sel1 ? c$case_alt_4 : {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                           ,{1'b1
+                                                                            ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  // replaceBit start
-  always_comb begin
-    result_1 = c$app_arg_0;
-    result_1[64'sd272] = (~ (c$app_arg_0[64'sd272]));
-  end
-  // replaceBit end
+  assign c$case_alt_4 = result_3;
 
-  assign c$app_arg_0 = result_2;
-
-  // replaceBit start
-  always_comb begin
-    result_2 = c$app_arg_1;
-    result_2[64'sd273] = (~ (c$app_arg_1[64'sd273]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_1 = result_3;
-
-  // replaceBit start
-  always_comb begin
-    result_3 = c$app_arg_2;
-    result_3[64'sd274] = (~ (c$app_arg_2[64'sd274]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_2 = result_4;
-
-  // replaceBit start
-  always_comb begin
-    result_4 = c$app_arg_3;
-    result_4[64'sd275] = (~ (c$app_arg_3[64'sd275]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_3 = result_5;
-
-  // replaceBit start
-  always_comb begin
-    result_5 = c$app_arg_4;
-    result_5[64'sd276] = (~ (c$app_arg_4[64'sd276]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_4 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
-
-  // replaceBit start
-  always_comb begin
-    result_6 = c$app_arg_5;
-    result_6[64'sd1343] = (~ (c$app_arg_5[64'sd1343]));
-  end
-  // replaceBit end
-
-  assign c$app_arg_5 = result_1;
-
-  assign inputMsg = c$arg[274:3];
-
-  assign result_7 = (c$step_stepPermute_arg5 == 5'd23) ? {result_8
-                                                         ,{1'b0
-                                                          ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
-                                                           ,1'b0
-                                                           ,1'b0}}} : {{c$app_arg_6,c$keccakF1600_out}
-                                                                      ,{1'b0
-                                                                       ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
-                                                                        ,1'b0
-                                                                        ,1'b0}}};
+  assign result_selection_4 = c$stepLookahead4_consumeChunk_tupIn.Tuple2_9_sel0;
 
   always_comb begin
-    case(phase[56:53])
-      4'b0001 : result_8 = {{4'b0100,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                           ,c$keccakF1600_out};
-      4'b0010 : result_8 = {{4'b0101,carry24,29'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                           ,c$keccakF1600_out};
-      default : result_8 = {{4'b0111,carry48,5'bxxxxx}
-                           ,c$keccakF1600_out};
+    case(result_selection_4[86:84])
+      3'b000 : result_3 = c$case_alt_6;
+      3'b001 : result_3 = c$case_alt_5;
+      default : result_3 = {114 {1'bx}};
     endcase
   end
 
-  assign carry48 = phase[52:5];
-
-  assign carry24 = phase[52:29];
+  assign c$case_alt_selection_9 = c$stepLookahead4_consumeChunk_tupIn.Tuple2_9_sel1;
 
   always_comb begin
-    case(phase[56:53])
-      4'b0001 : c$app_arg_6 = {4'b0001,c$app_arg_7,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      4'b0010 : c$app_arg_6 = {4'b0010,carry24_0,c$app_arg_7,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-      4'b0011 : c$app_arg_6 = {4'b0011,carry48_0,c$app_arg_7};
-      default : c$app_arg_6 = {57 {1'bx}};
+    case(c$case_alt_selection_9[74:72])
+      3'b000 : c$case_alt_5 = {{3'b001,b0,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1
+                               ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_5 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_4,b0},1'b1,1'b0}}};
+      3'b010 : c$case_alt_5 = {{3'b001,c1_3,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_3,b0},1'b1,1'b0}}};
+      3'b011 : c$case_alt_5 = {{3'b010,c1_2,c2_2,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_2,b0},1'b1,1'b0}}};
+      3'b100 : c$case_alt_5 = {{3'b011,c1_1,c2_1,c3_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_1,b0},1'b1,1'b0}}};
+      3'b101 : c$case_alt_5 = {{3'b100,c1_0,c2_0,c3_0,c4_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_0,b0},1'b1,1'b0}}};
+      default : c$case_alt_5 = {{3'b101,c1,c2,c3,c4,c5,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1,{{c0,b0},1'b1,1'b0}}};
     endcase
   end
 
-  assign carry48_0 = phase[52:5];
-
-  assign carry24_0 = phase[52:29];
-
-  assign c$app_arg_7 = c$step_stepPermute_arg5 + 5'd1;
-
-  Component_SampleNTT4_i272o24l4_keccakF1600 Component_SampleNTT4_i272o24l4_keccakF1600_c$keccakF1600_out
-    ( .result (c$keccakF1600_out)
-    , .roundIdx (c$step_stepPermute_arg5)
-    , .x (state) );
-
-  assign result_9 = tready ? ({c$step_stepSqueeze_tupIn.Tuple2_4_sel1
-                  ,{1'b0,{c$step_stepSqueeze_tupIn.Tuple2_4_sel0,1'b1,1'b0}}}) : ({{phase,state},{1'b0,{c$step_stepSqueeze_tupIn.Tuple2_4_sel0,1'b1,1'b0}}});
-
-  assign tready = result_13[26:26];
+  assign c$case_alt_selection_12 = c$stepLookahead4_consumeChunk_tupIn.Tuple2_9_sel1;
 
   always_comb begin
-    case(phase[56:53])
-      4'b0001 : c$step_stepPermute_arg5 = counter_1;
-      4'b0010 : c$step_stepPermute_arg5 = counter_0;
-      default : c$step_stepPermute_arg5 = counter;
+    case(c$case_alt_selection_12[74:72])
+      3'b000 : c$case_alt_6 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1
+                               ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_6 = {{3'b001,c0_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1
+                               ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b010 : c$case_alt_6 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_3,c0_3},1'b1,1'b0}}};
+      3'b011 : c$case_alt_6 = {{3'b001,c2_2,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_2,c0_2},1'b1,1'b0}}};
+      3'b100 : c$case_alt_6 = {{3'b010,c2_1,c3_1,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_1,c0_1},1'b1,1'b0}}};
+      3'b101 : c$case_alt_6 = {{3'b011,c2_0,c3_0,c4_0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_0,c0_0},1'b1,1'b0}}};
+      default : c$case_alt_6 = {{3'b100,c2,c3,c4,c5,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1,{{c1,c0},1'b1,1'b0}}};
     endcase
   end
 
-  assign counter = phase[4:0];
+  assign b0 = c$stepLookahead4_consumeChunk_tupIn[158:147];
 
-  assign counter_0 = phase[28:24];
+  assign c1 = c$stepLookahead4_consumeChunk_tupIn[59:48];
 
-  assign counter_1 = phase[52:48];
+  assign c0 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+
+  assign c5 = c$stepLookahead4_consumeChunk_tupIn[11:0];
+
+  assign c4 = c$stepLookahead4_consumeChunk_tupIn[23:12];
+
+  assign c3 = c$stepLookahead4_consumeChunk_tupIn[35:24];
+
+  assign c2 = c$stepLookahead4_consumeChunk_tupIn[47:36];
+
+  assign c1_0 = c$stepLookahead4_consumeChunk_tupIn[59:48];
+
+  assign c0_0 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+
+  assign c4_0 = c$stepLookahead4_consumeChunk_tupIn[23:12];
+
+  assign c3_0 = c$stepLookahead4_consumeChunk_tupIn[35:24];
+
+  assign c2_0 = c$stepLookahead4_consumeChunk_tupIn[47:36];
+
+  assign c1_1 = c$stepLookahead4_consumeChunk_tupIn[59:48];
+
+  assign c0_1 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+
+  assign c3_1 = c$stepLookahead4_consumeChunk_tupIn[35:24];
+
+  assign c2_1 = c$stepLookahead4_consumeChunk_tupIn[47:36];
+
+  assign c1_2 = c$stepLookahead4_consumeChunk_tupIn[59:48];
+
+  assign c0_2 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+
+  assign c2_2 = c$stepLookahead4_consumeChunk_tupIn[47:36];
+
+  assign c1_3 = c$stepLookahead4_consumeChunk_tupIn[59:48];
+
+  assign c0_3 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+
+  assign c0_4 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+
+  assign outStreamFalse = result_4[25:0];
+
+  assign midReadyFalse = result_4[26:26];
+
+  assign stateBCFalse = result_4.Tuple2_7_sel0;
 
   always_comb begin
-    case(phase[56:53])
-      4'b0100 : c$step_stepSqueeze_tupIn = {result_12
-                                           ,c$step_stepSqueeze_tupIn_app_arg_1};
-      4'b0101 : c$step_stepSqueeze_tupIn = {{(c$step_stepSqueeze_tupIn_app_arg_2[47 : 0]),carry24_1}
-                                           ,{{4'b1000,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                            ,state}};
-      4'b0110 : c$step_stepSqueeze_tupIn = {result_11
-                                           ,c$step_stepSqueeze_tupIn_app_arg_0};
-      4'b0111 : c$step_stepSqueeze_tupIn = {{(c$step_stepSqueeze_tupIn_app_arg_2[23 : 0]),carry48_1}
-                                           ,{{4'b0110,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                            ,state}};
-      default : c$step_stepSqueeze_tupIn = {result_10
-                                           ,c$step_stepSqueeze_tupIn_app_arg};
+    case(stateBC[86:84])
+      3'b000 : result_4 = c$ds1_case_alt_0;
+      3'b001 : result_4 = c$ds1_case_alt;
+      default : result_4 = {ds1.Tuple2_8_sel1
+                           ,{1'b0,{ds1.Tuple2_8_sel0,1'b1,1'b0}}};
     endcase
   end
 
-  assign c$step_stepSqueeze_tupIn_app_arg = (counter_2 == 5'd17) ? {{4'b0001,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                   ,state} : {{4'b1000,counter_2 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                             ,state};
-
-  assign result_10 = (counter_2 == 5'd0) ? (c$app_arg_8[119 : 48]) : c$case_alt_2;
-
-  assign c$case_alt_2 = (counter_2 == 5'd1) ? (c$app_arg_8[191 : 120]) : c$case_alt_3;
-
-  assign c$case_alt_3 = (counter_2 == 5'd2) ? (c$app_arg_8[263 : 192]) : c$case_alt_4;
-
-  assign c$case_alt_4 = (counter_2 == 5'd3) ? (c$app_arg_8[335 : 264]) : c$case_alt_5;
-
-  assign c$case_alt_5 = (counter_2 == 5'd4) ? (c$app_arg_8[407 : 336]) : c$case_alt_6;
-
-  assign c$case_alt_6 = (counter_2 == 5'd5) ? (c$app_arg_8[479 : 408]) : c$case_alt_7;
-
-  assign c$case_alt_7 = (counter_2 == 5'd6) ? (c$app_arg_8[551 : 480]) : c$case_alt_8;
-
-  assign c$case_alt_8 = (counter_2 == 5'd7) ? (c$app_arg_8[623 : 552]) : c$case_alt_9;
-
-  assign c$case_alt_9 = (counter_2 == 5'd8) ? (c$app_arg_8[695 : 624]) : c$case_alt_10;
-
-  assign c$case_alt_10 = (counter_2 == 5'd9) ? (c$app_arg_8[767 : 696]) : c$case_alt_11;
-
-  assign c$case_alt_11 = (counter_2 == 5'd10) ? (c$app_arg_8[839 : 768]) : c$case_alt_12;
-
-  assign c$case_alt_12 = (counter_2 == 5'd11) ? (c$app_arg_8[911 : 840]) : c$case_alt_13;
-
-  assign c$case_alt_13 = (counter_2 == 5'd12) ? (c$app_arg_8[983 : 912]) : c$case_alt_14;
-
-  assign c$case_alt_14 = (counter_2 == 5'd13) ? (c$app_arg_8[1055 : 984]) : c$case_alt_15;
-
-  assign c$case_alt_15 = (counter_2 == 5'd14) ? (c$app_arg_8[1127 : 1056]) : c$case_alt_16;
-
-  assign c$case_alt_16 = (counter_2 == 5'd15) ? (c$app_arg_8[1199 : 1128]) : c$case_alt_17;
-
-  assign c$case_alt_17 = (counter_2 == 5'd16) ? (c$app_arg_8[1271 : 1200]) : c$case_alt_18;
-
-  assign c$case_alt_18 = (counter_2 == 5'd17) ? (c$app_arg_8[1343 : 1272]) : ({72 {1'bx}});
-
-  assign c$app_arg_8 = state;
-
-  assign counter_2 = phase[52:48];
-
-  assign carry48_1 = phase[52:5];
-
-  assign c$step_stepSqueeze_tupIn_app_arg_0 = (counter_3 == 5'd17) ? {{4'b0010,c$step_stepSqueeze_tupIn_app_arg_2[1343 : 1320],5'd0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                     ,state} : {{4'b0110,counter_3 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                               ,state};
-
-  assign result_11 = (counter_3 == 5'd0) ? (c$app_arg_9[95 : 24]) : c$case_alt_19;
-
-  assign c$case_alt_19 = (counter_3 == 5'd1) ? (c$app_arg_9[167 : 96]) : c$case_alt_20;
-
-  assign c$case_alt_20 = (counter_3 == 5'd2) ? (c$app_arg_9[239 : 168]) : c$case_alt_21;
-
-  assign c$case_alt_21 = (counter_3 == 5'd3) ? (c$app_arg_9[311 : 240]) : c$case_alt_22;
-
-  assign c$case_alt_22 = (counter_3 == 5'd4) ? (c$app_arg_9[383 : 312]) : c$case_alt_23;
-
-  assign c$case_alt_23 = (counter_3 == 5'd5) ? (c$app_arg_9[455 : 384]) : c$case_alt_24;
-
-  assign c$case_alt_24 = (counter_3 == 5'd6) ? (c$app_arg_9[527 : 456]) : c$case_alt_25;
-
-  assign c$case_alt_25 = (counter_3 == 5'd7) ? (c$app_arg_9[599 : 528]) : c$case_alt_26;
-
-  assign c$case_alt_26 = (counter_3 == 5'd8) ? (c$app_arg_9[671 : 600]) : c$case_alt_27;
-
-  assign c$case_alt_27 = (counter_3 == 5'd9) ? (c$app_arg_9[743 : 672]) : c$case_alt_28;
-
-  assign c$case_alt_28 = (counter_3 == 5'd10) ? (c$app_arg_9[815 : 744]) : c$case_alt_29;
-
-  assign c$case_alt_29 = (counter_3 == 5'd11) ? (c$app_arg_9[887 : 816]) : c$case_alt_30;
-
-  assign c$case_alt_30 = (counter_3 == 5'd12) ? (c$app_arg_9[959 : 888]) : c$case_alt_31;
-
-  assign c$case_alt_31 = (counter_3 == 5'd13) ? (c$app_arg_9[1031 : 960]) : c$case_alt_32;
-
-  assign c$case_alt_32 = (counter_3 == 5'd14) ? (c$app_arg_9[1103 : 1032]) : c$case_alt_33;
-
-  assign c$case_alt_33 = (counter_3 == 5'd15) ? (c$app_arg_9[1175 : 1104]) : c$case_alt_34;
-
-  assign c$case_alt_34 = (counter_3 == 5'd16) ? (c$app_arg_9[1247 : 1176]) : c$case_alt_35;
-
-  assign c$case_alt_35 = (counter_3 == 5'd17) ? (c$app_arg_9[1319 : 1248]) : ({72 {1'bx}});
-
-  assign c$app_arg_9 = state;
-
-  assign counter_3 = phase[52:48];
-
-  assign carry24_1 = phase[52:29];
-
-  assign c$step_stepSqueeze_tupIn_app_arg_1 = (counter_4 == 5'd17) ? {{4'b0011,c$step_stepSqueeze_tupIn_app_arg_2[1343 : 1296],5'd0}
-                                                                     ,state} : {{4'b0100,counter_4 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                               ,state};
-
-  assign c$step_stepSqueeze_tupIn_app_arg_2 = state;
-
-  assign result_12 = (counter_4 == 5'd0) ? (c$app_arg_10[71 : 0]) : c$case_alt_36;
-
-  assign c$case_alt_36 = (counter_4 == 5'd1) ? (c$app_arg_10[143 : 72]) : c$case_alt_37;
-
-  assign c$case_alt_37 = (counter_4 == 5'd2) ? (c$app_arg_10[215 : 144]) : c$case_alt_38;
-
-  assign c$case_alt_38 = (counter_4 == 5'd3) ? (c$app_arg_10[287 : 216]) : c$case_alt_39;
-
-  assign c$case_alt_39 = (counter_4 == 5'd4) ? (c$app_arg_10[359 : 288]) : c$case_alt_40;
-
-  assign c$case_alt_40 = (counter_4 == 5'd5) ? (c$app_arg_10[431 : 360]) : c$case_alt_41;
-
-  assign c$case_alt_41 = (counter_4 == 5'd6) ? (c$app_arg_10[503 : 432]) : c$case_alt_42;
-
-  assign c$case_alt_42 = (counter_4 == 5'd7) ? (c$app_arg_10[575 : 504]) : c$case_alt_43;
-
-  assign c$case_alt_43 = (counter_4 == 5'd8) ? (c$app_arg_10[647 : 576]) : c$case_alt_44;
-
-  assign c$case_alt_44 = (counter_4 == 5'd9) ? (c$app_arg_10[719 : 648]) : c$case_alt_45;
-
-  assign c$case_alt_45 = (counter_4 == 5'd10) ? (c$app_arg_10[791 : 720]) : c$case_alt_46;
-
-  assign c$case_alt_46 = (counter_4 == 5'd11) ? (c$app_arg_10[863 : 792]) : c$case_alt_47;
-
-  assign c$case_alt_47 = (counter_4 == 5'd12) ? (c$app_arg_10[935 : 864]) : c$case_alt_48;
-
-  assign c$case_alt_48 = (counter_4 == 5'd13) ? (c$app_arg_10[1007 : 936]) : c$case_alt_49;
-
-  assign c$case_alt_49 = (counter_4 == 5'd14) ? (c$app_arg_10[1079 : 1008]) : c$case_alt_50;
-
-  assign c$case_alt_50 = (counter_4 == 5'd15) ? (c$app_arg_10[1151 : 1080]) : c$case_alt_51;
-
-  assign c$case_alt_51 = (counter_4 == 5'd16) ? (c$app_arg_10[1223 : 1152]) : c$case_alt_52;
-
-  assign c$case_alt_52 = (counter_4 == 5'd17) ? (c$app_arg_10[1295 : 1224]) : ({72 {1'bx}});
-
-  assign c$app_arg_10 = state;
-
-  assign counter_4 = phase[52:48];
-
-  assign phase = c$ds5_app_arg.State_sel0;
-
-  assign state = c$ds5_app_arg.State_sel1;
+  assign c$ds1_case_alt = midStreamFalse.AXI4Stream_0_sel1 ? c$ds1_case_alt_1 : {{3'b001,b0_1,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                ,{1'b1
+                                                                                 ,{24'b000000000000000000000000
+                                                                                  ,1'b0
+                                                                                  ,1'b0}}};
+
+  assign c$ds1_case_alt_0 = midStreamFalse.AXI4Stream_0_sel1 ? c$ds1_case_alt_1 : {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                  ,{1'b1
+                                                                                   ,{24'b000000000000000000000000
+                                                                                    ,1'b0
+                                                                                    ,1'b0}}};
+
+  assign c$ds1_case_alt_1 = result_5;
 
   always_comb begin
-    case(c$ds_app_arg[86:84])
-      3'b000 : result_13 = c$case_alt_54;
-      3'b001 : result_13 = c$case_alt_53;
-      default : result_13 = result_14;
-    endcase
-  end
-
-  assign c$case_alt_53 = candidateStream.AXI4Stream_0_sel1 ? c$case_alt_55 : {{3'b001,b0_0,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                             ,{1'b1
-                                                                              ,{24'b000000000000000000000000
-                                                                               ,1'b0
-                                                                               ,1'b0}}};
-
-  assign c$case_alt_54 = candidateStream.AXI4Stream_0_sel1 ? c$case_alt_55 : {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                                             ,{1'b1
-                                                                              ,{24'b000000000000000000000000
-                                                                               ,1'b0
-                                                                               ,1'b0}}};
-
-  assign c$case_alt_55 = result_15;
-
-  assign result_14 = coeffReady_0 ? {ds1.Tuple2_6_sel1
-                                    ,{1'b0
-                                     ,{ds1.Tuple2_6_sel0,1'b1,1'b0}}} : {c$ds_app_arg
-                                                                        ,{1'b0,{ds1.Tuple2_6_sel0,1'b1,1'b0}}};
-
-  always_comb begin
-    case(c$ds_app_arg[86:84])
+    case(stateBC[86:84])
       3'b010 : ds1 = {{b_4,a_4}
                      ,{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
       3'b011 : ds1 = {{b_3,a_3}
@@ -713,305 +1082,224 @@ module dut
     endcase
   end
 
-  assign g = c$ds_app_arg[11:0];
+  assign g = stateBC[11:0];
 
-  assign f = c$ds_app_arg[23:12];
+  assign f = stateBC[23:12];
 
-  assign e = c$ds_app_arg[35:24];
+  assign e = stateBC[35:24];
 
-  assign d = c$ds_app_arg[47:36];
+  assign d = stateBC[47:36];
 
-  assign c = c$ds_app_arg[59:48];
+  assign c = stateBC[59:48];
 
-  assign b = c$ds_app_arg[71:60];
+  assign b = stateBC[71:60];
 
-  assign a = c$ds_app_arg[83:72];
+  assign a = stateBC[83:72];
 
-  assign f_0 = c$ds_app_arg[23:12];
+  assign f_0 = stateBC[23:12];
 
-  assign e_0 = c$ds_app_arg[35:24];
+  assign e_0 = stateBC[35:24];
 
-  assign d_0 = c$ds_app_arg[47:36];
+  assign d_0 = stateBC[47:36];
 
-  assign c_0 = c$ds_app_arg[59:48];
+  assign c_0 = stateBC[59:48];
 
-  assign b_0 = c$ds_app_arg[71:60];
+  assign b_0 = stateBC[71:60];
 
-  assign a_0 = c$ds_app_arg[83:72];
+  assign a_0 = stateBC[83:72];
 
-  assign e_1 = c$ds_app_arg[35:24];
+  assign e_1 = stateBC[35:24];
 
-  assign d_1 = c$ds_app_arg[47:36];
+  assign d_1 = stateBC[47:36];
 
-  assign c_1 = c$ds_app_arg[59:48];
+  assign c_1 = stateBC[59:48];
 
-  assign b_1 = c$ds_app_arg[71:60];
+  assign b_1 = stateBC[71:60];
 
-  assign a_1 = c$ds_app_arg[83:72];
+  assign a_1 = stateBC[83:72];
 
-  assign d_2 = c$ds_app_arg[47:36];
+  assign d_2 = stateBC[47:36];
 
-  assign c_2 = c$ds_app_arg[59:48];
+  assign c_2 = stateBC[59:48];
 
-  assign b_2 = c$ds_app_arg[71:60];
+  assign b_2 = stateBC[71:60];
 
-  assign a_2 = c$ds_app_arg[83:72];
+  assign a_2 = stateBC[83:72];
 
-  assign c_3 = c$ds_app_arg[59:48];
+  assign c_3 = stateBC[59:48];
 
-  assign b_3 = c$ds_app_arg[71:60];
+  assign b_3 = stateBC[71:60];
 
-  assign a_3 = c$ds_app_arg[83:72];
+  assign a_3 = stateBC[83:72];
 
-  assign b_4 = c$ds_app_arg[71:60];
+  assign b_4 = stateBC[71:60];
 
-  assign a_4 = c$ds_app_arg[83:72];
+  assign a_4 = stateBC[83:72];
 
-  assign result_selection_10 = c$stepLookahead4_consumeChunk_tupIn.Tuple2_7_sel0;
+  assign result_selection_8 = c$stepLookahead4_consumeChunk_tupIn_0.Tuple2_9_sel0;
 
   always_comb begin
-    case(result_selection_10[86:84])
-      3'b000 : result_15 = c$case_alt_57;
-      3'b001 : result_15 = c$case_alt_56;
-      default : result_15 = {114 {1'bx}};
+    case(result_selection_8[86:84])
+      3'b000 : result_5 = c$case_alt_8;
+      3'b001 : result_5 = c$case_alt_7;
+      default : result_5 = {114 {1'bx}};
     endcase
   end
 
-  assign c$case_alt_selection_60 = c$stepLookahead4_consumeChunk_tupIn.Tuple2_7_sel1;
+  assign c$case_alt_selection_15 = c$stepLookahead4_consumeChunk_tupIn_0.Tuple2_9_sel1;
 
   always_comb begin
-    case(c$case_alt_selection_60[74:72])
-      3'b000 : c$case_alt_56 = {{3'b001,b0,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                               ,{1'b1
-                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
-      3'b001 : c$case_alt_56 = c$case_alt_63;
-      3'b010 : c$case_alt_56 = c$case_alt_62;
-      3'b011 : c$case_alt_56 = c$case_alt_61;
-      3'b100 : c$case_alt_56 = c$case_alt_60;
-      3'b101 : c$case_alt_56 = c$case_alt_59;
-      default : c$case_alt_56 = c$case_alt_58;
+    case(c$case_alt_selection_15[74:72])
+      3'b000 : c$case_alt_7 = {{3'b001,b0_0,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1
+                               ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_7 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_10,b0_0},1'b1,1'b0}}};
+      3'b010 : c$case_alt_7 = {{3'b001,c1_8,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_9,b0_0},1'b1,1'b0}}};
+      3'b011 : c$case_alt_7 = {{3'b010,c1_7,c2_6,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_8,b0_0},1'b1,1'b0}}};
+      3'b100 : c$case_alt_7 = {{3'b011,c1_6,c2_5,c3_4,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_7,b0_0},1'b1,1'b0}}};
+      3'b101 : c$case_alt_7 = {{3'b100,c1_5,c2_4,c3_3,c4_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c0_6,b0_0},1'b1,1'b0}}};
+      default : c$case_alt_7 = {{3'b101,c1_4,c2_3,c3_2,c4_1,c5_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1,{{c0_5,b0_0},1'b1,1'b0}}};
     endcase
   end
 
-  assign c$case_alt_selection_63 = c$stepLookahead4_consumeChunk_tupIn.Tuple2_7_sel1;
+  assign c$case_alt_selection_18 = c$stepLookahead4_consumeChunk_tupIn_0.Tuple2_9_sel1;
 
   always_comb begin
-    case(c$case_alt_selection_63[74:72])
-      3'b000 : c$case_alt_57 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                               ,{1'b1
-                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
-      3'b001 : c$case_alt_57 = {{3'b001,c0_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                               ,{1'b1
-                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
-      3'b010 : c$case_alt_57 = c$case_alt_68;
-      3'b011 : c$case_alt_57 = c$case_alt_67;
-      3'b100 : c$case_alt_57 = c$case_alt_66;
-      3'b101 : c$case_alt_57 = c$case_alt_65;
-      default : c$case_alt_57 = c$case_alt_64;
+    case(c$case_alt_selection_18[74:72])
+      3'b000 : c$case_alt_8 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1
+                               ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_8 = {{3'b001,c0_10,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1
+                               ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b010 : c$case_alt_8 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_8,c0_9},1'b1,1'b0}}};
+      3'b011 : c$case_alt_8 = {{3'b001,c2_6,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_7,c0_8},1'b1,1'b0}}};
+      3'b100 : c$case_alt_8 = {{3'b010,c2_5,c3_4,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_6,c0_7},1'b1,1'b0}}};
+      3'b101 : c$case_alt_8 = {{3'b011,c2_4,c3_3,c4_2,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                              ,{1'b1,{{c1_5,c0_6},1'b1,1'b0}}};
+      default : c$case_alt_8 = {{3'b100,c2_3,c3_2,c4_1,c5_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1,{{c1_4,c0_5},1'b1,1'b0}}};
     endcase
   end
 
-  assign c$case_alt_58 = coeffReady_0 ? {{3'b101,c1,c2,c3,c4,c5,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c0,b0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b111,b0,c0,c1,c2,c3,c4,c5}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign b0_0 = c$stepLookahead4_consumeChunk_tupIn_0[158:147];
 
-  assign c$case_alt_59 = coeffReady_0 ? {{3'b100,c1_0,c2_0,c3_0,c4_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c0_0,b0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b110,b0,c0_0,c1_0,c2_0,c3_0,c4_0,12'bxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c1_4 = c$stepLookahead4_consumeChunk_tupIn_0[59:48];
 
-  assign c$case_alt_60 = coeffReady_0 ? {{3'b011,c1_1,c2_1,c3_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c0_1,b0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b101,b0,c0_1,c1_1,c2_1,c3_1,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c0_5 = c$stepLookahead4_consumeChunk_tupIn_0[71:60];
 
-  assign c$case_alt_61 = coeffReady_0 ? {{3'b010,c1_2,c2_2,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c0_2,b0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b100,b0,c0_2,c1_2,c2_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c5_0 = c$stepLookahead4_consumeChunk_tupIn_0[11:0];
 
-  assign c$case_alt_62 = coeffReady_0 ? {{3'b001,c1_3,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c0_3,b0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b011,b0,c0_3,c1_3,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c4_1 = c$stepLookahead4_consumeChunk_tupIn_0[23:12];
 
-  assign c$case_alt_63 = coeffReady_0 ? {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c0_4,b0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b010,b0,c0_4,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c3_2 = c$stepLookahead4_consumeChunk_tupIn_0[35:24];
 
-  assign b0 = c$stepLookahead4_consumeChunk_tupIn[158:147];
+  assign c2_3 = c$stepLookahead4_consumeChunk_tupIn_0[47:36];
 
-  assign c$case_alt_64 = coeffReady_0 ? {{3'b100,c2,c3,c4,c5,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c1,c0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b110,c0,c1,c2,c3,c4,c5,12'bxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c1_5 = c$stepLookahead4_consumeChunk_tupIn_0[59:48];
 
-  assign c$case_alt_65 = coeffReady_0 ? {{3'b011,c2_0,c3_0,c4_0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c1_0,c0_0}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b101,c0_0,c1_0,c2_0,c3_0,c4_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c0_6 = c$stepLookahead4_consumeChunk_tupIn_0[71:60];
 
-  assign c$case_alt_66 = coeffReady_0 ? {{3'b010,c2_1,c3_1,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c1_1,c0_1}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b100,c0_1,c1_1,c2_1,c3_1,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c4_2 = c$stepLookahead4_consumeChunk_tupIn_0[23:12];
 
-  assign c$case_alt_67 = coeffReady_0 ? {{3'b001,c2_2,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c1_2,c0_2}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b011,c0_2,c1_2,c2_2,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c3_3 = c$stepLookahead4_consumeChunk_tupIn_0[35:24];
 
-  assign c$case_alt_68 = coeffReady_0 ? {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b1
-                                         ,{{c1_3,c0_3}
-                                          ,1'b1
-                                          ,1'b0}}} : {{3'b010,c0_3,c1_3,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,{1'b1
-                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+  assign c2_4 = c$stepLookahead4_consumeChunk_tupIn_0[47:36];
 
-  assign c5 = c$stepLookahead4_consumeChunk_tupIn[11:0];
+  assign c1_6 = c$stepLookahead4_consumeChunk_tupIn_0[59:48];
 
-  assign c4 = c$stepLookahead4_consumeChunk_tupIn[23:12];
+  assign c0_7 = c$stepLookahead4_consumeChunk_tupIn_0[71:60];
 
-  assign c3 = c$stepLookahead4_consumeChunk_tupIn[35:24];
+  assign c3_4 = c$stepLookahead4_consumeChunk_tupIn_0[35:24];
 
-  assign c2 = c$stepLookahead4_consumeChunk_tupIn[47:36];
+  assign c2_5 = c$stepLookahead4_consumeChunk_tupIn_0[47:36];
 
-  assign c1 = c$stepLookahead4_consumeChunk_tupIn[59:48];
+  assign c1_7 = c$stepLookahead4_consumeChunk_tupIn_0[59:48];
 
-  assign c0 = c$stepLookahead4_consumeChunk_tupIn[71:60];
+  assign c0_8 = c$stepLookahead4_consumeChunk_tupIn_0[71:60];
 
-  assign c4_0 = c$stepLookahead4_consumeChunk_tupIn[23:12];
+  assign c2_6 = c$stepLookahead4_consumeChunk_tupIn_0[47:36];
 
-  assign c3_0 = c$stepLookahead4_consumeChunk_tupIn[35:24];
+  assign c1_8 = c$stepLookahead4_consumeChunk_tupIn_0[59:48];
 
-  assign c2_0 = c$stepLookahead4_consumeChunk_tupIn[47:36];
+  assign c0_9 = c$stepLookahead4_consumeChunk_tupIn_0[71:60];
 
-  assign c1_0 = c$stepLookahead4_consumeChunk_tupIn[59:48];
-
-  assign c0_0 = c$stepLookahead4_consumeChunk_tupIn[71:60];
-
-  assign c3_1 = c$stepLookahead4_consumeChunk_tupIn[35:24];
-
-  assign c2_1 = c$stepLookahead4_consumeChunk_tupIn[47:36];
-
-  assign c1_1 = c$stepLookahead4_consumeChunk_tupIn[59:48];
-
-  assign c0_1 = c$stepLookahead4_consumeChunk_tupIn[71:60];
-
-  assign c2_2 = c$stepLookahead4_consumeChunk_tupIn[47:36];
-
-  assign c1_2 = c$stepLookahead4_consumeChunk_tupIn[59:48];
-
-  assign c0_2 = c$stepLookahead4_consumeChunk_tupIn[71:60];
-
-  assign c1_3 = c$stepLookahead4_consumeChunk_tupIn[59:48];
-
-  assign c0_3 = c$stepLookahead4_consumeChunk_tupIn[71:60];
-
-  assign c0_4 = c$stepLookahead4_consumeChunk_tupIn[71:60];
-
-  assign coeffReady_0 = c$case_alt_0[26:26];
+  assign c0_10 = c$stepLookahead4_consumeChunk_tupIn_0[71:60];
 
   always_comb begin
-    case(c$ds_app_arg[86:84])
+    case(stateBC[86:84])
       3'b000 : c$stepLookahead4_consumeChunk_tupIn = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                     ,result_16};
-      default : c$stepLookahead4_consumeChunk_tupIn = {{3'b001,b0_0,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                      ,result_16};
+                                                     ,result_6};
+      default : c$stepLookahead4_consumeChunk_tupIn = {{3'b001,b0_1,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                      ,result_6};
     endcase
   end
 
-  assign b0_0 = c$ds_app_arg[83:72];
+  assign result_6 = (c5_2 < 12'b110100000001) ? result_7 : valid4;
 
-  assign result_16 = (c5_1 < 12'b110100000001) ? result_17 : valid4;
+  assign c1_9 = valid4[71:60];
 
-  assign c1_4 = valid4[71:60];
+  assign c1_10 = valid4[71:60];
 
-  assign c1_5 = valid4[71:60];
+  assign c2_7 = valid4[59:48];
 
-  assign c2_3 = valid4[59:48];
+  assign c1_11 = valid4[71:60];
 
-  assign c1_6 = valid4[71:60];
+  assign c2_8 = valid4[59:48];
 
-  assign c2_4 = valid4[59:48];
+  assign c3_5 = valid4[47:36];
 
-  assign c3_2 = valid4[47:36];
+  assign c1_12 = valid4[71:60];
 
-  assign c1_7 = valid4[71:60];
+  assign c2_9 = valid4[59:48];
 
-  assign c2_5 = valid4[59:48];
+  assign c3_6 = valid4[47:36];
 
-  assign c3_3 = valid4[47:36];
+  assign c4_3 = valid4[35:24];
 
-  assign c4_1 = valid4[35:24];
+  assign c1_13 = valid4[71:60];
 
-  assign c1_8 = valid4[71:60];
+  assign c2_10 = valid4[59:48];
 
-  assign c2_6 = valid4[59:48];
+  assign c3_7 = valid4[47:36];
 
-  assign c3_4 = valid4[47:36];
+  assign c4_4 = valid4[35:24];
 
-  assign c4_2 = valid4[35:24];
-
-  assign c5_0 = valid4[23:12];
+  assign c5_1 = valid4[23:12];
 
   always_comb begin
     case(valid4[74:72])
-      3'b000 : result_17 = {3'b001,c5_1,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b001 : result_17 = {3'b010,c1_4,c5_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b010 : result_17 = {3'b011,c1_5,c2_3,c5_1,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b011 : result_17 = {3'b100,c1_6,c2_4,c3_2,c5_1,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b100 : result_17 = {3'b101,c1_7,c2_5,c3_3,c4_1,c5_1,12'bxxxxxxxxxxxx};
-      3'b101 : result_17 = {3'b110,c1_8,c2_6,c3_4,c4_2,c5_0,c5_1};
-      default : result_17 = valid4;
+      3'b000 : result_7 = {3'b001,c5_2,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : result_7 = {3'b010,c1_9,c5_2,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : result_7 = {3'b011,c1_10,c2_7,c5_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : result_7 = {3'b100,c1_11,c2_8,c3_5,c5_2,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : result_7 = {3'b101,c1_12,c2_9,c3_6,c4_3,c5_2,12'bxxxxxxxxxxxx};
+      3'b101 : result_7 = {3'b110,c1_13,c2_10,c3_7,c4_4,c5_1,c5_2};
+      default : result_7 = valid4;
     endcase
   end
 
-  assign valid4 = (c4_3 < 12'b110100000001) ? c$valid4_case_alt : valid3;
+  assign valid4 = (c4_5 < 12'b110100000001) ? c$valid4_case_alt : valid3;
 
-  assign c5_1 = c$c5_app_arg[71 : 60];
+  assign c5_2 = c$c5_app_arg[71 : 60];
 
   always_comb begin
     case(valid3[74:72])
-      3'b000 : c$valid4_case_alt = {3'b001,c4_3,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b001 : c$valid4_case_alt = {3'b010,c7_3,c4_3,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b010 : c$valid4_case_alt = {3'b011,c7_2,c8_2,c4_3,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b011 : c$valid4_case_alt = {3'b100,c7_1,c8_1,c9_1,c4_3,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b100 : c$valid4_case_alt = {3'b101,c7_0,c8_0,c9_0,c10_0,c4_3,12'bxxxxxxxxxxxx};
-      3'b101 : c$valid4_case_alt = {3'b110,c7,c8,c9,c10,c11,c4_3};
+      3'b000 : c$valid4_case_alt = {3'b001,c4_5,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid4_case_alt = {3'b010,c7_3,c4_5,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid4_case_alt = {3'b011,c7_2,c8_2,c4_5,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid4_case_alt = {3'b100,c7_1,c8_1,c9_1,c4_5,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid4_case_alt = {3'b101,c7_0,c8_0,c9_0,c10_0,c4_5,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid4_case_alt = {3'b110,c7,c8,c9,c10,c11,c4_5};
       default : c$valid4_case_alt = valid3;
     endcase
   end
@@ -1046,18 +1334,18 @@ module dut
 
   assign c7_3 = valid3[71:60];
 
-  assign valid3 = (c3_5 < 12'b110100000001) ? c$valid3_case_alt : valid2;
+  assign valid3 = (c3_8 < 12'b110100000001) ? c$valid3_case_alt : valid2;
 
-  assign c4_3 = c$c5_app_arg[59 : 48];
+  assign c4_5 = c$c5_app_arg[59 : 48];
 
   always_comb begin
     case(valid2[74:72])
-      3'b000 : c$valid3_case_alt = {3'b001,c3_5,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b001 : c$valid3_case_alt = {3'b010,c7_8,c3_5,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b010 : c$valid3_case_alt = {3'b011,c7_7,c8_6,c3_5,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b011 : c$valid3_case_alt = {3'b100,c7_6,c8_5,c9_4,c3_5,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b100 : c$valid3_case_alt = {3'b101,c7_5,c8_4,c9_3,c10_2,c3_5,12'bxxxxxxxxxxxx};
-      3'b101 : c$valid3_case_alt = {3'b110,c7_4,c8_3,c9_2,c10_1,c11_0,c3_5};
+      3'b000 : c$valid3_case_alt = {3'b001,c3_8,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid3_case_alt = {3'b010,c7_8,c3_8,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid3_case_alt = {3'b011,c7_7,c8_6,c3_8,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid3_case_alt = {3'b100,c7_6,c8_5,c9_4,c3_8,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid3_case_alt = {3'b101,c7_5,c8_4,c9_3,c10_2,c3_8,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid3_case_alt = {3'b110,c7_4,c8_3,c9_2,c10_1,c11_0,c3_8};
       default : c$valid3_case_alt = valid2;
     endcase
   end
@@ -1092,18 +1380,18 @@ module dut
 
   assign c7_8 = valid2[71:60];
 
-  assign valid2 = (c2_7 < 12'b110100000001) ? c$valid2_case_alt : valid1;
+  assign valid2 = (c2_11 < 12'b110100000001) ? c$valid2_case_alt : valid1;
 
-  assign c3_5 = c$c5_app_arg[47 : 36];
+  assign c3_8 = c$c5_app_arg[47 : 36];
 
   always_comb begin
     case(valid1[74:72])
-      3'b000 : c$valid2_case_alt = {3'b001,c2_7,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b001 : c$valid2_case_alt = {3'b010,c7_13,c2_7,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b010 : c$valid2_case_alt = {3'b011,c7_12,c8_10,c2_7,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b011 : c$valid2_case_alt = {3'b100,c7_11,c8_9,c9_7,c2_7,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b100 : c$valid2_case_alt = {3'b101,c7_10,c8_8,c9_6,c10_4,c2_7,12'bxxxxxxxxxxxx};
-      3'b101 : c$valid2_case_alt = {3'b110,c7_9,c8_7,c9_5,c10_3,c11_1,c2_7};
+      3'b000 : c$valid2_case_alt = {3'b001,c2_11,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid2_case_alt = {3'b010,c7_13,c2_11,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid2_case_alt = {3'b011,c7_12,c8_10,c2_11,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid2_case_alt = {3'b100,c7_11,c8_9,c9_7,c2_11,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid2_case_alt = {3'b101,c7_10,c8_8,c9_6,c10_4,c2_11,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid2_case_alt = {3'b110,c7_9,c8_7,c9_5,c10_3,c11_1,c2_11};
       default : c$valid2_case_alt = valid1;
     endcase
   end
@@ -1138,18 +1426,18 @@ module dut
 
   assign c7_13 = valid1[71:60];
 
-  assign valid1 = (c1_9 < 12'b110100000001) ? c$valid1_case_alt : valid0;
+  assign valid1 = (c1_14 < 12'b110100000001) ? c$valid1_case_alt : valid0;
 
-  assign c2_7 = c$c5_app_arg[35 : 24];
+  assign c2_11 = c$c5_app_arg[35 : 24];
 
   always_comb begin
     case(valid0[74:72])
-      3'b000 : c$valid1_case_alt = {3'b001,c1_9,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b001 : c$valid1_case_alt = {3'b010,c7_18,c1_9,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b010 : c$valid1_case_alt = {3'b011,c7_17,c8_14,c1_9,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b011 : c$valid1_case_alt = {3'b100,c7_16,c8_13,c9_10,c1_9,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-      3'b100 : c$valid1_case_alt = {3'b101,c7_15,c8_12,c9_9,c10_6,c1_9,12'bxxxxxxxxxxxx};
-      3'b101 : c$valid1_case_alt = {3'b110,c7_14,c8_11,c9_8,c10_5,c11_2,c1_9};
+      3'b000 : c$valid1_case_alt = {3'b001,c1_14,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid1_case_alt = {3'b010,c7_18,c1_14,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid1_case_alt = {3'b011,c7_17,c8_14,c1_14,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid1_case_alt = {3'b100,c7_16,c8_13,c9_10,c1_14,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid1_case_alt = {3'b101,c7_15,c8_12,c9_9,c10_6,c1_14,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid1_case_alt = {3'b110,c7_14,c8_11,c9_8,c10_5,c11_2,c1_14};
       default : c$valid1_case_alt = valid0;
     endcase
   end
@@ -1184,19 +1472,1836 @@ module dut
 
   assign c7_18 = valid0[71:60];
 
-  assign valid0 = (c0_5 < 12'b110100000001) ? {3'b001,c0_5,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : {3'b000,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+  assign valid0 = (c0_11 < 12'b110100000001) ? {3'b001,c0_11,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : {3'b000,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
 
-  assign c1_9 = c$c5_app_arg[23 : 12];
+  assign c1_14 = c$c5_app_arg[23 : 12];
 
-  assign c0_5 = c$c5_app_arg[11 : 0];
+  assign c0_11 = c$c5_app_arg[11 : 0];
 
-  assign c$c5_app_arg = candidateStream.AXI4Stream_0_sel0;
+  assign c$c5_app_arg = midStreamTrue_0.AXI4Stream_0_sel0;
 
-  assign candidateStream = result_0[73:0];
+  assign stateABTrue_0 = result_8.Tuple2_10_sel0;
 
-  assign COEFF = result.Tuple2_9_sel0;
+  assign midStreamTrue_0 = result_8[73:0];
 
-  assign SEED_TREADY = result.Tuple2_9_sel1;
+  assign inReadyTrue_0 = result_8[74:74];
+
+  always_comb begin
+    case(phase[56:53])
+      4'b0000 : result_8 = c$ds_case_alt;
+      4'b0001 : result_8 = result_19;
+      4'b0010 : result_8 = result_19;
+      4'b0011 : result_8 = result_19;
+      4'b0100 : result_8 = result_9;
+      4'b0101 : result_8 = result_9;
+      4'b0110 : result_8 = result_9;
+      4'b0111 : result_8 = result_9;
+      default : result_8 = result_9;
+    endcase
+  end
+
+  assign result_9 = {c$stepLookahead4_stepSqueeze_tupIn.Tuple2_11_sel1
+                  ,{1'b0,{c$stepLookahead4_stepSqueeze_tupIn.Tuple2_11_sel0,1'b1,1'b0}}};
+
+  always_comb begin
+    case(stateBC[86:84])
+      3'b000 : c$stepLookahead4_consumeChunk_tupIn_0 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                       ,result_10};
+      default : c$stepLookahead4_consumeChunk_tupIn_0 = {{3'b001,b0_1,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                        ,result_10};
+    endcase
+  end
+
+  assign b0_1 = stateBC[83:72];
+
+  assign result_10 = (c5_4 < 12'b110100000001) ? result_11 : valid4_0;
+
+  assign c1_15 = valid4_0[71:60];
+
+  assign c1_16 = valid4_0[71:60];
+
+  assign c2_12 = valid4_0[59:48];
+
+  assign c1_17 = valid4_0[71:60];
+
+  assign c2_13 = valid4_0[59:48];
+
+  assign c3_9 = valid4_0[47:36];
+
+  assign c1_18 = valid4_0[71:60];
+
+  assign c2_14 = valid4_0[59:48];
+
+  assign c3_10 = valid4_0[47:36];
+
+  assign c4_6 = valid4_0[35:24];
+
+  assign c1_19 = valid4_0[71:60];
+
+  assign c2_15 = valid4_0[59:48];
+
+  assign c3_11 = valid4_0[47:36];
+
+  assign c4_7 = valid4_0[35:24];
+
+  assign c5_3 = valid4_0[23:12];
+
+  always_comb begin
+    case(valid4_0[74:72])
+      3'b000 : result_11 = {3'b001,c5_4,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : result_11 = {3'b010,c1_15,c5_4,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : result_11 = {3'b011,c1_16,c2_12,c5_4,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : result_11 = {3'b100,c1_17,c2_13,c3_9,c5_4,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : result_11 = {3'b101,c1_18,c2_14,c3_10,c4_6,c5_4,12'bxxxxxxxxxxxx};
+      3'b101 : result_11 = {3'b110,c1_19,c2_15,c3_11,c4_7,c5_3,c5_4};
+      default : result_11 = valid4_0;
+    endcase
+  end
+
+  assign valid4_0 = (c4_8 < 12'b110100000001) ? c$valid4_case_alt_0 : valid3_0;
+
+  assign c5_4 = c$c5_app_arg_0[71 : 60];
+
+  always_comb begin
+    case(valid3_0[74:72])
+      3'b000 : c$valid4_case_alt_0 = {3'b001,c4_8,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid4_case_alt_0 = {3'b010,c7_23,c4_8,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid4_case_alt_0 = {3'b011,c7_22,c8_18,c4_8,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid4_case_alt_0 = {3'b100,c7_21,c8_17,c9_13,c4_8,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid4_case_alt_0 = {3'b101,c7_20,c8_16,c9_12,c10_8,c4_8,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid4_case_alt_0 = {3'b110,c7_19,c8_15,c9_11,c10_7,c11_3,c4_8};
+      default : c$valid4_case_alt_0 = valid3_0;
+    endcase
+  end
+
+  assign c11_3 = valid3_0[23:12];
+
+  assign c10_7 = valid3_0[35:24];
+
+  assign c9_11 = valid3_0[47:36];
+
+  assign c8_15 = valid3_0[59:48];
+
+  assign c7_19 = valid3_0[71:60];
+
+  assign c10_8 = valid3_0[35:24];
+
+  assign c9_12 = valid3_0[47:36];
+
+  assign c8_16 = valid3_0[59:48];
+
+  assign c7_20 = valid3_0[71:60];
+
+  assign c9_13 = valid3_0[47:36];
+
+  assign c8_17 = valid3_0[59:48];
+
+  assign c7_21 = valid3_0[71:60];
+
+  assign c8_18 = valid3_0[59:48];
+
+  assign c7_22 = valid3_0[71:60];
+
+  assign c7_23 = valid3_0[71:60];
+
+  assign valid3_0 = (c3_12 < 12'b110100000001) ? c$valid3_case_alt_0 : valid2_0;
+
+  assign c4_8 = c$c5_app_arg_0[59 : 48];
+
+  always_comb begin
+    case(valid2_0[74:72])
+      3'b000 : c$valid3_case_alt_0 = {3'b001,c3_12,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid3_case_alt_0 = {3'b010,c7_28,c3_12,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid3_case_alt_0 = {3'b011,c7_27,c8_22,c3_12,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid3_case_alt_0 = {3'b100,c7_26,c8_21,c9_16,c3_12,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid3_case_alt_0 = {3'b101,c7_25,c8_20,c9_15,c10_10,c3_12,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid3_case_alt_0 = {3'b110,c7_24,c8_19,c9_14,c10_9,c11_4,c3_12};
+      default : c$valid3_case_alt_0 = valid2_0;
+    endcase
+  end
+
+  assign c11_4 = valid2_0[23:12];
+
+  assign c10_9 = valid2_0[35:24];
+
+  assign c9_14 = valid2_0[47:36];
+
+  assign c8_19 = valid2_0[59:48];
+
+  assign c7_24 = valid2_0[71:60];
+
+  assign c10_10 = valid2_0[35:24];
+
+  assign c9_15 = valid2_0[47:36];
+
+  assign c8_20 = valid2_0[59:48];
+
+  assign c7_25 = valid2_0[71:60];
+
+  assign c9_16 = valid2_0[47:36];
+
+  assign c8_21 = valid2_0[59:48];
+
+  assign c7_26 = valid2_0[71:60];
+
+  assign c8_22 = valid2_0[59:48];
+
+  assign c7_27 = valid2_0[71:60];
+
+  assign c7_28 = valid2_0[71:60];
+
+  assign valid2_0 = (c2_16 < 12'b110100000001) ? c$valid2_case_alt_0 : valid1_0;
+
+  assign c3_12 = c$c5_app_arg_0[47 : 36];
+
+  always_comb begin
+    case(valid1_0[74:72])
+      3'b000 : c$valid2_case_alt_0 = {3'b001,c2_16,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid2_case_alt_0 = {3'b010,c7_33,c2_16,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid2_case_alt_0 = {3'b011,c7_32,c8_26,c2_16,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid2_case_alt_0 = {3'b100,c7_31,c8_25,c9_19,c2_16,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid2_case_alt_0 = {3'b101,c7_30,c8_24,c9_18,c10_12,c2_16,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid2_case_alt_0 = {3'b110,c7_29,c8_23,c9_17,c10_11,c11_5,c2_16};
+      default : c$valid2_case_alt_0 = valid1_0;
+    endcase
+  end
+
+  assign c11_5 = valid1_0[23:12];
+
+  assign c10_11 = valid1_0[35:24];
+
+  assign c9_17 = valid1_0[47:36];
+
+  assign c8_23 = valid1_0[59:48];
+
+  assign c7_29 = valid1_0[71:60];
+
+  assign c10_12 = valid1_0[35:24];
+
+  assign c9_18 = valid1_0[47:36];
+
+  assign c8_24 = valid1_0[59:48];
+
+  assign c7_30 = valid1_0[71:60];
+
+  assign c9_19 = valid1_0[47:36];
+
+  assign c8_25 = valid1_0[59:48];
+
+  assign c7_31 = valid1_0[71:60];
+
+  assign c8_26 = valid1_0[59:48];
+
+  assign c7_32 = valid1_0[71:60];
+
+  assign c7_33 = valid1_0[71:60];
+
+  assign valid1_0 = (c1_20 < 12'b110100000001) ? c$valid1_case_alt_0 : valid0_0;
+
+  assign c2_16 = c$c5_app_arg_0[35 : 24];
+
+  always_comb begin
+    case(valid0_0[74:72])
+      3'b000 : c$valid1_case_alt_0 = {3'b001,c1_20,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid1_case_alt_0 = {3'b010,c7_38,c1_20,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid1_case_alt_0 = {3'b011,c7_37,c8_30,c1_20,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid1_case_alt_0 = {3'b100,c7_36,c8_29,c9_22,c1_20,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid1_case_alt_0 = {3'b101,c7_35,c8_28,c9_21,c10_14,c1_20,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid1_case_alt_0 = {3'b110,c7_34,c8_27,c9_20,c10_13,c11_6,c1_20};
+      default : c$valid1_case_alt_0 = valid0_0;
+    endcase
+  end
+
+  assign c11_6 = valid0_0[23:12];
+
+  assign c10_13 = valid0_0[35:24];
+
+  assign c9_20 = valid0_0[47:36];
+
+  assign c8_27 = valid0_0[59:48];
+
+  assign c7_34 = valid0_0[71:60];
+
+  assign c10_14 = valid0_0[35:24];
+
+  assign c9_21 = valid0_0[47:36];
+
+  assign c8_28 = valid0_0[59:48];
+
+  assign c7_35 = valid0_0[71:60];
+
+  assign c9_22 = valid0_0[47:36];
+
+  assign c8_29 = valid0_0[59:48];
+
+  assign c7_36 = valid0_0[71:60];
+
+  assign c8_30 = valid0_0[59:48];
+
+  assign c7_37 = valid0_0[71:60];
+
+  assign c7_38 = valid0_0[71:60];
+
+  assign valid0_0 = (c0_12 < 12'b110100000001) ? {3'b001,c0_12,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : {3'b000,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+
+  assign c1_20 = c$c5_app_arg_0[23 : 12];
+
+  assign c0_12 = c$c5_app_arg_0[11 : 0];
+
+  assign c$c5_app_arg_0 = midStreamFalse.AXI4Stream_0_sel0;
+
+  assign stateBC = stateAB_1.Tuple2_5_sel1;
+
+  assign midStreamFalse = result_12[73:0];
+
+  assign inReadyFalse = result_12[74:74];
+
+  assign stateABFalse = result_12.Tuple2_10_sel0;
+
+  always_comb begin
+    case(phase[56:53])
+      4'b0000 : result_12 = c$ds_case_alt;
+      4'b0001 : result_12 = result_19;
+      4'b0010 : result_12 = result_19;
+      4'b0011 : result_12 = result_19;
+      4'b0100 : result_12 = result_21;
+      4'b0101 : result_12 = result_21;
+      4'b0110 : result_12 = result_21;
+      4'b0111 : result_12 = result_21;
+      default : result_12 = result_21;
+    endcase
+  end
+
+  assign c$ds_case_alt = msgValid ? {{{4'b0001,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                     ,result_18}
+                                    ,{1'b0
+                                     ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                      ,1'b0
+                                      ,1'b0}}} : {{{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                  ,state}
+                                                 ,{1'b1
+                                                  ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                                   ,1'b0
+                                                   ,1'b0}}};
+
+  assign msgValid = inStream.AXI4Stream_1_sel1;
+
+  // replaceBit start
+  always_comb begin
+    result_13 = c$app_arg_0;
+    result_13[64'sd272] = (~ (c$app_arg_0[64'sd272]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_0 = result_14;
+
+  // replaceBit start
+  always_comb begin
+    result_14 = c$app_arg_1;
+    result_14[64'sd273] = (~ (c$app_arg_1[64'sd273]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_1 = result_15;
+
+  // replaceBit start
+  always_comb begin
+    result_15 = c$app_arg_2;
+    result_15[64'sd274] = (~ (c$app_arg_2[64'sd274]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_2 = result_16;
+
+  // replaceBit start
+  always_comb begin
+    result_16 = c$app_arg_3;
+    result_16[64'sd275] = (~ (c$app_arg_3[64'sd275]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_3 = result_17;
+
+  // replaceBit start
+  always_comb begin
+    result_17 = c$app_arg_4;
+    result_17[64'sd276] = (~ (c$app_arg_4[64'sd276]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_4 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
+
+  // replaceBit start
+  always_comb begin
+    result_18 = c$app_arg_5;
+    result_18[64'sd1343] = (~ (c$app_arg_5[64'sd1343]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_5 = result_13;
+
+  assign inputMsg = inStream.AXI4Stream_1_sel0;
+
+  assign result_19 = (c$stepLookahead4_stepPermute_arg5 == 5'd23) ? {result_20
+                                                                    ,{1'b0
+                                                                     ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                      ,1'b0
+                                                                      ,1'b0}}} : {{c$app_arg_6,c$keccakF1600_out}
+                                                                                 ,{1'b0
+                                                                                  ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                                   ,1'b0
+                                                                                   ,1'b0}}};
+
+  always_comb begin
+    case(phase[56:53])
+      4'b0001 : result_20 = {{4'b0100,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                            ,c$keccakF1600_out};
+      4'b0010 : result_20 = {{4'b0101,carry24,29'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                            ,c$keccakF1600_out};
+      default : result_20 = {{4'b0111,carry48,5'bxxxxx}
+                            ,c$keccakF1600_out};
+    endcase
+  end
+
+  assign carry48 = phase[52:5];
+
+  assign carry24 = phase[52:29];
+
+  always_comb begin
+    case(phase[56:53])
+      4'b0001 : c$app_arg_6 = {4'b0001,c$app_arg_7,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      4'b0010 : c$app_arg_6 = {4'b0010,carry24_0,c$app_arg_7,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      4'b0011 : c$app_arg_6 = {4'b0011,carry48_0,c$app_arg_7};
+      default : c$app_arg_6 = {57 {1'bx}};
+    endcase
+  end
+
+  assign carry48_0 = phase[52:5];
+
+  assign carry24_0 = phase[52:29];
+
+  assign c$app_arg_7 = c$stepLookahead4_stepPermute_arg5 + 5'd1;
+
+  Component_SampleNTT4_i272o24l4_keccakF1600 i272o24l12_i272o24l13_Component_SampleNTT4_i272o24l4_keccakF1600_c$keccakF1600_out
+    ( .result (c$keccakF1600_out)
+    , .roundIdx (c$stepLookahead4_stepPermute_arg5)
+    , .x (state) );
+
+  assign result_21 = {{phase,state}
+                   ,{1'b0,{c$stepLookahead4_stepSqueeze_tupIn.Tuple2_11_sel0,1'b1,1'b0}}};
+
+  always_comb begin
+    case(phase[56:53])
+      4'b0001 : c$stepLookahead4_stepPermute_arg5 = counter_1;
+      4'b0010 : c$stepLookahead4_stepPermute_arg5 = counter_0;
+      default : c$stepLookahead4_stepPermute_arg5 = counter;
+    endcase
+  end
+
+  assign counter = phase[4:0];
+
+  assign counter_0 = phase[28:24];
+
+  assign counter_1 = phase[52:48];
+
+  always_comb begin
+    case(phase[56:53])
+      4'b0100 : c$stepLookahead4_stepSqueeze_tupIn = {result_24
+                                                     ,c$stepLookahead4_stepSqueeze_tupIn_app_arg_1};
+      4'b0101 : c$stepLookahead4_stepSqueeze_tupIn = {{(c$stepLookahead4_stepSqueeze_tupIn_app_arg_2[47 : 0]),carry24_1}
+                                                     ,{{4'b1000,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                      ,state}};
+      4'b0110 : c$stepLookahead4_stepSqueeze_tupIn = {result_23
+                                                     ,c$stepLookahead4_stepSqueeze_tupIn_app_arg_0};
+      4'b0111 : c$stepLookahead4_stepSqueeze_tupIn = {{(c$stepLookahead4_stepSqueeze_tupIn_app_arg_2[23 : 0]),carry48_1}
+                                                     ,{{4'b0110,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                      ,state}};
+      default : c$stepLookahead4_stepSqueeze_tupIn = {result_22
+                                                     ,c$stepLookahead4_stepSqueeze_tupIn_app_arg};
+    endcase
+  end
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg = (counter_2 == 5'd17) ? {{4'b0001,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                             ,state} : {{4'b1000,counter_2 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                       ,state};
+
+  assign result_22 = (counter_2 == 5'd0) ? (c$app_arg_8[119 : 48]) : c$case_alt_9;
+
+  assign c$case_alt_9 = (counter_2 == 5'd1) ? (c$app_arg_8[191 : 120]) : c$case_alt_10;
+
+  assign c$case_alt_10 = (counter_2 == 5'd2) ? (c$app_arg_8[263 : 192]) : c$case_alt_11;
+
+  assign c$case_alt_11 = (counter_2 == 5'd3) ? (c$app_arg_8[335 : 264]) : c$case_alt_12;
+
+  assign c$case_alt_12 = (counter_2 == 5'd4) ? (c$app_arg_8[407 : 336]) : c$case_alt_13;
+
+  assign c$case_alt_13 = (counter_2 == 5'd5) ? (c$app_arg_8[479 : 408]) : c$case_alt_14;
+
+  assign c$case_alt_14 = (counter_2 == 5'd6) ? (c$app_arg_8[551 : 480]) : c$case_alt_15;
+
+  assign c$case_alt_15 = (counter_2 == 5'd7) ? (c$app_arg_8[623 : 552]) : c$case_alt_16;
+
+  assign c$case_alt_16 = (counter_2 == 5'd8) ? (c$app_arg_8[695 : 624]) : c$case_alt_17;
+
+  assign c$case_alt_17 = (counter_2 == 5'd9) ? (c$app_arg_8[767 : 696]) : c$case_alt_18;
+
+  assign c$case_alt_18 = (counter_2 == 5'd10) ? (c$app_arg_8[839 : 768]) : c$case_alt_19;
+
+  assign c$case_alt_19 = (counter_2 == 5'd11) ? (c$app_arg_8[911 : 840]) : c$case_alt_20;
+
+  assign c$case_alt_20 = (counter_2 == 5'd12) ? (c$app_arg_8[983 : 912]) : c$case_alt_21;
+
+  assign c$case_alt_21 = (counter_2 == 5'd13) ? (c$app_arg_8[1055 : 984]) : c$case_alt_22;
+
+  assign c$case_alt_22 = (counter_2 == 5'd14) ? (c$app_arg_8[1127 : 1056]) : c$case_alt_23;
+
+  assign c$case_alt_23 = (counter_2 == 5'd15) ? (c$app_arg_8[1199 : 1128]) : c$case_alt_24;
+
+  assign c$case_alt_24 = (counter_2 == 5'd16) ? (c$app_arg_8[1271 : 1200]) : c$case_alt_25;
+
+  assign c$case_alt_25 = (counter_2 == 5'd17) ? (c$app_arg_8[1343 : 1272]) : ({72 {1'bx}});
+
+  assign c$app_arg_8 = state;
+
+  assign counter_2 = phase[52:48];
+
+  assign carry48_1 = phase[52:5];
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_0 = (counter_3 == 5'd17) ? {{4'b0010,c$stepLookahead4_stepSqueeze_tupIn_app_arg_2[1343 : 1320],5'd0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                               ,state} : {{4'b0110,counter_3 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                         ,state};
+
+  assign result_23 = (counter_3 == 5'd0) ? (c$app_arg_9[95 : 24]) : c$case_alt_26;
+
+  assign c$case_alt_26 = (counter_3 == 5'd1) ? (c$app_arg_9[167 : 96]) : c$case_alt_27;
+
+  assign c$case_alt_27 = (counter_3 == 5'd2) ? (c$app_arg_9[239 : 168]) : c$case_alt_28;
+
+  assign c$case_alt_28 = (counter_3 == 5'd3) ? (c$app_arg_9[311 : 240]) : c$case_alt_29;
+
+  assign c$case_alt_29 = (counter_3 == 5'd4) ? (c$app_arg_9[383 : 312]) : c$case_alt_30;
+
+  assign c$case_alt_30 = (counter_3 == 5'd5) ? (c$app_arg_9[455 : 384]) : c$case_alt_31;
+
+  assign c$case_alt_31 = (counter_3 == 5'd6) ? (c$app_arg_9[527 : 456]) : c$case_alt_32;
+
+  assign c$case_alt_32 = (counter_3 == 5'd7) ? (c$app_arg_9[599 : 528]) : c$case_alt_33;
+
+  assign c$case_alt_33 = (counter_3 == 5'd8) ? (c$app_arg_9[671 : 600]) : c$case_alt_34;
+
+  assign c$case_alt_34 = (counter_3 == 5'd9) ? (c$app_arg_9[743 : 672]) : c$case_alt_35;
+
+  assign c$case_alt_35 = (counter_3 == 5'd10) ? (c$app_arg_9[815 : 744]) : c$case_alt_36;
+
+  assign c$case_alt_36 = (counter_3 == 5'd11) ? (c$app_arg_9[887 : 816]) : c$case_alt_37;
+
+  assign c$case_alt_37 = (counter_3 == 5'd12) ? (c$app_arg_9[959 : 888]) : c$case_alt_38;
+
+  assign c$case_alt_38 = (counter_3 == 5'd13) ? (c$app_arg_9[1031 : 960]) : c$case_alt_39;
+
+  assign c$case_alt_39 = (counter_3 == 5'd14) ? (c$app_arg_9[1103 : 1032]) : c$case_alt_40;
+
+  assign c$case_alt_40 = (counter_3 == 5'd15) ? (c$app_arg_9[1175 : 1104]) : c$case_alt_41;
+
+  assign c$case_alt_41 = (counter_3 == 5'd16) ? (c$app_arg_9[1247 : 1176]) : c$case_alt_42;
+
+  assign c$case_alt_42 = (counter_3 == 5'd17) ? (c$app_arg_9[1319 : 1248]) : ({72 {1'bx}});
+
+  assign c$app_arg_9 = state;
+
+  assign counter_3 = phase[52:48];
+
+  assign carry24_1 = phase[52:29];
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_1 = (counter_4 == 5'd17) ? {{4'b0011,c$stepLookahead4_stepSqueeze_tupIn_app_arg_2[1343 : 1296],5'd0}
+                                                                               ,state} : {{4'b0100,counter_4 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                         ,state};
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_2 = state;
+
+  assign result_24 = (counter_4 == 5'd0) ? (c$app_arg_10[71 : 0]) : c$case_alt_43;
+
+  assign c$case_alt_43 = (counter_4 == 5'd1) ? (c$app_arg_10[143 : 72]) : c$case_alt_44;
+
+  assign c$case_alt_44 = (counter_4 == 5'd2) ? (c$app_arg_10[215 : 144]) : c$case_alt_45;
+
+  assign c$case_alt_45 = (counter_4 == 5'd3) ? (c$app_arg_10[287 : 216]) : c$case_alt_46;
+
+  assign c$case_alt_46 = (counter_4 == 5'd4) ? (c$app_arg_10[359 : 288]) : c$case_alt_47;
+
+  assign c$case_alt_47 = (counter_4 == 5'd5) ? (c$app_arg_10[431 : 360]) : c$case_alt_48;
+
+  assign c$case_alt_48 = (counter_4 == 5'd6) ? (c$app_arg_10[503 : 432]) : c$case_alt_49;
+
+  assign c$case_alt_49 = (counter_4 == 5'd7) ? (c$app_arg_10[575 : 504]) : c$case_alt_50;
+
+  assign c$case_alt_50 = (counter_4 == 5'd8) ? (c$app_arg_10[647 : 576]) : c$case_alt_51;
+
+  assign c$case_alt_51 = (counter_4 == 5'd9) ? (c$app_arg_10[719 : 648]) : c$case_alt_52;
+
+  assign c$case_alt_52 = (counter_4 == 5'd10) ? (c$app_arg_10[791 : 720]) : c$case_alt_53;
+
+  assign c$case_alt_53 = (counter_4 == 5'd11) ? (c$app_arg_10[863 : 792]) : c$case_alt_54;
+
+  assign c$case_alt_54 = (counter_4 == 5'd12) ? (c$app_arg_10[935 : 864]) : c$case_alt_55;
+
+  assign c$case_alt_55 = (counter_4 == 5'd13) ? (c$app_arg_10[1007 : 936]) : c$case_alt_56;
+
+  assign c$case_alt_56 = (counter_4 == 5'd14) ? (c$app_arg_10[1079 : 1008]) : c$case_alt_57;
+
+  assign c$case_alt_57 = (counter_4 == 5'd15) ? (c$app_arg_10[1151 : 1080]) : c$case_alt_58;
+
+  assign c$case_alt_58 = (counter_4 == 5'd16) ? (c$app_arg_10[1223 : 1152]) : c$case_alt_59;
+
+  assign c$case_alt_59 = (counter_4 == 5'd17) ? (c$app_arg_10[1295 : 1224]) : ({72 {1'bx}});
+
+  assign c$app_arg_10 = state;
+
+  assign counter_4 = phase[52:48];
+
+  assign phase = stateAB.State_sel0;
+
+  assign state = stateAB.State_sel1;
+
+  assign stateAB = stateAB_1.Tuple2_5_sel0;
+
+  assign outStreamFalse_0 = c$ds1_case_scrut[25:0];
+
+  assign midReadyFalse_0 = c$ds1_case_scrut[26:26];
+
+  assign stateBCFalse_0 = c$ds1_case_scrut.Tuple2_4_sel0;
+
+  assign c$ds1_case_scrut = c$ds1_case_scrut_0 ? {stateBC_0
+                                                 ,{1'b0
+                                                  ,{24'b000000000000000000000000
+                                                   ,1'b0
+                                                   ,1'b0}}} : c$ds1_case_alt_2;
+
+  assign c$ds1_case_scrut_0 = stateBC_0 == 8'd128;
+
+  assign c$ds1_case_alt_2 = midStreamFalse_0.AXI4Stream_sel1 ? {c$ds1_app_arg_0
+                                                               ,{outReady
+                                                                ,{midStreamFalse_0.AXI4Stream_sel0
+                                                                 ,1'b1
+                                                                 ,c$ds1_app_arg}}} : {stateBC_0
+                                                                                     ,{outReady
+                                                                                      ,{24'b000000000000000000000000
+                                                                                       ,1'b0
+                                                                                       ,1'b0}}};
+
+  assign c$ds1_app_arg = stateBC_0 == 8'd127;
+
+  assign c$ds1_app_arg_0 = outReady ? (stateBC_0 + 8'd1) : stateBC_0;
+
+  assign stateBC_0 = c$app_arg.Tuple2_2_sel1;
+
+  assign outReady = c$arg.Tuple2_12_sel1;
+
+  assign midStreamFalse_0 = result_25[25:0];
+
+  assign inReadyFalse_0 = result_25[26:26];
+
+  assign stateABFalse_0 = result_25.Tuple2_6_sel0;
+
+  assign result_25 = (~ midReadyFalse_1) ? {{stateABFalse_1
+                                            ,stateBCFalse_1}
+                                           ,{inReadyFalse_1
+                                            ,outStreamFalse_1}} : c$case_alt_60;
+
+  assign c$case_alt_60 = midReadyTrue_1 ? {{stateABTrue_1
+                                           ,stateBCTrue_1}
+                                          ,{inReadyTrue_1
+                                           ,outStreamTrue_1}} : ({1771 {1'bx}});
+
+  assign midReadyTrue_1 = result_26[26:26];
+
+  assign outStreamTrue_1 = result_26[25:0];
+
+  assign stateBCTrue_1 = result_26.Tuple2_7_sel0;
+
+  always_comb begin
+    case(stateBC_1[86:84])
+      3'b000 : result_26 = c$case_alt_62;
+      3'b001 : result_26 = c$case_alt_61;
+      default : result_26 = {stateBC_1
+                            ,{1'b0,{ds1_0.Tuple2_8_sel0,1'b1,1'b0}}};
+    endcase
+  end
+
+  assign c$case_alt_61 = midStreamTrue_1.AXI4Stream_0_sel1 ? c$case_alt_63 : {{3'b001,b0_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                             ,{1'b1
+                                                                              ,{24'b000000000000000000000000
+                                                                               ,1'b0
+                                                                               ,1'b0}}};
+
+  assign c$case_alt_62 = midStreamTrue_1.AXI4Stream_0_sel1 ? c$case_alt_63 : {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                             ,{1'b1
+                                                                              ,{24'b000000000000000000000000
+                                                                               ,1'b0
+                                                                               ,1'b0}}};
+
+  assign c$case_alt_63 = result_27;
+
+  assign result_selection_24 = c$stepLookahead4_consumeChunk_tupIn_1.Tuple2_9_sel0;
+
+  always_comb begin
+    case(result_selection_24[86:84])
+      3'b000 : result_27 = c$case_alt_65;
+      3'b001 : result_27 = c$case_alt_64;
+      default : result_27 = {114 {1'bx}};
+    endcase
+  end
+
+  assign c$case_alt_selection_77 = c$stepLookahead4_consumeChunk_tupIn_1.Tuple2_9_sel1;
+
+  always_comb begin
+    case(c$case_alt_selection_77[74:72])
+      3'b000 : c$case_alt_64 = {{3'b001,b0_2,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_64 = {{3'b010,b0_2,c0_18,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b010 : c$case_alt_64 = {{3'b011,b0_2,c0_17,c1_25,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b011 : c$case_alt_64 = {{3'b100,b0_2,c0_16,c1_24,c2_20,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b100 : c$case_alt_64 = {{3'b101,b0_2,c0_15,c1_23,c2_19,c3_15,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b101 : c$case_alt_64 = {{3'b110,b0_2,c0_14,c1_22,c2_18,c3_14,c4_10,12'bxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      default : c$case_alt_64 = {{3'b111,b0_2,c0_13,c1_21,c2_17,c3_13,c4_9,c5_5}
+                                ,{1'b1
+                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
+    endcase
+  end
+
+  assign c$case_alt_selection_80 = c$stepLookahead4_consumeChunk_tupIn_1.Tuple2_9_sel1;
+
+  always_comb begin
+    case(c$case_alt_selection_80[74:72])
+      3'b000 : c$case_alt_65 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_65 = {{3'b001,c0_18,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b010 : c$case_alt_65 = {{3'b010,c0_17,c1_25,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b011 : c$case_alt_65 = {{3'b011,c0_16,c1_24,c2_20,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b100 : c$case_alt_65 = {{3'b100,c0_15,c1_23,c2_19,c3_15,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b101 : c$case_alt_65 = {{3'b101,c0_14,c1_22,c2_18,c3_14,c4_10,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      default : c$case_alt_65 = {{3'b110,c0_13,c1_21,c2_17,c3_13,c4_9,c5_5,12'bxxxxxxxxxxxx}
+                                ,{1'b1
+                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
+    endcase
+  end
+
+  assign b0_2 = c$stepLookahead4_consumeChunk_tupIn_1[158:147];
+
+  assign c5_5 = c$stepLookahead4_consumeChunk_tupIn_1[11:0];
+
+  assign c4_9 = c$stepLookahead4_consumeChunk_tupIn_1[23:12];
+
+  assign c3_13 = c$stepLookahead4_consumeChunk_tupIn_1[35:24];
+
+  assign c2_17 = c$stepLookahead4_consumeChunk_tupIn_1[47:36];
+
+  assign c1_21 = c$stepLookahead4_consumeChunk_tupIn_1[59:48];
+
+  assign c0_13 = c$stepLookahead4_consumeChunk_tupIn_1[71:60];
+
+  assign c4_10 = c$stepLookahead4_consumeChunk_tupIn_1[23:12];
+
+  assign c3_14 = c$stepLookahead4_consumeChunk_tupIn_1[35:24];
+
+  assign c2_18 = c$stepLookahead4_consumeChunk_tupIn_1[47:36];
+
+  assign c1_22 = c$stepLookahead4_consumeChunk_tupIn_1[59:48];
+
+  assign c0_14 = c$stepLookahead4_consumeChunk_tupIn_1[71:60];
+
+  assign c3_15 = c$stepLookahead4_consumeChunk_tupIn_1[35:24];
+
+  assign c2_19 = c$stepLookahead4_consumeChunk_tupIn_1[47:36];
+
+  assign c1_23 = c$stepLookahead4_consumeChunk_tupIn_1[59:48];
+
+  assign c0_15 = c$stepLookahead4_consumeChunk_tupIn_1[71:60];
+
+  assign c2_20 = c$stepLookahead4_consumeChunk_tupIn_1[47:36];
+
+  assign c1_24 = c$stepLookahead4_consumeChunk_tupIn_1[59:48];
+
+  assign c0_16 = c$stepLookahead4_consumeChunk_tupIn_1[71:60];
+
+  assign c1_25 = c$stepLookahead4_consumeChunk_tupIn_1[59:48];
+
+  assign c0_17 = c$stepLookahead4_consumeChunk_tupIn_1[71:60];
+
+  assign c0_18 = c$stepLookahead4_consumeChunk_tupIn_1[71:60];
+
+  assign outStreamFalse_1 = result_28[25:0];
+
+  assign midReadyFalse_1 = result_28[26:26];
+
+  assign stateBCFalse_1 = result_28.Tuple2_7_sel0;
+
+  always_comb begin
+    case(stateBC_1[86:84])
+      3'b000 : result_28 = c$ds1_case_alt_4;
+      3'b001 : result_28 = c$ds1_case_alt_3;
+      default : result_28 = {stateBC_1
+                            ,{1'b0,{ds1_0.Tuple2_8_sel0,1'b1,1'b0}}};
+    endcase
+  end
+
+  assign c$ds1_case_alt_3 = midStreamFalse_1.AXI4Stream_0_sel1 ? c$ds1_case_alt_5 : {{3'b001,b0_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                    ,{1'b1
+                                                                                     ,{24'b000000000000000000000000
+                                                                                      ,1'b0
+                                                                                      ,1'b0}}};
+
+  assign c$ds1_case_alt_4 = midStreamFalse_1.AXI4Stream_0_sel1 ? c$ds1_case_alt_5 : {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                    ,{1'b1
+                                                                                     ,{24'b000000000000000000000000
+                                                                                      ,1'b0
+                                                                                      ,1'b0}}};
+
+  assign c$ds1_case_alt_5 = result_29;
+
+  always_comb begin
+    case(stateBC_1[86:84])
+      3'b010 : ds1_0 = {{b_10,a_10}
+                       ,{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      3'b011 : ds1_0 = {{b_9,a_9}
+                       ,{3'b001,c_8,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      3'b100 : ds1_0 = {{b_8,a_8}
+                       ,{3'b010,c_7,d_6,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      3'b101 : ds1_0 = {{b_7,a_7}
+                       ,{3'b011,c_6,d_5,e_4,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      3'b110 : ds1_0 = {{b_6,a_6}
+                       ,{3'b100,c_5,d_4,e_3,f_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      default : ds1_0 = {{b_5,a_5}
+                        ,{3'b101,c_4,d_3,e_2,f_1,g_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}};
+    endcase
+  end
+
+  assign g_0 = stateBC_1[11:0];
+
+  assign f_1 = stateBC_1[23:12];
+
+  assign e_2 = stateBC_1[35:24];
+
+  assign d_3 = stateBC_1[47:36];
+
+  assign c_4 = stateBC_1[59:48];
+
+  assign b_5 = stateBC_1[71:60];
+
+  assign a_5 = stateBC_1[83:72];
+
+  assign f_2 = stateBC_1[23:12];
+
+  assign e_3 = stateBC_1[35:24];
+
+  assign d_4 = stateBC_1[47:36];
+
+  assign c_5 = stateBC_1[59:48];
+
+  assign b_6 = stateBC_1[71:60];
+
+  assign a_6 = stateBC_1[83:72];
+
+  assign e_4 = stateBC_1[35:24];
+
+  assign d_5 = stateBC_1[47:36];
+
+  assign c_6 = stateBC_1[59:48];
+
+  assign b_7 = stateBC_1[71:60];
+
+  assign a_7 = stateBC_1[83:72];
+
+  assign d_6 = stateBC_1[47:36];
+
+  assign c_7 = stateBC_1[59:48];
+
+  assign b_8 = stateBC_1[71:60];
+
+  assign a_8 = stateBC_1[83:72];
+
+  assign c_8 = stateBC_1[59:48];
+
+  assign b_9 = stateBC_1[71:60];
+
+  assign a_9 = stateBC_1[83:72];
+
+  assign b_10 = stateBC_1[71:60];
+
+  assign a_10 = stateBC_1[83:72];
+
+  assign result_selection_28 = c$stepLookahead4_consumeChunk_tupIn_2.Tuple2_9_sel0;
+
+  always_comb begin
+    case(result_selection_28[86:84])
+      3'b000 : result_29 = c$case_alt_67;
+      3'b001 : result_29 = c$case_alt_66;
+      default : result_29 = {114 {1'bx}};
+    endcase
+  end
+
+  assign c$case_alt_selection_83 = c$stepLookahead4_consumeChunk_tupIn_2.Tuple2_9_sel1;
+
+  always_comb begin
+    case(c$case_alt_selection_83[74:72])
+      3'b000 : c$case_alt_66 = {{3'b001,b0_3,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_66 = {{3'b010,b0_3,c0_24,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b010 : c$case_alt_66 = {{3'b011,b0_3,c0_23,c1_30,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b011 : c$case_alt_66 = {{3'b100,b0_3,c0_22,c1_29,c2_24,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b100 : c$case_alt_66 = {{3'b101,b0_3,c0_21,c1_28,c2_23,c3_18,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b101 : c$case_alt_66 = {{3'b110,b0_3,c0_20,c1_27,c2_22,c3_17,c4_12,12'bxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      default : c$case_alt_66 = {{3'b111,b0_3,c0_19,c1_26,c2_21,c3_16,c4_11,c5_6}
+                                ,{1'b1
+                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
+    endcase
+  end
+
+  assign c$case_alt_selection_86 = c$stepLookahead4_consumeChunk_tupIn_2.Tuple2_9_sel1;
+
+  always_comb begin
+    case(c$case_alt_selection_86[74:72])
+      3'b000 : c$case_alt_67 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b001 : c$case_alt_67 = {{3'b001,c0_24,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b010 : c$case_alt_67 = {{3'b010,c0_23,c1_30,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b011 : c$case_alt_67 = {{3'b011,c0_22,c1_29,c2_24,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b100 : c$case_alt_67 = {{3'b100,c0_21,c1_28,c2_23,c3_18,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      3'b101 : c$case_alt_67 = {{3'b101,c0_20,c1_27,c2_22,c3_17,c4_12,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                               ,{1'b1
+                                ,{24'b000000000000000000000000,1'b0,1'b0}}};
+      default : c$case_alt_67 = {{3'b110,c0_19,c1_26,c2_21,c3_16,c4_11,c5_6,12'bxxxxxxxxxxxx}
+                                ,{1'b1
+                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
+    endcase
+  end
+
+  assign b0_3 = c$stepLookahead4_consumeChunk_tupIn_2[158:147];
+
+  assign c5_6 = c$stepLookahead4_consumeChunk_tupIn_2[11:0];
+
+  assign c4_11 = c$stepLookahead4_consumeChunk_tupIn_2[23:12];
+
+  assign c3_16 = c$stepLookahead4_consumeChunk_tupIn_2[35:24];
+
+  assign c2_21 = c$stepLookahead4_consumeChunk_tupIn_2[47:36];
+
+  assign c1_26 = c$stepLookahead4_consumeChunk_tupIn_2[59:48];
+
+  assign c0_19 = c$stepLookahead4_consumeChunk_tupIn_2[71:60];
+
+  assign c4_12 = c$stepLookahead4_consumeChunk_tupIn_2[23:12];
+
+  assign c3_17 = c$stepLookahead4_consumeChunk_tupIn_2[35:24];
+
+  assign c2_22 = c$stepLookahead4_consumeChunk_tupIn_2[47:36];
+
+  assign c1_27 = c$stepLookahead4_consumeChunk_tupIn_2[59:48];
+
+  assign c0_20 = c$stepLookahead4_consumeChunk_tupIn_2[71:60];
+
+  assign c3_18 = c$stepLookahead4_consumeChunk_tupIn_2[35:24];
+
+  assign c2_23 = c$stepLookahead4_consumeChunk_tupIn_2[47:36];
+
+  assign c1_28 = c$stepLookahead4_consumeChunk_tupIn_2[59:48];
+
+  assign c0_21 = c$stepLookahead4_consumeChunk_tupIn_2[71:60];
+
+  assign c2_24 = c$stepLookahead4_consumeChunk_tupIn_2[47:36];
+
+  assign c1_29 = c$stepLookahead4_consumeChunk_tupIn_2[59:48];
+
+  assign c0_22 = c$stepLookahead4_consumeChunk_tupIn_2[71:60];
+
+  assign c1_30 = c$stepLookahead4_consumeChunk_tupIn_2[59:48];
+
+  assign c0_23 = c$stepLookahead4_consumeChunk_tupIn_2[71:60];
+
+  assign c0_24 = c$stepLookahead4_consumeChunk_tupIn_2[71:60];
+
+  always_comb begin
+    case(stateBC_1[86:84])
+      3'b000 : c$stepLookahead4_consumeChunk_tupIn_1 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                       ,result_30};
+      default : c$stepLookahead4_consumeChunk_tupIn_1 = {{3'b001,b0_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                        ,result_30};
+    endcase
+  end
+
+  assign result_30 = (c5_8 < 12'b110100000001) ? result_31 : valid4_1;
+
+  assign c1_31 = valid4_1[71:60];
+
+  assign c1_32 = valid4_1[71:60];
+
+  assign c2_25 = valid4_1[59:48];
+
+  assign c1_33 = valid4_1[71:60];
+
+  assign c2_26 = valid4_1[59:48];
+
+  assign c3_19 = valid4_1[47:36];
+
+  assign c1_34 = valid4_1[71:60];
+
+  assign c2_27 = valid4_1[59:48];
+
+  assign c3_20 = valid4_1[47:36];
+
+  assign c4_13 = valid4_1[35:24];
+
+  assign c1_35 = valid4_1[71:60];
+
+  assign c2_28 = valid4_1[59:48];
+
+  assign c3_21 = valid4_1[47:36];
+
+  assign c4_14 = valid4_1[35:24];
+
+  assign c5_7 = valid4_1[23:12];
+
+  always_comb begin
+    case(valid4_1[74:72])
+      3'b000 : result_31 = {3'b001,c5_8,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : result_31 = {3'b010,c1_31,c5_8,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : result_31 = {3'b011,c1_32,c2_25,c5_8,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : result_31 = {3'b100,c1_33,c2_26,c3_19,c5_8,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : result_31 = {3'b101,c1_34,c2_27,c3_20,c4_13,c5_8,12'bxxxxxxxxxxxx};
+      3'b101 : result_31 = {3'b110,c1_35,c2_28,c3_21,c4_14,c5_7,c5_8};
+      default : result_31 = valid4_1;
+    endcase
+  end
+
+  assign valid4_1 = (c4_15 < 12'b110100000001) ? c$valid4_case_alt_1 : valid3_1;
+
+  assign c5_8 = c$c5_app_arg_1[71 : 60];
+
+  always_comb begin
+    case(valid3_1[74:72])
+      3'b000 : c$valid4_case_alt_1 = {3'b001,c4_15,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid4_case_alt_1 = {3'b010,c7_43,c4_15,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid4_case_alt_1 = {3'b011,c7_42,c8_34,c4_15,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid4_case_alt_1 = {3'b100,c7_41,c8_33,c9_25,c4_15,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid4_case_alt_1 = {3'b101,c7_40,c8_32,c9_24,c10_16,c4_15,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid4_case_alt_1 = {3'b110,c7_39,c8_31,c9_23,c10_15,c11_7,c4_15};
+      default : c$valid4_case_alt_1 = valid3_1;
+    endcase
+  end
+
+  assign c11_7 = valid3_1[23:12];
+
+  assign c10_15 = valid3_1[35:24];
+
+  assign c9_23 = valid3_1[47:36];
+
+  assign c8_31 = valid3_1[59:48];
+
+  assign c7_39 = valid3_1[71:60];
+
+  assign c10_16 = valid3_1[35:24];
+
+  assign c9_24 = valid3_1[47:36];
+
+  assign c8_32 = valid3_1[59:48];
+
+  assign c7_40 = valid3_1[71:60];
+
+  assign c9_25 = valid3_1[47:36];
+
+  assign c8_33 = valid3_1[59:48];
+
+  assign c7_41 = valid3_1[71:60];
+
+  assign c8_34 = valid3_1[59:48];
+
+  assign c7_42 = valid3_1[71:60];
+
+  assign c7_43 = valid3_1[71:60];
+
+  assign valid3_1 = (c3_22 < 12'b110100000001) ? c$valid3_case_alt_1 : valid2_1;
+
+  assign c4_15 = c$c5_app_arg_1[59 : 48];
+
+  always_comb begin
+    case(valid2_1[74:72])
+      3'b000 : c$valid3_case_alt_1 = {3'b001,c3_22,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid3_case_alt_1 = {3'b010,c7_48,c3_22,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid3_case_alt_1 = {3'b011,c7_47,c8_38,c3_22,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid3_case_alt_1 = {3'b100,c7_46,c8_37,c9_28,c3_22,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid3_case_alt_1 = {3'b101,c7_45,c8_36,c9_27,c10_18,c3_22,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid3_case_alt_1 = {3'b110,c7_44,c8_35,c9_26,c10_17,c11_8,c3_22};
+      default : c$valid3_case_alt_1 = valid2_1;
+    endcase
+  end
+
+  assign c11_8 = valid2_1[23:12];
+
+  assign c10_17 = valid2_1[35:24];
+
+  assign c9_26 = valid2_1[47:36];
+
+  assign c8_35 = valid2_1[59:48];
+
+  assign c7_44 = valid2_1[71:60];
+
+  assign c10_18 = valid2_1[35:24];
+
+  assign c9_27 = valid2_1[47:36];
+
+  assign c8_36 = valid2_1[59:48];
+
+  assign c7_45 = valid2_1[71:60];
+
+  assign c9_28 = valid2_1[47:36];
+
+  assign c8_37 = valid2_1[59:48];
+
+  assign c7_46 = valid2_1[71:60];
+
+  assign c8_38 = valid2_1[59:48];
+
+  assign c7_47 = valid2_1[71:60];
+
+  assign c7_48 = valid2_1[71:60];
+
+  assign valid2_1 = (c2_29 < 12'b110100000001) ? c$valid2_case_alt_1 : valid1_1;
+
+  assign c3_22 = c$c5_app_arg_1[47 : 36];
+
+  always_comb begin
+    case(valid1_1[74:72])
+      3'b000 : c$valid2_case_alt_1 = {3'b001,c2_29,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid2_case_alt_1 = {3'b010,c7_53,c2_29,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid2_case_alt_1 = {3'b011,c7_52,c8_42,c2_29,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid2_case_alt_1 = {3'b100,c7_51,c8_41,c9_31,c2_29,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid2_case_alt_1 = {3'b101,c7_50,c8_40,c9_30,c10_20,c2_29,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid2_case_alt_1 = {3'b110,c7_49,c8_39,c9_29,c10_19,c11_9,c2_29};
+      default : c$valid2_case_alt_1 = valid1_1;
+    endcase
+  end
+
+  assign c11_9 = valid1_1[23:12];
+
+  assign c10_19 = valid1_1[35:24];
+
+  assign c9_29 = valid1_1[47:36];
+
+  assign c8_39 = valid1_1[59:48];
+
+  assign c7_49 = valid1_1[71:60];
+
+  assign c10_20 = valid1_1[35:24];
+
+  assign c9_30 = valid1_1[47:36];
+
+  assign c8_40 = valid1_1[59:48];
+
+  assign c7_50 = valid1_1[71:60];
+
+  assign c9_31 = valid1_1[47:36];
+
+  assign c8_41 = valid1_1[59:48];
+
+  assign c7_51 = valid1_1[71:60];
+
+  assign c8_42 = valid1_1[59:48];
+
+  assign c7_52 = valid1_1[71:60];
+
+  assign c7_53 = valid1_1[71:60];
+
+  assign valid1_1 = (c1_36 < 12'b110100000001) ? c$valid1_case_alt_1 : valid0_1;
+
+  assign c2_29 = c$c5_app_arg_1[35 : 24];
+
+  always_comb begin
+    case(valid0_1[74:72])
+      3'b000 : c$valid1_case_alt_1 = {3'b001,c1_36,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid1_case_alt_1 = {3'b010,c7_58,c1_36,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid1_case_alt_1 = {3'b011,c7_57,c8_46,c1_36,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid1_case_alt_1 = {3'b100,c7_56,c8_45,c9_34,c1_36,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid1_case_alt_1 = {3'b101,c7_55,c8_44,c9_33,c10_22,c1_36,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid1_case_alt_1 = {3'b110,c7_54,c8_43,c9_32,c10_21,c11_10,c1_36};
+      default : c$valid1_case_alt_1 = valid0_1;
+    endcase
+  end
+
+  assign c11_10 = valid0_1[23:12];
+
+  assign c10_21 = valid0_1[35:24];
+
+  assign c9_32 = valid0_1[47:36];
+
+  assign c8_43 = valid0_1[59:48];
+
+  assign c7_54 = valid0_1[71:60];
+
+  assign c10_22 = valid0_1[35:24];
+
+  assign c9_33 = valid0_1[47:36];
+
+  assign c8_44 = valid0_1[59:48];
+
+  assign c7_55 = valid0_1[71:60];
+
+  assign c9_34 = valid0_1[47:36];
+
+  assign c8_45 = valid0_1[59:48];
+
+  assign c7_56 = valid0_1[71:60];
+
+  assign c8_46 = valid0_1[59:48];
+
+  assign c7_57 = valid0_1[71:60];
+
+  assign c7_58 = valid0_1[71:60];
+
+  assign valid0_1 = (c0_25 < 12'b110100000001) ? {3'b001,c0_25,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : {3'b000,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+
+  assign c1_36 = c$c5_app_arg_1[23 : 12];
+
+  assign c0_25 = c$c5_app_arg_1[11 : 0];
+
+  assign c$c5_app_arg_1 = midStreamTrue_1.AXI4Stream_0_sel0;
+
+  assign midStreamTrue_1 = result_32[73:0];
+
+  assign inReadyTrue_1 = result_32[74:74];
+
+  assign stateABTrue_1 = result_32.Tuple2_10_sel0;
+
+  always_comb begin
+    case(phase_0[56:53])
+      4'b0000 : result_32 = c$ds_case_alt_0;
+      4'b0001 : result_32 = result_43;
+      4'b0010 : result_32 = result_43;
+      4'b0011 : result_32 = result_43;
+      4'b0100 : result_32 = result_33;
+      4'b0101 : result_32 = result_33;
+      4'b0110 : result_32 = result_33;
+      4'b0111 : result_32 = result_33;
+      default : result_32 = result_33;
+    endcase
+  end
+
+  assign result_33 = {c$stepLookahead4_stepSqueeze_tupIn_0.Tuple2_11_sel1
+                   ,{1'b0,{c$stepLookahead4_stepSqueeze_tupIn_0.Tuple2_11_sel0,1'b1,1'b0}}};
+
+  always_comb begin
+    case(stateBC_1[86:84])
+      3'b000 : c$stepLookahead4_consumeChunk_tupIn_2 = {{3'b000,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                       ,result_34};
+      default : c$stepLookahead4_consumeChunk_tupIn_2 = {{3'b001,b0_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                        ,result_34};
+    endcase
+  end
+
+  assign b0_4 = stateBC_1[83:72];
+
+  assign result_34 = (c5_10 < 12'b110100000001) ? result_35 : valid4_2;
+
+  assign c1_37 = valid4_2[71:60];
+
+  assign c1_38 = valid4_2[71:60];
+
+  assign c2_30 = valid4_2[59:48];
+
+  assign c1_39 = valid4_2[71:60];
+
+  assign c2_31 = valid4_2[59:48];
+
+  assign c3_23 = valid4_2[47:36];
+
+  assign c1_40 = valid4_2[71:60];
+
+  assign c2_32 = valid4_2[59:48];
+
+  assign c3_24 = valid4_2[47:36];
+
+  assign c4_16 = valid4_2[35:24];
+
+  assign c1_41 = valid4_2[71:60];
+
+  assign c2_33 = valid4_2[59:48];
+
+  assign c3_25 = valid4_2[47:36];
+
+  assign c4_17 = valid4_2[35:24];
+
+  assign c5_9 = valid4_2[23:12];
+
+  always_comb begin
+    case(valid4_2[74:72])
+      3'b000 : result_35 = {3'b001,c5_10,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : result_35 = {3'b010,c1_37,c5_10,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : result_35 = {3'b011,c1_38,c2_30,c5_10,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : result_35 = {3'b100,c1_39,c2_31,c3_23,c5_10,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : result_35 = {3'b101,c1_40,c2_32,c3_24,c4_16,c5_10,12'bxxxxxxxxxxxx};
+      3'b101 : result_35 = {3'b110,c1_41,c2_33,c3_25,c4_17,c5_9,c5_10};
+      default : result_35 = valid4_2;
+    endcase
+  end
+
+  assign valid4_2 = (c4_18 < 12'b110100000001) ? c$valid4_case_alt_2 : valid3_2;
+
+  assign c5_10 = c$c5_app_arg_2[71 : 60];
+
+  always_comb begin
+    case(valid3_2[74:72])
+      3'b000 : c$valid4_case_alt_2 = {3'b001,c4_18,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid4_case_alt_2 = {3'b010,c7_63,c4_18,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid4_case_alt_2 = {3'b011,c7_62,c8_50,c4_18,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid4_case_alt_2 = {3'b100,c7_61,c8_49,c9_37,c4_18,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid4_case_alt_2 = {3'b101,c7_60,c8_48,c9_36,c10_24,c4_18,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid4_case_alt_2 = {3'b110,c7_59,c8_47,c9_35,c10_23,c11_11,c4_18};
+      default : c$valid4_case_alt_2 = valid3_2;
+    endcase
+  end
+
+  assign c11_11 = valid3_2[23:12];
+
+  assign c10_23 = valid3_2[35:24];
+
+  assign c9_35 = valid3_2[47:36];
+
+  assign c8_47 = valid3_2[59:48];
+
+  assign c7_59 = valid3_2[71:60];
+
+  assign c10_24 = valid3_2[35:24];
+
+  assign c9_36 = valid3_2[47:36];
+
+  assign c8_48 = valid3_2[59:48];
+
+  assign c7_60 = valid3_2[71:60];
+
+  assign c9_37 = valid3_2[47:36];
+
+  assign c8_49 = valid3_2[59:48];
+
+  assign c7_61 = valid3_2[71:60];
+
+  assign c8_50 = valid3_2[59:48];
+
+  assign c7_62 = valid3_2[71:60];
+
+  assign c7_63 = valid3_2[71:60];
+
+  assign valid3_2 = (c3_26 < 12'b110100000001) ? c$valid3_case_alt_2 : valid2_2;
+
+  assign c4_18 = c$c5_app_arg_2[59 : 48];
+
+  always_comb begin
+    case(valid2_2[74:72])
+      3'b000 : c$valid3_case_alt_2 = {3'b001,c3_26,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid3_case_alt_2 = {3'b010,c7_68,c3_26,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid3_case_alt_2 = {3'b011,c7_67,c8_54,c3_26,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid3_case_alt_2 = {3'b100,c7_66,c8_53,c9_40,c3_26,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid3_case_alt_2 = {3'b101,c7_65,c8_52,c9_39,c10_26,c3_26,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid3_case_alt_2 = {3'b110,c7_64,c8_51,c9_38,c10_25,c11_12,c3_26};
+      default : c$valid3_case_alt_2 = valid2_2;
+    endcase
+  end
+
+  assign c11_12 = valid2_2[23:12];
+
+  assign c10_25 = valid2_2[35:24];
+
+  assign c9_38 = valid2_2[47:36];
+
+  assign c8_51 = valid2_2[59:48];
+
+  assign c7_64 = valid2_2[71:60];
+
+  assign c10_26 = valid2_2[35:24];
+
+  assign c9_39 = valid2_2[47:36];
+
+  assign c8_52 = valid2_2[59:48];
+
+  assign c7_65 = valid2_2[71:60];
+
+  assign c9_40 = valid2_2[47:36];
+
+  assign c8_53 = valid2_2[59:48];
+
+  assign c7_66 = valid2_2[71:60];
+
+  assign c8_54 = valid2_2[59:48];
+
+  assign c7_67 = valid2_2[71:60];
+
+  assign c7_68 = valid2_2[71:60];
+
+  assign valid2_2 = (c2_34 < 12'b110100000001) ? c$valid2_case_alt_2 : valid1_2;
+
+  assign c3_26 = c$c5_app_arg_2[47 : 36];
+
+  always_comb begin
+    case(valid1_2[74:72])
+      3'b000 : c$valid2_case_alt_2 = {3'b001,c2_34,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid2_case_alt_2 = {3'b010,c7_73,c2_34,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid2_case_alt_2 = {3'b011,c7_72,c8_58,c2_34,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid2_case_alt_2 = {3'b100,c7_71,c8_57,c9_43,c2_34,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid2_case_alt_2 = {3'b101,c7_70,c8_56,c9_42,c10_28,c2_34,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid2_case_alt_2 = {3'b110,c7_69,c8_55,c9_41,c10_27,c11_13,c2_34};
+      default : c$valid2_case_alt_2 = valid1_2;
+    endcase
+  end
+
+  assign c11_13 = valid1_2[23:12];
+
+  assign c10_27 = valid1_2[35:24];
+
+  assign c9_41 = valid1_2[47:36];
+
+  assign c8_55 = valid1_2[59:48];
+
+  assign c7_69 = valid1_2[71:60];
+
+  assign c10_28 = valid1_2[35:24];
+
+  assign c9_42 = valid1_2[47:36];
+
+  assign c8_56 = valid1_2[59:48];
+
+  assign c7_70 = valid1_2[71:60];
+
+  assign c9_43 = valid1_2[47:36];
+
+  assign c8_57 = valid1_2[59:48];
+
+  assign c7_71 = valid1_2[71:60];
+
+  assign c8_58 = valid1_2[59:48];
+
+  assign c7_72 = valid1_2[71:60];
+
+  assign c7_73 = valid1_2[71:60];
+
+  assign valid1_2 = (c1_42 < 12'b110100000001) ? c$valid1_case_alt_2 : valid0_2;
+
+  assign c2_34 = c$c5_app_arg_2[35 : 24];
+
+  always_comb begin
+    case(valid0_2[74:72])
+      3'b000 : c$valid1_case_alt_2 = {3'b001,c1_42,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b001 : c$valid1_case_alt_2 = {3'b010,c7_78,c1_42,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b010 : c$valid1_case_alt_2 = {3'b011,c7_77,c8_62,c1_42,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b011 : c$valid1_case_alt_2 = {3'b100,c7_76,c8_61,c9_46,c1_42,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      3'b100 : c$valid1_case_alt_2 = {3'b101,c7_75,c8_60,c9_45,c10_30,c1_42,12'bxxxxxxxxxxxx};
+      3'b101 : c$valid1_case_alt_2 = {3'b110,c7_74,c8_59,c9_44,c10_29,c11_14,c1_42};
+      default : c$valid1_case_alt_2 = valid0_2;
+    endcase
+  end
+
+  assign c11_14 = valid0_2[23:12];
+
+  assign c10_29 = valid0_2[35:24];
+
+  assign c9_44 = valid0_2[47:36];
+
+  assign c8_59 = valid0_2[59:48];
+
+  assign c7_74 = valid0_2[71:60];
+
+  assign c10_30 = valid0_2[35:24];
+
+  assign c9_45 = valid0_2[47:36];
+
+  assign c8_60 = valid0_2[59:48];
+
+  assign c7_75 = valid0_2[71:60];
+
+  assign c9_46 = valid0_2[47:36];
+
+  assign c8_61 = valid0_2[59:48];
+
+  assign c7_76 = valid0_2[71:60];
+
+  assign c8_62 = valid0_2[59:48];
+
+  assign c7_77 = valid0_2[71:60];
+
+  assign c7_78 = valid0_2[71:60];
+
+  assign valid0_2 = (c0_26 < 12'b110100000001) ? {3'b001,c0_26,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : {3'b000,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+
+  assign c1_42 = c$c5_app_arg_2[23 : 12];
+
+  assign c0_26 = c$c5_app_arg_2[11 : 0];
+
+  assign c$c5_app_arg_2 = midStreamFalse_1.AXI4Stream_0_sel0;
+
+  assign stateBC_1 = stateAB_1.Tuple2_5_sel1;
+
+  assign midStreamFalse_1 = result_36[73:0];
+
+  assign inReadyFalse_1 = result_36[74:74];
+
+  assign stateABFalse_1 = result_36.Tuple2_10_sel0;
+
+  always_comb begin
+    case(phase_0[56:53])
+      4'b0000 : result_36 = c$ds_case_alt_0;
+      4'b0001 : result_36 = result_43;
+      4'b0010 : result_36 = result_43;
+      4'b0011 : result_36 = result_43;
+      4'b0100 : result_36 = result_45;
+      4'b0101 : result_36 = result_45;
+      4'b0110 : result_36 = result_45;
+      4'b0111 : result_36 = result_45;
+      default : result_36 = result_45;
+    endcase
+  end
+
+  assign c$ds_case_alt_0 = msgValid_0 ? {{{4'b0001,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                         ,result_42}
+                                        ,{1'b0
+                                         ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                          ,1'b0
+                                          ,1'b0}}} : {{{4'b0000,53'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                      ,state_0}
+                                                     ,{1'b1
+                                                      ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                                       ,1'b0
+                                                       ,1'b0}}};
+
+  assign msgValid_0 = inStream.AXI4Stream_1_sel1;
+
+  // replaceBit start
+  always_comb begin
+    result_37 = c$app_arg_11;
+    result_37[64'sd272] = (~ (c$app_arg_11[64'sd272]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_11 = result_38;
+
+  // replaceBit start
+  always_comb begin
+    result_38 = c$app_arg_12;
+    result_38[64'sd273] = (~ (c$app_arg_12[64'sd273]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_12 = result_39;
+
+  // replaceBit start
+  always_comb begin
+    result_39 = c$app_arg_13;
+    result_39[64'sd274] = (~ (c$app_arg_13[64'sd274]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_13 = result_40;
+
+  // replaceBit start
+  always_comb begin
+    result_40 = c$app_arg_14;
+    result_40[64'sd275] = (~ (c$app_arg_14[64'sd275]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_14 = result_41;
+
+  // replaceBit start
+  always_comb begin
+    result_41 = c$app_arg_15;
+    result_41[64'sd276] = (~ (c$app_arg_15[64'sd276]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_15 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg_0});
+
+  // replaceBit start
+  always_comb begin
+    result_42 = c$app_arg_16;
+    result_42[64'sd1343] = (~ (c$app_arg_16[64'sd1343]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_16 = result_37;
+
+  assign inputMsg_0 = inStream.AXI4Stream_1_sel0;
+
+  assign result_43 = (c$stepLookahead4_stepPermute_arg5_0 == 5'd23) ? {result_44
+                                                                      ,{1'b0
+                                                                       ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                        ,1'b0
+                                                                        ,1'b0}}} : {{c$app_arg_17,c$keccakF1600_out_0}
+                                                                                   ,{1'b0
+                                                                                    ,{72'b000000000000000000000000000000000000000000000000000000000000000000000000
+                                                                                     ,1'b0
+                                                                                     ,1'b0}}};
+
+  always_comb begin
+    case(phase_0[56:53])
+      4'b0001 : result_44 = {{4'b0100,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                            ,c$keccakF1600_out_0};
+      4'b0010 : result_44 = {{4'b0101,carry24_2,29'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                            ,c$keccakF1600_out_0};
+      default : result_44 = {{4'b0111,carry48_2,5'bxxxxx}
+                            ,c$keccakF1600_out_0};
+    endcase
+  end
+
+  assign carry48_2 = phase_0[52:5];
+
+  assign carry24_2 = phase_0[52:29];
+
+  always_comb begin
+    case(phase_0[56:53])
+      4'b0001 : c$app_arg_17 = {4'b0001,c$app_arg_18,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      4'b0010 : c$app_arg_17 = {4'b0010,carry24_3,c$app_arg_18,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+      4'b0011 : c$app_arg_17 = {4'b0011,carry48_3,c$app_arg_18};
+      default : c$app_arg_17 = {57 {1'bx}};
+    endcase
+  end
+
+  assign carry48_3 = phase_0[52:5];
+
+  assign carry24_3 = phase_0[52:29];
+
+  assign c$app_arg_18 = c$stepLookahead4_stepPermute_arg5_0 + 5'd1;
+
+  Component_SampleNTT4_i272o24l4_keccakF1600 i272o24l12_i272o24l13_Component_SampleNTT4_i272o24l4_keccakF1600_c$keccakF1600_out_0
+    ( .result (c$keccakF1600_out_0)
+    , .roundIdx (c$stepLookahead4_stepPermute_arg5_0)
+    , .x (state_0) );
+
+  assign result_45 = {{phase_0,state_0}
+                   ,{1'b0,{c$stepLookahead4_stepSqueeze_tupIn_0.Tuple2_11_sel0,1'b1,1'b0}}};
+
+  always_comb begin
+    case(phase_0[56:53])
+      4'b0001 : c$stepLookahead4_stepPermute_arg5_0 = counter_7;
+      4'b0010 : c$stepLookahead4_stepPermute_arg5_0 = counter_6;
+      default : c$stepLookahead4_stepPermute_arg5_0 = counter_5;
+    endcase
+  end
+
+  assign counter_5 = phase_0[4:0];
+
+  assign counter_6 = phase_0[28:24];
+
+  assign counter_7 = phase_0[52:48];
+
+  always_comb begin
+    case(phase_0[56:53])
+      4'b0100 : c$stepLookahead4_stepSqueeze_tupIn_0 = {result_48
+                                                       ,c$stepLookahead4_stepSqueeze_tupIn_app_arg_5};
+      4'b0101 : c$stepLookahead4_stepSqueeze_tupIn_0 = {{(c$stepLookahead4_stepSqueeze_tupIn_app_arg_6[47 : 0]),carry24_4}
+                                                       ,{{4'b1000,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                        ,state_0}};
+      4'b0110 : c$stepLookahead4_stepSqueeze_tupIn_0 = {result_47
+                                                       ,c$stepLookahead4_stepSqueeze_tupIn_app_arg_4};
+      4'b0111 : c$stepLookahead4_stepSqueeze_tupIn_0 = {{(c$stepLookahead4_stepSqueeze_tupIn_app_arg_6[23 : 0]),carry48_4}
+                                                       ,{{4'b0110,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                        ,state_0}};
+      default : c$stepLookahead4_stepSqueeze_tupIn_0 = {result_46
+                                                       ,c$stepLookahead4_stepSqueeze_tupIn_app_arg_3};
+    endcase
+  end
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_3 = (counter_8 == 5'd17) ? {{4'b0001,5'd0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                               ,state_0} : {{4'b1000,counter_8 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                           ,state_0};
+
+  assign result_46 = (counter_8 == 5'd0) ? (c$app_arg_19[119 : 48]) : c$case_alt_68;
+
+  assign c$case_alt_68 = (counter_8 == 5'd1) ? (c$app_arg_19[191 : 120]) : c$case_alt_69;
+
+  assign c$case_alt_69 = (counter_8 == 5'd2) ? (c$app_arg_19[263 : 192]) : c$case_alt_70;
+
+  assign c$case_alt_70 = (counter_8 == 5'd3) ? (c$app_arg_19[335 : 264]) : c$case_alt_71;
+
+  assign c$case_alt_71 = (counter_8 == 5'd4) ? (c$app_arg_19[407 : 336]) : c$case_alt_72;
+
+  assign c$case_alt_72 = (counter_8 == 5'd5) ? (c$app_arg_19[479 : 408]) : c$case_alt_73;
+
+  assign c$case_alt_73 = (counter_8 == 5'd6) ? (c$app_arg_19[551 : 480]) : c$case_alt_74;
+
+  assign c$case_alt_74 = (counter_8 == 5'd7) ? (c$app_arg_19[623 : 552]) : c$case_alt_75;
+
+  assign c$case_alt_75 = (counter_8 == 5'd8) ? (c$app_arg_19[695 : 624]) : c$case_alt_76;
+
+  assign c$case_alt_76 = (counter_8 == 5'd9) ? (c$app_arg_19[767 : 696]) : c$case_alt_77;
+
+  assign c$case_alt_77 = (counter_8 == 5'd10) ? (c$app_arg_19[839 : 768]) : c$case_alt_78;
+
+  assign c$case_alt_78 = (counter_8 == 5'd11) ? (c$app_arg_19[911 : 840]) : c$case_alt_79;
+
+  assign c$case_alt_79 = (counter_8 == 5'd12) ? (c$app_arg_19[983 : 912]) : c$case_alt_80;
+
+  assign c$case_alt_80 = (counter_8 == 5'd13) ? (c$app_arg_19[1055 : 984]) : c$case_alt_81;
+
+  assign c$case_alt_81 = (counter_8 == 5'd14) ? (c$app_arg_19[1127 : 1056]) : c$case_alt_82;
+
+  assign c$case_alt_82 = (counter_8 == 5'd15) ? (c$app_arg_19[1199 : 1128]) : c$case_alt_83;
+
+  assign c$case_alt_83 = (counter_8 == 5'd16) ? (c$app_arg_19[1271 : 1200]) : c$case_alt_84;
+
+  assign c$case_alt_84 = (counter_8 == 5'd17) ? (c$app_arg_19[1343 : 1272]) : ({72 {1'bx}});
+
+  assign c$app_arg_19 = state_0;
+
+  assign counter_8 = phase_0[52:48];
+
+  assign carry48_4 = phase_0[52:5];
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_4 = (counter_9 == 5'd17) ? {{4'b0010,c$stepLookahead4_stepSqueeze_tupIn_app_arg_6[1343 : 1320],5'd0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                               ,state_0} : {{4'b0110,counter_9 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                           ,state_0};
+
+  assign result_47 = (counter_9 == 5'd0) ? (c$app_arg_20[95 : 24]) : c$case_alt_85;
+
+  assign c$case_alt_85 = (counter_9 == 5'd1) ? (c$app_arg_20[167 : 96]) : c$case_alt_86;
+
+  assign c$case_alt_86 = (counter_9 == 5'd2) ? (c$app_arg_20[239 : 168]) : c$case_alt_87;
+
+  assign c$case_alt_87 = (counter_9 == 5'd3) ? (c$app_arg_20[311 : 240]) : c$case_alt_88;
+
+  assign c$case_alt_88 = (counter_9 == 5'd4) ? (c$app_arg_20[383 : 312]) : c$case_alt_89;
+
+  assign c$case_alt_89 = (counter_9 == 5'd5) ? (c$app_arg_20[455 : 384]) : c$case_alt_90;
+
+  assign c$case_alt_90 = (counter_9 == 5'd6) ? (c$app_arg_20[527 : 456]) : c$case_alt_91;
+
+  assign c$case_alt_91 = (counter_9 == 5'd7) ? (c$app_arg_20[599 : 528]) : c$case_alt_92;
+
+  assign c$case_alt_92 = (counter_9 == 5'd8) ? (c$app_arg_20[671 : 600]) : c$case_alt_93;
+
+  assign c$case_alt_93 = (counter_9 == 5'd9) ? (c$app_arg_20[743 : 672]) : c$case_alt_94;
+
+  assign c$case_alt_94 = (counter_9 == 5'd10) ? (c$app_arg_20[815 : 744]) : c$case_alt_95;
+
+  assign c$case_alt_95 = (counter_9 == 5'd11) ? (c$app_arg_20[887 : 816]) : c$case_alt_96;
+
+  assign c$case_alt_96 = (counter_9 == 5'd12) ? (c$app_arg_20[959 : 888]) : c$case_alt_97;
+
+  assign c$case_alt_97 = (counter_9 == 5'd13) ? (c$app_arg_20[1031 : 960]) : c$case_alt_98;
+
+  assign c$case_alt_98 = (counter_9 == 5'd14) ? (c$app_arg_20[1103 : 1032]) : c$case_alt_99;
+
+  assign c$case_alt_99 = (counter_9 == 5'd15) ? (c$app_arg_20[1175 : 1104]) : c$case_alt_100;
+
+  assign c$case_alt_100 = (counter_9 == 5'd16) ? (c$app_arg_20[1247 : 1176]) : c$case_alt_101;
+
+  assign c$case_alt_101 = (counter_9 == 5'd17) ? (c$app_arg_20[1319 : 1248]) : ({72 {1'bx}});
+
+  assign c$app_arg_20 = state_0;
+
+  assign counter_9 = phase_0[52:48];
+
+  assign carry24_4 = phase_0[52:29];
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_5 = (counter_10 == 5'd17) ? {{4'b0011,c$stepLookahead4_stepSqueeze_tupIn_app_arg_6[1343 : 1296],5'd0}
+                                                                                ,state_0} : {{4'b0100,counter_10 + 5'd1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                                            ,state_0};
+
+  assign c$stepLookahead4_stepSqueeze_tupIn_app_arg_6 = state_0;
+
+  assign result_48 = (counter_10 == 5'd0) ? (c$app_arg_21[71 : 0]) : c$case_alt_102;
+
+  assign c$case_alt_102 = (counter_10 == 5'd1) ? (c$app_arg_21[143 : 72]) : c$case_alt_103;
+
+  assign c$case_alt_103 = (counter_10 == 5'd2) ? (c$app_arg_21[215 : 144]) : c$case_alt_104;
+
+  assign c$case_alt_104 = (counter_10 == 5'd3) ? (c$app_arg_21[287 : 216]) : c$case_alt_105;
+
+  assign c$case_alt_105 = (counter_10 == 5'd4) ? (c$app_arg_21[359 : 288]) : c$case_alt_106;
+
+  assign c$case_alt_106 = (counter_10 == 5'd5) ? (c$app_arg_21[431 : 360]) : c$case_alt_107;
+
+  assign c$case_alt_107 = (counter_10 == 5'd6) ? (c$app_arg_21[503 : 432]) : c$case_alt_108;
+
+  assign c$case_alt_108 = (counter_10 == 5'd7) ? (c$app_arg_21[575 : 504]) : c$case_alt_109;
+
+  assign c$case_alt_109 = (counter_10 == 5'd8) ? (c$app_arg_21[647 : 576]) : c$case_alt_110;
+
+  assign c$case_alt_110 = (counter_10 == 5'd9) ? (c$app_arg_21[719 : 648]) : c$case_alt_111;
+
+  assign c$case_alt_111 = (counter_10 == 5'd10) ? (c$app_arg_21[791 : 720]) : c$case_alt_112;
+
+  assign c$case_alt_112 = (counter_10 == 5'd11) ? (c$app_arg_21[863 : 792]) : c$case_alt_113;
+
+  assign c$case_alt_113 = (counter_10 == 5'd12) ? (c$app_arg_21[935 : 864]) : c$case_alt_114;
+
+  assign c$case_alt_114 = (counter_10 == 5'd13) ? (c$app_arg_21[1007 : 936]) : c$case_alt_115;
+
+  assign c$case_alt_115 = (counter_10 == 5'd14) ? (c$app_arg_21[1079 : 1008]) : c$case_alt_116;
+
+  assign c$case_alt_116 = (counter_10 == 5'd15) ? (c$app_arg_21[1151 : 1080]) : c$case_alt_117;
+
+  assign c$case_alt_117 = (counter_10 == 5'd16) ? (c$app_arg_21[1223 : 1152]) : c$case_alt_118;
+
+  assign c$case_alt_118 = (counter_10 == 5'd17) ? (c$app_arg_21[1295 : 1224]) : ({72 {1'bx}});
+
+  assign c$app_arg_21 = state_0;
+
+  assign counter_10 = phase_0[52:48];
+
+  assign phase_0 = stateAB_0.State_sel0;
+
+  assign state_0 = stateAB_0.State_sel1;
+
+  assign stateAB_0 = stateAB_1.Tuple2_5_sel0;
+
+  assign inStream = c$arg.Tuple2_12_sel0;
+
+  assign stateAB_1 = c$app_arg.Tuple2_2_sel0;
+
+  assign result = {result_0[25:0]
+                  ,result_0[26:26]};
+
+  assign COEFF = result.Tuple2_13_sel0;
+
+  assign SEED_TREADY = result.Tuple2_13_sel1;
 
   assign COEFF_TDATA = COEFF.AXI4Stream_sel0;
 

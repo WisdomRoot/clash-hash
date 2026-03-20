@@ -178,14 +178,11 @@ stepTake128 (PairCount count) (coeffReady, coeffStream)
 {-# INLINE stepTake128 #-}
 
 i272o24l4Core ::
-  HiddenClockResetEnable dom =>
-  Pipe dom 272 24
+  Pipe2 dom 272 24
 i272o24l4Core =
-  mealyCompose
-    (composeSteps XOF6.step stepLookahead4)
-    (XOF6.State XOF6.Absorb 0, Buffer0)
-    stepTake128
-    (PairCount 0)
+  Pipe2 XOF6.step (XOF6.State XOF6.Absorb 0)
+    ~>> Pipe2 stepLookahead4 Buffer0
+    ~>> Pipe2 stepTake128 (PairCount 0)
 {-# INLINE i272o24l4Core #-}
 
 {-# ANN
@@ -218,4 +215,4 @@ i272o24l4 ::
   Enable System ->
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
-i272o24l4 = toDUT i272o24l4Core
+i272o24l4 = toDUT2 i272o24l4Core
