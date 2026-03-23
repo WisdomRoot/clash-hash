@@ -36,14 +36,6 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -61,14 +53,14 @@
         },
         {
             "name": "dut.sv",
-            "sha256": "6df0e86e695bfda2261e46575fb29da6510d3c3edd2256acb92b9cb7f9b9de93"
+            "sha256": "8d46458694755263dbff0aa2388064b1c2a089ae7a81a76bdfdceacfae87d79a"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "a51fd2eac33243e96820d1425ae447a05b147a54f7e50e51a1baa30c93f8ff9d",
+    "hash": "f20b7261a0465101114f50f685e827037fa417c123dc484205c21366eedcf4e3",
     "top_component": {
         "name": "dut",
         "ports_flat": [
