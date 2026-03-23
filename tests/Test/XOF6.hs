@@ -4,8 +4,8 @@
 
 module Test.XOF6 (spec) where
 
-import AXI4Stream (Pipe)
-import Clash.Prelude (BitVector, System, bundle, clockGen, enableGen, resetGen, unbundle)
+import AXI4Stream (Pipe2)
+import Clash.Prelude (BitVector, System)
 import Component.XOF6 qualified as XOF6
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -18,11 +18,8 @@ import Test.QuickCheck (Gen, chooseInt, forAll)
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
-i272o72AsPipe :: Pipe System 272 72
-i272o72AsPipe (outReady, inStream) =
-  let (outStream, inReady) =
-        unbundle (XOF6.i272o72 clockGen resetGen enableGen (bundle (inStream, outReady)))
-   in (inReady, outStream)
+i272o72AsPipe :: Pipe2 System 272 72
+i272o72AsPipe = XOF6.i272o72Core
 
 toChunks72 :: ByteString -> [BitVector 72]
 toChunks72 bs
@@ -65,14 +62,14 @@ spec :: Spec
 spec = describe "XOF6" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!!" :: ByteString)
-    runPipeInput i272o72AsPipe simulate [Input [input]] [Ready 1]
+    runPipe2Input i272o72AsPipe simulate [Input [input]] [Ready 1]
   it "matches expected output (upstream stall)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!!" :: ByteString)
-    runPipeInput i272o72AsPipe simulate [Hold 5, Input [input]] [Ready 1]
+    runPipe2Input i272o72AsPipe simulate [Hold 5, Input [input]] [Ready 1]
   it "matches expected output (periodic backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!!" :: ByteString)
-    runPipeInput i272o72AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
+    runPipe2Input i272o72AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
   describe "QuickCheck property tests" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeInput i272o72AsPipe simulate inputTiming backpressure
+        runPipe2Input i272o72AsPipe simulate inputTiming backpressure

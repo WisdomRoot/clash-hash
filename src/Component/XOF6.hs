@@ -105,10 +105,9 @@ step (State phase state) (tready, AXI4Stream inputMsg msgValid _) =
 {-# INLINE step #-}
 
 i272o72Core ::
-  HiddenClockResetEnable dom =>
-  Pipe dom InputBits OutputBits
-i272o72Core (outputReady, inputStream) =
-  mealyB step (State Absorb 0) (outputReady, inputStream)
+  Pipe2 dom InputBits OutputBits
+i272o72Core =
+  Pipe2 step (State Absorb 0)
 {-# INLINE i272o72Core #-}
 
 {-# ANN
@@ -141,7 +140,7 @@ i272o72 ::
   Enable System ->
   Signal System (AXI4Stream InputBits, Bool) ->
   Signal System (AXI4Stream OutputBits, Bool)
-i272o72 = toDUT i272o72Core
+i272o72 = toDUT2 i272o72Core
 
 absorbInput :: BitVector InputBits -> BitVector 1600
 absorbInput = padInput . placeMsg

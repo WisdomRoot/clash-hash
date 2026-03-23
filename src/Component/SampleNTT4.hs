@@ -157,10 +157,9 @@ stepLookahead4 buffer (coeffReady, candidateStream) =
 {-# INLINE stepLookahead4 #-}
 
 lookahead4 ::
-  HiddenClockResetEnable dom =>
-  Pipe dom 72 24
-lookahead4 (coeffReady, candidateStream) =
-  mealyB stepLookahead4 Buffer0 (coeffReady, candidateStream)
+  Pipe2 dom 72 24
+lookahead4 =
+  Pipe2 stepLookahead4 Buffer0
 {-# INLINE lookahead4 #-}
 
 stepTake128 ::
@@ -181,7 +180,7 @@ i272o24l4Core ::
   Pipe2 dom 272 24
 i272o24l4Core =
   Pipe2 XOF6.step (XOF6.State XOF6.Absorb 0)
-    ~>> Pipe2 stepLookahead4 Buffer0
+    ~>> lookahead4
     ~>> Pipe2 stepTake128 (PairCount 0)
 {-# INLINE i272o24l4Core #-}
 

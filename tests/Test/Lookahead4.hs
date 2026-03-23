@@ -3,8 +3,8 @@
 
 module Test.Lookahead4 (spec) where
 
-import AXI4Stream (Pipe)
-import Clash.Prelude (BitVector, SNat (..), System, slice, withClockResetEnable, (++#), clockGen, enableGen, resetGen)
+import AXI4Stream (Pipe2)
+import Clash.Prelude (BitVector, SNat (..), System, slice, (++#))
 import Component.SampleNTT4 qualified as SampleNTT4
 import Data.Maybe (isJust, isNothing)
 import Stream
@@ -12,9 +12,8 @@ import Test.Hspec (Spec, describe, it)
 import Test.QuickCheck (Gen, chooseInt, forAll, vectorOf)
 import Prelude
 
-lookahead4AsPipe :: Pipe System 72 24
-lookahead4AsPipe args =
-  withClockResetEnable clockGen resetGen enableGen (SampleNTT4.lookahead4 args)
+lookahead4AsPipe :: Pipe2 System 72 24
+lookahead4AsPipe = SampleNTT4.lookahead4
 
 packCandidates :: [Int] -> BitVector 72
 packCandidates coeffs =
@@ -131,16 +130,16 @@ spec :: Spec
 spec = describe "lookahead4" $ do
   it "drops invalid candidates and emits full pairs" $ do
     let beat = packCandidates [1, 4000, 2, 5000, 3, 6000]
-    runPipeInputExact lookahead4AsPipe simulateExact [Input [beat]] [Ready 1]
+    runPipe2InputExact lookahead4AsPipe simulateExact [Input [beat]] [Ready 1]
   it "drains buffered pairs before accepting the next input beat" $ do
     let beat0 = packCandidates [1, 2, 3, 4, 5, 6]
         beat1 = packCandidates [7, 8, 9, 10, 11, 12]
-    runPipeInputExact lookahead4AsPipe simulateExact [Input [beat0, beat1]] [Ready 1]
+    runPipe2InputExact lookahead4AsPipe simulateExact [Input [beat0, beat1]] [Ready 1]
   it "propagates backpressure through the buffered drain path" $ do
     let beat0 = packCandidates [1, 2, 3, 4, 5, 6]
         beat1 = packCandidates [7, 8, 9, 10, 11, 12]
-    runPipeInputExact lookahead4AsPipe simulateExact [Input [beat0, beat1]] [Ready 2, Backpress 1]
+    runPipe2InputExact lookahead4AsPipe simulateExact [Input [beat0, beat1]] [Ready 2, Backpress 1]
   describe "QuickCheck property tests" $
     it "matches the exact screening model for random multi-beat inputs" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeInputExact lookahead4AsPipe simulateExact inputTiming backpressure
+        runPipe2InputExact lookahead4AsPipe simulateExact inputTiming backpressure
