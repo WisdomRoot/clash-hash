@@ -107,6 +107,12 @@ data Pipe2 dom a b = forall s.
   Pipe2
     (s -> (Bool, AXI4Stream a) -> (s, (Bool, AXI4Stream b)))
     s
+  | Pipe2Net
+      ( HiddenClockResetEnable dom =>
+        Signal dom Bool ->
+        Signal dom (AXI4Stream a) ->
+        (Signal dom Bool, Signal dom (AXI4Stream b))
+      )
   | Pipe2Fn (HiddenClockResetEnable dom => Pipe dom a b)
 
 -- | Pipe with an additional control sideband sampled alongside the input stream.
@@ -123,6 +129,13 @@ data PipeCtrl2 dom c a b = forall s.
   PipeCtrl2
     (s -> (Bool, c, AXI4Stream a) -> (s, (Bool, AXI4Stream b)))
     s
+  | PipeCtrl2Net
+      ( HiddenClockResetEnable dom =>
+        Signal dom Bool ->
+        Signal dom c ->
+        Signal dom (AXI4Stream a) ->
+        (Signal dom Bool, Signal dom (AXI4Stream b))
+      )
   | PipeCtrl2Fn (HiddenClockResetEnable dom => PipeCtrl dom c a b)
 
 runPipe2 ::
@@ -130,6 +143,7 @@ runPipe2 ::
   Pipe2 dom a b ->
   Pipe dom a b
 runPipe2 (Pipe2 step initState) = mealyB step initState
+runPipe2 (Pipe2Net pipeNet) = \(outReady, inStream) -> pipeNet outReady inStream
 runPipe2 (Pipe2Fn pipeFn) = pipeFn
 {-# INLINE runPipe2 #-}
 
@@ -139,6 +153,7 @@ runPipeCtrl2 ::
   PipeCtrl dom c a b
 runPipeCtrl2 (PipeCtrl2 step initState) (outReady, ctrlSig, inStream) =
   mealyB step initState (outReady, ctrlSig, inStream)
+runPipeCtrl2 (PipeCtrl2Net pipeNet) (outReady, ctrlSig, inStream) = pipeNet outReady ctrlSig inStream
 runPipeCtrl2 (PipeCtrl2Fn pipeFn) args = pipeFn args
 {-# INLINE runPipeCtrl2 #-}
 
@@ -215,6 +230,11 @@ toDUT2 ::
   Signal dom (AXI4Stream a, Bool) ->
   Signal dom (AXI4Stream b, Bool)
 toDUT2 (Pipe2Fn pipeFn) clk rst en inputSig = toDUT pipeFn clk rst en inputSig
+toDUT2 (Pipe2Net pipeNet) clk rst en inputSig =
+  withClockResetEnable clk rst en $
+    let (inputStream, outReady) = unbundle inputSig
+        (inReady, outStream) = pipeNet outReady inputStream
+     in bundle (outStream, inReady)
 toDUT2 comp clk rst en inputSig =
   withClockResetEnable clk rst en $
     let (inputStream, outReady) = unbundle inputSig
@@ -248,6 +268,11 @@ toDUTCtrl2 ::
   Signal dom (AXI4Stream a, c) ->
   Signal dom (AXI4Stream b, Bool)
 toDUTCtrl2 (PipeCtrl2Fn pipeFn) clk rst en outReady inputSig = toDUTCtrl pipeFn clk rst en outReady inputSig
+toDUTCtrl2 (PipeCtrl2Net pipeNet) clk rst en outReady inputSig =
+  withClockResetEnable clk rst en $
+    let (inputStream, ctrlSig) = unbundle inputSig
+        (inReady, outStream) = pipeNet outReady ctrlSig inputStream
+     in bundle (outStream, inReady)
 toDUTCtrl2 comp clk rst en outReady inputSig =
   withClockResetEnable clk rst en $
     let (inputStream, ctrlSig) = unbundle inputSig

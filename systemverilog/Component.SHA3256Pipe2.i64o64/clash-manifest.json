@@ -1,7 +1,7 @@
 {
     "components": [
-        "Component_SHA3256_i64o64_pad",
-        "Component_SHA3256_i64o64_spongeFSM",
+        "Component_SHA3256Pipe2_i64o64_pad",
+        "Component_SHA3256Pipe2_i64o64_spongeFSM",
         "dut"
     ],
     "dependencies": {
@@ -44,23 +44,23 @@
             "sha256": "d783907f32587aa79419a820300c4d21856e6d23c413f0032e1fdab743f860df"
         },
         {
-            "name": "Component_SHA3256_i64o64_pad.sv",
-            "sha256": "ae07ed91347e67951dd5fc108ce484aa132a01a5787cea286b1ef1629bbea7a0"
+            "name": "Component_SHA3256Pipe2_i64o64_pad.sv",
+            "sha256": "815fcf1417ec22c73ebef532e4dd77c0702437f1e7148aee07685c2abe7d2fd4"
         },
         {
-            "name": "Component_SHA3256_i64o64_spongeFSM.sv",
-            "sha256": "8f1e14a26fb30e32a51cf7d3b41a6563495003925e06c4568c6a505ac6ccd829"
+            "name": "Component_SHA3256Pipe2_i64o64_spongeFSM.sv",
+            "sha256": "e0aae35280b67e7b59c9179d5de5fc1c7ccd2f525e73d1368743088ea56daa69"
         },
         {
             "name": "dut.sv",
-            "sha256": "5cd1c56c9bd84aebe7f14ecb027007eb314c6a45d78a8e380606461a279db7b1"
+            "sha256": "ba661347f16b84afb0db6cf6ff7d5efb521b5e588ada4253b848c359ff526764"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "83850ba645a73ce7c6f1706d6d6b4cce250550556b693d61934e55a9a9e7f7d8",
+    "hash": "d8ff1b5393f52617472eebab3e59308e4c1e1770b25c844461ccb19abd3c4bfe",
     "top_component": {
         "name": "dut",
         "ports_flat": [
