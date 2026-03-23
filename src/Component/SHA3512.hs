@@ -19,7 +19,7 @@ spongeFSM = Permutation.keccakF1600
 i64o64Core ::
   PipeCtrl2 dom Bool InputBits OutputBits
 i64o64Core =
-  PipeCtrl2Fn $ \(outputReady, flushSig, inputStream) ->
+  PipeCtrl2Net $ \outputReady flushSig inputStream ->
     let inputWithFlush = bundle (inputStream, outputReady, flushSig)
         (outputStream, inputReady) = unbundle (SHA3512N.sponge spongeFSM inputWithFlush)
      in (inputReady, outputStream)

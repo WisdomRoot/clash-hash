@@ -20,8 +20,6 @@ module dut
     );
   dut_types::Tuple2_4 result_0;
   dut_types::Tuple2_5 result_1;
-  logic flushSig;
-  dut_types::AXI4Stream inputStream;
   dut_types::Tuple2_4 MSG;
   dut_types::Tuple3_0 result_fun_arg;
   dut_types::Tuple2_4 result;
@@ -29,9 +27,9 @@ module dut
 
   assign MSG = {MSG_TDATA,MSG_TVALID};
 
-  assign result_fun_arg = {inputStream
+  assign result_fun_arg = {MSG.Tuple2_4_sel0
                           ,SHA3_TREADY
-                          ,flushSig};
+                          ,MSG.Tuple2_4_sel1};
 
   Component_SHA3512_i64o64_spongeFSM i64o64Core_Component_SHA3512_i64o64_spongeFSM_result_0
     ( .result (result_0)
@@ -42,10 +40,6 @@ module dut
 
   assign result_1 = {result_0.Tuple2_4_sel1
                     ,result_0.Tuple2_4_sel0};
-
-  assign flushSig = MSG.Tuple2_4_sel1;
-
-  assign inputStream = MSG.Tuple2_4_sel0;
 
   assign result = {result_1.Tuple2_5_sel1
                   ,result_1.Tuple2_5_sel0};
