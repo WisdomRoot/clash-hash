@@ -1,6 +1,5 @@
 {
   "SHA3-256": "Component.SHA3256.i64o64",
-  "SHA3-256-P2": "Component.SHA3256Pipe2.i64o64",
   "SHA3-512": "Component.SHA3512.i64o64",
   "G": "Component.G.i272o512",
   "G2": "Component.G2.i256o512",
