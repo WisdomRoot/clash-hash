@@ -32,6 +32,7 @@ main = do
   cbdo24Tests <- testSpec "CBD-O24" Test.SamplePolyCBD.specO24
   cbd2o12Tests <- testSpec "CBD2-O12" Test.SamplePolyCBD2.specO12
   cbd2o24Tests <- testSpec "CBD2-O24" Test.SamplePolyCBD2.specO24
+  cbd2o24DevTests <- testSpec "CBD2-O24-dev" Test.SamplePolyCBD2.specO24Dev
   cbd3o12Tests <- testSpec "CBD3-O12" Test.SamplePolyCBD3.specO12
   cbd3o24Tests <- testSpec "CBD3-O24" Test.SamplePolyCBD3.specO24
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
@@ -63,6 +64,7 @@ main = do
         cbdo24Tests,
         cbd2o12Tests,
         cbd2o24Tests,
+        cbd2o24DevTests,
         cbd3o12Tests,
         cbd3o24Tests,
         combinationalTests,
