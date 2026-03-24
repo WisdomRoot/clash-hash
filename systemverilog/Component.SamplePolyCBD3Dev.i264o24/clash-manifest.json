@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SamplePolyCBD3_i264o24_keccakF1600",
+        "Component_SamplePolyCBD3Dev_i264o24_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -40,22 +40,22 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "6cde6e247e3e42ed79f58866a64e48b97ba66ef92cf0b9648a52a8702c27d98f"
+            "sha256": "365d4dcd9502688ecaf88dd621de21c7155361251dae61ad929d7bd6c0095f15"
         },
         {
-            "name": "Component_SamplePolyCBD3_i264o24_keccakF1600.sv",
-            "sha256": "8a8e1d9496dcbfdd99d9e66d777250c5d61ba7ac20a19cf0513e4c0b6b1c0e14"
+            "name": "Component_SamplePolyCBD3Dev_i264o24_keccakF1600.sv",
+            "sha256": "65ab6168a4379dcf8b6910550fc684a6bc8b2e515e98022c7fc5f1f9f208b811"
         },
         {
             "name": "dut.sv",
-            "sha256": "811e24d60e9174f49adf4acb2be620e443b9b6c74272f6121f859bff6fd6758c"
+            "sha256": "c17d022c388485b2775916259dc3f94c5702864ee477a22d1438ae10e339ab7a"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "783c165433583b47d765b9543bca1dda96f409354f9601e8f1db8a01b4a72f94",
+    "hash": "841d3bbc044365587580feb56cb3579d00af07ce8ee51df3c1023198b2bd4119",
     "top_component": {
         "name": "dut",
         "ports_flat": [
