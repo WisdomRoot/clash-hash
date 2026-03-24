@@ -102,6 +102,38 @@ type Pipe dom a b =
   (Signal dom Bool, Signal dom (AXI4Stream a)) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
+-- | Replacement for 'Pipe'.
+--
+-- The old 'Pipe' representation is a raw signal function. It is concise, but
+-- its composition operator ties the intermediate @tready@ path with a
+-- recursive signal knot:
+--
+-- @
+--   stageAB (midReady, inStream)
+--   stageBC (outReady, midStream)
+-- @
+--
+-- In hardware that is fine, but in the Haskell/Clash test harness this can
+-- become pathologically slow once a downstream stage both:
+--
+-- * inspects the current input beat, and
+-- * deasserts upstream ready while draining buffered output.
+--
+-- We observed exactly that with @XOF6 -> lookahead4 -> take128@ for
+-- @SN-O24-L4@: the DUT was functionally correct, but generic signal-level
+-- simulation through the old 'Pipe' composition timed out, while direct
+-- step-level simulation of the same logic completed quickly.
+--
+-- 'Pipe2' avoids that testing problem by allowing a step/state representation,
+-- so composition can be performed explicitly at the transition-function level
+-- instead of by a recursive signal knot.
+--
+-- Important: step/state is not the only constructor. Some components rely on
+-- preserved signal-level boundaries for good synthesis results. Forcing every
+-- component into step/state form can change module structure and increase
+-- area. Therefore 'Pipe2' also supports direct signal-level implementations
+-- ('Pipe2Net' / 'Pipe2Fn') so we can keep old area behavior where needed while
+-- still standardizing on one public abstraction.
 data Pipe2 dom a b = forall s.
   NFDataX s =>
   Pipe2
@@ -124,6 +156,20 @@ type PipeCtrl dom c a b =
   ) ->
   (Signal dom Bool, Signal dom (AXI4Stream b))
 
+-- | Replacement for 'PipeCtrl'.
+--
+-- This exists for the same reason as 'Pipe2': the old control-carrying
+-- signal-function form is easy to write, but its generic signal-level
+-- composition/testing path inherits the same recursive-ready simulation
+-- problem as 'Pipe'. For control-carrying components we also need a way to
+-- keep proven signal-level boundaries when rewriting to the new abstraction,
+-- because some wrappers synthesize much better when that boundary is preserved.
+--
+-- So, just like 'Pipe2', this type supports both:
+--
+-- * step/state implementations for robust testing and composition, and
+-- * direct signal-level implementations ('PipeCtrl2Net' / 'PipeCtrl2Fn') for
+--   area-preserving wrappers.
 data PipeCtrl2 dom c a b = forall s.
   NFDataX s =>
   PipeCtrl2
