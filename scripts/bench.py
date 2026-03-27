@@ -17,8 +17,10 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from bench_cache import cache_stage_reusable, compute_stage_plan, load_cache, save_cache
@@ -31,6 +33,8 @@ CLASH_TARGETS_FILE = PROJECT_ROOT / "clash.json"
 VHDL_TARGETS_FILE = PROJECT_ROOT / "vhdl.json"
 CACHE_ROOT = PROJECT_ROOT / "build" / "cache"
 LIBERTY_FILE = PROJECT_ROOT / "lib" / "nangate45" / "NangateOpenCellLibrary_typical.lib"
+BOLD = "\033[1m"
+RESET = "\033[0m"
 
 
 def fmt2(value):
@@ -531,10 +535,19 @@ def sta_input_sdc_path(target: str, top: str) -> Path:
     return generated
 
 
+def sta_shared_summary_path(top: str) -> Path:
+    return PROJECT_ROOT / "build" / "sta" / top / "reports" / "summary.rpt"
+
+
+def sta_cached_summary_path(target: str) -> Path:
+    label = output_label(resolve_target_label(target))
+    return PROJECT_ROOT / "build" / "bench-sta" / label / "reports" / "summary.rpt"
+
+
 def sta_stage_current(target: str, top: str) -> dict:
     label = output_label(resolve_target_label(target))
     netlist = PROJECT_ROOT / "build" / "synth" / label / "netlist" / f"{top}.mapped.v"
-    summary = PROJECT_ROOT / "build" / "sta" / top / "reports" / "summary.rpt"
+    summary = sta_cached_summary_path(target)
     sdc = sta_input_sdc_path(target, top)
     tcl_files = sorted((PROJECT_ROOT / "scripts" / "tcl").glob("*.tcl"))
     inputs = [netlist, sdc, PROJECT_ROOT / "scripts" / "sta.py", LIBERTY_FILE, *tcl_files]
@@ -557,14 +570,7 @@ def sta_stage_current(target: str, top: str) -> dict:
 
 
 def resolve_sta_summary_path(target: str) -> Path:
-    sta_target = target
-    if target not in VHDL_TARGETS:
-        sta_target = ALIASES.get(target, target)
-    manifest = load_manifest(output_label(sta_target))
-    top = manifest.get("top_component", {}).get("name")
-    if not isinstance(top, str) or not top:
-        sys.exit(f"[bench] ERROR: could not resolve top module for STA summary of {sta_target}")
-    return PROJECT_ROOT / "build" / "sta" / top / "reports" / "summary.rpt"
+    return sta_cached_summary_path(target)
 
 
 def parse_sta_summary(text: str) -> dict[str, str]:
@@ -598,15 +604,22 @@ def run_sta(target: str):
         print(output, file=sys.stderr)
         sys.exit(f"[bench] ERROR: STA for {target} failed (exit {result.returncode})")
 
-    summary_path = resolve_sta_summary_path(target)
-    if not summary_path.is_file():
-        sys.exit(f"[bench] ERROR: missing STA summary at {summary_path}")
+    top = load_top_module(target)
+    shared_summary = sta_shared_summary_path(top)
+    if not shared_summary.is_file():
+        sys.exit(f"[bench] ERROR: missing STA summary at {shared_summary}")
 
-    return parse_sta_summary(summary_path.read_text(encoding="utf-8"))
+    cached_summary = sta_cached_summary_path(target)
+    cached_summary.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(shared_summary, cached_summary)
+
+    return parse_sta_summary(cached_summary.read_text(encoding="utf-8"))
 
 
 def bench(target_label: str):
     requested_target = target_label
+    timings: dict[str, float | None] = {"hdl": None, "synth": None, "sta": None}
+    print(requested_target, flush=True)
     if requested_target in VHDL_TARGETS:
         cache_path = cache_file_for(requested_target)
         cache = load_cache(cache_path)
@@ -626,8 +639,17 @@ def bench(target_label: str):
         )
 
         if plan["synth"] == "run":
+            if sys.stdout.isatty():
+                sys.stdout.write(f"  {'synth':<15} running...")
+                sys.stdout.flush()
+            else:
+                print_stage_line("synth", "running...")
+            start = time.monotonic()
             cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
+            timings["synth"] = time.monotonic() - start
+            update_stage_line("synth", timings["synth"])
         else:
+            print_stage_line("synth", "cached")
             cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
                 parse_report(output_label(resolve_target_label(requested_target))) or ""
             )
@@ -635,8 +657,17 @@ def bench(target_label: str):
         sta_current = sta_stage_current(requested_target, top)
 
         if plan["sta"] == "run":
+            if sys.stdout.isatty():
+                sys.stdout.write(f"  {'sta':<15} running...")
+                sys.stdout.flush()
+            else:
+                print_stage_line("sta", "running...")
+            start = time.monotonic()
             sta = run_sta(requested_target)
+            timings["sta"] = time.monotonic() - start
+            update_stage_line("sta", timings["sta"])
         else:
+            print_stage_line("sta", "cached")
             sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
         sta_current = sta_stage_current(requested_target, top)
 
@@ -657,9 +688,10 @@ def bench(target_label: str):
         wns = sta.get("WNS (max)", "N/A")
         tns = sta.get("TNS (max)", "N/A")
         worst_slack = sta.get("Worst Slack", "N/A")
-        print(requested_target)
-        print_metric("area", fmt_area(area), "um^2")
-        print_metric("critical path", *split_value_unit(critical_path))
+        print()
+        print_metric("area", fmt_area(area), "um^2", emphasize=True)
+        cp_value, cp_unit = split_value_unit(critical_path)
+        print_metric("critical path", cp_value, cp_unit, emphasize=True)
         print_metric("wns", *split_value_unit(wns))
         print_metric("tns", *split_value_unit(tns))
         print_metric("worst slack", *split_value_unit(worst_slack))
@@ -676,7 +708,17 @@ def bench(target_label: str):
     hdl_current = hdl_stage_current(requested_target, module_name, main_is)
     cached_hdl = cache.get("stages", {}).get("hdl") if isinstance(cache, dict) else None
     if not cache_stage_reusable(hdl_current, cached_hdl):
+        if sys.stdout.isatty():
+            sys.stdout.write(f"  {'hdl':<15} running...")
+            sys.stdout.flush()
+        else:
+            print_stage_line("hdl", "running...")
+        start = time.monotonic()
         run_hdl(requested_target, module_name, main_is)
+        timings["hdl"] = time.monotonic() - start
+        update_stage_line("hdl", timings["hdl"])
+    else:
+        print_stage_line("hdl", "cached")
     hdl_current = hdl_stage_current(requested_target, module_name, main_is)
 
     top = load_top_module(requested_target)
@@ -694,8 +736,17 @@ def bench(target_label: str):
     )
 
     if plan["synth"] == "run":
+        if sys.stdout.isatty():
+            sys.stdout.write(f"  {'synth':<15} running...")
+            sys.stdout.flush()
+        else:
+            print_stage_line("synth", "running...")
+        start = time.monotonic()
         cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
+        timings["synth"] = time.monotonic() - start
+        update_stage_line("synth", timings["synth"])
     else:
+        print_stage_line("synth", "cached")
         cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
             parse_report(output_label(resolve_target_label(requested_target))) or ""
         )
@@ -703,8 +754,17 @@ def bench(target_label: str):
     synth_current = synth_stage_current(requested_target, top)
     sta_current = sta_stage_current(requested_target, top)
     if plan["sta"] == "run":
+        if sys.stdout.isatty():
+            sys.stdout.write(f"  {'sta':<15} running...")
+            sys.stdout.flush()
+        else:
+            print_stage_line("sta", "running...")
+        start = time.monotonic()
         sta = run_sta(requested_target)
+        timings["sta"] = time.monotonic() - start
+        update_stage_line("sta", timings["sta"])
     else:
+        print_stage_line("sta", "cached")
         sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
     sta_current = sta_stage_current(requested_target, top)
 
@@ -725,9 +785,10 @@ def bench(target_label: str):
     wns = sta.get("WNS (max)", "N/A")
     tns = sta.get("TNS (max)", "N/A")
     worst_slack = sta.get("Worst Slack", "N/A")
-    print(requested_target)
-    print_metric("area", fmt_area(area), "um^2")
-    print_metric("critical path", *split_value_unit(critical_path))
+    print()
+    print_metric("area", fmt_area(area), "um^2", emphasize=True)
+    cp_value, cp_unit = split_value_unit(critical_path)
+    print_metric("critical path", cp_value, cp_unit, emphasize=True)
     print_metric("wns", *split_value_unit(wns))
     print_metric("tns", *split_value_unit(tns))
     print_metric("worst slack", *split_value_unit(worst_slack))
@@ -742,8 +803,36 @@ def split_value_unit(text: str) -> tuple[str, str]:
     return "N/A", ""
 
 
-def print_metric(label: str, value: str, unit: str) -> None:
-    print(f"  {label:<15} {value:>12} {unit}")
+def print_metric(label: str, value: str, unit: str, *, emphasize: bool = False) -> None:
+    padded_value = f"{value:>12}"
+    if emphasize:
+        padded_value = bold(padded_value)
+    print(f"  {label:<15} {padded_value} {unit}")
+
+
+def bold(text: str) -> str:
+    return f"{BOLD}{text}{RESET}"
+
+
+def format_stage_status(status: str, duration: float | None) -> str:
+    if duration is None:
+        return status
+    return f"{status:<6} {duration:>7.2f} s"
+
+
+def print_stage_line(stage: str, status: str, duration: float | None = None) -> None:
+    print(f"  {stage:<15} {format_stage_status(status, duration)}", flush=True)
+
+
+def update_stage_line(stage: str, duration: float | None) -> None:
+    final = f"  {stage:<15} {format_stage_status('run', duration)}"
+    if sys.stdout.isatty():
+        sys.stdout.write("\r")
+        sys.stdout.write(final)
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+    else:
+        print_stage_line(stage, "run", duration)
 
 
 def main():

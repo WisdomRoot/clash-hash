@@ -193,7 +193,7 @@ But those should come after the first working stage cache.
   - cache Clash HDL generation too
   - invalidate downstream stages correctly
 
-- [ ] Step 5. Polish output
+- [x] Step 5. Polish output
   - show stage statuses:
     - `hdl cached/run`
     - `synth cached/run`
