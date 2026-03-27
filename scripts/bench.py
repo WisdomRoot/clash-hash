@@ -6,6 +6,7 @@ Given a target name (directory under ./systemverilog or ./verilog), it will:
   - Read systemverilog/<target>/clash-manifest.json (fallback to verilog/<target>)
   - Synthesise the target using scripts/synth.py
   - Parse the target's yosys.log to report total and per-module area/seq%
+  - Run static timing analysis using scripts/sta.py
 
 No dependency synthesis is performed. Run inside `nix develop` so yosys is on PATH.
 """
@@ -49,7 +50,6 @@ def fmt_mem(value):
 
 
 def run_cmd(cmd, label, timeout=3600):
-    print(f"[bench] {label}...", file=sys.stderr)
     result = subprocess.run(
         cmd,
         cwd=PROJECT_ROOT,
@@ -60,7 +60,6 @@ def run_cmd(cmd, label, timeout=3600):
     if result.returncode != 0:
         output = result.stdout + result.stderr
         if "Relocation target for PAGE21 out of range" in output:
-            print("[bench] Clash hit GHC relocation bug; retrying once...", file=sys.stderr)
             result = subprocess.run(
                 cmd,
                 cwd=PROJECT_ROOT,
@@ -256,6 +255,9 @@ def synth_label(label: str) -> str:
 
 
 def run_synth(target: str):
+    synth_target = target
+    if target not in VHDL_TARGETS:
+        synth_target = ALIASES.get(target, target)
     run_cmd(
         [
             "nix",
@@ -267,33 +269,80 @@ def run_synth(target: str):
         ],
         f"Synth {target}",
     )
-    report_text = parse_report(output_label(target))
+    report_text = parse_report(output_label(synth_target))
     if report_text is None:
-        sys.exit(f"[bench] ERROR: missing report for {label}")
+        sys.exit(f"[bench] ERROR: missing report for {output_label(synth_target)}")
     return parse_synth_output(report_text)
 
 
-def bench(target_label: str):
-    if target_label in VHDL_TARGETS:
-        cpu, mem, area, seq_area, seq_pct, modules = run_synth(target_label)
-        if modules:
-            print("\n[bench] Module areas (from stat):")
-            header = f"{'module':<45} {'area (µm²)':>14} {'seq area (µm²)':>16} {'seq %':>8}"
-            print("  " + header)
-            print("  " + "-" * len(header))
-            for mod, (a, sa, sp) in sorted(modules.items()):
-                row = f"{mod:<45} {fmt_area(a):>14} {fmt_area(sa):>16} {fmt2(sp):>8}%"
-                print("  " + row)
+def resolve_sta_summary_path(target: str) -> Path:
+    sta_target = target
+    if target not in VHDL_TARGETS:
+        sta_target = ALIASES.get(target, target)
+    manifest = load_manifest(output_label(sta_target))
+    top = manifest.get("top_component", {}).get("name")
+    if not isinstance(top, str) or not top:
+        sys.exit(f"[bench] ERROR: could not resolve top module for STA summary of {sta_target}")
+    return PROJECT_ROOT / "build" / "sta" / top / "reports" / "summary.rpt"
 
-        print(
-            "\n[bench] Time/Mem: load N/A | compile N/A | synth {0}s | mem {1} MB".format(
-                fmt2(cpu), fmt_mem(mem)
-            )
-        )
+
+def parse_sta_summary(text: str) -> dict[str, str]:
+    fields: dict[str, str] = {}
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith("Design Type:"):
+            continue
+        if ":" in line:
+            key, value = line.split(":", 1)
+            fields[key.strip()] = value.strip()
+    return fields
+
+
+def run_sta(target: str):
+    result = subprocess.run(
+        [
+            sys.executable,
+            "scripts/sta.py",
+            target,
+        ],
+        cwd=PROJECT_ROOT,
+        text=True,
+        capture_output=True,
+        timeout=3600,
+    )
+    output = result.stdout + result.stderr
+    if result.returncode != 0:
+        print(output, file=sys.stderr)
+        sys.exit(f"[bench] ERROR: STA for {target} failed (exit {result.returncode})")
+
+    summary_path = resolve_sta_summary_path(target)
+    if not summary_path.is_file():
+        sys.exit(f"[bench] ERROR: missing STA summary at {summary_path}")
+
+    return parse_sta_summary(summary_path.read_text(encoding="utf-8"))
+
+
+def bench(target_label: str):
+    requested_target = target_label
+    if requested_target in VHDL_TARGETS:
+        cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
+        sta = run_sta(requested_target)
+        critical_path = sta.get("Critical Path") or sta.get("Combinational Delay") or "N/A"
+        wns = sta.get("WNS (max)", "N/A")
+        tns = sta.get("TNS (max)", "N/A")
+        worst_slack = sta.get("Worst Slack", "N/A")
+        print(requested_target)
+        print_metric("area", fmt_area(area), "um^2")
+        print_metric("critical path", *split_value_unit(critical_path))
+        print_metric("wns", *split_value_unit(wns))
+        print_metric("tns", *split_value_unit(tns))
+        print_metric("worst slack", *split_value_unit(worst_slack))
         return
 
-    target_label = ALIASES.get(target_label, target_label)
-    module_name, main_is = parse_clash_target(target_label)
+    resolved_target = ALIASES.get(requested_target, requested_target)
+    module_name, main_is = parse_clash_target(resolved_target)
 
     # Rebuild only this package so Clash sees fresh sources without a full stack build
     run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
@@ -311,28 +360,38 @@ def bench(target_label: str):
 
     load_time, compile_time = parse_clash_timings(clash_output)
 
-    cpu, mem, area, seq_area, seq_pct, modules = run_synth(target_label)
+    cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
 
-    if modules:
-        print("\n[bench] Module areas (from stat):")
-        header = f"{'module':<45} {'area (µm²)':>14} {'seq area (µm²)':>16} {'seq %':>8}"
-        print("  " + header)
-        print("  " + "-" * len(header))
-        for mod, (a, sa, sp) in sorted(modules.items()):
-            row = f"{mod:<45} {fmt_area(a):>14} {fmt_area(sa):>16} {fmt2(sp):>8}%"
-            print("  " + row)
+    sta = run_sta(requested_target)
+    critical_path = sta.get("Critical Path") or sta.get("Combinational Delay") or "N/A"
+    wns = sta.get("WNS (max)", "N/A")
+    tns = sta.get("TNS (max)", "N/A")
+    worst_slack = sta.get("Worst Slack", "N/A")
+    print(requested_target)
+    print_metric("area", fmt_area(area), "um^2")
+    print_metric("critical path", *split_value_unit(critical_path))
+    print_metric("wns", *split_value_unit(wns))
+    print_metric("tns", *split_value_unit(tns))
+    print_metric("worst slack", *split_value_unit(worst_slack))
 
-    print(
-        "\n[bench] Time/Mem: load {0}s | compile {1}s | synth {2}s | mem {3} MB".format(
-            fmt2(load_time), fmt2(compile_time), fmt2(cpu), fmt_mem(mem)
-        )
-    )
+
+def split_value_unit(text: str) -> tuple[str, str]:
+    parts = text.split(None, 1)
+    if len(parts) == 2:
+        return parts[0], parts[1]
+    if len(parts) == 1:
+        return parts[0], ""
+    return "N/A", ""
+
+
+def print_metric(label: str, value: str, unit: str) -> None:
+    print(f"  {label:<15} {value:>12} {unit}")
 
     # Final chip summary intentionally omitted; top module appears in the table.
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Manifest-driven synthesis benchmark")
+    parser = argparse.ArgumentParser(description="Manifest-driven synthesis benchmark + STA")
     parser.add_argument("target", help="Directory name under ./verilog (e.g., Hash.Stateful4.topEntity)")
     args = parser.parse_args()
 
