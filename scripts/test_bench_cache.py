@@ -276,6 +276,13 @@ class BenchCacheStoreTests(BenchCacheBase):
         loaded = self.load_cache(path)
         self.assertEqual(loaded, data)
 
+    def test_save_cache_is_atomic_and_leaves_no_tmp_file(self):
+        path = self.root / "build" / "cache" / "SN-O24-L4.json"
+        data = self.cache_state()
+        self.save_cache(path, data)
+        self.assertTrue(path.is_file())
+        self.assertFalse(path.with_name(f"{path.name}.tmp").exists())
+
     def test_load_missing_cache_returns_none(self):
         path = self.root / "build" / "cache" / "missing.json"
         loaded = self.load_cache(path)

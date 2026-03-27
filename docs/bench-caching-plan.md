@@ -200,7 +200,7 @@ But those should come after the first working stage cache.
     - `sta cached/run`
   - keep the final metrics summary concise
 
-- [ ] Step 6. Add one end-to-end verification path for `bench`
+- [x] Step 6. Add one end-to-end verification path for `bench`
   - first run: all run
   - second run: cached
   - delete one artifact: only affected stages rerun

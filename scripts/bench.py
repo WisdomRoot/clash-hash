@@ -469,6 +469,10 @@ def hdl_stage_current(target: str, module_name: str | None = None, main_is: str 
     sv_manifest = SYSTEMVERILOG_ROOT / label / "clash-manifest.json"
     v_manifest = VERILOG_ROOT / label / "clash-manifest.json"
     artifacts = unique_paths(manifest_artifact_paths(sv_manifest) + manifest_artifact_paths(v_manifest))
+    # Clash rewrites manifest contents on each HDL generation even when the emitted HDL is
+    # unchanged, so the HDL cache key must not depend on manifest hashes. We key this stage
+    # off the built library artifacts from Stack instead, and use the manifests only as
+    # artifact-existence checks.
     key = sha256_text(
         json.dumps(
             {
@@ -616,171 +620,32 @@ def run_sta(target: str):
     return parse_sta_summary(cached_summary.read_text(encoding="utf-8"))
 
 
-def bench(target_label: str):
-    requested_target = target_label
-    timings: dict[str, float | None] = {"hdl": None, "synth": None, "sta": None}
-    print(requested_target, flush=True)
-    if requested_target in VHDL_TARGETS:
-        cache_path = cache_file_for(requested_target)
-        cache = load_cache(cache_path)
-        top = load_top_module(requested_target)
-        hdl_current = hdl_stage_current(requested_target)
-        synth_current = synth_stage_current(requested_target, top)
-        sta_current = sta_stage_current(requested_target, top)
-        plan = compute_stage_plan(
-            {
-                "stages": {
-                    "hdl": hdl_current,
-                    "synth": synth_current,
-                    "sta": sta_current,
-                }
-            },
-            cache,
-        )
-
-        if plan["synth"] == "run":
-            if sys.stdout.isatty():
-                sys.stdout.write(f"  {'synth':<15} running...")
-                sys.stdout.flush()
-            else:
-                print_stage_line("synth", "running...")
-            start = time.monotonic()
-            cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
-            timings["synth"] = time.monotonic() - start
-            update_stage_line("synth", timings["synth"])
-        else:
-            print_stage_line("synth", "cached")
-            cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
-                parse_report(output_label(resolve_target_label(requested_target))) or ""
-            )
-        synth_current = synth_stage_current(requested_target, top)
-        sta_current = sta_stage_current(requested_target, top)
-
-        if plan["sta"] == "run":
-            if sys.stdout.isatty():
-                sys.stdout.write(f"  {'sta':<15} running...")
-                sys.stdout.flush()
-            else:
-                print_stage_line("sta", "running...")
-            start = time.monotonic()
-            sta = run_sta(requested_target)
-            timings["sta"] = time.monotonic() - start
-            update_stage_line("sta", timings["sta"])
-        else:
-            print_stage_line("sta", "cached")
-            sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
-        sta_current = sta_stage_current(requested_target, top)
-
-        save_cache(
-            cache_path,
-            {
-                "target": requested_target,
-                "top": top,
-                "stages": {
-                    "hdl": {**hdl_current, "success": True},
-                    "synth": {**synth_current, "success": True},
-                    "sta": {**sta_current, "success": True},
-                },
-            },
-        )
-
-        critical_path = sta.get("Critical Path") or sta.get("Combinational Delay") or "N/A"
-        wns = sta.get("WNS (max)", "N/A")
-        tns = sta.get("TNS (max)", "N/A")
-        worst_slack = sta.get("Worst Slack", "N/A")
-        print()
-        print_metric("area", fmt_area(area), "um^2", emphasize=True)
-        cp_value, cp_unit = split_value_unit(critical_path)
-        print_metric("critical path", cp_value, cp_unit, emphasize=True)
-        print_metric("wns", *split_value_unit(wns))
-        print_metric("tns", *split_value_unit(tns))
-        print_metric("worst slack", *split_value_unit(worst_slack))
-        return
-
-    resolved_target = ALIASES.get(requested_target, requested_target)
-    module_name, main_is = parse_clash_target(resolved_target)
-
-    # Rebuild only this package so Clash sees fresh sources without a full stack build
-    run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
-
-    cache_path = cache_file_for(requested_target)
-    cache = load_cache(cache_path)
-    hdl_current = hdl_stage_current(requested_target, module_name, main_is)
-    cached_hdl = cache.get("stages", {}).get("hdl") if isinstance(cache, dict) else None
-    if not cache_stage_reusable(hdl_current, cached_hdl):
-        if sys.stdout.isatty():
-            sys.stdout.write(f"  {'hdl':<15} running...")
-            sys.stdout.flush()
-        else:
-            print_stage_line("hdl", "running...")
-        start = time.monotonic()
-        run_hdl(requested_target, module_name, main_is)
-        timings["hdl"] = time.monotonic() - start
-        update_stage_line("hdl", timings["hdl"])
+def stage_running(stage: str) -> None:
+    if sys.stdout.isatty():
+        sys.stdout.write(f"  {stage:<15} running...")
+        sys.stdout.flush()
     else:
-        print_stage_line("hdl", "cached")
-    hdl_current = hdl_stage_current(requested_target, module_name, main_is)
+        print_stage_line(stage, "running...")
 
-    top = load_top_module(requested_target)
-    synth_current = synth_stage_current(requested_target, top)
-    sta_current = sta_stage_current(requested_target, top)
-    plan = compute_stage_plan(
-        {
-            "stages": {
-                "hdl": hdl_current,
-                "synth": synth_current,
-                "sta": sta_current,
-            }
-        },
-        cache,
-    )
 
-    if plan["synth"] == "run":
-        if sys.stdout.isatty():
-            sys.stdout.write(f"  {'synth':<15} running...")
-            sys.stdout.flush()
-        else:
-            print_stage_line("synth", "running...")
-        start = time.monotonic()
-        cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
-        timings["synth"] = time.monotonic() - start
-        update_stage_line("synth", timings["synth"])
-    else:
-        print_stage_line("synth", "cached")
-        cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
-            parse_report(output_label(resolve_target_label(requested_target))) or ""
-        )
+def run_timed_stage(stage: str, action):
+    stage_running(stage)
+    start = time.monotonic()
+    result = action()
+    duration = time.monotonic() - start
+    update_stage_line(stage, duration)
+    return result, duration
 
-    synth_current = synth_stage_current(requested_target, top)
-    sta_current = sta_stage_current(requested_target, top)
-    if plan["sta"] == "run":
-        if sys.stdout.isatty():
-            sys.stdout.write(f"  {'sta':<15} running...")
-            sys.stdout.flush()
-        else:
-            print_stage_line("sta", "running...")
-        start = time.monotonic()
-        sta = run_sta(requested_target)
-        timings["sta"] = time.monotonic() - start
-        update_stage_line("sta", timings["sta"])
-    else:
-        print_stage_line("sta", "cached")
-        sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
-    sta_current = sta_stage_current(requested_target, top)
 
-    save_cache(
-        cache_path,
-        {
-            "target": requested_target,
-            "top": top,
-            "stages": {
-                "hdl": {**hdl_current, "success": True},
-                "synth": {**synth_current, "success": True},
-                "sta": {**sta_current, "success": True},
-            },
-        },
-    )
+def load_cached_synth_metrics(target: str):
+    return parse_synth_output(parse_report(output_label(resolve_target_label(target))) or "")
 
+
+def load_cached_sta_metrics(target: str):
+    return parse_sta_summary(resolve_sta_summary_path(target).read_text(encoding="utf-8"))
+
+
+def render_metrics(area, sta: dict[str, str]) -> None:
     critical_path = sta.get("Critical Path") or sta.get("Combinational Delay") or "N/A"
     wns = sta.get("WNS (max)", "N/A")
     tns = sta.get("TNS (max)", "N/A")
@@ -792,6 +657,111 @@ def bench(target_label: str):
     print_metric("wns", *split_value_unit(wns))
     print_metric("tns", *split_value_unit(tns))
     print_metric("worst slack", *split_value_unit(worst_slack))
+
+
+def save_target_cache(
+    cache_path: Path,
+    target: str,
+    top: str,
+    hdl_current: dict,
+    synth_current: dict,
+    sta_current: dict,
+) -> None:
+    save_cache(
+        cache_path,
+        {
+            "target": target,
+            "top": top,
+            "stages": {
+                "hdl": {**hdl_current, "success": True},
+                "synth": {**synth_current, "success": True},
+                "sta": {**sta_current, "success": True},
+            },
+        },
+    )
+
+
+def run_bench_target(
+    requested_target: str,
+    cache: dict | None,
+    hdl_current: dict,
+    ensure_hdl=None,
+    hdl_args: tuple[str | None, str | None] = (None, None),
+) -> tuple[float | None, dict[str, str], dict[str, float | None], dict, dict, dict, str]:
+    timings: dict[str, float | None] = {"hdl": None, "synth": None, "sta": None}
+    if ensure_hdl is not None:
+        cached_hdl = cache.get("stages", {}).get("hdl") if isinstance(cache, dict) else None
+        if not cache_stage_reusable(hdl_current, cached_hdl):
+            _, timings["hdl"] = run_timed_stage("hdl", ensure_hdl)
+        else:
+            print_stage_line("hdl", "cached")
+        hdl_current = hdl_stage_current(requested_target, *hdl_args)
+
+    top = load_top_module(requested_target)
+    synth_current = synth_stage_current(requested_target, top)
+    sta_current = sta_stage_current(requested_target, top)
+    plan = compute_stage_plan(
+        {"stages": {"hdl": hdl_current, "synth": synth_current, "sta": sta_current}},
+        cache,
+    )
+
+    if ensure_hdl is None:
+        print_stage_line("hdl", plan["hdl"])
+
+    if plan["synth"] == "run":
+        synth_metrics, timings["synth"] = run_timed_stage(
+            "synth",
+            lambda: run_synth(requested_target),
+        )
+    else:
+        print_stage_line("synth", "cached")
+        synth_metrics = load_cached_synth_metrics(requested_target)
+    synth_current = synth_stage_current(requested_target, top)
+
+    if plan["sta"] == "run":
+        sta_metrics, timings["sta"] = run_timed_stage(
+            "sta",
+            lambda: run_sta(requested_target),
+        )
+    else:
+        print_stage_line("sta", "cached")
+        sta_metrics = load_cached_sta_metrics(requested_target)
+    sta_current = sta_stage_current(requested_target, top)
+
+    area = synth_metrics[2]
+    return area, sta_metrics, timings, hdl_current, synth_current, sta_current, top
+
+
+def bench(target_label: str):
+    requested_target = target_label
+    print(requested_target, flush=True)
+    cache_path = cache_file_for(requested_target)
+    cache = load_cache(cache_path)
+
+    if requested_target in VHDL_TARGETS:
+        hdl_current = hdl_stage_current(requested_target)
+        area, sta, _timings, hdl_current, synth_current, sta_current, top = run_bench_target(
+            requested_target,
+            cache,
+            hdl_current,
+        )
+        save_target_cache(cache_path, requested_target, top, hdl_current, synth_current, sta_current)
+        render_metrics(area, sta)
+        return
+
+    resolved_target = ALIASES.get(requested_target, requested_target)
+    module_name, main_is = parse_clash_target(resolved_target)
+    run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
+    hdl_current = hdl_stage_current(requested_target, module_name, main_is)
+    area, sta, _timings, hdl_current, synth_current, sta_current, top = run_bench_target(
+        requested_target,
+        cache,
+        hdl_current,
+        ensure_hdl=lambda: run_hdl(requested_target, module_name, main_is),
+        hdl_args=(module_name, main_is),
+    )
+    save_target_cache(cache_path, requested_target, top, hdl_current, synth_current, sta_current)
+    render_metrics(area, sta)
 
 
 def split_value_unit(text: str) -> tuple[str, str]:

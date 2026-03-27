@@ -36,7 +36,9 @@ def load_cache(path: Path) -> dict[str, Any] | None:
 def save_cache(path: Path, data: dict[str, Any]) -> None:
     """Persist a cache file, creating parent directories as needed."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
+    tmp = path.with_name(f"{path.name}.tmp")
+    tmp.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
+    tmp.replace(path)
 
 
 def normalize_cache(cache: dict[str, Any] | None) -> dict[str, Any]:
