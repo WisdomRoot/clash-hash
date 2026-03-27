@@ -14,11 +14,14 @@ No dependency synthesis is performed. Run inside `nix develop` so yosys is on PA
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+from bench_cache import cache_stage_reusable, load_cache, save_cache
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SYSTEMVERILOG_ROOT = PROJECT_ROOT / "systemverilog"
@@ -26,6 +29,8 @@ VERILOG_ROOT = PROJECT_ROOT / "verilog"
 CLASH_HDL_ROOTS = [SYSTEMVERILOG_ROOT, VERILOG_ROOT]
 CLASH_TARGETS_FILE = PROJECT_ROOT / "clash.json"
 VHDL_TARGETS_FILE = PROJECT_ROOT / "vhdl.json"
+CACHE_ROOT = PROJECT_ROOT / "build" / "cache"
+LIBERTY_FILE = PROJECT_ROOT / "lib" / "nangate45" / "NangateOpenCellLibrary_typical.lib"
 
 
 def fmt2(value):
@@ -87,6 +92,45 @@ def parse_report(label: str) -> str | None:
     if not report.is_file():
         return None
     return report.read_text(encoding="utf-8")
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def sha256_text(text: str) -> str:
+    return sha256_bytes(text.encode("utf-8"))
+
+
+def sha256_file(path: Path) -> str:
+    if not path.is_file():
+        return f"missing:{path}"
+    return sha256_bytes(path.read_bytes())
+
+
+def hash_paths(paths: list[Path]) -> str:
+    payload = []
+    for path in sorted(paths, key=lambda p: str(p)):
+        payload.append(f"{path}:{sha256_file(path)}")
+    return sha256_text("\n".join(payload))
+
+
+def tool_version(cmd: list[str]) -> str:
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=PROJECT_ROOT,
+            text=True,
+            capture_output=True,
+            timeout=30,
+        )
+    except Exception:
+        return f"missing:{' '.join(cmd)}"
+    output = (result.stdout + result.stderr).strip()
+    if result.returncode != 0:
+        return f"error:{' '.join(cmd)}:{output}"
+    first = output.splitlines()[0] if output else "unknown"
+    return first
 
 
 def parse_synth_output(text: str):
@@ -174,6 +218,17 @@ def parse_clash_timings(text: str):
     return load, top_compile
 
 
+def cache_file_for(target: str) -> Path:
+    return CACHE_ROOT / f"{target}.json"
+
+
+def load_manifest_path(path: Path) -> dict:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        sys.exit(f"[bench] ERROR: could not read manifest {path}: {exc}")
+
+
 def load_manifest(label: str) -> dict:
     path = None
     for root in CLASH_HDL_ROOTS:
@@ -184,10 +239,16 @@ def load_manifest(label: str) -> dict:
     if path is None:
         searched = ", ".join(str(root / label / "clash-manifest.json") for root in CLASH_HDL_ROOTS)
         sys.exit(f"[bench] ERROR: manifest not found (searched: {searched})")
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception as exc:
-        sys.exit(f"[bench] ERROR: could not read manifest {path}: {exc}")
+    return load_manifest_path(path)
+
+
+def verilog_files_from_manifest(manifest_path: Path, manifest: dict) -> list[Path]:
+    files: list[Path] = []
+    for entry in manifest.get("files", []):
+        name = entry.get("name")
+        if isinstance(name, str) and name.lower().endswith((".v", ".sv")):
+            files.append((manifest_path.parent / name).resolve())
+    return files
 
 
 def parse_clash_target(label: str) -> tuple[str, str | None]:
@@ -275,6 +336,133 @@ def run_synth(target: str):
     return parse_synth_output(report_text)
 
 
+def resolve_target_label(target: str) -> str:
+    if target in VHDL_TARGETS:
+        return target
+    return ALIASES.get(target, target)
+
+
+def load_top_module(target: str) -> str:
+    if target in VHDL_TARGETS:
+        entry = VHDL_TARGETS[target]
+        top = entry.get("top")
+        if not isinstance(top, str) or not top:
+            sys.exit(f"[bench] ERROR: could not resolve VHDL top for {target}")
+        return top
+
+    resolved = resolve_target_label(target)
+    manifest = load_manifest(output_label(resolved))
+    top = manifest.get("top_component", {}).get("name")
+    if not isinstance(top, str) or not top:
+        sys.exit(f"[bench] ERROR: could not resolve top module for {resolved}")
+    return top
+
+
+def collect_synth_input_files(target: str) -> list[Path]:
+    if target in VHDL_TARGETS:
+        entry = VHDL_TARGETS[target]
+        dir_name = entry.get("dir") or target
+        files = entry.get("files")
+        if isinstance(files, list) and all(isinstance(f, str) for f in files):
+            return [PROJECT_ROOT / "vhdl" / dir_name / f for f in files]
+        return []
+
+    resolved = resolve_target_label(target)
+    manifest_path = VERILOG_ROOT / output_label(resolved) / "clash-manifest.json"
+    if not manifest_path.is_file():
+        manifest_path = SYSTEMVERILOG_ROOT / output_label(resolved) / "clash-manifest.json"
+    if not manifest_path.is_file():
+        sys.exit(f"[bench] ERROR: missing manifest for synth inputs of {resolved}")
+
+    seen: set[Path] = set()
+    paths: list[Path] = []
+
+    def add_manifest(manifest_label: str, path: Path | None = None) -> None:
+        manifest_file = path
+        if manifest_file is None:
+            manifest_file = VERILOG_ROOT / manifest_label / "clash-manifest.json"
+            if not manifest_file.is_file():
+                manifest_file = SYSTEMVERILOG_ROOT / manifest_label / "clash-manifest.json"
+        if manifest_file is None or not manifest_file.is_file():
+            sys.exit(f"[bench] ERROR: missing dependency manifest for {manifest_label}")
+        manifest = load_manifest_path(manifest_file)
+        for file_path in verilog_files_from_manifest(manifest_file, manifest):
+            resolved_path = file_path.resolve()
+            if resolved_path not in seen:
+                seen.add(resolved_path)
+                paths.append(resolved_path)
+        dep_entries = manifest.get("dependencies", {})
+        if isinstance(dep_entries, dict):
+            transitive = dep_entries.get("transitive", [])
+            if isinstance(transitive, list):
+                for dep in transitive:
+                    if isinstance(dep, str):
+                        add_manifest(dep)
+
+    add_manifest(output_label(resolved), manifest_path)
+    return sorted(paths)
+
+
+def synth_stage_current(target: str, top: str) -> dict:
+    label = output_label(resolve_target_label(target))
+    report = PROJECT_ROOT / "build" / "synth" / label / "reports" / "yosys.log"
+    netlist = PROJECT_ROOT / "build" / "synth" / label / "netlist" / f"{top}.mapped.v"
+    inputs = collect_synth_input_files(target) + [PROJECT_ROOT / "scripts" / "synth.py", LIBERTY_FILE]
+    key = sha256_text(
+        json.dumps(
+            {
+                "target": target,
+                "label": label,
+                "top": top,
+                "yosys": tool_version(["yosys", "--version"]),
+                "inputs": hash_paths(inputs),
+            },
+            sort_keys=True,
+        )
+    )
+    return {
+        "key": key,
+        "artifacts": [str(netlist), str(report)],
+    }
+
+
+def sta_input_sdc_path(target: str, top: str) -> Path:
+    if target in VHDL_TARGETS:
+        generated = PROJECT_ROOT / "build" / "sta" / f"{top}.sdc"
+        return generated
+    resolved = resolve_target_label(target)
+    clash_sdc = SYSTEMVERILOG_ROOT / output_label(resolved) / f"{top}.sdc"
+    if clash_sdc.exists():
+        return clash_sdc
+    generated = PROJECT_ROOT / "build" / "sta" / f"{top}.sdc"
+    return generated
+
+
+def sta_stage_current(target: str, top: str) -> dict:
+    label = output_label(resolve_target_label(target))
+    netlist = PROJECT_ROOT / "build" / "synth" / label / "netlist" / f"{top}.mapped.v"
+    summary = PROJECT_ROOT / "build" / "sta" / top / "reports" / "summary.rpt"
+    sdc = sta_input_sdc_path(target, top)
+    tcl_files = sorted((PROJECT_ROOT / "scripts" / "tcl").glob("*.tcl"))
+    inputs = [netlist, sdc, PROJECT_ROOT / "scripts" / "sta.py", LIBERTY_FILE, *tcl_files]
+    key = sha256_text(
+        json.dumps(
+            {
+                "target": target,
+                "label": label,
+                "top": top,
+                "sta": tool_version(["sta", "-version"]),
+                "inputs": hash_paths(inputs),
+            },
+            sort_keys=True,
+        )
+    )
+    return {
+        "key": key,
+        "artifacts": [str(summary)],
+    }
+
+
 def resolve_sta_summary_path(target: str) -> Path:
     sta_target = target
     if target not in VHDL_TARGETS:
@@ -327,8 +515,42 @@ def run_sta(target: str):
 def bench(target_label: str):
     requested_target = target_label
     if requested_target in VHDL_TARGETS:
-        cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
-        sta = run_sta(requested_target)
+        cache_path = cache_file_for(requested_target)
+        cache = load_cache(cache_path)
+        top = load_top_module(requested_target)
+
+        synth_current = synth_stage_current(requested_target, top)
+        cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
+        if not cache_stage_reusable(synth_current, cached_synth):
+            cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
+        else:
+            cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
+                parse_report(output_label(resolve_target_label(requested_target))) or ""
+            )
+
+        synth_current = synth_stage_current(requested_target, top)
+        cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
+        synth_reused = cache_stage_reusable(synth_current, cached_synth)
+
+        sta_current = sta_stage_current(requested_target, top)
+        cached_sta = cache.get("stages", {}).get("sta") if isinstance(cache, dict) else None
+        if not synth_reused or not cache_stage_reusable(sta_current, cached_sta):
+            sta = run_sta(requested_target)
+        else:
+            sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
+
+        save_cache(
+            cache_path,
+            {
+                "target": requested_target,
+                "top": top,
+                "stages": {
+                    "synth": {**synth_current, "success": True},
+                    "sta": {**sta_stage_current(requested_target, top), "success": True},
+                },
+            },
+        )
+
         critical_path = sta.get("Critical Path") or sta.get("Combinational Delay") or "N/A"
         wns = sta.get("WNS (max)", "N/A")
         tns = sta.get("TNS (max)", "N/A")
@@ -358,11 +580,42 @@ def bench(target_label: str):
         verilog_cmd += ["-main-is", main_is]
     run_cmd(verilog_cmd, f"Verilog gen for {module_name}")
 
-    load_time, compile_time = parse_clash_timings(clash_output)
+    cache_path = cache_file_for(requested_target)
+    cache = load_cache(cache_path)
+    top = load_top_module(requested_target)
 
-    cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
+    synth_current = synth_stage_current(requested_target, top)
+    cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
+    if not cache_stage_reusable(synth_current, cached_synth):
+        cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
+    else:
+        cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
+            parse_report(output_label(resolve_target_label(requested_target))) or ""
+        )
 
-    sta = run_sta(requested_target)
+    synth_current = synth_stage_current(requested_target, top)
+    cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
+    synth_reused = cache_stage_reusable(synth_current, cached_synth)
+
+    sta_current = sta_stage_current(requested_target, top)
+    cached_sta = cache.get("stages", {}).get("sta") if isinstance(cache, dict) else None
+    if not synth_reused or not cache_stage_reusable(sta_current, cached_sta):
+        sta = run_sta(requested_target)
+    else:
+        sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
+
+    save_cache(
+        cache_path,
+        {
+            "target": requested_target,
+            "top": top,
+            "stages": {
+                "synth": {**synth_current, "success": True},
+                "sta": {**sta_stage_current(requested_target, top), "success": True},
+            },
+        },
+    )
+
     critical_path = sta.get("Critical Path") or sta.get("Combinational Delay") or "N/A"
     wns = sta.get("WNS (max)", "N/A")
     tns = sta.get("TNS (max)", "N/A")
@@ -386,8 +639,6 @@ def split_value_unit(text: str) -> tuple[str, str]:
 
 def print_metric(label: str, value: str, unit: str) -> None:
     print(f"  {label:<15} {value:>12} {unit}")
-
-    # Final chip summary intentionally omitted; top module appears in the table.
 
 
 def main():
