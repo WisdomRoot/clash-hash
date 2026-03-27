@@ -39,7 +39,45 @@ def save_cache(path: Path, data: dict[str, Any]) -> None:
     path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
 
 
-def _stage_artifacts_exist(stage: dict[str, Any] | None) -> bool:
+def normalize_cache(cache: dict[str, Any] | None) -> dict[str, Any]:
+    """Return a normalized cache shape.
+
+    Unknown top-level fields are preserved. Missing or malformed stage entries are
+    replaced with empty dicts so planner logic can treat them uniformly.
+    """
+    if not isinstance(cache, dict):
+        return {"stages": {stage: {} for stage in STAGES}}
+
+    result = dict(cache)
+    stages_in = cache.get("stages")
+    stages_out: dict[str, dict[str, Any]] = {}
+    for stage in STAGES:
+        if isinstance(stages_in, dict) and isinstance(stages_in.get(stage), dict):
+            stages_out[stage] = dict(stages_in[stage])
+        else:
+            stages_out[stage] = {}
+    result["stages"] = stages_out
+    return result
+
+
+def normalize_current(current: dict[str, Any] | None) -> dict[str, Any]:
+    """Return a normalized current-state shape."""
+    if not isinstance(current, dict):
+        return {"stages": {stage: {} for stage in STAGES}}
+
+    result = dict(current)
+    stages_in = current.get("stages")
+    stages_out: dict[str, dict[str, Any]] = {}
+    for stage in STAGES:
+        if isinstance(stages_in, dict) and isinstance(stages_in.get(stage), dict):
+            stages_out[stage] = dict(stages_in[stage])
+        else:
+            stages_out[stage] = {}
+    result["stages"] = stages_out
+    return result
+
+
+def stage_artifacts_valid(stage: dict[str, Any] | None) -> bool:
     if not isinstance(stage, dict):
         return False
     artifacts = stage.get("artifacts")
@@ -54,22 +92,29 @@ def _stage_artifacts_exist(stage: dict[str, Any] | None) -> bool:
     return True
 
 
-def _cache_stage_reusable(current_stage: dict[str, Any] | None, cached_stage: Any) -> bool:
+def stage_metadata_valid(stage: dict[str, Any] | None) -> bool:
+    if not isinstance(stage, dict):
+        return False
+    key = stage.get("key")
+    return isinstance(key, str) and bool(key)
+
+
+def cache_stage_reusable(current_stage: dict[str, Any] | None, cached_stage: Any) -> bool:
     if not isinstance(current_stage, dict):
         return False
     if not isinstance(cached_stage, dict):
         return False
-    current_key = current_stage.get("key")
-    cached_key = cached_stage.get("key")
-    if not isinstance(current_key, str) or not current_key:
+    if not stage_metadata_valid(current_stage):
         return False
-    if not isinstance(cached_key, str) or not cached_key:
+    if not stage_metadata_valid(cached_stage):
         return False
+    current_key = current_stage["key"]
+    cached_key = cached_stage["key"]
     if cached_stage.get("success") is not True:
         return False
     if current_key != cached_key:
         return False
-    return _stage_artifacts_exist(current_stage)
+    return stage_artifacts_valid(current_stage)
 
 
 def compute_stage_plan(current: dict[str, Any], cache: dict[str, Any] | None) -> dict[str, str]:
@@ -79,19 +124,17 @@ def compute_stage_plan(current: dict[str, Any], cache: dict[str, Any] | None) ->
     - `run`
     - `cached`
     """
-    current_stages = current.get("stages") if isinstance(current, dict) else None
-    cached_stages = cache.get("stages") if isinstance(cache, dict) else None
-    if not isinstance(current_stages, dict):
-        return {stage: "run" for stage in STAGES}
-    if not isinstance(cached_stages, dict):
-        return {stage: "run" for stage in STAGES}
+    current_norm = normalize_current(current)
+    cache_norm = normalize_cache(cache)
+    current_stages = current_norm["stages"]
+    cached_stages = cache_norm["stages"]
 
     plan: dict[str, str] = {}
     invalidate_downstream = False
     for stage_name in STAGES:
         current_stage = current_stages.get(stage_name)
         cached_stage = cached_stages.get(stage_name)
-        reusable = (not invalidate_downstream) and _cache_stage_reusable(current_stage, cached_stage)
+        reusable = (not invalidate_downstream) and cache_stage_reusable(current_stage, cached_stage)
         if reusable:
             plan[stage_name] = "cached"
         else:

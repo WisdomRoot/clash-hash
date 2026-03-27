@@ -93,6 +93,26 @@ class BenchCacheBase(unittest.TestCase):
         fn = self.require_fn("compute_stage_plan")
         return fn(current, cache)
 
+    def normalize_cache(self, cache):
+        fn = self.require_fn("normalize_cache")
+        return fn(cache)
+
+    def normalize_current(self, current):
+        fn = self.require_fn("normalize_current")
+        return fn(current)
+
+    def stage_artifacts_valid(self, stage):
+        fn = self.require_fn("stage_artifacts_valid")
+        return fn(stage)
+
+    def stage_metadata_valid(self, stage):
+        fn = self.require_fn("stage_metadata_valid")
+        return fn(stage)
+
+    def cache_stage_reusable(self, current_stage, cached_stage):
+        fn = self.require_fn("cache_stage_reusable")
+        return fn(current_stage, cached_stage)
+
     def load_cache(self, path: Path):
         fn = self.require_fn("load_cache")
         return fn(path)
@@ -274,6 +294,59 @@ class BenchCacheStoreTests(BenchCacheBase):
         path.write_text(json.dumps(["not", "an", "object"]), encoding="utf-8")
         loaded = self.load_cache(path)
         self.assertIsNone(loaded)
+
+
+class BenchCacheHelperTests(BenchCacheBase):
+    def test_normalize_cache_none_creates_empty_stage_dicts(self):
+        cache = self.normalize_cache(None)
+        self.assertEqual(set(cache["stages"].keys()), {"hdl", "synth", "sta"})
+        self.assertEqual(cache["stages"]["hdl"], {})
+
+    def test_normalize_cache_preserves_unknown_top_level_fields(self):
+        cache = self.normalize_cache({"foo": 1, "stages": {"hdl": {"key": "x"}}})
+        self.assertEqual(cache["foo"], 1)
+        self.assertEqual(cache["stages"]["hdl"]["key"], "x")
+        self.assertEqual(cache["stages"]["synth"], {})
+
+    def test_normalize_current_none_creates_empty_stage_dicts(self):
+        current = self.normalize_current(None)
+        self.assertEqual(set(current["stages"].keys()), {"hdl", "synth", "sta"})
+        self.assertEqual(current["stages"]["sta"], {})
+
+    def test_stage_artifacts_valid_accepts_existing_files(self):
+        stage = {"artifacts": [self.artifact("a"), self.artifact("b")]}
+        self.assertTrue(self.stage_artifacts_valid(stage))
+
+    def test_stage_artifacts_valid_rejects_missing_file(self):
+        stage = {"artifacts": [str(self.root / "missing")]}
+        self.assertFalse(self.stage_artifacts_valid(stage))
+
+    def test_stage_artifacts_valid_rejects_directory(self):
+        p = self.root / "dir"
+        p.mkdir(parents=True)
+        stage = {"artifacts": [str(p)]}
+        self.assertFalse(self.stage_artifacts_valid(stage))
+
+    def test_stage_metadata_valid_requires_nonempty_string_key(self):
+        self.assertTrue(self.stage_metadata_valid({"key": "x"}))
+        self.assertFalse(self.stage_metadata_valid({"key": ""}))
+        self.assertFalse(self.stage_metadata_valid({"key": None}))
+        self.assertFalse(self.stage_metadata_valid({}))
+
+    def test_cache_stage_reusable_true_on_match_success_and_artifacts(self):
+        current = {"key": "k1", "artifacts": [self.artifact("ok")]}
+        cached = {"key": "k1", "success": True}
+        self.assertTrue(self.cache_stage_reusable(current, cached))
+
+    def test_cache_stage_reusable_false_when_key_mismatch(self):
+        current = {"key": "k1", "artifacts": [self.artifact("ok")]}
+        cached = {"key": "k2", "success": True}
+        self.assertFalse(self.cache_stage_reusable(current, cached))
+
+    def test_cache_stage_reusable_false_when_success_missing(self):
+        current = {"key": "k1", "artifacts": [self.artifact("ok")]}
+        cached = {"key": "k1"}
+        self.assertFalse(self.cache_stage_reusable(current, cached))
 
 
 class BenchCacheLifecycleTests(BenchCacheBase):
