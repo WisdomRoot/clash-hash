@@ -168,3 +168,39 @@ Possible later improvements:
 - optional machine-readable cache status output
 
 But those should come after the first working stage cache.
+
+## Execution Steps
+
+- [ ] Step 1. Implement `scripts/bench_cache.py` pure core
+  - `load_cache`
+  - `save_cache`
+  - `compute_stage_plan`
+  - enough to make the cache tests pass
+  - no `bench.py` integration yet
+
+- [ ] Step 2. Add cache metadata helpers
+  - stage artifact validation
+  - normalized cache shape
+  - per-stage monotone invalidation logic cleanup
+  - keep this still pure and unit-tested
+
+- [ ] Step 3. Integrate cache into `bench.py` for `synth` and `sta`
+  - keep `stack build` and Clash HDL generation unchanged for now
+  - cache only `synth` and `sta`
+  - this gives immediate speedup with lower risk
+
+- [ ] Step 4. Extend integration to `hdl`
+  - cache Clash HDL generation too
+  - invalidate downstream stages correctly
+
+- [ ] Step 5. Polish output
+  - show stage statuses:
+    - `hdl cached/run`
+    - `synth cached/run`
+    - `sta cached/run`
+  - keep the final metrics summary concise
+
+- [ ] Step 6. Add one end-to-end verification path for `bench`
+  - first run: all run
+  - second run: cached
+  - delete one artifact: only affected stages rerun
