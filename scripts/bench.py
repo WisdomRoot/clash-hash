@@ -21,7 +21,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from bench_cache import cache_stage_reusable, load_cache, save_cache
+from bench_cache import cache_stage_reusable, compute_stage_plan, load_cache, save_cache
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SYSTEMVERILOG_ROOT = PROJECT_ROOT / "systemverilog"
@@ -222,6 +222,17 @@ def cache_file_for(target: str) -> Path:
     return CACHE_ROOT / f"{target}.json"
 
 
+def unique_paths(paths: list[Path]) -> list[Path]:
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for path in paths:
+        resolved = path.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            unique.append(resolved)
+    return unique
+
+
 def load_manifest_path(path: Path) -> dict:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -249,6 +260,34 @@ def verilog_files_from_manifest(manifest_path: Path, manifest: dict) -> list[Pat
         if isinstance(name, str) and name.lower().endswith((".v", ".sv")):
             files.append((manifest_path.parent / name).resolve())
     return files
+
+
+def manifest_artifact_paths(manifest_path: Path) -> list[Path]:
+    artifacts = [manifest_path]
+    if not manifest_path.is_file():
+        return artifacts
+    manifest = load_manifest_path(manifest_path)
+    for entry in manifest.get("files", []):
+        name = entry.get("name")
+        if isinstance(name, str) and name:
+            artifacts.append((manifest_path.parent / name).resolve())
+    return artifacts
+
+
+def collect_stack_build_artifacts() -> list[Path]:
+    patterns = [
+        ".stack-work/dist/*/ghc-*/build/libHSclash-hash*.a",
+        ".stack-work/dist/*/ghc-*/build/libHSclash-hash*.so",
+        ".stack-work/dist/*/ghc-*/build/libHSclash-hash*.dylib",
+        ".stack-work/dist/*/ghc-*/package.conf.inplace/clash-hash-*.conf",
+    ]
+    paths: list[Path] = []
+    for pattern in patterns:
+        paths.extend(PROJECT_ROOT.glob(pattern))
+    unique = unique_paths(paths)
+    if not unique:
+        sys.exit("[bench] ERROR: could not find Stack build artifacts for HDL cache key")
+    return sorted(unique)
 
 
 def parse_clash_target(label: str) -> tuple[str, str | None]:
@@ -403,6 +442,60 @@ def collect_synth_input_files(target: str) -> list[Path]:
     return sorted(paths)
 
 
+def hdl_stage_current(target: str, module_name: str | None = None, main_is: str | None = None) -> dict:
+    if target in VHDL_TARGETS:
+        entry = VHDL_TARGETS[target]
+        key = sha256_text(
+            json.dumps(
+                {
+                    "target": target,
+                    "kind": "vhdl",
+                    "entry": entry,
+                },
+                sort_keys=True,
+            )
+        )
+        return {
+            "key": key,
+            "artifacts": [str(VHDL_TARGETS_FILE.resolve())],
+        }
+
+    resolved = resolve_target_label(target)
+    label = output_label(resolved)
+    sv_manifest = SYSTEMVERILOG_ROOT / label / "clash-manifest.json"
+    v_manifest = VERILOG_ROOT / label / "clash-manifest.json"
+    artifacts = unique_paths(manifest_artifact_paths(sv_manifest) + manifest_artifact_paths(v_manifest))
+    key = sha256_text(
+        json.dumps(
+            {
+                "target": target,
+                "resolved": resolved,
+                "module": module_name,
+                "main_is": main_is,
+                "backends": ["systemverilog", "verilog"],
+                "stack": hash_paths(collect_stack_build_artifacts()),
+            },
+            sort_keys=True,
+        )
+    )
+    return {
+        "key": key,
+        "artifacts": [str(path) for path in artifacts],
+    }
+
+
+def run_hdl(target: str, module_name: str, main_is: str | None) -> None:
+    clash_cmd = ["stack", "exec", "clash", "--", "--systemverilog", module_name]
+    if main_is:
+        clash_cmd += ["-main-is", main_is]
+    run_cmd(clash_cmd, f"SystemVerilog gen for {module_name}")
+
+    verilog_cmd = ["stack", "exec", "clash", "--", "--verilog", module_name]
+    if main_is:
+        verilog_cmd += ["-main-is", main_is]
+    run_cmd(verilog_cmd, f"Verilog gen for {module_name}")
+
+
 def synth_stage_current(target: str, top: str) -> dict:
     label = output_label(resolve_target_label(target))
     report = PROJECT_ROOT / "build" / "synth" / label / "reports" / "yosys.log"
@@ -518,26 +611,34 @@ def bench(target_label: str):
         cache_path = cache_file_for(requested_target)
         cache = load_cache(cache_path)
         top = load_top_module(requested_target)
-
+        hdl_current = hdl_stage_current(requested_target)
         synth_current = synth_stage_current(requested_target, top)
-        cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
-        if not cache_stage_reusable(synth_current, cached_synth):
+        sta_current = sta_stage_current(requested_target, top)
+        plan = compute_stage_plan(
+            {
+                "stages": {
+                    "hdl": hdl_current,
+                    "synth": synth_current,
+                    "sta": sta_current,
+                }
+            },
+            cache,
+        )
+
+        if plan["synth"] == "run":
             cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
         else:
             cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
                 parse_report(output_label(resolve_target_label(requested_target))) or ""
             )
-
         synth_current = synth_stage_current(requested_target, top)
-        cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
-        synth_reused = cache_stage_reusable(synth_current, cached_synth)
-
         sta_current = sta_stage_current(requested_target, top)
-        cached_sta = cache.get("stages", {}).get("sta") if isinstance(cache, dict) else None
-        if not synth_reused or not cache_stage_reusable(sta_current, cached_sta):
+
+        if plan["sta"] == "run":
             sta = run_sta(requested_target)
         else:
             sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
+        sta_current = sta_stage_current(requested_target, top)
 
         save_cache(
             cache_path,
@@ -545,8 +646,9 @@ def bench(target_label: str):
                 "target": requested_target,
                 "top": top,
                 "stages": {
+                    "hdl": {**hdl_current, "success": True},
                     "synth": {**synth_current, "success": True},
-                    "sta": {**sta_stage_current(requested_target, top), "success": True},
+                    "sta": {**sta_current, "success": True},
                 },
             },
         )
@@ -569,24 +671,29 @@ def bench(target_label: str):
     # Rebuild only this package so Clash sees fresh sources without a full stack build
     run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
 
-    # (Re)generate SystemVerilog for the target and capture Clash timings
-    clash_cmd = ["stack", "exec", "clash", "--", "--systemverilog", module_name]
-    if main_is:
-        clash_cmd += ["-main-is", main_is]
-    clash_output = run_cmd(clash_cmd, f"SystemVerilog gen for {module_name}")
-    # Also emit Verilog for tool compatibility
-    verilog_cmd = ["stack", "exec", "clash", "--", "--verilog", module_name]
-    if main_is:
-        verilog_cmd += ["-main-is", main_is]
-    run_cmd(verilog_cmd, f"Verilog gen for {module_name}")
-
     cache_path = cache_file_for(requested_target)
     cache = load_cache(cache_path)
-    top = load_top_module(requested_target)
+    hdl_current = hdl_stage_current(requested_target, module_name, main_is)
+    cached_hdl = cache.get("stages", {}).get("hdl") if isinstance(cache, dict) else None
+    if not cache_stage_reusable(hdl_current, cached_hdl):
+        run_hdl(requested_target, module_name, main_is)
+    hdl_current = hdl_stage_current(requested_target, module_name, main_is)
 
+    top = load_top_module(requested_target)
     synth_current = synth_stage_current(requested_target, top)
-    cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
-    if not cache_stage_reusable(synth_current, cached_synth):
+    sta_current = sta_stage_current(requested_target, top)
+    plan = compute_stage_plan(
+        {
+            "stages": {
+                "hdl": hdl_current,
+                "synth": synth_current,
+                "sta": sta_current,
+            }
+        },
+        cache,
+    )
+
+    if plan["synth"] == "run":
         cpu, mem, area, seq_area, seq_pct, modules = run_synth(requested_target)
     else:
         cpu, mem, area, seq_area, seq_pct, modules = parse_synth_output(
@@ -594,15 +701,12 @@ def bench(target_label: str):
         )
 
     synth_current = synth_stage_current(requested_target, top)
-    cached_synth = cache.get("stages", {}).get("synth") if isinstance(cache, dict) else None
-    synth_reused = cache_stage_reusable(synth_current, cached_synth)
-
     sta_current = sta_stage_current(requested_target, top)
-    cached_sta = cache.get("stages", {}).get("sta") if isinstance(cache, dict) else None
-    if not synth_reused or not cache_stage_reusable(sta_current, cached_sta):
+    if plan["sta"] == "run":
         sta = run_sta(requested_target)
     else:
         sta = parse_sta_summary(resolve_sta_summary_path(requested_target).read_text(encoding="utf-8"))
+    sta_current = sta_stage_current(requested_target, top)
 
     save_cache(
         cache_path,
@@ -610,8 +714,9 @@ def bench(target_label: str):
             "target": requested_target,
             "top": top,
             "stages": {
+                "hdl": {**hdl_current, "success": True},
                 "synth": {**synth_current, "success": True},
-                "sta": {**sta_stage_current(requested_target, top), "success": True},
+                "sta": {**sta_current, "success": True},
             },
         },
     )

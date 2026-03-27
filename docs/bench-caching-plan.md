@@ -189,7 +189,7 @@ But those should come after the first working stage cache.
   - cache only `synth` and `sta`
   - this gives immediate speedup with lower risk
 
-- [ ] Step 4. Extend integration to `hdl`
+- [x] Step 4. Extend integration to `hdl`
   - cache Clash HDL generation too
   - invalidate downstream stages correctly
 
