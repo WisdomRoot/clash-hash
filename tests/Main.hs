@@ -30,6 +30,7 @@ main = do
   permutationRevTests <- testSpec "Permutation" Test.Permutation.spec
   cbdo12Tests <- testSpec "CBD-O12" Test.SamplePolyCBD.specO12
   cbdo24Tests <- testSpec "CBD-O24" Test.SamplePolyCBD.specO24
+  cbdo24DevTests <- testSpec "CBD-O24-dev" Test.SamplePolyCBD.specO24Dev
   cbd2o12Tests <- testSpec "CBD2-O12" Test.SamplePolyCBD2.specO12
   cbd2o24Tests <- testSpec "CBD2-O24" Test.SamplePolyCBD2.specO24
   cbd2o24DevTests <- testSpec "CBD2-O24-dev" Test.SamplePolyCBD2.specO24Dev
@@ -63,6 +64,7 @@ main = do
         permutationRevTests,
         cbdo12Tests,
         cbdo24Tests,
+        cbdo24DevTests,
         cbd2o12Tests,
         cbd2o24Tests,
         cbd2o24DevTests,

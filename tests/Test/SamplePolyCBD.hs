@@ -5,6 +5,7 @@
 module Test.SamplePolyCBD
   ( specO12,
     specO24,
+    specO24Dev,
   )
 where
 
@@ -12,6 +13,7 @@ import AXI4Stream (Pipe)
 import Clash.Prelude (BitVector, SNat (..), System, (++#), bundle, clockGen, enableGen, resetGen, slice, unbundle)
 import Component.PRF.Common (Eta (Eta2, Eta3))
 import Component.SamplePolyCBD qualified as SamplePolyCBD
+import Component.SamplePolyCBDDev qualified as SamplePolyCBDDev
 import Data.ByteString qualified as BS
 import Data.List qualified as L
 import Data.Maybe (isJust)
@@ -33,6 +35,12 @@ i272o24AsPipe :: Pipe System 272 24
 i272o24AsPipe (outReady, inStream) =
   let (outStream, inReady) =
         unbundle (SamplePolyCBD.i272o24 clockGen resetGen enableGen (bundle (inStream, outReady)))
+   in (inReady, outStream)
+
+i272o24DevAsPipe :: Pipe System 272 24
+i272o24DevAsPipe (outReady, inStream) =
+  let (outStream, inReady) =
+        unbundle (SamplePolyCBDDev.i272o24 clockGen resetGen enableGen (bundle (inStream, outReady)))
    in (inReady, outStream)
 
 etaFromInput :: BitVector 272 -> Eta
@@ -137,3 +145,16 @@ specO24 = describe "CBD-O24" $ do
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
         runPipeInput i272o24AsPipe simulate24 inputTiming backpressure
+
+specO24Dev :: Spec
+specO24Dev = describe "CBD-O24-dev" $ do
+  it "matches expected output (eta=2, no backpressure)" $ do
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [2])
+    runPipeInput i272o24DevAsPipe simulate24 [Input [input]] [Ready 1]
+  it "matches expected output (eta=3, no backpressure)" $ do
+    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
+    runPipeInput i272o24DevAsPipe simulate24 [Input [input]] [Ready 1]
+  describe "QuickCheck property tests (i272o24)" $
+    it "matches reference for random inputs and backpressure" $
+      forAll genCase $ \(inputTiming, backpressure) ->
+        runPipeInput i272o24DevAsPipe simulate24 inputTiming backpressure

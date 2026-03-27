@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SamplePolyCBD2_i264o24_keccakF1600",
+        "Component_SamplePolyCBD3Arith_i264o24_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -35,31 +35,27 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "dut_types.sv",
-            "sha256": "6cde6e247e3e42ed79f58866a64e48b97ba66ef92cf0b9648a52a8702c27d98f"
+            "sha256": "365d4dcd9502688ecaf88dd621de21c7155361251dae61ad929d7bd6c0095f15"
         },
         {
-            "name": "Component_SamplePolyCBD2_i264o24_keccakF1600.sv",
-            "sha256": "9a82e7f79bb438b38a3bbccf6c7c08faeb3894bce7707acce7006ef036db53c4"
+            "name": "Component_SamplePolyCBD3Arith_i264o24_keccakF1600.sv",
+            "sha256": "949be7353c31528f11303c1325077a767b989266a65c75ecea1556d36fcf5e0f"
         },
         {
             "name": "dut.sv",
-            "sha256": "8fb7545057b4dd323749e14bfd7f0628961679ad586ddfc839fbe706686654aa"
+            "sha256": "799d472688f22b4793ea9db751e5c517d39da5173004c801c56b849bf22d761f"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "f12fc318c5ab8cdc4da6bd1d36238337715ed65e90f1713b6cb6334a1a33233d",
+    "hash": "690ebfee7a98dd50648e980796660237169dc38d1cbb0b91fb941620b3d13987",
     "top_component": {
         "name": "dut",
         "ports_flat": [

@@ -12,9 +12,6 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (tlast)
-import Component.SamplePolyCBD.Common
-  ( cbd3
-  )
 import Permutation qualified
 import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
@@ -59,17 +56,55 @@ data State24
 isEta3 :: BitVector 8 -> Bool
 isEta3 etaByte = etaByte == 3
 
-cbd2Ref :: BitVector 4 -> BitVector 12
-cbd2Ref bits =
-  let b0 = resize (unpack (slice d0 d0 bits) :: Unsigned 1) :: Unsigned 2
-      b1 = resize (unpack (slice d1 d1 bits) :: Unsigned 1) :: Unsigned 2
-      b2 = resize (unpack (slice d2 d2 bits) :: Unsigned 1) :: Unsigned 2
-      b3 = resize (unpack (slice d3 d3 bits) :: Unsigned 1) :: Unsigned 2
-      a = b0 + b1
-      b = b2 + b3
-   in if a >= b
-        then resize (pack (a - b))
-        else 3329 - resize (pack (b - a))
+cbd2Table :: BitVector 4 -> BitVector 12
+cbd2Table bits =
+  let a = pairSum (slice d1 d0 bits)
+      b = pairSum (slice d3 d2 bits)
+   in case (a, b) of
+        (0, 0) -> 0
+        (0, 1) -> 3328
+        (0, 2) -> 3327
+        (1, 0) -> 1
+        (1, 1) -> 0
+        (1, 2) -> 3328
+        (2, 0) -> 2
+        (2, 1) -> 1
+        (2, 2) -> 0
+        _ -> errorX "Component.SamplePolyCBDDev.cbd2Table: impossible"
+  where
+    pairSum :: BitVector 2 -> Unsigned 2
+    pairSum pairBits =
+      resize (unpack (slice d0 d0 pairBits) :: Unsigned 1)
+        + resize (unpack (slice d1 d1 pairBits) :: Unsigned 1)
+
+cbd3Table :: BitVector 6 -> BitVector 12
+cbd3Table bits =
+  let a = bitSum3 (slice d2 d0 bits)
+      b = bitSum3 (slice d5 d3 bits)
+   in case (a, b) of
+        (0, 0) -> 0
+        (0, 1) -> 3328
+        (0, 2) -> 3327
+        (0, 3) -> 3326
+        (1, 0) -> 1
+        (1, 1) -> 0
+        (1, 2) -> 3328
+        (1, 3) -> 3327
+        (2, 0) -> 2
+        (2, 1) -> 1
+        (2, 2) -> 0
+        (2, 3) -> 3328
+        (3, 0) -> 3
+        (3, 1) -> 2
+        (3, 2) -> 1
+        (3, 3) -> 0
+        _ -> errorX "Component.SamplePolyCBDDev.cbd3Table: impossible"
+  where
+    bitSum3 :: BitVector 3 -> Unsigned 3
+    bitSum3 groupBits =
+      resize (unpack (slice d0 d0 groupBits) :: Unsigned 1)
+        + resize (unpack (slice d1 d1 groupBits) :: Unsigned 1)
+        + resize (unpack (slice d2 d2 groupBits) :: Unsigned 1)
 
 absorb33Normal :: BitVector 264 -> BitVector 1600
 absorb33Normal = pad33Bytes . placeMsg
@@ -95,13 +130,10 @@ stepI272o12 st (outReady, inStream) =
           let msg272 = tdata inStream
               etaByte = slice (SNat @271) (SNat @264) msg272
               msg264 = slice (SNat @263) (SNat @0) msg272
+              initState = absorb33Normal msg264
            in if isEta3 etaByte
-                then
-                  let initState = absorb33Normal msg264
-                   in (Eta3Permute 0 0 Eta3FirstBlock initState, (False, idleAXI4Stream))
-                else
-                  let initState = absorb33Normal msg264
-                   in (Eta2Permute 0 0 initState, (False, idleAXI4Stream))
+                then (Eta3Permute 0 0 Eta3FirstBlock initState, (False, idleAXI4Stream))
+                else (Eta2Permute 0 0 initState, (False, idleAXI4Stream))
         else (Absorb, (True, idleAXI4Stream))
     Eta2Permute roundIdx coeffIdx state ->
       let state' = Permutation.keccakF1600 roundIdx state
@@ -110,7 +142,7 @@ stepI272o12 st (outReady, inStream) =
             else (Eta2Permute (roundIdx + 1) coeffIdx state', (False, idleAXI4Stream))
     Eta2Squeeze coeffIdx state ->
       let bits4 = read4Block0 state coeffIdx
-          coeff = cbd2Ref bits4
+          coeff = cbd2Table bits4
           isLast = coeffIdx == maxBound
           outStream = validBeat coeff isLast
           nextState
@@ -132,7 +164,7 @@ stepI272o12 st (outReady, inStream) =
                in (Eta3Permute 0 coeffIdx (Eta3SecondBlock tail2) block, (False, idleAXI4Stream))
             else
               let bits6 = read6Block0 block (fromIntegral coeffIdx)
-                  coeff = cbd3 bits6
+                  coeff = cbd3Table bits6
                   outStream = validBeat coeff False
                   nextState
                     | outReady = Eta3Squeeze (coeffIdx + 1) Eta3FirstBlock block
@@ -145,7 +177,7 @@ stepI272o12 st (outReady, inStream) =
                     let head4 = slice d3 d0 block
                      in head4 ++# tail2
                   else read6Block1 block (fromIntegral (coeffIdx - 182))
-              coeff = cbd3 bits6
+              coeff = cbd3Table bits6
               isLast = coeffIdx == maxBound
               outStream = validBeat coeff isLast
               nextState
@@ -179,13 +211,10 @@ stepI272o24 st (outReady, inStream) =
           let msg272 = tdata inStream
               etaByte = slice (SNat @271) (SNat @264) msg272
               msg264 = slice (SNat @263) (SNat @0) msg272
+              initState = absorb33Normal msg264
            in if isEta3 etaByte
-                then
-                  let initState = absorb33Normal msg264
-                   in (Eta3Permute24 0 0 Eta3PairFirstBlock initState, (False, idleAXI4Stream))
-                else
-                  let initState = absorb33Normal msg264
-                   in (Eta2Permute24 0 0 initState, (False, idleAXI4Stream))
+                then (Eta3Permute24 0 0 Eta3PairFirstBlock initState, (False, idleAXI4Stream))
+                else (Eta2Permute24 0 0 initState, (False, idleAXI4Stream))
         else (Absorb24, (True, idleAXI4Stream))
     Eta2Permute24 roundIdx pairIdx state ->
       let state' = Permutation.keccakF1600 roundIdx state
@@ -196,8 +225,8 @@ stepI272o24 st (outReady, inStream) =
       let pairIdxU = fromIntegral pairIdx :: Unsigned 8
           idx0 = fromIntegral (pairIdxU * 2) :: Index 256
           idx1 = fromIntegral (pairIdxU * 2 + 1) :: Index 256
-          coeff0 = cbd2Ref (read4Block0 state idx0)
-          coeff1 = cbd2Ref (read4Block0 state idx1)
+          coeff0 = cbd2Table (read4Block0 state idx0)
+          coeff1 = cbd2Table (read4Block0 state idx1)
           isLast = pairIdx == maxBound
           outStream = validBeat (coeff1 ++# coeff0) isLast
           nextState
@@ -221,8 +250,8 @@ stepI272o24 st (outReady, inStream) =
               let pairIdxU = fromIntegral pairIdx :: Unsigned 8
                   idx0 = fromIntegral (pairIdxU * 2) :: Index 181
                   idx1 = fromIntegral (pairIdxU * 2 + 1) :: Index 181
-                  coeff0 = cbd3 (read6Block0 block idx0)
-                  coeff1 = cbd3 (read6Block0 block idx1)
+                  coeff0 = cbd3Table (read6Block0 block idx0)
+                  coeff1 = cbd3Table (read6Block0 block idx1)
                   outStream = validBeat (coeff1 ++# coeff0) False
                   nextState
                     | outReady = Eta3Squeeze24 (pairIdx + 1) Eta3PairFirstBlock block
@@ -234,9 +263,9 @@ stepI272o24 st (outReady, inStream) =
                   then
                     let tail2 = slice d7 d6 bits8
                         coeff180Bits = slice d5 d0 bits8
-                        coeff180 = cbd3 coeff180Bits
+                        coeff180 = cbd3Table coeff180Bits
                         head4 = slice d3 d0 block
-                        coeff181 = cbd3 (head4 ++# tail2)
+                        coeff181 = cbd3Table (head4 ++# tail2)
                      in (coeff181 ++# coeff180, False)
                   else
                     let pairIdxU = fromIntegral pairIdx :: Unsigned 8
@@ -244,8 +273,8 @@ stepI272o24 st (outReady, inStream) =
                         coeff1U = coeff0U + 1
                         idx0 = fromIntegral (coeff0U - 182) :: Index 74
                         idx1 = fromIntegral (coeff1U - 182) :: Index 74
-                        coeff0 = cbd3 (read6Block1 block idx0)
-                        coeff1 = cbd3 (read6Block1 block idx1)
+                        coeff0 = cbd3Table (read6Block1 block idx0)
+                        coeff1 = cbd3Table (read6Block1 block idx1)
                         lastPair = pairIdx == maxBound
                      in (coeff1 ++# coeff0, lastPair)
               outStream = validBeat outData isLast
