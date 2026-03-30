@@ -200,7 +200,10 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
             _ -> P.cycle readyPattern
           (idleOut, readyAfterIdle) = consumeN startSilence readyStream
           (permuteOut, readyAfterPermute) = consumeN 25 readyAfterIdle
-          (squeezeOut, _) = runBlocksBuffered blocks [] readyAfterPermute 0
+          drainDuringGap = lookaheadCount P.== 4
+          chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
+          emptyDrainBlock = P.replicate chunksPerBlock (P.replicate chunkWidth P.Nothing)
+          (squeezeOut, _) = runBlocksBuffered drainDuringGap emptyDrainBlock blocks [] readyAfterPermute 0
        in if bufferSize P./= expectedBufferSize
             then P.error "SampleNTT.simulateBuffered: bufferSize mismatch"
             else compress (idleOut P.++ permuteOut P.++ squeezeOut)
@@ -382,33 +385,37 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
         else P.Nothing : assignCandidates vs coeffs'
 
     runBlocksBuffered ::
+      P.Bool ->
+      [[P.Maybe Word16]] ->
       [[[P.Maybe Word16]]] ->
       [Word16] ->
       [P.Bool] ->
       P.Int ->
       ([P.Maybe (BitVector 24)], [P.Bool])
-    runBlocksBuffered blocks buffer rs emitted =
+    runBlocksBuffered drain emptyDrainBlock blocks buffer rs emitted =
       if emitted P.>= 128
         then ([], rs)
         else case blocks of
           [] ->
-            let (gapOut, buffer', rs', emitted') = runGapBuffered 24 buffer rs emitted
+            let (gapOut, buffer', rs', emitted') = runGapBuffered drain 24 buffer rs emitted
              in if emitted' P.>= 128
                   then (gapOut, rs')
                   else
                     if P.length buffer' P.< 2
                       then P.error "SampleNTT.simulateBuffered: candidate blocks exhausted"
-                      else P.error "SampleNTT.simulateBuffered: final buffer drain incomplete"
+                      else
+                        let (drainOut, rs'') = runBlocksBuffered drain emptyDrainBlock [emptyDrainBlock] buffer' rs' emitted'
+                         in (gapOut P.++ drainOut, rs'')
           block : rest ->
             let (blockOut, buffer', rs', emitted') = runBlockBuffered block buffer rs emitted
              in if emitted' P.>= 128
                   then (blockOut, rs')
                   else
-                    let (gapOut, buffer'', rs'', emitted'') = runGapBuffered 24 buffer' rs' emitted'
+                    let (gapOut, buffer'', rs'', emitted'') = runGapBuffered drain 24 buffer' rs' emitted'
                      in if emitted'' P.>= 128
                           then (blockOut P.++ gapOut, rs'')
                           else
-                            let (moreOut, rs''') = runBlocksBuffered rest buffer'' rs'' emitted''
+                            let (moreOut, rs''') = runBlocksBuffered drain emptyDrainBlock rest buffer'' rs'' emitted''
                              in (blockOut P.++ gapOut P.++ moreOut, rs''')
 
     runBlockBuffered ::
@@ -463,28 +470,35 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                     else (P.Nothing, vals, P.True, 0)
 
     runGapBuffered ::
+      P.Bool ->
       P.Int ->
       [Word16] ->
       [P.Bool] ->
       P.Int ->
       ([P.Maybe (BitVector 24)], [Word16], [P.Bool], P.Int)
-    runGapBuffered n buffer rs emitted
+    runGapBuffered drain n buffer rs emitted
       | n P.<= 0 = ([], buffer, rs, emitted)
       | emitted P.>= 128 = ([], buffer, rs, emitted)
       | P.otherwise =
           case rs of
             [] -> P.error "SampleNTT.simulateBuffered: empty backpressure pattern during permute gap"
             r : rs' ->
-              let (outMaybe, buffer', produced) =
-                    case buffer of
-                      a : b : rest ->
-                        if r
-                          then (P.Just (mkPair a b), rest, 1)
-                          else (P.Nothing, buffer, 0)
-                      _ -> (P.Nothing, buffer, 0)
-                  (out, buffer'', rs'', emitted') =
-                    runGapBuffered (n P.- 1) buffer' rs' (emitted P.+ produced)
-               in (outMaybe : out, buffer'', rs'', emitted')
+              if drain
+                then
+                  let (outMaybe, buffer', produced) =
+                        case buffer of
+                          a : b : rest ->
+                            if r
+                              then (P.Just (mkPair a b), rest, 1)
+                              else (P.Nothing, buffer, 0)
+                          _ -> (P.Nothing, buffer, 0)
+                      (out, buffer'', rs'', emitted') =
+                        runGapBuffered drain (n P.- 1) buffer' rs' (emitted P.+ produced)
+                   in (outMaybe : out, buffer'', rs'', emitted')
+                else
+                  let (out, buffer', rs'', emitted') =
+                        runGapBuffered drain (n P.- 1) buffer rs' emitted
+                   in (P.Nothing : out, buffer', rs'', emitted')
 
     mkPair a b = toBV12 b ++# toBV12 a
 

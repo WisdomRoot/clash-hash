@@ -30,7 +30,9 @@ def compute_validity_pattern(xof_bytes):
     """
     Compute validity pattern for rejection sampling (< 3329).
 
-    Returns a list of booleans indicating whether each candidate was accepted.
+    Returns a list of booleans indicating whether each candidate was accepted,
+    extended with False entries to the next full XOF block boundary (112 candidates).
+    This ensures the hardware simulation has a complete last block to process.
     """
     validity_pattern = []
     valid_count = 0
@@ -55,6 +57,18 @@ def compute_validity_pattern(xof_bytes):
                 valid_count += 1
 
         i += 3
+
+    # Extend to the next full XOF block boundary (112 candidates per block).
+    # The hardware always processes complete squeeze blocks, so the reference model
+    # must predict a full block's worth of candidates after the 256th valid one.
+    block_size = 112
+    current_len = len(validity_pattern)
+    next_boundary = ((current_len // block_size) + 1) * block_size
+    max_candidates = (len(xof_bytes) // 3) * 2
+    next_boundary = min(next_boundary, max_candidates)
+    extra = next_boundary - current_len
+    if extra > 0:
+        validity_pattern.extend([False] * extra)
 
     return validity_pattern
 
