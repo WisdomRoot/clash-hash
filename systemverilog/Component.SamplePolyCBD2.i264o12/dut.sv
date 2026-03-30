@@ -19,17 +19,29 @@ module dut
     , output logic DIGEST_TLAST
     , output logic MSG_TREADY
     );
-  logic [1609:0] c$ds_app_arg = {2'b00,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+  logic [1618:0] c$ds_app_arg = {3'b000,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
   dut_types::Tuple2_2 result_0;
+  dut_types::Tuple2_3 result_1;
   dut_types::Tuple2_3 c$case_alt;
-  logic [11:0] result_1;
-  logic [1:0] a;
-  logic [1:0] b;
-  logic [3:0] c$b_app_arg;
-  logic [3:0] result_2;
-  logic [3:0] c$case_alt_0;
-  logic [3:0] c$case_alt_1;
-  logic [3:0] c$case_alt_2;
+  dut_types::Tuple2_3 c$case_alt_0;
+  dut_types::Tuple2_3 result_2;
+  dut_types::Tuple2_3 c$case_alt_1;
+  logic [1618:0] c$app_arg;
+  logic [1618:0] c$case_alt_2;
+  logic isLast;
+  logic [1618:0] c$app_arg_0;
+  logic [7:0] c$app_arg_1;
+  logic [11:0] result_3;
+  logic [2:0] a;
+  logic [2:0] b;
+  logic [5:0] c$b_app_arg;
+  logic [2:0] phase;
+  logic [7:0] coeffIdx;
+  logic [11:0] result_4;
+  logic [1:0] a_0;
+  logic [1:0] b_0;
+  logic [3:0] c$b_app_arg_0;
+  logic [3:0] result_5;
   logic [3:0] c$case_alt_3;
   logic [3:0] c$case_alt_4;
   logic [3:0] c$case_alt_5;
@@ -41,58 +53,567 @@ module dut
   logic [3:0] c$case_alt_11;
   logic [3:0] c$case_alt_12;
   logic [3:0] c$case_alt_13;
-  logic [63:0] c$app_arg;
-  logic [63:0] result_3;
-  logic [63:0] c$case_alt_14;
-  logic [63:0] c$case_alt_15;
-  logic [63:0] c$case_alt_16;
-  logic [63:0] c$case_alt_17;
-  logic [63:0] c$case_alt_18;
-  logic [63:0] c$case_alt_19;
-  logic [63:0] c$case_alt_20;
-  logic [63:0] c$case_alt_21;
-  logic [63:0] c$case_alt_22;
-  logic [63:0] c$case_alt_23;
-  logic [63:0] c$case_alt_24;
-  logic [63:0] c$case_alt_25;
-  logic [63:0] c$case_alt_26;
-  logic [63:0] c$case_alt_27;
-  logic [63:0] c$case_alt_28;
-  logic [1599:0] c$app_arg_0;
-  logic [1609:0] c$app_arg_1;
-  logic tready;
-  logic [1609:0] c$case_alt_29;
-  logic isLast;
-  logic [1609:0] c$case_alt_30;
-  logic [1599:0] state;
-  logic c$isLast_app_arg;
-  logic [3:0] coeffIdx;
-  logic [3:0] wordIdx;
-  dut_types::Tuple2_3 result_4;
-  dut_types::Tuple2_3 c$case_alt_31;
-  logic [1599:0] result_5;
+  logic [3:0] c$case_alt_14;
+  logic [3:0] c$case_alt_15;
+  logic [3:0] c$case_alt_16;
+  logic [3:0] c$case_alt_17;
+  logic [3:0] c$case_alt_18;
+  logic [3:0] c$case_alt_19;
+  logic [3:0] c$case_alt_20;
+  logic [3:0] c$case_alt_21;
+  logic [3:0] c$case_alt_22;
+  logic [3:0] c$case_alt_23;
+  logic [3:0] c$case_alt_24;
+  logic [3:0] c$case_alt_25;
+  logic [3:0] c$case_alt_26;
+  logic [3:0] c$case_alt_27;
+  logic [3:0] c$case_alt_28;
+  logic [3:0] c$case_alt_29;
+  logic [3:0] c$case_alt_30;
+  logic [3:0] c$case_alt_31;
+  logic [3:0] c$case_alt_32;
+  logic [3:0] c$case_alt_33;
+  logic [3:0] c$case_alt_34;
+  logic [3:0] c$case_alt_35;
+  logic [3:0] c$case_alt_36;
+  logic [3:0] c$case_alt_37;
+  logic [3:0] c$case_alt_38;
+  logic [3:0] c$case_alt_39;
+  logic [3:0] c$case_alt_40;
+  logic [3:0] c$case_alt_41;
+  logic [3:0] c$case_alt_42;
+  logic [3:0] c$case_alt_43;
+  logic [3:0] c$case_alt_44;
+  logic [3:0] c$case_alt_45;
+  logic [3:0] c$case_alt_46;
+  logic [3:0] c$case_alt_47;
+  logic [3:0] c$case_alt_48;
+  logic [3:0] c$case_alt_49;
+  logic [3:0] c$case_alt_50;
+  logic [3:0] c$case_alt_51;
+  logic [3:0] c$case_alt_52;
+  logic [3:0] c$case_alt_53;
+  logic [3:0] c$case_alt_54;
+  logic [3:0] c$case_alt_55;
+  logic [3:0] c$case_alt_56;
+  logic [3:0] c$case_alt_57;
+  logic [3:0] c$case_alt_58;
+  logic [3:0] c$case_alt_59;
+  logic [3:0] c$case_alt_60;
+  logic [3:0] c$case_alt_61;
+  logic [3:0] c$case_alt_62;
+  logic [3:0] c$case_alt_63;
+  logic [3:0] c$case_alt_64;
+  logic [3:0] c$case_alt_65;
+  logic [3:0] c$case_alt_66;
+  logic [3:0] c$case_alt_67;
+  logic [3:0] c$case_alt_68;
+  logic [3:0] c$case_alt_69;
+  logic [3:0] c$case_alt_70;
+  logic [3:0] c$case_alt_71;
+  logic [3:0] c$case_alt_72;
+  logic [3:0] c$case_alt_73;
+  logic [3:0] c$case_alt_74;
+  logic [3:0] c$case_alt_75;
+  logic [3:0] c$case_alt_76;
+  logic [3:0] c$case_alt_77;
+  logic [3:0] c$case_alt_78;
+  logic [3:0] c$case_alt_79;
+  logic [3:0] c$case_alt_80;
+  logic [3:0] c$case_alt_81;
+  logic [3:0] c$case_alt_82;
+  logic [3:0] c$case_alt_83;
+  logic [3:0] c$case_alt_84;
+  logic [3:0] c$case_alt_85;
+  logic [3:0] c$case_alt_86;
+  logic [3:0] c$case_alt_87;
+  logic [3:0] c$case_alt_88;
+  logic [3:0] c$case_alt_89;
+  logic [3:0] c$case_alt_90;
+  logic [3:0] c$case_alt_91;
+  logic [3:0] c$case_alt_92;
+  logic [3:0] c$case_alt_93;
+  logic [3:0] c$case_alt_94;
+  logic [3:0] c$case_alt_95;
+  logic [3:0] c$case_alt_96;
+  logic [3:0] c$case_alt_97;
+  logic [3:0] c$case_alt_98;
+  logic [3:0] c$case_alt_99;
+  logic [3:0] c$case_alt_100;
+  logic [3:0] c$case_alt_101;
+  logic [3:0] c$case_alt_102;
+  logic [3:0] c$case_alt_103;
+  logic [3:0] c$case_alt_104;
+  logic [3:0] c$case_alt_105;
+  logic [3:0] c$case_alt_106;
+  logic [3:0] c$case_alt_107;
+  logic [3:0] c$case_alt_108;
+  logic [3:0] c$case_alt_109;
+  logic [3:0] c$case_alt_110;
+  logic [3:0] c$case_alt_111;
+  logic [3:0] c$case_alt_112;
+  logic [3:0] c$case_alt_113;
+  logic [3:0] c$case_alt_114;
+  logic [3:0] c$case_alt_115;
+  logic [3:0] c$case_alt_116;
+  logic [3:0] c$case_alt_117;
+  logic [3:0] c$case_alt_118;
+  logic [3:0] c$case_alt_119;
+  logic [3:0] c$case_alt_120;
+  logic [3:0] c$case_alt_121;
+  logic [3:0] c$case_alt_122;
+  logic [3:0] c$case_alt_123;
+  logic [3:0] c$case_alt_124;
+  logic [3:0] c$case_alt_125;
+  logic [3:0] c$case_alt_126;
+  logic [3:0] c$case_alt_127;
+  logic [3:0] c$case_alt_128;
+  logic [3:0] c$case_alt_129;
+  logic [3:0] c$case_alt_130;
+  logic [3:0] c$case_alt_131;
+  logic [3:0] c$case_alt_132;
+  logic [3:0] c$case_alt_133;
+  logic [3:0] c$case_alt_134;
+  logic [3:0] c$case_alt_135;
+  logic [3:0] c$case_alt_136;
+  logic [3:0] c$case_alt_137;
+  logic [3:0] c$case_alt_138;
+  logic [3:0] c$case_alt_139;
+  logic [3:0] c$case_alt_140;
+  logic [3:0] c$case_alt_141;
+  logic [3:0] c$case_alt_142;
+  logic [3:0] c$case_alt_143;
+  logic [3:0] c$case_alt_144;
+  logic [3:0] c$case_alt_145;
+  logic [3:0] c$case_alt_146;
+  logic [3:0] c$case_alt_147;
+  logic [3:0] c$case_alt_148;
+  logic [3:0] c$case_alt_149;
+  logic [3:0] c$case_alt_150;
+  logic [3:0] c$case_alt_151;
+  logic [3:0] c$case_alt_152;
+  logic [3:0] c$case_alt_153;
+  logic [3:0] c$case_alt_154;
+  logic [3:0] c$case_alt_155;
+  logic [3:0] c$case_alt_156;
+  logic [3:0] c$case_alt_157;
+  logic [3:0] c$case_alt_158;
+  logic [3:0] c$case_alt_159;
+  logic [3:0] c$case_alt_160;
+  logic [3:0] c$case_alt_161;
+  logic [3:0] c$case_alt_162;
+  logic [3:0] c$case_alt_163;
+  logic [3:0] c$case_alt_164;
+  logic [3:0] c$case_alt_165;
+  logic [3:0] c$case_alt_166;
+  logic [3:0] c$case_alt_167;
+  logic [3:0] c$case_alt_168;
+  logic [3:0] c$case_alt_169;
+  logic [3:0] c$case_alt_170;
+  logic [3:0] c$case_alt_171;
+  logic [3:0] c$case_alt_172;
+  logic [3:0] c$case_alt_173;
+  logic [3:0] c$case_alt_174;
+  logic [3:0] c$case_alt_175;
+  logic [3:0] c$case_alt_176;
+  logic [3:0] c$case_alt_177;
+  logic [3:0] c$case_alt_178;
+  logic [3:0] c$case_alt_179;
+  logic [3:0] c$case_alt_180;
+  logic [3:0] c$case_alt_181;
+  logic [3:0] c$case_alt_182;
+  logic [3:0] c$case_alt_183;
+  logic [3:0] c$case_alt_184;
+  logic [3:0] c$case_alt_185;
+  logic [3:0] c$case_alt_186;
+  logic [3:0] c$case_alt_187;
+  logic [3:0] c$case_alt_188;
+  logic [3:0] c$case_alt_189;
+  logic [3:0] c$case_alt_190;
+  logic [3:0] c$case_alt_191;
+  logic [3:0] c$case_alt_192;
+  logic [3:0] c$case_alt_193;
+  logic [3:0] c$case_alt_194;
+  logic [3:0] c$case_alt_195;
+  logic [3:0] c$case_alt_196;
+  logic [3:0] c$case_alt_197;
+  logic [3:0] c$case_alt_198;
+  logic [3:0] c$case_alt_199;
+  logic [3:0] c$case_alt_200;
+  logic [3:0] c$case_alt_201;
+  logic [3:0] c$case_alt_202;
+  logic [3:0] c$case_alt_203;
+  logic [3:0] c$case_alt_204;
+  logic [3:0] c$case_alt_205;
+  logic [3:0] c$case_alt_206;
+  logic [3:0] c$case_alt_207;
+  logic [3:0] c$case_alt_208;
+  logic [3:0] c$case_alt_209;
+  logic [3:0] c$case_alt_210;
+  logic [3:0] c$case_alt_211;
+  logic [3:0] c$case_alt_212;
+  logic [3:0] c$case_alt_213;
+  logic [3:0] c$case_alt_214;
+  logic [3:0] c$case_alt_215;
+  logic [3:0] c$case_alt_216;
+  logic [3:0] c$case_alt_217;
+  logic [3:0] c$case_alt_218;
+  logic [3:0] c$case_alt_219;
+  logic [3:0] c$case_alt_220;
+  logic [3:0] c$case_alt_221;
+  logic [3:0] c$case_alt_222;
+  logic [3:0] c$case_alt_223;
+  logic [3:0] c$case_alt_224;
+  logic [3:0] c$case_alt_225;
+  logic [3:0] c$case_alt_226;
+  logic [3:0] c$case_alt_227;
+  logic [3:0] c$case_alt_228;
+  logic [3:0] c$case_alt_229;
+  logic [3:0] c$case_alt_230;
+  logic [3:0] c$case_alt_231;
+  logic [3:0] c$case_alt_232;
+  logic [3:0] c$case_alt_233;
+  logic [3:0] c$case_alt_234;
+  logic [3:0] c$case_alt_235;
+  logic [3:0] c$case_alt_236;
+  logic [3:0] c$case_alt_237;
+  logic [3:0] c$case_alt_238;
+  logic [3:0] c$case_alt_239;
+  logic [3:0] c$case_alt_240;
+  logic [3:0] c$case_alt_241;
+  logic [3:0] c$case_alt_242;
+  logic [3:0] c$case_alt_243;
+  logic [3:0] c$case_alt_244;
+  logic [3:0] c$case_alt_245;
+  logic [3:0] c$case_alt_246;
+  logic [3:0] c$case_alt_247;
+  logic [3:0] c$case_alt_248;
+  logic [3:0] c$case_alt_249;
+  logic [3:0] c$case_alt_250;
+  logic [3:0] c$case_alt_251;
+  logic [3:0] c$case_alt_252;
+  logic [3:0] c$case_alt_253;
+  logic [3:0] c$case_alt_254;
+  logic [3:0] c$case_alt_255;
+  logic [3:0] c$case_alt_256;
+  logic [3:0] c$case_alt_257;
   logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_6;
-  logic [1599:0] c$app_arg_3;
+  logic [1618:0] c$app_arg_3;
+  logic [1618:0] c$case_alt_258;
+  logic isLast_0;
+  logic [1599:0] state;
+  logic [7:0] coeffIdx_0;
+  logic [7:0] coeffIdx_1;
+  dut_types::Tuple2_3 c$case_alt_259;
+  dut_types::Tuple2_3 result_6;
   logic [1599:0] result_7;
+  logic [5:0] c$cbdDiff6_arg0;
+  logic [5:0] c$cbdDiff6_arg0_case_alt;
+  logic [1:0] tail2;
+  logic [2:0] phase_0;
+  logic [1599:0] c$cbdDiff6_arg0_app_arg;
+  logic [5:0] result_8;
+  logic [5:0] c$case_alt_260;
+  logic [5:0] c$case_alt_261;
+  logic [5:0] c$case_alt_262;
+  logic [5:0] c$case_alt_263;
+  logic [5:0] c$case_alt_264;
+  logic [5:0] c$case_alt_265;
+  logic [5:0] c$case_alt_266;
+  logic [5:0] c$case_alt_267;
+  logic [5:0] c$case_alt_268;
+  logic [5:0] c$case_alt_269;
+  logic [5:0] c$case_alt_270;
+  logic [5:0] c$case_alt_271;
+  logic [5:0] c$case_alt_272;
+  logic [5:0] c$case_alt_273;
+  logic [5:0] c$case_alt_274;
+  logic [5:0] c$case_alt_275;
+  logic [5:0] c$case_alt_276;
+  logic [5:0] c$case_alt_277;
+  logic [5:0] c$case_alt_278;
+  logic [5:0] c$case_alt_279;
+  logic [5:0] c$case_alt_280;
+  logic [5:0] c$case_alt_281;
+  logic [5:0] c$case_alt_282;
+  logic [5:0] c$case_alt_283;
+  logic [5:0] c$case_alt_284;
+  logic [5:0] c$case_alt_285;
+  logic [5:0] c$case_alt_286;
+  logic [5:0] c$case_alt_287;
+  logic [5:0] c$case_alt_288;
+  logic [5:0] c$case_alt_289;
+  logic [5:0] c$case_alt_290;
+  logic [5:0] c$case_alt_291;
+  logic [5:0] c$case_alt_292;
+  logic [5:0] c$case_alt_293;
+  logic [5:0] c$case_alt_294;
+  logic [5:0] c$case_alt_295;
+  logic [5:0] c$case_alt_296;
+  logic [5:0] c$case_alt_297;
+  logic [5:0] c$case_alt_298;
+  logic [5:0] c$case_alt_299;
+  logic [5:0] c$case_alt_300;
+  logic [5:0] c$case_alt_301;
+  logic [5:0] c$case_alt_302;
+  logic [5:0] c$case_alt_303;
+  logic [5:0] c$case_alt_304;
+  logic [5:0] c$case_alt_305;
+  logic [5:0] c$case_alt_306;
+  logic [5:0] c$case_alt_307;
+  logic [5:0] c$case_alt_308;
+  logic [5:0] c$case_alt_309;
+  logic [5:0] c$case_alt_310;
+  logic [5:0] c$case_alt_311;
+  logic [5:0] c$case_alt_312;
+  logic [5:0] c$case_alt_313;
+  logic [5:0] c$case_alt_314;
+  logic [5:0] c$case_alt_315;
+  logic [5:0] c$case_alt_316;
+  logic [5:0] c$case_alt_317;
+  logic [5:0] c$case_alt_318;
+  logic [5:0] c$case_alt_319;
+  logic [5:0] c$case_alt_320;
+  logic [5:0] c$case_alt_321;
+  logic [5:0] c$case_alt_322;
+  logic [5:0] c$case_alt_323;
+  logic [5:0] c$case_alt_324;
+  logic [5:0] c$case_alt_325;
+  logic [5:0] c$case_alt_326;
+  logic [5:0] c$case_alt_327;
+  logic [5:0] c$case_alt_328;
+  logic [5:0] c$case_alt_329;
+  logic [5:0] c$case_alt_330;
+  logic [5:0] c$case_alt_331;
+  logic [5:0] c$case_alt_332;
   logic [1599:0] c$app_arg_4;
-  logic [1599:0] result_8;
+  logic signed [63:0] c$cbdDiff6_arg0_app_arg_0;
+  logic [5:0] result_9;
+  logic [5:0] c$case_alt_333;
+  logic [5:0] c$case_alt_334;
+  logic [5:0] c$case_alt_335;
+  logic [5:0] c$case_alt_336;
+  logic [5:0] c$case_alt_337;
+  logic [5:0] c$case_alt_338;
+  logic [5:0] c$case_alt_339;
+  logic [5:0] c$case_alt_340;
+  logic [5:0] c$case_alt_341;
+  logic [5:0] c$case_alt_342;
+  logic [5:0] c$case_alt_343;
+  logic [5:0] c$case_alt_344;
+  logic [5:0] c$case_alt_345;
+  logic [5:0] c$case_alt_346;
+  logic [5:0] c$case_alt_347;
+  logic [5:0] c$case_alt_348;
+  logic [5:0] c$case_alt_349;
+  logic [5:0] c$case_alt_350;
+  logic [5:0] c$case_alt_351;
+  logic [5:0] c$case_alt_352;
+  logic [5:0] c$case_alt_353;
+  logic [5:0] c$case_alt_354;
+  logic [5:0] c$case_alt_355;
+  logic [5:0] c$case_alt_356;
+  logic [5:0] c$case_alt_357;
+  logic [5:0] c$case_alt_358;
+  logic [5:0] c$case_alt_359;
+  logic [5:0] c$case_alt_360;
+  logic [5:0] c$case_alt_361;
+  logic [5:0] c$case_alt_362;
+  logic [5:0] c$case_alt_363;
+  logic [5:0] c$case_alt_364;
+  logic [5:0] c$case_alt_365;
+  logic [5:0] c$case_alt_366;
+  logic [5:0] c$case_alt_367;
+  logic [5:0] c$case_alt_368;
+  logic [5:0] c$case_alt_369;
+  logic [5:0] c$case_alt_370;
+  logic [5:0] c$case_alt_371;
+  logic [5:0] c$case_alt_372;
+  logic [5:0] c$case_alt_373;
+  logic [5:0] c$case_alt_374;
+  logic [5:0] c$case_alt_375;
+  logic [5:0] c$case_alt_376;
+  logic [5:0] c$case_alt_377;
+  logic [5:0] c$case_alt_378;
+  logic [5:0] c$case_alt_379;
+  logic [5:0] c$case_alt_380;
+  logic [5:0] c$case_alt_381;
+  logic [5:0] c$case_alt_382;
+  logic [5:0] c$case_alt_383;
+  logic [5:0] c$case_alt_384;
+  logic [5:0] c$case_alt_385;
+  logic [5:0] c$case_alt_386;
+  logic [5:0] c$case_alt_387;
+  logic [5:0] c$case_alt_388;
+  logic [5:0] c$case_alt_389;
+  logic [5:0] c$case_alt_390;
+  logic [5:0] c$case_alt_391;
+  logic [5:0] c$case_alt_392;
+  logic [5:0] c$case_alt_393;
+  logic [5:0] c$case_alt_394;
+  logic [5:0] c$case_alt_395;
+  logic [5:0] c$case_alt_396;
+  logic [5:0] c$case_alt_397;
+  logic [5:0] c$case_alt_398;
+  logic [5:0] c$case_alt_399;
+  logic [5:0] c$case_alt_400;
+  logic [5:0] c$case_alt_401;
+  logic [5:0] c$case_alt_402;
+  logic [5:0] c$case_alt_403;
+  logic [5:0] c$case_alt_404;
+  logic [5:0] c$case_alt_405;
+  logic [5:0] c$case_alt_406;
+  logic [5:0] c$case_alt_407;
+  logic [5:0] c$case_alt_408;
+  logic [5:0] c$case_alt_409;
+  logic [5:0] c$case_alt_410;
+  logic [5:0] c$case_alt_411;
+  logic [5:0] c$case_alt_412;
+  logic [5:0] c$case_alt_413;
+  logic [5:0] c$case_alt_414;
+  logic [5:0] c$case_alt_415;
+  logic [5:0] c$case_alt_416;
+  logic [5:0] c$case_alt_417;
+  logic [5:0] c$case_alt_418;
+  logic [5:0] c$case_alt_419;
+  logic [5:0] c$case_alt_420;
+  logic [5:0] c$case_alt_421;
+  logic [5:0] c$case_alt_422;
+  logic [5:0] c$case_alt_423;
+  logic [5:0] c$case_alt_424;
+  logic [5:0] c$case_alt_425;
+  logic [5:0] c$case_alt_426;
+  logic [5:0] c$case_alt_427;
+  logic [5:0] c$case_alt_428;
+  logic [5:0] c$case_alt_429;
+  logic [5:0] c$case_alt_430;
+  logic [5:0] c$case_alt_431;
+  logic [5:0] c$case_alt_432;
+  logic [5:0] c$case_alt_433;
+  logic [5:0] c$case_alt_434;
+  logic [5:0] c$case_alt_435;
+  logic [5:0] c$case_alt_436;
+  logic [5:0] c$case_alt_437;
+  logic [5:0] c$case_alt_438;
+  logic [5:0] c$case_alt_439;
+  logic [5:0] c$case_alt_440;
+  logic [5:0] c$case_alt_441;
+  logic [5:0] c$case_alt_442;
+  logic [5:0] c$case_alt_443;
+  logic [5:0] c$case_alt_444;
+  logic [5:0] c$case_alt_445;
+  logic [5:0] c$case_alt_446;
+  logic [5:0] c$case_alt_447;
+  logic [5:0] c$case_alt_448;
+  logic [5:0] c$case_alt_449;
+  logic [5:0] c$case_alt_450;
+  logic [5:0] c$case_alt_451;
+  logic [5:0] c$case_alt_452;
+  logic [5:0] c$case_alt_453;
+  logic [5:0] c$case_alt_454;
+  logic [5:0] c$case_alt_455;
+  logic [5:0] c$case_alt_456;
+  logic [5:0] c$case_alt_457;
+  logic [5:0] c$case_alt_458;
+  logic [5:0] c$case_alt_459;
+  logic [5:0] c$case_alt_460;
+  logic [5:0] c$case_alt_461;
+  logic [5:0] c$case_alt_462;
+  logic [5:0] c$case_alt_463;
+  logic [5:0] c$case_alt_464;
+  logic [5:0] c$case_alt_465;
+  logic [5:0] c$case_alt_466;
+  logic [5:0] c$case_alt_467;
+  logic [5:0] c$case_alt_468;
+  logic [5:0] c$case_alt_469;
+  logic [5:0] c$case_alt_470;
+  logic [5:0] c$case_alt_471;
+  logic [5:0] c$case_alt_472;
+  logic [5:0] c$case_alt_473;
+  logic [5:0] c$case_alt_474;
+  logic [5:0] c$case_alt_475;
+  logic [5:0] c$case_alt_476;
+  logic [5:0] c$case_alt_477;
+  logic [5:0] c$case_alt_478;
+  logic [5:0] c$case_alt_479;
+  logic [5:0] c$case_alt_480;
+  logic [5:0] c$case_alt_481;
+  logic [5:0] c$case_alt_482;
+  logic [5:0] c$case_alt_483;
+  logic [5:0] c$case_alt_484;
+  logic [5:0] c$case_alt_485;
+  logic [5:0] c$case_alt_486;
+  logic [5:0] c$case_alt_487;
+  logic [5:0] c$case_alt_488;
+  logic [5:0] c$case_alt_489;
+  logic [5:0] c$case_alt_490;
+  logic [5:0] c$case_alt_491;
+  logic [5:0] c$case_alt_492;
+  logic [5:0] c$case_alt_493;
+  logic [5:0] c$case_alt_494;
+  logic [5:0] c$case_alt_495;
+  logic [5:0] c$case_alt_496;
+  logic [5:0] c$case_alt_497;
+  logic [5:0] c$case_alt_498;
+  logic [5:0] c$case_alt_499;
+  logic [5:0] c$case_alt_500;
+  logic [5:0] c$case_alt_501;
+  logic [5:0] c$case_alt_502;
+  logic [5:0] c$case_alt_503;
+  logic [5:0] c$case_alt_504;
+  logic [5:0] c$case_alt_505;
+  logic [5:0] c$case_alt_506;
+  logic [5:0] c$case_alt_507;
+  logic [5:0] c$case_alt_508;
+  logic [5:0] c$case_alt_509;
+  logic [5:0] c$case_alt_510;
+  logic [5:0] c$case_alt_511;
+  logic [5:0] c$case_alt_512;
   logic [1599:0] c$app_arg_5;
-  logic [1599:0] result_9;
-  logic [1599:0] c$app_arg_6;
+  logic [1599:0] block;
+  logic signed [63:0] c$cbdDiff6_arg0_app_arg_1;
+  logic [7:0] coeffIdx_2;
   logic [1599:0] result_10;
+  logic [1599:0] c$app_arg_6;
+  logic [1599:0] result_11;
   logic [1599:0] c$app_arg_7;
-  dut_types::AXI4Stream inBeat;
-  logic [1599:0] c$keccakF1600Reversed_out;
+  logic [1599:0] result_12;
+  logic [1599:0] c$app_arg_8;
+  logic [1599:0] result_13;
+  logic [1599:0] c$app_arg_9;
+  logic [1599:0] result_14;
+  logic [1599:0] c$app_arg_10;
+  logic [1599:0] result_15;
+  logic [1599:0] c$app_arg_11;
+  logic [271:0] c$i272o12Core2359_out_app_arg;
+  dut_types::AXI4Stream inStream;
+  dut_types::Tuple2_4 c$keccakF1600_tupIn;
   logic [1599:0] state_0;
   logic [4:0] roundIdx;
-  dut_types::Tuple2_4 c$arg;
+  logic [1599:0] state_1;
+  logic [4:0] roundIdx_0;
+  dut_types::Tuple2_2 result_16;
+  logic [263:0] msg;
+  logic valid;
+  logic lastBeat;
+  logic outReady;
+  dut_types::AXI4Stream_0 inStream_0;
+  dut_types::Tuple2_5 c$arg;
   logic [0:0] c$bv;
   logic [0:0] c$bv_0;
   logic [0:0] c$bv_1;
   logic [0:0] c$bv_2;
-  dut_types::Tuple2_5 result;
-  dut_types::AXI4Stream_0 DIGEST;
+  logic [0:0] c$bv_3;
+  logic [0:0] c$bv_4;
+  logic [0:0] c$bv_5;
+  logic [0:0] c$bv_6;
+  logic [0:0] c$bv_7;
+  logic [0:0] c$bv_8;
+  logic [4:0] result_fun_arg;
+  logic [1599:0] result_fun_arg_0;
+  logic [7:0] c$i_361;
+  dut_types::Tuple2_6 result;
+  dut_types::AXI4Stream_1 DIGEST;
 
   assign c$arg = {{MSG_TDATA
                   ,MSG_TVALID
@@ -102,217 +623,1284 @@ module dut
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : c$ds_app_arg_register
     if ( RST) begin
-      c$ds_app_arg <= {2'b00,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+      c$ds_app_arg <= {3'b000,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
     end else  if (EN)  begin
-      c$ds_app_arg <= c$case_alt.Tuple2_3_sel0;
+      c$ds_app_arg <= result_1.Tuple2_3_sel0;
     end
   end
   // register end
 
-  assign result_0 = c$case_alt.Tuple2_3_sel1;
+  assign result_0 = result_1.Tuple2_3_sel1;
 
   always_comb begin
-    case(c$ds_app_arg[1609:1608])
-      2'b00 : c$case_alt = c$case_alt_31;
-      2'b01 : c$case_alt = result_4;
-      2'b10 : c$case_alt = {c$app_arg_1
-                           ,{1'b0,{result_1,1'b1,isLast}}};
-      default : c$case_alt = {{2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                             ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
+    case(c$ds_app_arg[1618:1616])
+      3'b000 : result_1 = c$case_alt_259;
+      3'b001 : result_1 = c$case_alt_0;
+      3'b010 : result_1 = {c$app_arg_3
+                          ,{1'b0,{result_4,1'b1,isLast_0}}};
+      3'b011 : result_1 = c$case_alt;
+      3'b100 : result_1 = result_2;
+      default : result_1 = {{3'b101,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                           ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
     endcase
   end
 
-  assign result_1 = (a >= b) ? ({10'b0000000000,(((a - b)))}) : (12'b110100000001 - ({10'b0000000000,(((b - a)))}));
+  assign c$case_alt = (roundIdx == 5'd23) ? {{3'b100,coeffIdx,phase,result_7,5'bxxxxx}
+                                            ,{1'b0
+                                             ,{12'b000000000000
+                                              ,1'b0
+                                              ,1'b0}}} : {{3'b011,roundIdx + 5'd1,coeffIdx,phase,result_7}
+                                                         ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
 
-  assign c$bv = ((c$b_app_arg[3 : 3]));
+  assign c$case_alt_0 = (roundIdx_0 == 5'd23) ? {{3'b010,coeffIdx_1,result_7,8'bxxxxxxxx}
+                                                ,{1'b0
+                                                 ,{12'b000000000000
+                                                  ,1'b0
+                                                  ,1'b0}}} : {{3'b001,roundIdx_0 + 5'd1,coeffIdx_1,result_7,3'bxxx}
+                                                             ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
 
-  assign c$bv_0 = ((c$b_app_arg[2 : 2]));
+  assign result_2 = phase_0[2:2] ? {c$app_arg
+                                   ,{1'b0,{result_3,1'b1,isLast}}} : c$case_alt_1;
 
-  assign a = ({{(2-1) {1'b0}},((c$b_app_arg[3 : 3]))}) + ({{(2-1) {1'b0}},((c$b_app_arg[2 : 2]))});
+  assign c$case_alt_1 = (coeffIdx_2 >= 8'd181) ? {{3'b011,5'd0,coeffIdx_2,{1'b1,c$cbdDiff6_arg0_app_arg[1087 : 1086]},block}
+                                                 ,{1'b0
+                                                  ,{12'b000000000000,1'b0,1'b0}}} : {c$app_arg_0
+                                                                                    ,{1'b0,{result_3,1'b1,1'b0}}};
 
-  assign c$bv_1 = ((c$b_app_arg[1 : 1]));
+  assign c$app_arg = (outReady & isLast) ? {3'b101,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_2;
 
-  assign c$bv_2 = ((c$b_app_arg[0 : 0]));
+  assign c$case_alt_2 = outReady ? {3'b100,c$app_arg_1,phase_0,block,5'bxxxxx} : c$ds_app_arg;
 
-  assign b = ({{(2-1) {1'b0}},((c$b_app_arg[1 : 1]))}) + ({{(2-1) {1'b0}},((c$b_app_arg[0 : 0]))});
+  assign isLast = coeffIdx_2 == 8'd255;
 
-  assign c$b_app_arg = result_2;
+  assign c$app_arg_0 = outReady ? {3'b100,c$app_arg_1,{1'b0,2'bxx},block,5'bxxxxx} : c$ds_app_arg;
 
-  assign result_2 = (coeffIdx == 4'd0) ? (c$app_arg[63 : 60]) : c$case_alt_0;
+  assign c$app_arg_1 = coeffIdx_2 + 8'd1;
 
-  assign c$case_alt_0 = (coeffIdx == 4'd1) ? (c$app_arg[59 : 56]) : c$case_alt_1;
+  assign result_3 = (a >= b) ? ({9'b000000000,(((a - b)))}) : (12'b110100000001 - ({9'b000000000,(((b - a)))}));
 
-  assign c$case_alt_1 = (coeffIdx == 4'd2) ? (c$app_arg[55 : 52]) : c$case_alt_2;
+  assign c$bv = ((c$b_app_arg[0 : 0]));
 
-  assign c$case_alt_2 = (coeffIdx == 4'd3) ? (c$app_arg[51 : 48]) : c$case_alt_3;
+  assign c$bv_0 = ((c$b_app_arg[1 : 1]));
 
-  assign c$case_alt_3 = (coeffIdx == 4'd4) ? (c$app_arg[47 : 44]) : c$case_alt_4;
+  assign c$bv_1 = ((c$b_app_arg[2 : 2]));
 
-  assign c$case_alt_4 = (coeffIdx == 4'd5) ? (c$app_arg[43 : 40]) : c$case_alt_5;
+  assign a = (({{(3-1) {1'b0}},((c$b_app_arg[0 : 0]))}) + ({{(3-1) {1'b0}},((c$b_app_arg[1 : 1]))})) + ({{(3-1) {1'b0}},((c$b_app_arg[2 : 2]))});
 
-  assign c$case_alt_5 = (coeffIdx == 4'd6) ? (c$app_arg[39 : 36]) : c$case_alt_6;
+  assign c$bv_2 = ((c$b_app_arg[3 : 3]));
 
-  assign c$case_alt_6 = (coeffIdx == 4'd7) ? (c$app_arg[35 : 32]) : c$case_alt_7;
+  assign c$bv_3 = ((c$b_app_arg[4 : 4]));
 
-  assign c$case_alt_7 = (coeffIdx == 4'd8) ? (c$app_arg[31 : 28]) : c$case_alt_8;
+  assign c$bv_4 = ((c$b_app_arg[5 : 5]));
 
-  assign c$case_alt_8 = (coeffIdx == 4'd9) ? (c$app_arg[27 : 24]) : c$case_alt_9;
+  assign b = (({{(3-1) {1'b0}},((c$b_app_arg[3 : 3]))}) + ({{(3-1) {1'b0}},((c$b_app_arg[4 : 4]))})) + ({{(3-1) {1'b0}},((c$b_app_arg[5 : 5]))});
 
-  assign c$case_alt_9 = (coeffIdx == 4'd10) ? (c$app_arg[23 : 20]) : c$case_alt_10;
+  assign c$b_app_arg = c$cbdDiff6_arg0;
 
-  assign c$case_alt_10 = (coeffIdx == 4'd11) ? (c$app_arg[19 : 16]) : c$case_alt_11;
+  assign phase = c$ds_app_arg[1602:1600];
 
-  assign c$case_alt_11 = (coeffIdx == 4'd12) ? (c$app_arg[15 : 12]) : c$case_alt_12;
+  assign coeffIdx = c$ds_app_arg[1610:1603];
 
-  assign c$case_alt_12 = (coeffIdx == 4'd13) ? (c$app_arg[11 : 8]) : c$case_alt_13;
+  assign result_4 = (a_0 >= b_0) ? ({10'b0000000000,(((a_0 - b_0)))}) : (12'b110100000001 - ({10'b0000000000,(((b_0 - a_0)))}));
 
-  assign c$case_alt_13 = (coeffIdx == 4'd14) ? (c$app_arg[7 : 4]) : (c$app_arg[3 : 0]);
+  assign c$bv_5 = ((c$b_app_arg_0[0 : 0]));
 
-  assign c$app_arg = result_3;
+  assign c$bv_6 = ((c$b_app_arg_0[1 : 1]));
 
-  assign result_3 = (({{(5-4) {1'b0}},wordIdx}) == 5'd0) ? (c$app_arg_0[1599 : 1536]) : c$case_alt_14;
+  assign a_0 = ({{(2-1) {1'b0}},((c$b_app_arg_0[0 : 0]))}) + ({{(2-1) {1'b0}},((c$b_app_arg_0[1 : 1]))});
 
-  assign c$case_alt_14 = (({{(5-4) {1'b0}},wordIdx}) == 5'd1) ? (c$app_arg_0[1535 : 1472]) : c$case_alt_15;
+  assign c$bv_7 = ((c$b_app_arg_0[2 : 2]));
 
-  assign c$case_alt_15 = (({{(5-4) {1'b0}},wordIdx}) == 5'd2) ? (c$app_arg_0[1471 : 1408]) : c$case_alt_16;
+  assign c$bv_8 = ((c$b_app_arg_0[3 : 3]));
 
-  assign c$case_alt_16 = (({{(5-4) {1'b0}},wordIdx}) == 5'd3) ? (c$app_arg_0[1407 : 1344]) : c$case_alt_17;
+  assign b_0 = ({{(2-1) {1'b0}},((c$b_app_arg_0[2 : 2]))}) + ({{(2-1) {1'b0}},((c$b_app_arg_0[3 : 3]))});
 
-  assign c$case_alt_17 = (({{(5-4) {1'b0}},wordIdx}) == 5'd4) ? (c$app_arg_0[1343 : 1280]) : c$case_alt_18;
+  assign c$b_app_arg_0 = result_5;
 
-  assign c$case_alt_18 = (({{(5-4) {1'b0}},wordIdx}) == 5'd5) ? (c$app_arg_0[1279 : 1216]) : c$case_alt_19;
+  assign result_5 = (coeffIdx_0 == 8'd0) ? (c$app_arg_2[3 : 0]) : c$case_alt_3;
 
-  assign c$case_alt_19 = (({{(5-4) {1'b0}},wordIdx}) == 5'd6) ? (c$app_arg_0[1215 : 1152]) : c$case_alt_20;
+  assign c$case_alt_3 = (coeffIdx_0 == 8'd1) ? (c$app_arg_2[7 : 4]) : c$case_alt_4;
 
-  assign c$case_alt_20 = (({{(5-4) {1'b0}},wordIdx}) == 5'd7) ? (c$app_arg_0[1151 : 1088]) : c$case_alt_21;
+  assign c$case_alt_4 = (coeffIdx_0 == 8'd2) ? (c$app_arg_2[11 : 8]) : c$case_alt_5;
 
-  assign c$case_alt_21 = (({{(5-4) {1'b0}},wordIdx}) == 5'd8) ? (c$app_arg_0[1087 : 1024]) : c$case_alt_22;
+  assign c$case_alt_5 = (coeffIdx_0 == 8'd3) ? (c$app_arg_2[15 : 12]) : c$case_alt_6;
 
-  assign c$case_alt_22 = (({{(5-4) {1'b0}},wordIdx}) == 5'd9) ? (c$app_arg_0[1023 : 960]) : c$case_alt_23;
+  assign c$case_alt_6 = (coeffIdx_0 == 8'd4) ? (c$app_arg_2[19 : 16]) : c$case_alt_7;
 
-  assign c$case_alt_23 = (({{(5-4) {1'b0}},wordIdx}) == 5'd10) ? (c$app_arg_0[959 : 896]) : c$case_alt_24;
+  assign c$case_alt_7 = (coeffIdx_0 == 8'd5) ? (c$app_arg_2[23 : 20]) : c$case_alt_8;
 
-  assign c$case_alt_24 = (({{(5-4) {1'b0}},wordIdx}) == 5'd11) ? (c$app_arg_0[895 : 832]) : c$case_alt_25;
+  assign c$case_alt_8 = (coeffIdx_0 == 8'd6) ? (c$app_arg_2[27 : 24]) : c$case_alt_9;
 
-  assign c$case_alt_25 = (({{(5-4) {1'b0}},wordIdx}) == 5'd12) ? (c$app_arg_0[831 : 768]) : c$case_alt_26;
+  assign c$case_alt_9 = (coeffIdx_0 == 8'd7) ? (c$app_arg_2[31 : 28]) : c$case_alt_10;
 
-  assign c$case_alt_26 = (({{(5-4) {1'b0}},wordIdx}) == 5'd13) ? (c$app_arg_0[767 : 704]) : c$case_alt_27;
+  assign c$case_alt_10 = (coeffIdx_0 == 8'd8) ? (c$app_arg_2[35 : 32]) : c$case_alt_11;
 
-  assign c$case_alt_27 = (({{(5-4) {1'b0}},wordIdx}) == 5'd14) ? (c$app_arg_0[703 : 640]) : c$case_alt_28;
+  assign c$case_alt_11 = (coeffIdx_0 == 8'd9) ? (c$app_arg_2[39 : 36]) : c$case_alt_12;
 
-  assign c$case_alt_28 = (({{(5-4) {1'b0}},wordIdx}) == 5'd15) ? (c$app_arg_0[639 : 576]) : (c$app_arg_0[575 : 512]);
+  assign c$case_alt_12 = (coeffIdx_0 == 8'd10) ? (c$app_arg_2[43 : 40]) : c$case_alt_13;
 
-  assign c$app_arg_0 = state;
+  assign c$case_alt_13 = (coeffIdx_0 == 8'd11) ? (c$app_arg_2[47 : 44]) : c$case_alt_14;
 
-  assign c$app_arg_1 = tready ? c$case_alt_29 : c$ds_app_arg;
+  assign c$case_alt_14 = (coeffIdx_0 == 8'd12) ? (c$app_arg_2[51 : 48]) : c$case_alt_15;
 
-  assign tready = c$arg.Tuple2_4_sel1;
+  assign c$case_alt_15 = (coeffIdx_0 == 8'd13) ? (c$app_arg_2[55 : 52]) : c$case_alt_16;
 
-  assign c$case_alt_29 = isLast ? {2'b11,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_30;
+  assign c$case_alt_16 = (coeffIdx_0 == 8'd14) ? (c$app_arg_2[59 : 56]) : c$case_alt_17;
 
-  assign isLast = (wordIdx == 4'd15) & c$isLast_app_arg;
+  assign c$case_alt_17 = (coeffIdx_0 == 8'd15) ? (c$app_arg_2[63 : 60]) : c$case_alt_18;
 
-  assign c$case_alt_30 = c$isLast_app_arg ? {2'b10,wordIdx + 4'd1,4'd0,state} : {2'b10,wordIdx,coeffIdx + 4'd1,state};
+  assign c$case_alt_18 = (coeffIdx_0 == 8'd16) ? (c$app_arg_2[67 : 64]) : c$case_alt_19;
 
-  assign state = c$ds_app_arg[1599:0];
+  assign c$case_alt_19 = (coeffIdx_0 == 8'd17) ? (c$app_arg_2[71 : 68]) : c$case_alt_20;
 
-  assign c$isLast_app_arg = coeffIdx == 4'd15;
+  assign c$case_alt_20 = (coeffIdx_0 == 8'd18) ? (c$app_arg_2[75 : 72]) : c$case_alt_21;
 
-  assign coeffIdx = c$ds_app_arg[1603:1600];
+  assign c$case_alt_21 = (coeffIdx_0 == 8'd19) ? (c$app_arg_2[79 : 76]) : c$case_alt_22;
 
-  assign wordIdx = c$ds_app_arg[1607:1604];
+  assign c$case_alt_22 = (coeffIdx_0 == 8'd20) ? (c$app_arg_2[83 : 80]) : c$case_alt_23;
 
-  assign result_4 = (roundIdx == 5'd23) ? {{2'b10,4'd0,4'd0,c$keccakF1600Reversed_out}
-                                          ,{1'b0
-                                           ,{12'b000000000000
-                                            ,1'b0
-                                            ,1'b0}}} : {{2'b01,roundIdx + 5'd1,c$keccakF1600Reversed_out,3'bxxx}
-                                                       ,{1'b0,{12'b000000000000,1'b0,1'b0}}};
+  assign c$case_alt_23 = (coeffIdx_0 == 8'd21) ? (c$app_arg_2[87 : 84]) : c$case_alt_24;
 
-  assign c$case_alt_31 = inBeat.AXI4Stream_sel1 ? {{2'b01,5'd0,result_10,3'bxxx}
-                                                  ,{1'b0
-                                                   ,{12'b000000000000
-                                                    ,1'b0
-                                                    ,1'b0}}} : {{2'b00,1608'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                                               ,{1'b1,{12'b000000000000,1'b0,1'b0}}};
+  assign c$case_alt_24 = (coeffIdx_0 == 8'd22) ? (c$app_arg_2[91 : 88]) : c$case_alt_25;
+
+  assign c$case_alt_25 = (coeffIdx_0 == 8'd23) ? (c$app_arg_2[95 : 92]) : c$case_alt_26;
+
+  assign c$case_alt_26 = (coeffIdx_0 == 8'd24) ? (c$app_arg_2[99 : 96]) : c$case_alt_27;
+
+  assign c$case_alt_27 = (coeffIdx_0 == 8'd25) ? (c$app_arg_2[103 : 100]) : c$case_alt_28;
+
+  assign c$case_alt_28 = (coeffIdx_0 == 8'd26) ? (c$app_arg_2[107 : 104]) : c$case_alt_29;
+
+  assign c$case_alt_29 = (coeffIdx_0 == 8'd27) ? (c$app_arg_2[111 : 108]) : c$case_alt_30;
+
+  assign c$case_alt_30 = (coeffIdx_0 == 8'd28) ? (c$app_arg_2[115 : 112]) : c$case_alt_31;
+
+  assign c$case_alt_31 = (coeffIdx_0 == 8'd29) ? (c$app_arg_2[119 : 116]) : c$case_alt_32;
+
+  assign c$case_alt_32 = (coeffIdx_0 == 8'd30) ? (c$app_arg_2[123 : 120]) : c$case_alt_33;
+
+  assign c$case_alt_33 = (coeffIdx_0 == 8'd31) ? (c$app_arg_2[127 : 124]) : c$case_alt_34;
+
+  assign c$case_alt_34 = (coeffIdx_0 == 8'd32) ? (c$app_arg_2[131 : 128]) : c$case_alt_35;
+
+  assign c$case_alt_35 = (coeffIdx_0 == 8'd33) ? (c$app_arg_2[135 : 132]) : c$case_alt_36;
+
+  assign c$case_alt_36 = (coeffIdx_0 == 8'd34) ? (c$app_arg_2[139 : 136]) : c$case_alt_37;
+
+  assign c$case_alt_37 = (coeffIdx_0 == 8'd35) ? (c$app_arg_2[143 : 140]) : c$case_alt_38;
+
+  assign c$case_alt_38 = (coeffIdx_0 == 8'd36) ? (c$app_arg_2[147 : 144]) : c$case_alt_39;
+
+  assign c$case_alt_39 = (coeffIdx_0 == 8'd37) ? (c$app_arg_2[151 : 148]) : c$case_alt_40;
+
+  assign c$case_alt_40 = (coeffIdx_0 == 8'd38) ? (c$app_arg_2[155 : 152]) : c$case_alt_41;
+
+  assign c$case_alt_41 = (coeffIdx_0 == 8'd39) ? (c$app_arg_2[159 : 156]) : c$case_alt_42;
+
+  assign c$case_alt_42 = (coeffIdx_0 == 8'd40) ? (c$app_arg_2[163 : 160]) : c$case_alt_43;
+
+  assign c$case_alt_43 = (coeffIdx_0 == 8'd41) ? (c$app_arg_2[167 : 164]) : c$case_alt_44;
+
+  assign c$case_alt_44 = (coeffIdx_0 == 8'd42) ? (c$app_arg_2[171 : 168]) : c$case_alt_45;
+
+  assign c$case_alt_45 = (coeffIdx_0 == 8'd43) ? (c$app_arg_2[175 : 172]) : c$case_alt_46;
+
+  assign c$case_alt_46 = (coeffIdx_0 == 8'd44) ? (c$app_arg_2[179 : 176]) : c$case_alt_47;
+
+  assign c$case_alt_47 = (coeffIdx_0 == 8'd45) ? (c$app_arg_2[183 : 180]) : c$case_alt_48;
+
+  assign c$case_alt_48 = (coeffIdx_0 == 8'd46) ? (c$app_arg_2[187 : 184]) : c$case_alt_49;
+
+  assign c$case_alt_49 = (coeffIdx_0 == 8'd47) ? (c$app_arg_2[191 : 188]) : c$case_alt_50;
+
+  assign c$case_alt_50 = (coeffIdx_0 == 8'd48) ? (c$app_arg_2[195 : 192]) : c$case_alt_51;
+
+  assign c$case_alt_51 = (coeffIdx_0 == 8'd49) ? (c$app_arg_2[199 : 196]) : c$case_alt_52;
+
+  assign c$case_alt_52 = (coeffIdx_0 == 8'd50) ? (c$app_arg_2[203 : 200]) : c$case_alt_53;
+
+  assign c$case_alt_53 = (coeffIdx_0 == 8'd51) ? (c$app_arg_2[207 : 204]) : c$case_alt_54;
+
+  assign c$case_alt_54 = (coeffIdx_0 == 8'd52) ? (c$app_arg_2[211 : 208]) : c$case_alt_55;
+
+  assign c$case_alt_55 = (coeffIdx_0 == 8'd53) ? (c$app_arg_2[215 : 212]) : c$case_alt_56;
+
+  assign c$case_alt_56 = (coeffIdx_0 == 8'd54) ? (c$app_arg_2[219 : 216]) : c$case_alt_57;
+
+  assign c$case_alt_57 = (coeffIdx_0 == 8'd55) ? (c$app_arg_2[223 : 220]) : c$case_alt_58;
+
+  assign c$case_alt_58 = (coeffIdx_0 == 8'd56) ? (c$app_arg_2[227 : 224]) : c$case_alt_59;
+
+  assign c$case_alt_59 = (coeffIdx_0 == 8'd57) ? (c$app_arg_2[231 : 228]) : c$case_alt_60;
+
+  assign c$case_alt_60 = (coeffIdx_0 == 8'd58) ? (c$app_arg_2[235 : 232]) : c$case_alt_61;
+
+  assign c$case_alt_61 = (coeffIdx_0 == 8'd59) ? (c$app_arg_2[239 : 236]) : c$case_alt_62;
+
+  assign c$case_alt_62 = (coeffIdx_0 == 8'd60) ? (c$app_arg_2[243 : 240]) : c$case_alt_63;
+
+  assign c$case_alt_63 = (coeffIdx_0 == 8'd61) ? (c$app_arg_2[247 : 244]) : c$case_alt_64;
+
+  assign c$case_alt_64 = (coeffIdx_0 == 8'd62) ? (c$app_arg_2[251 : 248]) : c$case_alt_65;
+
+  assign c$case_alt_65 = (coeffIdx_0 == 8'd63) ? (c$app_arg_2[255 : 252]) : c$case_alt_66;
+
+  assign c$case_alt_66 = (coeffIdx_0 == 8'd64) ? (c$app_arg_2[259 : 256]) : c$case_alt_67;
+
+  assign c$case_alt_67 = (coeffIdx_0 == 8'd65) ? (c$app_arg_2[263 : 260]) : c$case_alt_68;
+
+  assign c$case_alt_68 = (coeffIdx_0 == 8'd66) ? (c$app_arg_2[267 : 264]) : c$case_alt_69;
+
+  assign c$case_alt_69 = (coeffIdx_0 == 8'd67) ? (c$app_arg_2[271 : 268]) : c$case_alt_70;
+
+  assign c$case_alt_70 = (coeffIdx_0 == 8'd68) ? (c$app_arg_2[275 : 272]) : c$case_alt_71;
+
+  assign c$case_alt_71 = (coeffIdx_0 == 8'd69) ? (c$app_arg_2[279 : 276]) : c$case_alt_72;
+
+  assign c$case_alt_72 = (coeffIdx_0 == 8'd70) ? (c$app_arg_2[283 : 280]) : c$case_alt_73;
+
+  assign c$case_alt_73 = (coeffIdx_0 == 8'd71) ? (c$app_arg_2[287 : 284]) : c$case_alt_74;
+
+  assign c$case_alt_74 = (coeffIdx_0 == 8'd72) ? (c$app_arg_2[291 : 288]) : c$case_alt_75;
+
+  assign c$case_alt_75 = (coeffIdx_0 == 8'd73) ? (c$app_arg_2[295 : 292]) : c$case_alt_76;
+
+  assign c$case_alt_76 = (coeffIdx_0 == 8'd74) ? (c$app_arg_2[299 : 296]) : c$case_alt_77;
+
+  assign c$case_alt_77 = (coeffIdx_0 == 8'd75) ? (c$app_arg_2[303 : 300]) : c$case_alt_78;
+
+  assign c$case_alt_78 = (coeffIdx_0 == 8'd76) ? (c$app_arg_2[307 : 304]) : c$case_alt_79;
+
+  assign c$case_alt_79 = (coeffIdx_0 == 8'd77) ? (c$app_arg_2[311 : 308]) : c$case_alt_80;
+
+  assign c$case_alt_80 = (coeffIdx_0 == 8'd78) ? (c$app_arg_2[315 : 312]) : c$case_alt_81;
+
+  assign c$case_alt_81 = (coeffIdx_0 == 8'd79) ? (c$app_arg_2[319 : 316]) : c$case_alt_82;
+
+  assign c$case_alt_82 = (coeffIdx_0 == 8'd80) ? (c$app_arg_2[323 : 320]) : c$case_alt_83;
+
+  assign c$case_alt_83 = (coeffIdx_0 == 8'd81) ? (c$app_arg_2[327 : 324]) : c$case_alt_84;
+
+  assign c$case_alt_84 = (coeffIdx_0 == 8'd82) ? (c$app_arg_2[331 : 328]) : c$case_alt_85;
+
+  assign c$case_alt_85 = (coeffIdx_0 == 8'd83) ? (c$app_arg_2[335 : 332]) : c$case_alt_86;
+
+  assign c$case_alt_86 = (coeffIdx_0 == 8'd84) ? (c$app_arg_2[339 : 336]) : c$case_alt_87;
+
+  assign c$case_alt_87 = (coeffIdx_0 == 8'd85) ? (c$app_arg_2[343 : 340]) : c$case_alt_88;
+
+  assign c$case_alt_88 = (coeffIdx_0 == 8'd86) ? (c$app_arg_2[347 : 344]) : c$case_alt_89;
+
+  assign c$case_alt_89 = (coeffIdx_0 == 8'd87) ? (c$app_arg_2[351 : 348]) : c$case_alt_90;
+
+  assign c$case_alt_90 = (coeffIdx_0 == 8'd88) ? (c$app_arg_2[355 : 352]) : c$case_alt_91;
+
+  assign c$case_alt_91 = (coeffIdx_0 == 8'd89) ? (c$app_arg_2[359 : 356]) : c$case_alt_92;
+
+  assign c$case_alt_92 = (coeffIdx_0 == 8'd90) ? (c$app_arg_2[363 : 360]) : c$case_alt_93;
+
+  assign c$case_alt_93 = (coeffIdx_0 == 8'd91) ? (c$app_arg_2[367 : 364]) : c$case_alt_94;
+
+  assign c$case_alt_94 = (coeffIdx_0 == 8'd92) ? (c$app_arg_2[371 : 368]) : c$case_alt_95;
+
+  assign c$case_alt_95 = (coeffIdx_0 == 8'd93) ? (c$app_arg_2[375 : 372]) : c$case_alt_96;
+
+  assign c$case_alt_96 = (coeffIdx_0 == 8'd94) ? (c$app_arg_2[379 : 376]) : c$case_alt_97;
+
+  assign c$case_alt_97 = (coeffIdx_0 == 8'd95) ? (c$app_arg_2[383 : 380]) : c$case_alt_98;
+
+  assign c$case_alt_98 = (coeffIdx_0 == 8'd96) ? (c$app_arg_2[387 : 384]) : c$case_alt_99;
+
+  assign c$case_alt_99 = (coeffIdx_0 == 8'd97) ? (c$app_arg_2[391 : 388]) : c$case_alt_100;
+
+  assign c$case_alt_100 = (coeffIdx_0 == 8'd98) ? (c$app_arg_2[395 : 392]) : c$case_alt_101;
+
+  assign c$case_alt_101 = (coeffIdx_0 == 8'd99) ? (c$app_arg_2[399 : 396]) : c$case_alt_102;
+
+  assign c$case_alt_102 = (coeffIdx_0 == 8'd100) ? (c$app_arg_2[403 : 400]) : c$case_alt_103;
+
+  assign c$case_alt_103 = (coeffIdx_0 == 8'd101) ? (c$app_arg_2[407 : 404]) : c$case_alt_104;
+
+  assign c$case_alt_104 = (coeffIdx_0 == 8'd102) ? (c$app_arg_2[411 : 408]) : c$case_alt_105;
+
+  assign c$case_alt_105 = (coeffIdx_0 == 8'd103) ? (c$app_arg_2[415 : 412]) : c$case_alt_106;
+
+  assign c$case_alt_106 = (coeffIdx_0 == 8'd104) ? (c$app_arg_2[419 : 416]) : c$case_alt_107;
+
+  assign c$case_alt_107 = (coeffIdx_0 == 8'd105) ? (c$app_arg_2[423 : 420]) : c$case_alt_108;
+
+  assign c$case_alt_108 = (coeffIdx_0 == 8'd106) ? (c$app_arg_2[427 : 424]) : c$case_alt_109;
+
+  assign c$case_alt_109 = (coeffIdx_0 == 8'd107) ? (c$app_arg_2[431 : 428]) : c$case_alt_110;
+
+  assign c$case_alt_110 = (coeffIdx_0 == 8'd108) ? (c$app_arg_2[435 : 432]) : c$case_alt_111;
+
+  assign c$case_alt_111 = (coeffIdx_0 == 8'd109) ? (c$app_arg_2[439 : 436]) : c$case_alt_112;
+
+  assign c$case_alt_112 = (coeffIdx_0 == 8'd110) ? (c$app_arg_2[443 : 440]) : c$case_alt_113;
+
+  assign c$case_alt_113 = (coeffIdx_0 == 8'd111) ? (c$app_arg_2[447 : 444]) : c$case_alt_114;
+
+  assign c$case_alt_114 = (coeffIdx_0 == 8'd112) ? (c$app_arg_2[451 : 448]) : c$case_alt_115;
+
+  assign c$case_alt_115 = (coeffIdx_0 == 8'd113) ? (c$app_arg_2[455 : 452]) : c$case_alt_116;
+
+  assign c$case_alt_116 = (coeffIdx_0 == 8'd114) ? (c$app_arg_2[459 : 456]) : c$case_alt_117;
+
+  assign c$case_alt_117 = (coeffIdx_0 == 8'd115) ? (c$app_arg_2[463 : 460]) : c$case_alt_118;
+
+  assign c$case_alt_118 = (coeffIdx_0 == 8'd116) ? (c$app_arg_2[467 : 464]) : c$case_alt_119;
+
+  assign c$case_alt_119 = (coeffIdx_0 == 8'd117) ? (c$app_arg_2[471 : 468]) : c$case_alt_120;
+
+  assign c$case_alt_120 = (coeffIdx_0 == 8'd118) ? (c$app_arg_2[475 : 472]) : c$case_alt_121;
+
+  assign c$case_alt_121 = (coeffIdx_0 == 8'd119) ? (c$app_arg_2[479 : 476]) : c$case_alt_122;
+
+  assign c$case_alt_122 = (coeffIdx_0 == 8'd120) ? (c$app_arg_2[483 : 480]) : c$case_alt_123;
+
+  assign c$case_alt_123 = (coeffIdx_0 == 8'd121) ? (c$app_arg_2[487 : 484]) : c$case_alt_124;
+
+  assign c$case_alt_124 = (coeffIdx_0 == 8'd122) ? (c$app_arg_2[491 : 488]) : c$case_alt_125;
+
+  assign c$case_alt_125 = (coeffIdx_0 == 8'd123) ? (c$app_arg_2[495 : 492]) : c$case_alt_126;
+
+  assign c$case_alt_126 = (coeffIdx_0 == 8'd124) ? (c$app_arg_2[499 : 496]) : c$case_alt_127;
+
+  assign c$case_alt_127 = (coeffIdx_0 == 8'd125) ? (c$app_arg_2[503 : 500]) : c$case_alt_128;
+
+  assign c$case_alt_128 = (coeffIdx_0 == 8'd126) ? (c$app_arg_2[507 : 504]) : c$case_alt_129;
+
+  assign c$case_alt_129 = (coeffIdx_0 == 8'd127) ? (c$app_arg_2[511 : 508]) : c$case_alt_130;
+
+  assign c$case_alt_130 = (coeffIdx_0 == 8'd128) ? (c$app_arg_2[515 : 512]) : c$case_alt_131;
+
+  assign c$case_alt_131 = (coeffIdx_0 == 8'd129) ? (c$app_arg_2[519 : 516]) : c$case_alt_132;
+
+  assign c$case_alt_132 = (coeffIdx_0 == 8'd130) ? (c$app_arg_2[523 : 520]) : c$case_alt_133;
+
+  assign c$case_alt_133 = (coeffIdx_0 == 8'd131) ? (c$app_arg_2[527 : 524]) : c$case_alt_134;
+
+  assign c$case_alt_134 = (coeffIdx_0 == 8'd132) ? (c$app_arg_2[531 : 528]) : c$case_alt_135;
+
+  assign c$case_alt_135 = (coeffIdx_0 == 8'd133) ? (c$app_arg_2[535 : 532]) : c$case_alt_136;
+
+  assign c$case_alt_136 = (coeffIdx_0 == 8'd134) ? (c$app_arg_2[539 : 536]) : c$case_alt_137;
+
+  assign c$case_alt_137 = (coeffIdx_0 == 8'd135) ? (c$app_arg_2[543 : 540]) : c$case_alt_138;
+
+  assign c$case_alt_138 = (coeffIdx_0 == 8'd136) ? (c$app_arg_2[547 : 544]) : c$case_alt_139;
+
+  assign c$case_alt_139 = (coeffIdx_0 == 8'd137) ? (c$app_arg_2[551 : 548]) : c$case_alt_140;
+
+  assign c$case_alt_140 = (coeffIdx_0 == 8'd138) ? (c$app_arg_2[555 : 552]) : c$case_alt_141;
+
+  assign c$case_alt_141 = (coeffIdx_0 == 8'd139) ? (c$app_arg_2[559 : 556]) : c$case_alt_142;
+
+  assign c$case_alt_142 = (coeffIdx_0 == 8'd140) ? (c$app_arg_2[563 : 560]) : c$case_alt_143;
+
+  assign c$case_alt_143 = (coeffIdx_0 == 8'd141) ? (c$app_arg_2[567 : 564]) : c$case_alt_144;
+
+  assign c$case_alt_144 = (coeffIdx_0 == 8'd142) ? (c$app_arg_2[571 : 568]) : c$case_alt_145;
+
+  assign c$case_alt_145 = (coeffIdx_0 == 8'd143) ? (c$app_arg_2[575 : 572]) : c$case_alt_146;
+
+  assign c$case_alt_146 = (coeffIdx_0 == 8'd144) ? (c$app_arg_2[579 : 576]) : c$case_alt_147;
+
+  assign c$case_alt_147 = (coeffIdx_0 == 8'd145) ? (c$app_arg_2[583 : 580]) : c$case_alt_148;
+
+  assign c$case_alt_148 = (coeffIdx_0 == 8'd146) ? (c$app_arg_2[587 : 584]) : c$case_alt_149;
+
+  assign c$case_alt_149 = (coeffIdx_0 == 8'd147) ? (c$app_arg_2[591 : 588]) : c$case_alt_150;
+
+  assign c$case_alt_150 = (coeffIdx_0 == 8'd148) ? (c$app_arg_2[595 : 592]) : c$case_alt_151;
+
+  assign c$case_alt_151 = (coeffIdx_0 == 8'd149) ? (c$app_arg_2[599 : 596]) : c$case_alt_152;
+
+  assign c$case_alt_152 = (coeffIdx_0 == 8'd150) ? (c$app_arg_2[603 : 600]) : c$case_alt_153;
+
+  assign c$case_alt_153 = (coeffIdx_0 == 8'd151) ? (c$app_arg_2[607 : 604]) : c$case_alt_154;
+
+  assign c$case_alt_154 = (coeffIdx_0 == 8'd152) ? (c$app_arg_2[611 : 608]) : c$case_alt_155;
+
+  assign c$case_alt_155 = (coeffIdx_0 == 8'd153) ? (c$app_arg_2[615 : 612]) : c$case_alt_156;
+
+  assign c$case_alt_156 = (coeffIdx_0 == 8'd154) ? (c$app_arg_2[619 : 616]) : c$case_alt_157;
+
+  assign c$case_alt_157 = (coeffIdx_0 == 8'd155) ? (c$app_arg_2[623 : 620]) : c$case_alt_158;
+
+  assign c$case_alt_158 = (coeffIdx_0 == 8'd156) ? (c$app_arg_2[627 : 624]) : c$case_alt_159;
+
+  assign c$case_alt_159 = (coeffIdx_0 == 8'd157) ? (c$app_arg_2[631 : 628]) : c$case_alt_160;
+
+  assign c$case_alt_160 = (coeffIdx_0 == 8'd158) ? (c$app_arg_2[635 : 632]) : c$case_alt_161;
+
+  assign c$case_alt_161 = (coeffIdx_0 == 8'd159) ? (c$app_arg_2[639 : 636]) : c$case_alt_162;
+
+  assign c$case_alt_162 = (coeffIdx_0 == 8'd160) ? (c$app_arg_2[643 : 640]) : c$case_alt_163;
+
+  assign c$case_alt_163 = (coeffIdx_0 == 8'd161) ? (c$app_arg_2[647 : 644]) : c$case_alt_164;
+
+  assign c$case_alt_164 = (coeffIdx_0 == 8'd162) ? (c$app_arg_2[651 : 648]) : c$case_alt_165;
+
+  assign c$case_alt_165 = (coeffIdx_0 == 8'd163) ? (c$app_arg_2[655 : 652]) : c$case_alt_166;
+
+  assign c$case_alt_166 = (coeffIdx_0 == 8'd164) ? (c$app_arg_2[659 : 656]) : c$case_alt_167;
+
+  assign c$case_alt_167 = (coeffIdx_0 == 8'd165) ? (c$app_arg_2[663 : 660]) : c$case_alt_168;
+
+  assign c$case_alt_168 = (coeffIdx_0 == 8'd166) ? (c$app_arg_2[667 : 664]) : c$case_alt_169;
+
+  assign c$case_alt_169 = (coeffIdx_0 == 8'd167) ? (c$app_arg_2[671 : 668]) : c$case_alt_170;
+
+  assign c$case_alt_170 = (coeffIdx_0 == 8'd168) ? (c$app_arg_2[675 : 672]) : c$case_alt_171;
+
+  assign c$case_alt_171 = (coeffIdx_0 == 8'd169) ? (c$app_arg_2[679 : 676]) : c$case_alt_172;
+
+  assign c$case_alt_172 = (coeffIdx_0 == 8'd170) ? (c$app_arg_2[683 : 680]) : c$case_alt_173;
+
+  assign c$case_alt_173 = (coeffIdx_0 == 8'd171) ? (c$app_arg_2[687 : 684]) : c$case_alt_174;
+
+  assign c$case_alt_174 = (coeffIdx_0 == 8'd172) ? (c$app_arg_2[691 : 688]) : c$case_alt_175;
+
+  assign c$case_alt_175 = (coeffIdx_0 == 8'd173) ? (c$app_arg_2[695 : 692]) : c$case_alt_176;
+
+  assign c$case_alt_176 = (coeffIdx_0 == 8'd174) ? (c$app_arg_2[699 : 696]) : c$case_alt_177;
+
+  assign c$case_alt_177 = (coeffIdx_0 == 8'd175) ? (c$app_arg_2[703 : 700]) : c$case_alt_178;
+
+  assign c$case_alt_178 = (coeffIdx_0 == 8'd176) ? (c$app_arg_2[707 : 704]) : c$case_alt_179;
+
+  assign c$case_alt_179 = (coeffIdx_0 == 8'd177) ? (c$app_arg_2[711 : 708]) : c$case_alt_180;
+
+  assign c$case_alt_180 = (coeffIdx_0 == 8'd178) ? (c$app_arg_2[715 : 712]) : c$case_alt_181;
+
+  assign c$case_alt_181 = (coeffIdx_0 == 8'd179) ? (c$app_arg_2[719 : 716]) : c$case_alt_182;
+
+  assign c$case_alt_182 = (coeffIdx_0 == 8'd180) ? (c$app_arg_2[723 : 720]) : c$case_alt_183;
+
+  assign c$case_alt_183 = (coeffIdx_0 == 8'd181) ? (c$app_arg_2[727 : 724]) : c$case_alt_184;
+
+  assign c$case_alt_184 = (coeffIdx_0 == 8'd182) ? (c$app_arg_2[731 : 728]) : c$case_alt_185;
+
+  assign c$case_alt_185 = (coeffIdx_0 == 8'd183) ? (c$app_arg_2[735 : 732]) : c$case_alt_186;
+
+  assign c$case_alt_186 = (coeffIdx_0 == 8'd184) ? (c$app_arg_2[739 : 736]) : c$case_alt_187;
+
+  assign c$case_alt_187 = (coeffIdx_0 == 8'd185) ? (c$app_arg_2[743 : 740]) : c$case_alt_188;
+
+  assign c$case_alt_188 = (coeffIdx_0 == 8'd186) ? (c$app_arg_2[747 : 744]) : c$case_alt_189;
+
+  assign c$case_alt_189 = (coeffIdx_0 == 8'd187) ? (c$app_arg_2[751 : 748]) : c$case_alt_190;
+
+  assign c$case_alt_190 = (coeffIdx_0 == 8'd188) ? (c$app_arg_2[755 : 752]) : c$case_alt_191;
+
+  assign c$case_alt_191 = (coeffIdx_0 == 8'd189) ? (c$app_arg_2[759 : 756]) : c$case_alt_192;
+
+  assign c$case_alt_192 = (coeffIdx_0 == 8'd190) ? (c$app_arg_2[763 : 760]) : c$case_alt_193;
+
+  assign c$case_alt_193 = (coeffIdx_0 == 8'd191) ? (c$app_arg_2[767 : 764]) : c$case_alt_194;
+
+  assign c$case_alt_194 = (coeffIdx_0 == 8'd192) ? (c$app_arg_2[771 : 768]) : c$case_alt_195;
+
+  assign c$case_alt_195 = (coeffIdx_0 == 8'd193) ? (c$app_arg_2[775 : 772]) : c$case_alt_196;
+
+  assign c$case_alt_196 = (coeffIdx_0 == 8'd194) ? (c$app_arg_2[779 : 776]) : c$case_alt_197;
+
+  assign c$case_alt_197 = (coeffIdx_0 == 8'd195) ? (c$app_arg_2[783 : 780]) : c$case_alt_198;
+
+  assign c$case_alt_198 = (coeffIdx_0 == 8'd196) ? (c$app_arg_2[787 : 784]) : c$case_alt_199;
+
+  assign c$case_alt_199 = (coeffIdx_0 == 8'd197) ? (c$app_arg_2[791 : 788]) : c$case_alt_200;
+
+  assign c$case_alt_200 = (coeffIdx_0 == 8'd198) ? (c$app_arg_2[795 : 792]) : c$case_alt_201;
+
+  assign c$case_alt_201 = (coeffIdx_0 == 8'd199) ? (c$app_arg_2[799 : 796]) : c$case_alt_202;
+
+  assign c$case_alt_202 = (coeffIdx_0 == 8'd200) ? (c$app_arg_2[803 : 800]) : c$case_alt_203;
+
+  assign c$case_alt_203 = (coeffIdx_0 == 8'd201) ? (c$app_arg_2[807 : 804]) : c$case_alt_204;
+
+  assign c$case_alt_204 = (coeffIdx_0 == 8'd202) ? (c$app_arg_2[811 : 808]) : c$case_alt_205;
+
+  assign c$case_alt_205 = (coeffIdx_0 == 8'd203) ? (c$app_arg_2[815 : 812]) : c$case_alt_206;
+
+  assign c$case_alt_206 = (coeffIdx_0 == 8'd204) ? (c$app_arg_2[819 : 816]) : c$case_alt_207;
+
+  assign c$case_alt_207 = (coeffIdx_0 == 8'd205) ? (c$app_arg_2[823 : 820]) : c$case_alt_208;
+
+  assign c$case_alt_208 = (coeffIdx_0 == 8'd206) ? (c$app_arg_2[827 : 824]) : c$case_alt_209;
+
+  assign c$case_alt_209 = (coeffIdx_0 == 8'd207) ? (c$app_arg_2[831 : 828]) : c$case_alt_210;
+
+  assign c$case_alt_210 = (coeffIdx_0 == 8'd208) ? (c$app_arg_2[835 : 832]) : c$case_alt_211;
+
+  assign c$case_alt_211 = (coeffIdx_0 == 8'd209) ? (c$app_arg_2[839 : 836]) : c$case_alt_212;
+
+  assign c$case_alt_212 = (coeffIdx_0 == 8'd210) ? (c$app_arg_2[843 : 840]) : c$case_alt_213;
+
+  assign c$case_alt_213 = (coeffIdx_0 == 8'd211) ? (c$app_arg_2[847 : 844]) : c$case_alt_214;
+
+  assign c$case_alt_214 = (coeffIdx_0 == 8'd212) ? (c$app_arg_2[851 : 848]) : c$case_alt_215;
+
+  assign c$case_alt_215 = (coeffIdx_0 == 8'd213) ? (c$app_arg_2[855 : 852]) : c$case_alt_216;
+
+  assign c$case_alt_216 = (coeffIdx_0 == 8'd214) ? (c$app_arg_2[859 : 856]) : c$case_alt_217;
+
+  assign c$case_alt_217 = (coeffIdx_0 == 8'd215) ? (c$app_arg_2[863 : 860]) : c$case_alt_218;
+
+  assign c$case_alt_218 = (coeffIdx_0 == 8'd216) ? (c$app_arg_2[867 : 864]) : c$case_alt_219;
+
+  assign c$case_alt_219 = (coeffIdx_0 == 8'd217) ? (c$app_arg_2[871 : 868]) : c$case_alt_220;
+
+  assign c$case_alt_220 = (coeffIdx_0 == 8'd218) ? (c$app_arg_2[875 : 872]) : c$case_alt_221;
+
+  assign c$case_alt_221 = (coeffIdx_0 == 8'd219) ? (c$app_arg_2[879 : 876]) : c$case_alt_222;
+
+  assign c$case_alt_222 = (coeffIdx_0 == 8'd220) ? (c$app_arg_2[883 : 880]) : c$case_alt_223;
+
+  assign c$case_alt_223 = (coeffIdx_0 == 8'd221) ? (c$app_arg_2[887 : 884]) : c$case_alt_224;
+
+  assign c$case_alt_224 = (coeffIdx_0 == 8'd222) ? (c$app_arg_2[891 : 888]) : c$case_alt_225;
+
+  assign c$case_alt_225 = (coeffIdx_0 == 8'd223) ? (c$app_arg_2[895 : 892]) : c$case_alt_226;
+
+  assign c$case_alt_226 = (coeffIdx_0 == 8'd224) ? (c$app_arg_2[899 : 896]) : c$case_alt_227;
+
+  assign c$case_alt_227 = (coeffIdx_0 == 8'd225) ? (c$app_arg_2[903 : 900]) : c$case_alt_228;
+
+  assign c$case_alt_228 = (coeffIdx_0 == 8'd226) ? (c$app_arg_2[907 : 904]) : c$case_alt_229;
+
+  assign c$case_alt_229 = (coeffIdx_0 == 8'd227) ? (c$app_arg_2[911 : 908]) : c$case_alt_230;
+
+  assign c$case_alt_230 = (coeffIdx_0 == 8'd228) ? (c$app_arg_2[915 : 912]) : c$case_alt_231;
+
+  assign c$case_alt_231 = (coeffIdx_0 == 8'd229) ? (c$app_arg_2[919 : 916]) : c$case_alt_232;
+
+  assign c$case_alt_232 = (coeffIdx_0 == 8'd230) ? (c$app_arg_2[923 : 920]) : c$case_alt_233;
+
+  assign c$case_alt_233 = (coeffIdx_0 == 8'd231) ? (c$app_arg_2[927 : 924]) : c$case_alt_234;
+
+  assign c$case_alt_234 = (coeffIdx_0 == 8'd232) ? (c$app_arg_2[931 : 928]) : c$case_alt_235;
+
+  assign c$case_alt_235 = (coeffIdx_0 == 8'd233) ? (c$app_arg_2[935 : 932]) : c$case_alt_236;
+
+  assign c$case_alt_236 = (coeffIdx_0 == 8'd234) ? (c$app_arg_2[939 : 936]) : c$case_alt_237;
+
+  assign c$case_alt_237 = (coeffIdx_0 == 8'd235) ? (c$app_arg_2[943 : 940]) : c$case_alt_238;
+
+  assign c$case_alt_238 = (coeffIdx_0 == 8'd236) ? (c$app_arg_2[947 : 944]) : c$case_alt_239;
+
+  assign c$case_alt_239 = (coeffIdx_0 == 8'd237) ? (c$app_arg_2[951 : 948]) : c$case_alt_240;
+
+  assign c$case_alt_240 = (coeffIdx_0 == 8'd238) ? (c$app_arg_2[955 : 952]) : c$case_alt_241;
+
+  assign c$case_alt_241 = (coeffIdx_0 == 8'd239) ? (c$app_arg_2[959 : 956]) : c$case_alt_242;
+
+  assign c$case_alt_242 = (coeffIdx_0 == 8'd240) ? (c$app_arg_2[963 : 960]) : c$case_alt_243;
+
+  assign c$case_alt_243 = (coeffIdx_0 == 8'd241) ? (c$app_arg_2[967 : 964]) : c$case_alt_244;
+
+  assign c$case_alt_244 = (coeffIdx_0 == 8'd242) ? (c$app_arg_2[971 : 968]) : c$case_alt_245;
+
+  assign c$case_alt_245 = (coeffIdx_0 == 8'd243) ? (c$app_arg_2[975 : 972]) : c$case_alt_246;
+
+  assign c$case_alt_246 = (coeffIdx_0 == 8'd244) ? (c$app_arg_2[979 : 976]) : c$case_alt_247;
+
+  assign c$case_alt_247 = (coeffIdx_0 == 8'd245) ? (c$app_arg_2[983 : 980]) : c$case_alt_248;
+
+  assign c$case_alt_248 = (coeffIdx_0 == 8'd246) ? (c$app_arg_2[987 : 984]) : c$case_alt_249;
+
+  assign c$case_alt_249 = (coeffIdx_0 == 8'd247) ? (c$app_arg_2[991 : 988]) : c$case_alt_250;
+
+  assign c$case_alt_250 = (coeffIdx_0 == 8'd248) ? (c$app_arg_2[995 : 992]) : c$case_alt_251;
+
+  assign c$case_alt_251 = (coeffIdx_0 == 8'd249) ? (c$app_arg_2[999 : 996]) : c$case_alt_252;
+
+  assign c$case_alt_252 = (coeffIdx_0 == 8'd250) ? (c$app_arg_2[1003 : 1000]) : c$case_alt_253;
+
+  assign c$case_alt_253 = (coeffIdx_0 == 8'd251) ? (c$app_arg_2[1007 : 1004]) : c$case_alt_254;
+
+  assign c$case_alt_254 = (coeffIdx_0 == 8'd252) ? (c$app_arg_2[1011 : 1008]) : c$case_alt_255;
+
+  assign c$case_alt_255 = (coeffIdx_0 == 8'd253) ? (c$app_arg_2[1015 : 1012]) : c$case_alt_256;
+
+  assign c$case_alt_256 = (coeffIdx_0 == 8'd254) ? (c$app_arg_2[1019 : 1016]) : c$case_alt_257;
+
+  assign c$case_alt_257 = (coeffIdx_0 == 8'd255) ? (c$app_arg_2[1023 : 1020]) : ({4 {1'bx}});
+
+  assign c$app_arg_2 = state;
+
+  assign c$app_arg_3 = (outReady & isLast_0) ? {3'b101,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx} : c$case_alt_258;
+
+  assign c$case_alt_258 = outReady ? {3'b010,coeffIdx_0 + 8'd1,state,8'bxxxxxxxx} : c$ds_app_arg;
+
+  assign isLast_0 = coeffIdx_0 == 8'd255;
+
+  assign state = c$ds_app_arg[1607:8];
+
+  assign coeffIdx_0 = c$ds_app_arg[1615:1608];
+
+  assign coeffIdx_1 = c$ds_app_arg[1610:1603];
+
+  assign c$case_alt_259 = inStream.AXI4Stream_sel1 ? result_6 : {{3'b000,1616'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                                                ,{1'b1,{12'b000000000000,1'b0,1'b0}}};
+
+  assign result_6 = ((c$i272o12Core2359_out_app_arg[271 : 264]) == 8'b00000011) ? {{3'b011,5'd0,8'd0,{1'b0,2'bxx},result_15}
+                                                                                  ,{1'b0
+                                                                                   ,{12'b000000000000
+                                                                                    ,1'b0
+                                                                                    ,1'b0}}} : {{3'b001,5'd0,8'd0,result_15,3'bxxx}
+                                                                                               ,{1'b0
+                                                                                                ,{12'b000000000000
+                                                                                                 ,1'b0
+                                                                                                 ,1'b0}}};
+
+  assign result_fun_arg = c$keccakF1600_tupIn.Tuple2_4_sel0;
+
+  assign result_fun_arg_0 = c$keccakF1600_tupIn.Tuple2_4_sel1;
+
+  Component_SamplePolyCBD2_i264o12_keccakF1600 Component_SamplePolyCBD2_i264o12_keccakF1600_result_7
+    ( .result (result_7)
+    , .roundIdx (result_fun_arg)
+    , .x (result_fun_arg_0) );
+
+  assign c$cbdDiff6_arg0 = phase_0[2:2] ? c$cbdDiff6_arg0_case_alt : result_9;
+
+  assign c$cbdDiff6_arg0_case_alt = (coeffIdx_2 == 8'd181) ? ({(c$cbdDiff6_arg0_app_arg[3 : 0]),tail2}) : result_8;
+
+  assign tail2 = phase_0[1:0];
+
+  assign phase_0 = c$ds_app_arg[1607:1605];
+
+  assign c$cbdDiff6_arg0_app_arg = block;
+
+  assign result_8 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd0) ? (c$app_arg_4[9 : 4]) : c$case_alt_260;
+
+  assign c$case_alt_260 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd1) ? (c$app_arg_4[15 : 10]) : c$case_alt_261;
+
+  assign c$case_alt_261 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd2) ? (c$app_arg_4[21 : 16]) : c$case_alt_262;
+
+  assign c$case_alt_262 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd3) ? (c$app_arg_4[27 : 22]) : c$case_alt_263;
+
+  assign c$case_alt_263 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd4) ? (c$app_arg_4[33 : 28]) : c$case_alt_264;
+
+  assign c$case_alt_264 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd5) ? (c$app_arg_4[39 : 34]) : c$case_alt_265;
+
+  assign c$case_alt_265 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd6) ? (c$app_arg_4[45 : 40]) : c$case_alt_266;
+
+  assign c$case_alt_266 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd7) ? (c$app_arg_4[51 : 46]) : c$case_alt_267;
+
+  assign c$case_alt_267 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd8) ? (c$app_arg_4[57 : 52]) : c$case_alt_268;
+
+  assign c$case_alt_268 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd9) ? (c$app_arg_4[63 : 58]) : c$case_alt_269;
+
+  assign c$case_alt_269 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd10) ? (c$app_arg_4[69 : 64]) : c$case_alt_270;
+
+  assign c$case_alt_270 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd11) ? (c$app_arg_4[75 : 70]) : c$case_alt_271;
+
+  assign c$case_alt_271 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd12) ? (c$app_arg_4[81 : 76]) : c$case_alt_272;
+
+  assign c$case_alt_272 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd13) ? (c$app_arg_4[87 : 82]) : c$case_alt_273;
+
+  assign c$case_alt_273 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd14) ? (c$app_arg_4[93 : 88]) : c$case_alt_274;
+
+  assign c$case_alt_274 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd15) ? (c$app_arg_4[99 : 94]) : c$case_alt_275;
+
+  assign c$case_alt_275 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd16) ? (c$app_arg_4[105 : 100]) : c$case_alt_276;
+
+  assign c$case_alt_276 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd17) ? (c$app_arg_4[111 : 106]) : c$case_alt_277;
+
+  assign c$case_alt_277 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd18) ? (c$app_arg_4[117 : 112]) : c$case_alt_278;
+
+  assign c$case_alt_278 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd19) ? (c$app_arg_4[123 : 118]) : c$case_alt_279;
+
+  assign c$case_alt_279 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd20) ? (c$app_arg_4[129 : 124]) : c$case_alt_280;
+
+  assign c$case_alt_280 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd21) ? (c$app_arg_4[135 : 130]) : c$case_alt_281;
+
+  assign c$case_alt_281 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd22) ? (c$app_arg_4[141 : 136]) : c$case_alt_282;
+
+  assign c$case_alt_282 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd23) ? (c$app_arg_4[147 : 142]) : c$case_alt_283;
+
+  assign c$case_alt_283 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd24) ? (c$app_arg_4[153 : 148]) : c$case_alt_284;
+
+  assign c$case_alt_284 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd25) ? (c$app_arg_4[159 : 154]) : c$case_alt_285;
+
+  assign c$case_alt_285 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd26) ? (c$app_arg_4[165 : 160]) : c$case_alt_286;
+
+  assign c$case_alt_286 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd27) ? (c$app_arg_4[171 : 166]) : c$case_alt_287;
+
+  assign c$case_alt_287 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd28) ? (c$app_arg_4[177 : 172]) : c$case_alt_288;
+
+  assign c$case_alt_288 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd29) ? (c$app_arg_4[183 : 178]) : c$case_alt_289;
+
+  assign c$case_alt_289 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd30) ? (c$app_arg_4[189 : 184]) : c$case_alt_290;
+
+  assign c$case_alt_290 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd31) ? (c$app_arg_4[195 : 190]) : c$case_alt_291;
+
+  assign c$case_alt_291 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd32) ? (c$app_arg_4[201 : 196]) : c$case_alt_292;
+
+  assign c$case_alt_292 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd33) ? (c$app_arg_4[207 : 202]) : c$case_alt_293;
+
+  assign c$case_alt_293 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd34) ? (c$app_arg_4[213 : 208]) : c$case_alt_294;
+
+  assign c$case_alt_294 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd35) ? (c$app_arg_4[219 : 214]) : c$case_alt_295;
+
+  assign c$case_alt_295 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd36) ? (c$app_arg_4[225 : 220]) : c$case_alt_296;
+
+  assign c$case_alt_296 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd37) ? (c$app_arg_4[231 : 226]) : c$case_alt_297;
+
+  assign c$case_alt_297 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd38) ? (c$app_arg_4[237 : 232]) : c$case_alt_298;
+
+  assign c$case_alt_298 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd39) ? (c$app_arg_4[243 : 238]) : c$case_alt_299;
+
+  assign c$case_alt_299 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd40) ? (c$app_arg_4[249 : 244]) : c$case_alt_300;
+
+  assign c$case_alt_300 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd41) ? (c$app_arg_4[255 : 250]) : c$case_alt_301;
+
+  assign c$case_alt_301 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd42) ? (c$app_arg_4[261 : 256]) : c$case_alt_302;
+
+  assign c$case_alt_302 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd43) ? (c$app_arg_4[267 : 262]) : c$case_alt_303;
+
+  assign c$case_alt_303 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd44) ? (c$app_arg_4[273 : 268]) : c$case_alt_304;
+
+  assign c$case_alt_304 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd45) ? (c$app_arg_4[279 : 274]) : c$case_alt_305;
+
+  assign c$case_alt_305 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd46) ? (c$app_arg_4[285 : 280]) : c$case_alt_306;
+
+  assign c$case_alt_306 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd47) ? (c$app_arg_4[291 : 286]) : c$case_alt_307;
+
+  assign c$case_alt_307 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd48) ? (c$app_arg_4[297 : 292]) : c$case_alt_308;
+
+  assign c$case_alt_308 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd49) ? (c$app_arg_4[303 : 298]) : c$case_alt_309;
+
+  assign c$case_alt_309 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd50) ? (c$app_arg_4[309 : 304]) : c$case_alt_310;
+
+  assign c$case_alt_310 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd51) ? (c$app_arg_4[315 : 310]) : c$case_alt_311;
+
+  assign c$case_alt_311 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd52) ? (c$app_arg_4[321 : 316]) : c$case_alt_312;
+
+  assign c$case_alt_312 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd53) ? (c$app_arg_4[327 : 322]) : c$case_alt_313;
+
+  assign c$case_alt_313 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd54) ? (c$app_arg_4[333 : 328]) : c$case_alt_314;
+
+  assign c$case_alt_314 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd55) ? (c$app_arg_4[339 : 334]) : c$case_alt_315;
+
+  assign c$case_alt_315 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd56) ? (c$app_arg_4[345 : 340]) : c$case_alt_316;
+
+  assign c$case_alt_316 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd57) ? (c$app_arg_4[351 : 346]) : c$case_alt_317;
+
+  assign c$case_alt_317 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd58) ? (c$app_arg_4[357 : 352]) : c$case_alt_318;
+
+  assign c$case_alt_318 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd59) ? (c$app_arg_4[363 : 358]) : c$case_alt_319;
+
+  assign c$case_alt_319 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd60) ? (c$app_arg_4[369 : 364]) : c$case_alt_320;
+
+  assign c$case_alt_320 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd61) ? (c$app_arg_4[375 : 370]) : c$case_alt_321;
+
+  assign c$case_alt_321 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd62) ? (c$app_arg_4[381 : 376]) : c$case_alt_322;
+
+  assign c$case_alt_322 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd63) ? (c$app_arg_4[387 : 382]) : c$case_alt_323;
+
+  assign c$case_alt_323 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd64) ? (c$app_arg_4[393 : 388]) : c$case_alt_324;
+
+  assign c$case_alt_324 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd65) ? (c$app_arg_4[399 : 394]) : c$case_alt_325;
+
+  assign c$case_alt_325 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd66) ? (c$app_arg_4[405 : 400]) : c$case_alt_326;
+
+  assign c$case_alt_326 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd67) ? (c$app_arg_4[411 : 406]) : c$case_alt_327;
+
+  assign c$case_alt_327 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd68) ? (c$app_arg_4[417 : 412]) : c$case_alt_328;
+
+  assign c$case_alt_328 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd69) ? (c$app_arg_4[423 : 418]) : c$case_alt_329;
+
+  assign c$case_alt_329 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd70) ? (c$app_arg_4[429 : 424]) : c$case_alt_330;
+
+  assign c$case_alt_330 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd71) ? (c$app_arg_4[435 : 430]) : c$case_alt_331;
+
+  assign c$case_alt_331 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd72) ? (c$app_arg_4[441 : 436]) : c$case_alt_332;
+
+  assign c$case_alt_332 = (($unsigned(c$cbdDiff6_arg0_app_arg_0[0+:7])) == 7'd73) ? (c$app_arg_4[447 : 442]) : ({6 {1'bx}});
+
+  assign c$app_arg_4 = block;
+
+  assign c$i_361 = (coeffIdx_2 - 8'd182);
+
+  assign c$cbdDiff6_arg0_app_arg_0 = $unsigned({{(64-8) {1'b0}},c$i_361});
+
+  assign result_9 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd0) ? (c$app_arg_5[5 : 0]) : c$case_alt_333;
+
+  assign c$case_alt_333 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd1) ? (c$app_arg_5[11 : 6]) : c$case_alt_334;
+
+  assign c$case_alt_334 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd2) ? (c$app_arg_5[17 : 12]) : c$case_alt_335;
+
+  assign c$case_alt_335 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd3) ? (c$app_arg_5[23 : 18]) : c$case_alt_336;
+
+  assign c$case_alt_336 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd4) ? (c$app_arg_5[29 : 24]) : c$case_alt_337;
+
+  assign c$case_alt_337 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd5) ? (c$app_arg_5[35 : 30]) : c$case_alt_338;
+
+  assign c$case_alt_338 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd6) ? (c$app_arg_5[41 : 36]) : c$case_alt_339;
+
+  assign c$case_alt_339 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd7) ? (c$app_arg_5[47 : 42]) : c$case_alt_340;
+
+  assign c$case_alt_340 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd8) ? (c$app_arg_5[53 : 48]) : c$case_alt_341;
+
+  assign c$case_alt_341 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd9) ? (c$app_arg_5[59 : 54]) : c$case_alt_342;
+
+  assign c$case_alt_342 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd10) ? (c$app_arg_5[65 : 60]) : c$case_alt_343;
+
+  assign c$case_alt_343 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd11) ? (c$app_arg_5[71 : 66]) : c$case_alt_344;
+
+  assign c$case_alt_344 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd12) ? (c$app_arg_5[77 : 72]) : c$case_alt_345;
+
+  assign c$case_alt_345 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd13) ? (c$app_arg_5[83 : 78]) : c$case_alt_346;
+
+  assign c$case_alt_346 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd14) ? (c$app_arg_5[89 : 84]) : c$case_alt_347;
+
+  assign c$case_alt_347 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd15) ? (c$app_arg_5[95 : 90]) : c$case_alt_348;
+
+  assign c$case_alt_348 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd16) ? (c$app_arg_5[101 : 96]) : c$case_alt_349;
+
+  assign c$case_alt_349 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd17) ? (c$app_arg_5[107 : 102]) : c$case_alt_350;
+
+  assign c$case_alt_350 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd18) ? (c$app_arg_5[113 : 108]) : c$case_alt_351;
+
+  assign c$case_alt_351 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd19) ? (c$app_arg_5[119 : 114]) : c$case_alt_352;
+
+  assign c$case_alt_352 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd20) ? (c$app_arg_5[125 : 120]) : c$case_alt_353;
+
+  assign c$case_alt_353 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd21) ? (c$app_arg_5[131 : 126]) : c$case_alt_354;
+
+  assign c$case_alt_354 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd22) ? (c$app_arg_5[137 : 132]) : c$case_alt_355;
+
+  assign c$case_alt_355 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd23) ? (c$app_arg_5[143 : 138]) : c$case_alt_356;
+
+  assign c$case_alt_356 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd24) ? (c$app_arg_5[149 : 144]) : c$case_alt_357;
+
+  assign c$case_alt_357 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd25) ? (c$app_arg_5[155 : 150]) : c$case_alt_358;
+
+  assign c$case_alt_358 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd26) ? (c$app_arg_5[161 : 156]) : c$case_alt_359;
+
+  assign c$case_alt_359 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd27) ? (c$app_arg_5[167 : 162]) : c$case_alt_360;
+
+  assign c$case_alt_360 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd28) ? (c$app_arg_5[173 : 168]) : c$case_alt_361;
+
+  assign c$case_alt_361 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd29) ? (c$app_arg_5[179 : 174]) : c$case_alt_362;
+
+  assign c$case_alt_362 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd30) ? (c$app_arg_5[185 : 180]) : c$case_alt_363;
+
+  assign c$case_alt_363 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd31) ? (c$app_arg_5[191 : 186]) : c$case_alt_364;
+
+  assign c$case_alt_364 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd32) ? (c$app_arg_5[197 : 192]) : c$case_alt_365;
+
+  assign c$case_alt_365 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd33) ? (c$app_arg_5[203 : 198]) : c$case_alt_366;
+
+  assign c$case_alt_366 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd34) ? (c$app_arg_5[209 : 204]) : c$case_alt_367;
+
+  assign c$case_alt_367 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd35) ? (c$app_arg_5[215 : 210]) : c$case_alt_368;
+
+  assign c$case_alt_368 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd36) ? (c$app_arg_5[221 : 216]) : c$case_alt_369;
+
+  assign c$case_alt_369 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd37) ? (c$app_arg_5[227 : 222]) : c$case_alt_370;
+
+  assign c$case_alt_370 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd38) ? (c$app_arg_5[233 : 228]) : c$case_alt_371;
+
+  assign c$case_alt_371 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd39) ? (c$app_arg_5[239 : 234]) : c$case_alt_372;
+
+  assign c$case_alt_372 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd40) ? (c$app_arg_5[245 : 240]) : c$case_alt_373;
+
+  assign c$case_alt_373 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd41) ? (c$app_arg_5[251 : 246]) : c$case_alt_374;
+
+  assign c$case_alt_374 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd42) ? (c$app_arg_5[257 : 252]) : c$case_alt_375;
+
+  assign c$case_alt_375 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd43) ? (c$app_arg_5[263 : 258]) : c$case_alt_376;
+
+  assign c$case_alt_376 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd44) ? (c$app_arg_5[269 : 264]) : c$case_alt_377;
+
+  assign c$case_alt_377 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd45) ? (c$app_arg_5[275 : 270]) : c$case_alt_378;
+
+  assign c$case_alt_378 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd46) ? (c$app_arg_5[281 : 276]) : c$case_alt_379;
+
+  assign c$case_alt_379 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd47) ? (c$app_arg_5[287 : 282]) : c$case_alt_380;
+
+  assign c$case_alt_380 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd48) ? (c$app_arg_5[293 : 288]) : c$case_alt_381;
+
+  assign c$case_alt_381 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd49) ? (c$app_arg_5[299 : 294]) : c$case_alt_382;
+
+  assign c$case_alt_382 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd50) ? (c$app_arg_5[305 : 300]) : c$case_alt_383;
+
+  assign c$case_alt_383 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd51) ? (c$app_arg_5[311 : 306]) : c$case_alt_384;
+
+  assign c$case_alt_384 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd52) ? (c$app_arg_5[317 : 312]) : c$case_alt_385;
+
+  assign c$case_alt_385 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd53) ? (c$app_arg_5[323 : 318]) : c$case_alt_386;
+
+  assign c$case_alt_386 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd54) ? (c$app_arg_5[329 : 324]) : c$case_alt_387;
+
+  assign c$case_alt_387 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd55) ? (c$app_arg_5[335 : 330]) : c$case_alt_388;
+
+  assign c$case_alt_388 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd56) ? (c$app_arg_5[341 : 336]) : c$case_alt_389;
+
+  assign c$case_alt_389 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd57) ? (c$app_arg_5[347 : 342]) : c$case_alt_390;
+
+  assign c$case_alt_390 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd58) ? (c$app_arg_5[353 : 348]) : c$case_alt_391;
+
+  assign c$case_alt_391 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd59) ? (c$app_arg_5[359 : 354]) : c$case_alt_392;
+
+  assign c$case_alt_392 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd60) ? (c$app_arg_5[365 : 360]) : c$case_alt_393;
+
+  assign c$case_alt_393 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd61) ? (c$app_arg_5[371 : 366]) : c$case_alt_394;
+
+  assign c$case_alt_394 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd62) ? (c$app_arg_5[377 : 372]) : c$case_alt_395;
+
+  assign c$case_alt_395 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd63) ? (c$app_arg_5[383 : 378]) : c$case_alt_396;
+
+  assign c$case_alt_396 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd64) ? (c$app_arg_5[389 : 384]) : c$case_alt_397;
+
+  assign c$case_alt_397 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd65) ? (c$app_arg_5[395 : 390]) : c$case_alt_398;
+
+  assign c$case_alt_398 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd66) ? (c$app_arg_5[401 : 396]) : c$case_alt_399;
+
+  assign c$case_alt_399 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd67) ? (c$app_arg_5[407 : 402]) : c$case_alt_400;
+
+  assign c$case_alt_400 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd68) ? (c$app_arg_5[413 : 408]) : c$case_alt_401;
+
+  assign c$case_alt_401 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd69) ? (c$app_arg_5[419 : 414]) : c$case_alt_402;
+
+  assign c$case_alt_402 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd70) ? (c$app_arg_5[425 : 420]) : c$case_alt_403;
+
+  assign c$case_alt_403 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd71) ? (c$app_arg_5[431 : 426]) : c$case_alt_404;
+
+  assign c$case_alt_404 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd72) ? (c$app_arg_5[437 : 432]) : c$case_alt_405;
+
+  assign c$case_alt_405 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd73) ? (c$app_arg_5[443 : 438]) : c$case_alt_406;
+
+  assign c$case_alt_406 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd74) ? (c$app_arg_5[449 : 444]) : c$case_alt_407;
+
+  assign c$case_alt_407 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd75) ? (c$app_arg_5[455 : 450]) : c$case_alt_408;
+
+  assign c$case_alt_408 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd76) ? (c$app_arg_5[461 : 456]) : c$case_alt_409;
+
+  assign c$case_alt_409 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd77) ? (c$app_arg_5[467 : 462]) : c$case_alt_410;
+
+  assign c$case_alt_410 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd78) ? (c$app_arg_5[473 : 468]) : c$case_alt_411;
+
+  assign c$case_alt_411 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd79) ? (c$app_arg_5[479 : 474]) : c$case_alt_412;
+
+  assign c$case_alt_412 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd80) ? (c$app_arg_5[485 : 480]) : c$case_alt_413;
+
+  assign c$case_alt_413 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd81) ? (c$app_arg_5[491 : 486]) : c$case_alt_414;
+
+  assign c$case_alt_414 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd82) ? (c$app_arg_5[497 : 492]) : c$case_alt_415;
+
+  assign c$case_alt_415 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd83) ? (c$app_arg_5[503 : 498]) : c$case_alt_416;
+
+  assign c$case_alt_416 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd84) ? (c$app_arg_5[509 : 504]) : c$case_alt_417;
+
+  assign c$case_alt_417 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd85) ? (c$app_arg_5[515 : 510]) : c$case_alt_418;
+
+  assign c$case_alt_418 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd86) ? (c$app_arg_5[521 : 516]) : c$case_alt_419;
+
+  assign c$case_alt_419 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd87) ? (c$app_arg_5[527 : 522]) : c$case_alt_420;
+
+  assign c$case_alt_420 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd88) ? (c$app_arg_5[533 : 528]) : c$case_alt_421;
+
+  assign c$case_alt_421 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd89) ? (c$app_arg_5[539 : 534]) : c$case_alt_422;
+
+  assign c$case_alt_422 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd90) ? (c$app_arg_5[545 : 540]) : c$case_alt_423;
+
+  assign c$case_alt_423 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd91) ? (c$app_arg_5[551 : 546]) : c$case_alt_424;
+
+  assign c$case_alt_424 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd92) ? (c$app_arg_5[557 : 552]) : c$case_alt_425;
+
+  assign c$case_alt_425 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd93) ? (c$app_arg_5[563 : 558]) : c$case_alt_426;
+
+  assign c$case_alt_426 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd94) ? (c$app_arg_5[569 : 564]) : c$case_alt_427;
+
+  assign c$case_alt_427 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd95) ? (c$app_arg_5[575 : 570]) : c$case_alt_428;
+
+  assign c$case_alt_428 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd96) ? (c$app_arg_5[581 : 576]) : c$case_alt_429;
+
+  assign c$case_alt_429 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd97) ? (c$app_arg_5[587 : 582]) : c$case_alt_430;
+
+  assign c$case_alt_430 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd98) ? (c$app_arg_5[593 : 588]) : c$case_alt_431;
+
+  assign c$case_alt_431 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd99) ? (c$app_arg_5[599 : 594]) : c$case_alt_432;
+
+  assign c$case_alt_432 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd100) ? (c$app_arg_5[605 : 600]) : c$case_alt_433;
+
+  assign c$case_alt_433 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd101) ? (c$app_arg_5[611 : 606]) : c$case_alt_434;
+
+  assign c$case_alt_434 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd102) ? (c$app_arg_5[617 : 612]) : c$case_alt_435;
+
+  assign c$case_alt_435 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd103) ? (c$app_arg_5[623 : 618]) : c$case_alt_436;
+
+  assign c$case_alt_436 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd104) ? (c$app_arg_5[629 : 624]) : c$case_alt_437;
+
+  assign c$case_alt_437 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd105) ? (c$app_arg_5[635 : 630]) : c$case_alt_438;
+
+  assign c$case_alt_438 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd106) ? (c$app_arg_5[641 : 636]) : c$case_alt_439;
+
+  assign c$case_alt_439 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd107) ? (c$app_arg_5[647 : 642]) : c$case_alt_440;
+
+  assign c$case_alt_440 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd108) ? (c$app_arg_5[653 : 648]) : c$case_alt_441;
+
+  assign c$case_alt_441 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd109) ? (c$app_arg_5[659 : 654]) : c$case_alt_442;
+
+  assign c$case_alt_442 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd110) ? (c$app_arg_5[665 : 660]) : c$case_alt_443;
+
+  assign c$case_alt_443 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd111) ? (c$app_arg_5[671 : 666]) : c$case_alt_444;
+
+  assign c$case_alt_444 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd112) ? (c$app_arg_5[677 : 672]) : c$case_alt_445;
+
+  assign c$case_alt_445 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd113) ? (c$app_arg_5[683 : 678]) : c$case_alt_446;
+
+  assign c$case_alt_446 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd114) ? (c$app_arg_5[689 : 684]) : c$case_alt_447;
+
+  assign c$case_alt_447 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd115) ? (c$app_arg_5[695 : 690]) : c$case_alt_448;
+
+  assign c$case_alt_448 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd116) ? (c$app_arg_5[701 : 696]) : c$case_alt_449;
+
+  assign c$case_alt_449 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd117) ? (c$app_arg_5[707 : 702]) : c$case_alt_450;
+
+  assign c$case_alt_450 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd118) ? (c$app_arg_5[713 : 708]) : c$case_alt_451;
+
+  assign c$case_alt_451 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd119) ? (c$app_arg_5[719 : 714]) : c$case_alt_452;
+
+  assign c$case_alt_452 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd120) ? (c$app_arg_5[725 : 720]) : c$case_alt_453;
+
+  assign c$case_alt_453 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd121) ? (c$app_arg_5[731 : 726]) : c$case_alt_454;
+
+  assign c$case_alt_454 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd122) ? (c$app_arg_5[737 : 732]) : c$case_alt_455;
+
+  assign c$case_alt_455 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd123) ? (c$app_arg_5[743 : 738]) : c$case_alt_456;
+
+  assign c$case_alt_456 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd124) ? (c$app_arg_5[749 : 744]) : c$case_alt_457;
+
+  assign c$case_alt_457 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd125) ? (c$app_arg_5[755 : 750]) : c$case_alt_458;
+
+  assign c$case_alt_458 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd126) ? (c$app_arg_5[761 : 756]) : c$case_alt_459;
+
+  assign c$case_alt_459 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd127) ? (c$app_arg_5[767 : 762]) : c$case_alt_460;
+
+  assign c$case_alt_460 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd128) ? (c$app_arg_5[773 : 768]) : c$case_alt_461;
+
+  assign c$case_alt_461 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd129) ? (c$app_arg_5[779 : 774]) : c$case_alt_462;
+
+  assign c$case_alt_462 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd130) ? (c$app_arg_5[785 : 780]) : c$case_alt_463;
+
+  assign c$case_alt_463 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd131) ? (c$app_arg_5[791 : 786]) : c$case_alt_464;
+
+  assign c$case_alt_464 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd132) ? (c$app_arg_5[797 : 792]) : c$case_alt_465;
+
+  assign c$case_alt_465 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd133) ? (c$app_arg_5[803 : 798]) : c$case_alt_466;
+
+  assign c$case_alt_466 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd134) ? (c$app_arg_5[809 : 804]) : c$case_alt_467;
+
+  assign c$case_alt_467 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd135) ? (c$app_arg_5[815 : 810]) : c$case_alt_468;
+
+  assign c$case_alt_468 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd136) ? (c$app_arg_5[821 : 816]) : c$case_alt_469;
+
+  assign c$case_alt_469 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd137) ? (c$app_arg_5[827 : 822]) : c$case_alt_470;
+
+  assign c$case_alt_470 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd138) ? (c$app_arg_5[833 : 828]) : c$case_alt_471;
+
+  assign c$case_alt_471 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd139) ? (c$app_arg_5[839 : 834]) : c$case_alt_472;
+
+  assign c$case_alt_472 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd140) ? (c$app_arg_5[845 : 840]) : c$case_alt_473;
+
+  assign c$case_alt_473 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd141) ? (c$app_arg_5[851 : 846]) : c$case_alt_474;
+
+  assign c$case_alt_474 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd142) ? (c$app_arg_5[857 : 852]) : c$case_alt_475;
+
+  assign c$case_alt_475 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd143) ? (c$app_arg_5[863 : 858]) : c$case_alt_476;
+
+  assign c$case_alt_476 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd144) ? (c$app_arg_5[869 : 864]) : c$case_alt_477;
+
+  assign c$case_alt_477 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd145) ? (c$app_arg_5[875 : 870]) : c$case_alt_478;
+
+  assign c$case_alt_478 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd146) ? (c$app_arg_5[881 : 876]) : c$case_alt_479;
+
+  assign c$case_alt_479 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd147) ? (c$app_arg_5[887 : 882]) : c$case_alt_480;
+
+  assign c$case_alt_480 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd148) ? (c$app_arg_5[893 : 888]) : c$case_alt_481;
+
+  assign c$case_alt_481 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd149) ? (c$app_arg_5[899 : 894]) : c$case_alt_482;
+
+  assign c$case_alt_482 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd150) ? (c$app_arg_5[905 : 900]) : c$case_alt_483;
+
+  assign c$case_alt_483 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd151) ? (c$app_arg_5[911 : 906]) : c$case_alt_484;
+
+  assign c$case_alt_484 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd152) ? (c$app_arg_5[917 : 912]) : c$case_alt_485;
+
+  assign c$case_alt_485 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd153) ? (c$app_arg_5[923 : 918]) : c$case_alt_486;
+
+  assign c$case_alt_486 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd154) ? (c$app_arg_5[929 : 924]) : c$case_alt_487;
+
+  assign c$case_alt_487 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd155) ? (c$app_arg_5[935 : 930]) : c$case_alt_488;
+
+  assign c$case_alt_488 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd156) ? (c$app_arg_5[941 : 936]) : c$case_alt_489;
+
+  assign c$case_alt_489 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd157) ? (c$app_arg_5[947 : 942]) : c$case_alt_490;
+
+  assign c$case_alt_490 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd158) ? (c$app_arg_5[953 : 948]) : c$case_alt_491;
+
+  assign c$case_alt_491 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd159) ? (c$app_arg_5[959 : 954]) : c$case_alt_492;
+
+  assign c$case_alt_492 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd160) ? (c$app_arg_5[965 : 960]) : c$case_alt_493;
+
+  assign c$case_alt_493 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd161) ? (c$app_arg_5[971 : 966]) : c$case_alt_494;
+
+  assign c$case_alt_494 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd162) ? (c$app_arg_5[977 : 972]) : c$case_alt_495;
+
+  assign c$case_alt_495 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd163) ? (c$app_arg_5[983 : 978]) : c$case_alt_496;
+
+  assign c$case_alt_496 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd164) ? (c$app_arg_5[989 : 984]) : c$case_alt_497;
+
+  assign c$case_alt_497 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd165) ? (c$app_arg_5[995 : 990]) : c$case_alt_498;
+
+  assign c$case_alt_498 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd166) ? (c$app_arg_5[1001 : 996]) : c$case_alt_499;
+
+  assign c$case_alt_499 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd167) ? (c$app_arg_5[1007 : 1002]) : c$case_alt_500;
+
+  assign c$case_alt_500 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd168) ? (c$app_arg_5[1013 : 1008]) : c$case_alt_501;
+
+  assign c$case_alt_501 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd169) ? (c$app_arg_5[1019 : 1014]) : c$case_alt_502;
+
+  assign c$case_alt_502 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd170) ? (c$app_arg_5[1025 : 1020]) : c$case_alt_503;
+
+  assign c$case_alt_503 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd171) ? (c$app_arg_5[1031 : 1026]) : c$case_alt_504;
+
+  assign c$case_alt_504 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd172) ? (c$app_arg_5[1037 : 1032]) : c$case_alt_505;
+
+  assign c$case_alt_505 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd173) ? (c$app_arg_5[1043 : 1038]) : c$case_alt_506;
+
+  assign c$case_alt_506 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd174) ? (c$app_arg_5[1049 : 1044]) : c$case_alt_507;
+
+  assign c$case_alt_507 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd175) ? (c$app_arg_5[1055 : 1050]) : c$case_alt_508;
+
+  assign c$case_alt_508 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd176) ? (c$app_arg_5[1061 : 1056]) : c$case_alt_509;
+
+  assign c$case_alt_509 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd177) ? (c$app_arg_5[1067 : 1062]) : c$case_alt_510;
+
+  assign c$case_alt_510 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd178) ? (c$app_arg_5[1073 : 1068]) : c$case_alt_511;
+
+  assign c$case_alt_511 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd179) ? (c$app_arg_5[1079 : 1074]) : c$case_alt_512;
+
+  assign c$case_alt_512 = (($unsigned(c$cbdDiff6_arg0_app_arg_1[0+:8])) == 8'd180) ? (c$app_arg_5[1085 : 1080]) : ({6 {1'bx}});
+
+  assign c$app_arg_5 = block;
+
+  assign block = c$ds_app_arg[1604:5];
+
+  assign c$cbdDiff6_arg0_app_arg_1 = $unsigned({{(64-8) {1'b0}},coeffIdx_2});
+
+  assign coeffIdx_2 = c$ds_app_arg[1615:1608];
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_2;
-    result_5[64'sd1331] = (~ (c$app_arg_2[64'sd1331]));
+    result_10 = c$app_arg_6;
+    result_10[64'sd264] = (~ (c$app_arg_6[64'sd264]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_6;
+  assign c$app_arg_6 = result_11;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_3;
-    result_6[64'sd1332] = (~ (c$app_arg_3[64'sd1332]));
+    result_11 = c$app_arg_7;
+    result_11[64'sd265] = (~ (c$app_arg_7[64'sd265]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_7;
+  assign c$app_arg_7 = result_12;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_4;
-    result_7[64'sd1333] = (~ (c$app_arg_4[64'sd1333]));
+    result_12 = c$app_arg_8;
+    result_12[64'sd266] = (~ (c$app_arg_8[64'sd266]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = result_8;
+  assign c$app_arg_8 = result_13;
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_5;
-    result_8[64'sd1334] = (~ (c$app_arg_5[64'sd1334]));
+    result_13 = c$app_arg_9;
+    result_13[64'sd267] = (~ (c$app_arg_9[64'sd267]));
   end
   // replaceBit end
 
-  assign c$app_arg_5 = result_9;
+  assign c$app_arg_9 = result_14;
 
   // replaceBit start
   always_comb begin
-    result_9 = c$app_arg_6;
-    result_9[64'sd1335] = (~ (c$app_arg_6[64'sd1335]));
+    result_14 = c$app_arg_10;
+    result_14[64'sd268] = (~ (c$app_arg_10[64'sd268]));
   end
   // replaceBit end
 
-  assign c$app_arg_6 = ({inBeat.AXI4Stream_sel0,1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000});
+  assign c$app_arg_10 = ({1336'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,(c$i272o12Core2359_out_app_arg[263 : 0])});
 
   // replaceBit start
   always_comb begin
-    result_10 = c$app_arg_7;
-    result_10[64'sd512] = (~ (c$app_arg_7[64'sd512]));
+    result_15 = c$app_arg_11;
+    result_15[64'sd1087] = (~ (c$app_arg_11[64'sd1087]));
   end
   // replaceBit end
 
-  assign c$app_arg_7 = result_5;
+  assign c$app_arg_11 = result_10;
 
-  assign inBeat = c$arg.Tuple2_4_sel0;
+  assign c$i272o12Core2359_out_app_arg = inStream.AXI4Stream_sel0;
 
-  Component_SamplePolyCBD2_i264o12_keccakF1600Reversed Component_SamplePolyCBD2_i264o12_keccakF1600Reversed_c$keccakF1600Reversed_out
-    ( .result (c$keccakF1600Reversed_out)
-    , .roundIdx (roundIdx)
-    , .x (state_0) );
+  assign inStream = {{8'b00000010,msg}
+                    ,valid
+                    ,lastBeat};
 
-  assign state_0 = c$ds_app_arg[1602:3];
+  always_comb begin
+    case(c$ds_app_arg[1618:1616])
+      3'b001 : c$keccakF1600_tupIn = {roundIdx_0
+                                     ,state_1};
+      default : c$keccakF1600_tupIn = {roundIdx
+                                      ,state_0};
+    endcase
+  end
 
-  assign roundIdx = c$ds_app_arg[1607:1603];
+  assign state_0 = c$ds_app_arg[1599:0];
 
-  assign result = {result_0.Tuple2_2_sel1
-                  ,result_0.Tuple2_2_sel0};
+  assign roundIdx = c$ds_app_arg[1615:1611];
 
-  assign DIGEST = result.Tuple2_5_sel0;
+  assign state_1 = c$ds_app_arg[1602:3];
 
-  assign MSG_TREADY = result.Tuple2_5_sel1;
+  assign roundIdx_0 = c$ds_app_arg[1615:1611];
 
-  assign DIGEST_TDATA = DIGEST.AXI4Stream_0_sel0;
+  assign result_16 = {result_0.Tuple2_2_sel0
+                     ,result_0.Tuple2_2_sel1};
 
-  assign DIGEST_TVALID = DIGEST.AXI4Stream_0_sel1;
+  assign msg = inStream_0.AXI4Stream_0_sel0;
 
-  assign DIGEST_TLAST = DIGEST.AXI4Stream_0_sel2;
+  assign valid = inStream_0.AXI4Stream_0_sel1;
+
+  assign lastBeat = inStream_0.AXI4Stream_0_sel2;
+
+  assign outReady = c$arg.Tuple2_5_sel1;
+
+  assign inStream_0 = c$arg.Tuple2_5_sel0;
+
+  assign result = {result_16.Tuple2_2_sel1
+                  ,result_16.Tuple2_2_sel0};
+
+  assign DIGEST = result.Tuple2_6_sel0;
+
+  assign MSG_TREADY = result.Tuple2_6_sel1;
+
+  assign DIGEST_TDATA = DIGEST.AXI4Stream_1_sel0;
+
+  assign DIGEST_TVALID = DIGEST.AXI4Stream_1_sel1;
+
+  assign DIGEST_TLAST = DIGEST.AXI4Stream_1_sel2;
 
 
 endmodule

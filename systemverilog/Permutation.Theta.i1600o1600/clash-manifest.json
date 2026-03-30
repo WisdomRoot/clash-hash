@@ -1,6 +1,5 @@
 {
     "components": [
-        "Component_G_i272o512_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -40,22 +39,18 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "be510d18d53b9ecc5e7617c9e9e094d40019e0a7d09422874c83220ee0c93b07"
-        },
-        {
-            "name": "Component_G_i272o512_keccakF1600.sv",
-            "sha256": "637636926bc098678c7ac5c30593d35c9e5b2ba44bdb781687d9a3f07369b242"
+            "sha256": "6aae2663b8e97ecdd507a3058ef43c89d331456fc555ab0d50334f8923151d9e"
         },
         {
             "name": "dut.sv",
-            "sha256": "92c7e9a60e9e5c0c131bb73ba3cd07aff5630d376c5986faf56d93947e24f6c4"
+            "sha256": "cbad41d0456050ccc9ab09e4c2b84c3bcec53642e6331294bd1fc921b769eb95"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "144eceecb66c802e0ce1b631fa68156d7a6cf1a05a8cb7e6b2531732a3758533",
+    "hash": "8d3c7fec860862d481e4ad003705aeda718e818fce193021f855bb42ff0538d0",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -86,56 +81,56 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_TDATA",
-                "type_name": "logic [271:0]",
-                "width": 272
+                "name": "STATE_IN_TDATA",
+                "type_name": "logic [1599:0]",
+                "width": 1600
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "MSG_TVALID",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "MSG_TLAST",
+                "name": "STATE_IN_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "DIGEST_TREADY",
+                "name": "STATE_IN_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "STATE_OUT_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "DIGEST_TDATA",
-                "type_name": "logic [511:0]",
-                "width": 512
+                "name": "STATE_OUT_TDATA",
+                "type_name": "logic [1599:0]",
+                "width": 1600
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "DIGEST_TVALID",
+                "name": "STATE_OUT_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "DIGEST_TLAST",
+                "name": "STATE_OUT_TLAST",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "MSG_TREADY",
+                "name": "STATE_IN_TREADY",
                 "type_name": "logic",
                 "width": 1
             }
