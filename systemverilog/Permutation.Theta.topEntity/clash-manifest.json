@@ -1,6 +1,6 @@
 {
     "components": [
-        "dut"
+        "Theta"
     ],
     "dependencies": {
         "transitive": []
@@ -30,29 +30,29 @@
     },
     "files": [
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
+            "name": "Theta_shim.cpp",
+            "sha256": "552d3bb6ef8f2299696bfbf65a59bbace86f29f863899ff09b75cda389774a33"
         },
         {
-            "name": "dut.sdc",
+            "name": "Theta.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "dut_types.sv",
-            "sha256": "6aae2663b8e97ecdd507a3058ef43c89d331456fc555ab0d50334f8923151d9e"
+            "name": "Theta_types.sv",
+            "sha256": "ffa1191a1496579d00528a25da18b6a8272c03f1bc0505b32c0de18128e227c9"
         },
         {
-            "name": "dut.sv",
-            "sha256": "cbad41d0456050ccc9ab09e4c2b84c3bcec53642e6331294bd1fc921b769eb95"
+            "name": "Theta.sv",
+            "sha256": "8d3a991b74a8d3b9bc0bb321741cc149ed64e6e85a9ddb09483148f79d8af451"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "0b5aa48281a15bedc6582dcdb92996a79ae6479ec6d3b126cee9bc98511a5178",
+    "hash": "0e817ce638efb9ee41b78aeadedfbdf574506aa11aad33edc15611be8e1a9415",
     "top_component": {
-        "name": "dut",
+        "name": "Theta",
         "ports_flat": [
             {
                 "direction": "in",
@@ -81,58 +81,16 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "STATE_IN_TDATA",
-                "type_name": "logic [1599:0]",
-                "width": 1600
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "STATE_IN_TVALID",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "STATE_IN_TLAST",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "STATE_OUT_TREADY",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "out",
-                "is_clock": false,
-                "name": "STATE_OUT_TDATA",
+                "name": "STATE_IN",
                 "type_name": "logic [1599:0]",
                 "width": 1600
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "STATE_OUT_TVALID",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "out",
-                "is_clock": false,
-                "name": "STATE_OUT_TLAST",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "out",
-                "is_clock": false,
-                "name": "STATE_IN_TREADY",
-                "type_name": "logic",
-                "width": 1
+                "name": "STATE_OUT",
+                "type_name": "logic [1599:0]",
+                "width": 1600
             }
         ]
     },

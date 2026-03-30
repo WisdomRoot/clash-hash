@@ -1,6 +1,7 @@
 module Permutation.Theta
   ( i1600o1600Core,
     i1600o1600,
+    topEntity,
   )
 where
 
@@ -44,3 +45,26 @@ i1600o1600 ::
   Signal System (AXI4Stream 1600, Bool) ->
   Signal System (AXI4Stream 1600, Bool)
 i1600o1600 = toDUT i1600o1600Core
+
+{-# ANN
+  topEntity
+  ( Synthesize
+      { t_name = "Theta",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "STATE_IN"
+          ],
+        t_output = PortName "STATE_OUT"
+      }
+  )
+  #-}
+{-# NOINLINE topEntity #-}
+topEntity ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (BitVector 1600) ->
+  Signal System (BitVector 1600)
+topEntity _clk _rst _en = fmap (pack . Permutation.thetaF1600Reversed . unpack)
