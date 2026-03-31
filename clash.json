@@ -20,6 +20,7 @@
   "Dev": "Component.Dev.topEntity",
   "Perm": "Permutation.topEntity",
   "Chi": "Permutation.Chi.topEntity",
+  "ChiRev": "Permutation.Chi.chiReversed",
   "Rho": "Permutation.Rho.topEntity",
   "Pi": "Permutation.Pi.topEntity",
   "Iota": "Permutation.Iota.topEntity",

@@ -6,6 +6,7 @@ module Permutation
     thetaF1600Reversed,
     rhoF1600Reversed,
     piF1600Reversed,
+    chiF1600,
     chiF1600Reversed,
     iotaF1600Reversed,
 
