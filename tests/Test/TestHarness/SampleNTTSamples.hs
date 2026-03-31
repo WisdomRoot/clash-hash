@@ -11,6 +11,7 @@ module Test.TestHarness.SampleNTTSamples
     seed6,
     seed7,
     seed8,
+    seedBlockBoundary1,
     -- Test case arrays
     basicSeedCases,
     stallSeedCases,
@@ -84,6 +85,11 @@ seed6 = makeSeed (BS.pack (take 32 (cycle [0x55, 0xAA]))) 1 1 -- Alternating pat
 seed7 = makeSeed (BS.pack (take 32 (cycle [116, 101, 115, 116]))) 2 2 -- "test" in ASCII
 seed8 = makeSeed (BS.pack (replicate 32 0xFF)) 3 3 -- All ones
 
+-- Regression seed: validity pattern lands exactly on a 112-candidate block boundary,
+-- triggering the spurious extra-gap bug in the reference model.
+seedBlockBoundary1 :: ByteString
+seedBlockBoundary1 = BS.pack [0x00,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x01,0x01,0x01,0x01,0x00,0x01,0x01,0x00,0x01,0x00,0x01,0x01,0x00,0x00,0x01,0x00,0x01,0x01,0x01,0x00,0x00]
+
 --------------------------------------------------------------------------------
 -- Test case arrays
 --------------------------------------------------------------------------------
@@ -97,7 +103,8 @@ basicSeedCases =
     makeBasicTest seed5 sampleNTTOutputBytes,
     makeBasicTest seed6 sampleNTTOutputBytes,
     makeBasicTest seed7 sampleNTTOutputBytes,
-    makeBasicTest seed8 sampleNTTOutputBytes
+    makeBasicTest seed8 sampleNTTOutputBytes,
+    makeBasicTest seedBlockBoundary1 sampleNTTOutputBytes
   ]
 
 stallSeedCases :: [ShakeTest]
