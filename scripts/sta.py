@@ -151,6 +151,16 @@ def _resolve_netlist_path(target: str) -> tuple[Path, str, Path | None]:
     return (netlist, target, None)
 
 
+def _resolve_output_label(target: str) -> str:
+    """Return the stable bench label for the target."""
+    vhdl_targets = load_vhdl_targets(VHDL_TARGETS_FILE)
+    if target in vhdl_targets:
+        dir_name = vhdl_targets[target].get("dir") or target
+        return f"vhdl_{dir_name}"
+    clash_aliases = load_simple_aliases(CLASH_TARGETS_FILE, required=False)
+    return clash_aliases.get(target, target)
+
+
 def _auto_synthesize(target: str) -> bool:
     """Attempt to auto-synthesize the target if netlist is missing."""
     _print(f"Netlist not found, attempting to synthesize '{target}' automatically...")
@@ -206,7 +216,7 @@ def _setup_paths(process: str, target: str) -> dict[str, Path]:
         )
         _print(f"Generated SDC file: {sdc} (clock={clock_name})")
 
-    output_dir = BUILD_DIR / "sta" / top_module
+    output_dir = BUILD_DIR / "sta" / _resolve_output_label(target) / top_module
     (output_dir / "reports" / "timing").mkdir(parents=True, exist_ok=True)
     (output_dir / "logs").mkdir(parents=True, exist_ok=True)
 

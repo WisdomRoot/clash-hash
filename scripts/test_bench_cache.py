@@ -72,7 +72,7 @@ class BenchCacheBase(unittest.TestCase):
                 "sta": {
                     "key": "sta-key-v1",
                     "artifacts": [
-                        self.artifact(f"build/sta/{top}/reports/summary.rpt"),
+                        self.artifact(f"build/sta/{target}/{top}/reports/summary.rpt"),
                     ],
                 },
             },

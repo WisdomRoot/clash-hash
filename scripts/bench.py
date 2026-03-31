@@ -539,8 +539,9 @@ def sta_input_sdc_path(target: str, top: str) -> Path:
     return generated
 
 
-def sta_shared_summary_path(top: str) -> Path:
-    return PROJECT_ROOT / "build" / "sta" / top / "reports" / "summary.rpt"
+def sta_shared_summary_path(target: str, top: str) -> Path:
+    label = output_label(resolve_target_label(target))
+    return PROJECT_ROOT / "build" / "sta" / label / top / "reports" / "summary.rpt"
 
 
 def sta_cached_summary_path(target: str) -> Path:
@@ -609,7 +610,7 @@ def run_sta(target: str):
         sys.exit(f"[bench] ERROR: STA for {target} failed (exit {result.returncode})")
 
     top = load_top_module(target)
-    shared_summary = sta_shared_summary_path(top)
+    shared_summary = sta_shared_summary_path(target, top)
     if not shared_summary.is_file():
         sys.exit(f"[bench] ERROR: missing STA summary at {shared_summary}")
 
