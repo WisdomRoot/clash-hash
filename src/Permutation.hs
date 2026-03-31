@@ -20,6 +20,7 @@ module Permutation
 
     -- * Top entity
     topEntity,
+    permReversed,
   )
 where
 
@@ -222,4 +223,28 @@ topEntity ::
   Enable System ->
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
-topEntity _clk _rst _en = fmap (uncurry keccakF1600Reversed)
+topEntity _clk _rst _en = fmap (uncurry keccakF1600)
+
+{-# ANN
+  permReversed
+  ( Synthesize
+      { t_name = "KeccakF1600_PermRev",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "ROUND_IDX",
+            PortName "STATE_IN"
+          ],
+        t_output = PortName "STATE_OUT"
+      }
+  )
+  #-}
+{-# NOINLINE permReversed #-}
+permReversed ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (Index 24, BitVector 1600) ->
+  Signal System (BitVector 1600)
+permReversed _clk _rst _en = fmap (uncurry keccakF1600Reversed)
