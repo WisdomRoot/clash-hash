@@ -4,6 +4,7 @@ module Permutation
   ( -- * Round primitives
     thetaF1600,
     thetaF1600Reversed,
+    rhoF1600,
     rhoF1600Reversed,
     piF1600,
     piF1600Reversed,

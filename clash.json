@@ -22,6 +22,7 @@
   "Chi": "Permutation.Chi.topEntity",
   "ChiRev": "Permutation.Chi.chiReversed",
   "Rho": "Permutation.Rho.topEntity",
+  "RhoRev": "Permutation.Rho.rhoReversed",
   "Pi": "Permutation.Pi.topEntity",
   "PiRev": "Permutation.Pi.piReversed",
   "Iota": "Permutation.Iota.topEntity",
