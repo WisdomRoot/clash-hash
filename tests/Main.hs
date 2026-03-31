@@ -28,8 +28,7 @@ main :: IO ()
 main = do
   constantsTests <- testSpec "Constants" Test.Constants.spec
   permutationRevTests <- testSpec "Permutation" Test.Permutation.spec
-  cbdo12Tests <- testSpec "CBD-O12" Test.SamplePolyCBD.specO12
-  cbdo24DevTests <- testSpec "CBD-O24-dev" Test.SamplePolyCBD.specO24Dev
+  cbdo24Tests <- testSpec "CBD-O24" Test.SamplePolyCBD.specO24
   cbd2o12Tests <- testSpec "CBD2-O12" Test.SamplePolyCBD2.specO12
   cbd3o12Tests <- testSpec "CBD3-O12" Test.SamplePolyCBD3.specO12
   combinationalTests <- testSpec "Combinational" Test.Combinational.spec
@@ -57,8 +56,7 @@ main = do
       [
         constantsTests,
         permutationRevTests,
-        cbdo12Tests,
-        cbdo24DevTests,
+        cbdo24Tests,
         cbd2o12Tests,
         cbd3o12Tests,
         combinationalTests,

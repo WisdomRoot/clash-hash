@@ -3,8 +3,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Test.SamplePolyCBD
-  ( specO12,
-    specO24Dev,
+  ( specO24,
   )
 where
 
@@ -12,7 +11,6 @@ import AXI4Stream (Pipe)
 import Clash.Prelude (BitVector, SNat (..), System, (++#), bundle, clockGen, enableGen, resetGen, slice, unbundle)
 import Component.PRF.Common (Eta (Eta2, Eta3))
 import Component.SamplePolyCBD qualified as SamplePolyCBD
-import Component.SamplePolyCBDDev qualified as SamplePolyCBDDev
 import Data.ByteString qualified as BS
 import Data.List qualified as L
 import Data.Maybe (isJust)
@@ -24,16 +22,10 @@ import Test.Reference.SamplePolyCBD qualified as Reference
 import Prelude (Maybe (..), ($))
 import Prelude qualified as P
 
-i272o12AsPipe :: Pipe System 272 12
-i272o12AsPipe (outReady, inStream) =
+i272o24AsPipe :: Pipe System 272 24
+i272o24AsPipe (outReady, inStream) =
   let (outStream, inReady) =
-        unbundle (SamplePolyCBD.i272o12 clockGen resetGen enableGen (bundle (inStream, outReady)))
-   in (inReady, outStream)
-
-i272o24DevAsPipe :: Pipe System 272 24
-i272o24DevAsPipe (outReady, inStream) =
-  let (outStream, inReady) =
-        unbundle (SamplePolyCBDDev.i272o24 clockGen resetGen enableGen (bundle (inStream, outReady)))
+        unbundle (SamplePolyCBD.i272o24 clockGen resetGen enableGen (bundle (inStream, outReady)))
    in (inReady, outStream)
 
 etaFromInput :: BitVector 272 -> Eta
@@ -43,28 +35,6 @@ etaFromInput msg =
 
 msg264FromInput :: BitVector 272 -> BitVector 264
 msg264FromInput msg = slice (SNat @263) (SNat @0) msg
-
-simulate :: InputTiming 272 -> OutputTiming 12
-simulate inputTiming =
-  let (inputPattern, inputValues) = expandInputTiming inputTiming
-      inputBV =
-        case inputValues of
-          (v : _) -> v
-          [] -> P.error "Test.SamplePolyCBD.simulate: no input provided"
-      startSilence =
-        case L.findIndex isJust inputPattern of
-          Just i -> i
-          Nothing -> P.error "Test.SamplePolyCBD.simulate: no input provided"
-      eta = etaFromInput inputBV
-      msg264 = msg264FromInput inputBV
-      coeffs = Reference.run eta msg264
-      base =
-        case eta of
-          Eta2 -> [Silent 25, Output coeffs]
-          Eta3 ->
-            let (c0, c1) = P.splitAt 181 coeffs
-             in [Silent 25, Output c0, Silent 25, Output c1]
-   in if startSilence P.== 0 then base else Silent startSilence : base
 
 simulate24 :: InputTiming 272 -> OutputTiming 24
 simulate24 inputTiming =
@@ -110,31 +80,15 @@ genCase = do
           else [Hold holdLen, Input [inputBV]]
   P.pure (inputTiming, backpressure)
 
-specO12 :: Spec
-specO12 = describe "CBD-O12" $ do
+specO24 :: Spec
+specO24 = describe "CBD-O24" $ do
   it "matches expected output (eta=2, no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [2])
-    runPipeInput i272o12AsPipe simulate [Input [input]] [Ready 1]
+    runPipeInput i272o24AsPipe simulate24 [Input [input]] [Ready 1]
   it "matches expected output (eta=3, no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
-    runPipeInput i272o12AsPipe simulate [Input [input]] [Ready 1]
-  it "matches expected output (eta=3, periodic backpressure)" $ do
-    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
-    runPipeInput i272o12AsPipe simulate [Input [input]] [Ready 2, Backpress 1]
-  describe "QuickCheck property tests" $
-    it "matches reference for random inputs and backpressure" $
-      forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeInput i272o12AsPipe simulate inputTiming backpressure
-
-specO24Dev :: Spec
-specO24Dev = describe "CBD-O24-dev" $ do
-  it "matches expected output (eta=2, no backpressure)" $ do
-    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [2])
-    runPipeInput i272o24DevAsPipe simulate24 [Input [input]] [Ready 1]
-  it "matches expected output (eta=3, no backpressure)" $ do
-    let input = toBV @272 ("0123456789abcdef0123456789abcdef!" P.<> BS.pack [3])
-    runPipeInput i272o24DevAsPipe simulate24 [Input [input]] [Ready 1]
+    runPipeInput i272o24AsPipe simulate24 [Input [input]] [Ready 1]
   describe "QuickCheck property tests (i272o24)" $
     it "matches reference for random inputs and backpressure" $
       forAll genCase $ \(inputTiming, backpressure) ->
-        runPipeInput i272o24DevAsPipe simulate24 inputTiming backpressure
+        runPipeInput i272o24AsPipe simulate24 inputTiming backpressure

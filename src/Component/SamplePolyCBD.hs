@@ -12,11 +12,8 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (tlast)
-import Component.SamplePolyCBD.Common
-  ( cbd3
-  )
+import Component.SamplePolyCBD.Common (absorb33, cbd2, cbd3)
 import Permutation qualified
-import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
 
 -- | Extract 4-bit chunks for eta=2 path.
@@ -59,30 +56,6 @@ data State24
 isEta3 :: BitVector 8 -> Bool
 isEta3 etaByte = etaByte == 3
 
-cbd2Ref :: BitVector 4 -> BitVector 12
-cbd2Ref bits =
-  let b0 = resize (unpack (slice d0 d0 bits) :: Unsigned 1) :: Unsigned 2
-      b1 = resize (unpack (slice d1 d1 bits) :: Unsigned 1) :: Unsigned 2
-      b2 = resize (unpack (slice d2 d2 bits) :: Unsigned 1) :: Unsigned 2
-      b3 = resize (unpack (slice d3 d3 bits) :: Unsigned 1) :: Unsigned 2
-      a = b0 + b1
-      b = b2 + b3
-   in if a >= b
-        then resize (pack (a - b))
-        else 3329 - resize (pack (b - a))
-
-absorb33Normal :: BitVector 264 -> BitVector 1600
-absorb33Normal = pad33Bytes . placeMsg
-  where
-    placeMsg msg = (0 :: BitVector 1336) ++# msg
-    pad33Bytes =
-      complementAt 1087
-        . complementAt 264
-        . complementAt 265
-        . complementAt 266
-        . complementAt 267
-        . complementAt 268
-
 stepI272o12 ::
   State ->
   (Bool, AXI4Stream 272) ->
@@ -95,13 +68,10 @@ stepI272o12 st (outReady, inStream) =
           let msg272 = tdata inStream
               etaByte = slice (SNat @271) (SNat @264) msg272
               msg264 = slice (SNat @263) (SNat @0) msg272
+              initState = absorb33 msg264
            in if isEta3 etaByte
-                then
-                  let initState = absorb33Normal msg264
-                   in (Eta3Permute 0 0 Eta3FirstBlock initState, (False, idleAXI4Stream))
-                else
-                  let initState = absorb33Normal msg264
-                   in (Eta2Permute 0 0 initState, (False, idleAXI4Stream))
+                then (Eta3Permute 0 0 Eta3FirstBlock initState, (False, idleAXI4Stream))
+                else (Eta2Permute 0 0 initState, (False, idleAXI4Stream))
         else (Absorb, (True, idleAXI4Stream))
     Eta2Permute roundIdx coeffIdx state ->
       let state' = Permutation.keccakF1600 roundIdx state
@@ -110,7 +80,7 @@ stepI272o12 st (outReady, inStream) =
             else (Eta2Permute (roundIdx + 1) coeffIdx state', (False, idleAXI4Stream))
     Eta2Squeeze coeffIdx state ->
       let bits4 = read4Block0 state coeffIdx
-          coeff = cbd2Ref bits4
+          coeff = cbd2 bits4
           isLast = coeffIdx == maxBound
           outStream = validBeat coeff isLast
           nextState
@@ -179,13 +149,10 @@ stepI272o24 st (outReady, inStream) =
           let msg272 = tdata inStream
               etaByte = slice (SNat @271) (SNat @264) msg272
               msg264 = slice (SNat @263) (SNat @0) msg272
+              initState = absorb33 msg264
            in if isEta3 etaByte
-                then
-                  let initState = absorb33Normal msg264
-                   in (Eta3Permute24 0 0 Eta3PairFirstBlock initState, (False, idleAXI4Stream))
-                else
-                  let initState = absorb33Normal msg264
-                   in (Eta2Permute24 0 0 initState, (False, idleAXI4Stream))
+                then (Eta3Permute24 0 0 Eta3PairFirstBlock initState, (False, idleAXI4Stream))
+                else (Eta2Permute24 0 0 initState, (False, idleAXI4Stream))
         else (Absorb24, (True, idleAXI4Stream))
     Eta2Permute24 roundIdx pairIdx state ->
       let state' = Permutation.keccakF1600 roundIdx state
@@ -196,8 +163,8 @@ stepI272o24 st (outReady, inStream) =
       let pairIdxU = fromIntegral pairIdx :: Unsigned 8
           idx0 = fromIntegral (pairIdxU * 2) :: Index 256
           idx1 = fromIntegral (pairIdxU * 2 + 1) :: Index 256
-          coeff0 = cbd2Ref (read4Block0 state idx0)
-          coeff1 = cbd2Ref (read4Block0 state idx1)
+          coeff0 = cbd2 (read4Block0 state idx0)
+          coeff1 = cbd2 (read4Block0 state idx1)
           isLast = pairIdx == maxBound
           outStream = validBeat (coeff1 ++# coeff0) isLast
           nextState
