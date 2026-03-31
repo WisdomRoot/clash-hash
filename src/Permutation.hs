@@ -10,6 +10,7 @@ module Permutation
     piF1600Reversed,
     chiF1600,
     chiF1600Reversed,
+    iotaF1600,
     iotaF1600Reversed,
 
     -- * Permutation

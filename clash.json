@@ -26,6 +26,7 @@
   "Pi": "Permutation.Pi.topEntity",
   "PiRev": "Permutation.Pi.piReversed",
   "Iota": "Permutation.Iota.topEntity",
+  "IotaRev": "Permutation.Iota.iotaReversed",
   "Theta": "Permutation.Theta.topEntity",
   "ThetaRev": "Permutation.Theta.thetaReversed",
   "SN-O24-L2": "Component.SampleNTT.i272o24l2",
