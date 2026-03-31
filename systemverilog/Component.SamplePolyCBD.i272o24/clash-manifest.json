@@ -35,10 +35,6 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -48,7 +44,7 @@
         },
         {
             "name": "Component_SamplePolyCBD_i272o24_keccakF1600.sv",
-            "sha256": "53e72f37126a55df751d0ed431b9332b52a1c766da8dad847e39cc16ffd6073b"
+            "sha256": "cf2b4125bb7260f5681a84c2c6fa78d1f249b42429d6680e8826ee7fa657a3d7"
         },
         {
             "name": "dut.sv",
@@ -59,7 +55,7 @@
         20,
         20
     ],
-    "hash": "9512530bcab349c2d10c0a5abbb954df29f3800430bb03d7c4a9e07da928b30e",
+    "hash": "1f1c0a50097c42f9ecdb0c27bd464fc2e286f1267ed2b9369f5edf7dabb1e10c",
     "top_component": {
         "name": "dut",
         "ports_flat": [

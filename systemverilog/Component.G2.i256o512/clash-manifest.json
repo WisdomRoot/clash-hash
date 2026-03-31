@@ -35,14 +35,6 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -52,7 +44,7 @@
         },
         {
             "name": "Component_G2_i256o512_keccakF1600.sv",
-            "sha256": "a8effef4f4e495b6ce4d36cfa14214a48d382129bed9682dfadf90e4d9227ba6"
+            "sha256": "d489d9a61abb4bac09567c7faafdf00f05b8b6c983bb99d26773d1def3733a16"
         },
         {
             "name": "dut.sv",
@@ -63,7 +55,7 @@
         20,
         20
     ],
-    "hash": "967921cad7372ee94037e273902c718fe8724d3d3c859d67def99ec1fa74cd32",
+    "hash": "c40516cc83f2c9b9150bbf0ef09de049a677c96a6fd74eb56bed8ff7c86280ab",
     "top_component": {
         "name": "dut",
         "ports_flat": [

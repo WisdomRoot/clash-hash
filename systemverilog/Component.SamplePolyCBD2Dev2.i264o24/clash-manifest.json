@@ -1,6 +1,6 @@
 {
     "components": [
-        "Component_SampleNTT6_i272o24l6_keccakF1600",
+        "Component_SamplePolyCBD2Dev2_i264o24_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -40,22 +40,22 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "a00c563a3c9d82426981432e21cab50118e5f99b143090e0efa8118a85c679da"
+            "sha256": "e8213b9a6bd20142a88e231658c5d071f9c2ebdc9127b836361cb0ee729f620c"
         },
         {
-            "name": "Component_SampleNTT6_i272o24l6_keccakF1600.sv",
-            "sha256": "e7332f3f9819747d15323b0980a8d1b1d250d211f0553ce11bc5b670f8983d5f"
+            "name": "Component_SamplePolyCBD2Dev2_i264o24_keccakF1600.sv",
+            "sha256": "523c697880ed793e4060c300d9f0ce53013bdbeb4bb480f89bfa5fabd8ff35ef"
         },
         {
             "name": "dut.sv",
-            "sha256": "442483b73870b7ab0e52e0ec9c280da575badbdbbd7085cc192ee215334dba05"
+            "sha256": "1737e856ec1cf042b001e98196791d4e249afd7be52e3e80489add7875ed85eb"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "50708bdee17b7162c495d58628be49f7a7cf579163bdcfdb025a058c32ecc77a",
+    "hash": "2fed2c59dd4be4bd00deaf2f63eb7e586173ea30c67d21009d6899c6b26e86e2",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -86,56 +86,56 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "SEED_TDATA",
-                "type_name": "logic [271:0]",
-                "width": 272
+                "name": "MSG_TDATA",
+                "type_name": "logic [263:0]",
+                "width": 264
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "SEED_TVALID",
+                "name": "MSG_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "SEED_TLAST",
+                "name": "MSG_TLAST",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "COEFF_TREADY",
+                "name": "DIGEST_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TDATA",
+                "name": "DIGEST_TDATA",
                 "type_name": "logic [23:0]",
                 "width": 24
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TVALID",
+                "name": "DIGEST_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "COEFF_TLAST",
+                "name": "DIGEST_TLAST",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "SEED_TREADY",
+                "name": "MSG_TREADY",
                 "type_name": "logic",
                 "width": 1
             }
