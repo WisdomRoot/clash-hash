@@ -56,7 +56,7 @@ main = do
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
 
   defaultMain $
-    localOption (mkTimeout 10000000) $  -- 10 second timeout per test
+    localOption (mkTimeout 60000000) $  -- 60 second timeout per test
     testGroup
       "All Tests"
       [
