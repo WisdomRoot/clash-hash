@@ -751,7 +751,7 @@ def bench(target_label: str):
 
     resolved_target = ALIASES.get(requested_target, requested_target)
     module_name, main_is = parse_clash_target(resolved_target)
-    run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib")
+    run_timed_stage("build", lambda: run_cmd(["stack", "build", "clash-hash:lib"], "stack build clash-hash:lib"))
     hdl_current = hdl_stage_current(requested_target, module_name, main_is)
     area, sta, _timings, hdl_current, synth_current, sta_current, top = run_bench_target(
         requested_target,

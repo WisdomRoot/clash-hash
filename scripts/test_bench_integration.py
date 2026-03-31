@@ -127,6 +127,7 @@ class BenchIntegrationTests(unittest.TestCase):
 
     def test_bench_cache_lifecycle(self):
         first = self.run_bench()
+        self.assertIn("build           run", first)
         self.assertIn("hdl             run", first)
         self.assertIn("synth           run", first)
         self.assertIn("sta             run", first)
@@ -136,6 +137,7 @@ class BenchIntegrationTests(unittest.TestCase):
         self.assertEqual(self.calls["sta"], 1)
 
         second = self.run_bench()
+        self.assertIn("build           run", second)
         self.assertIn("hdl             cached", second)
         self.assertIn("synth           cached", second)
         self.assertIn("sta             cached", second)
@@ -148,6 +150,7 @@ class BenchIntegrationTests(unittest.TestCase):
         synth_report.unlink()
 
         third = self.run_bench()
+        self.assertIn("build           run", third)
         self.assertIn("hdl             cached", third)
         self.assertIn("synth           run", third)
         self.assertIn("sta             run", third)
