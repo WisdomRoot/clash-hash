@@ -44,7 +44,7 @@
         },
         {
             "name": "Component_SamplePolyCBD2Dev_i264o24_keccakF1600.sv",
-            "sha256": "ff4e6c890ce3569b150adf5078148c832f9d3206c0c0b68df7831c7f80968230"
+            "sha256": "5fb5bef7bf13a21a727f983ed6ba7f8712e58b74f92278375cba9726a0464104"
         },
         {
             "name": "dut.sv",
@@ -55,7 +55,7 @@
         20,
         20
     ],
-    "hash": "2095674c7ad998a7e3a6b4688acb28c246e7e116459a6009cb2e4ef84517269c",
+    "hash": "eb8dce1f89e8598ff99d2e1ad5c8f5d0f1a68a4a04e419e355cc2c998647a680",
     "top_component": {
         "name": "dut",
         "ports_flat": [
