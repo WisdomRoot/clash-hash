@@ -63,7 +63,7 @@ def compute_validity_pattern(xof_bytes):
     # must predict a full block's worth of candidates after the 256th valid one.
     block_size = 112
     current_len = len(validity_pattern)
-    next_boundary = ((current_len // block_size) + 1) * block_size
+    next_boundary = ((current_len + block_size - 1) // block_size) * block_size
     max_candidates = (len(xof_bytes) // 3) * 2
     next_boundary = min(next_boundary, max_candidates)
     extra = next_boundary - current_len

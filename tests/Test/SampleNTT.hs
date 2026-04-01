@@ -415,7 +415,8 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
                      in if emitted'' P.>= 128
                           then (blockOut P.++ gapOut, rs'')
                           else
-                            let (moreOut, rs''') = runBlocksBuffered drain emptyDrainBlock rest buffer'' rs'' emitted''
+                            let rest' = if P.null rest then [emptyDrainBlock] else rest
+                                (moreOut, rs''') = runBlocksBuffered drain emptyDrainBlock rest' buffer'' rs'' emitted''
                              in (blockOut P.++ gapOut P.++ moreOut, rs''')
 
     runBlockBuffered ::
