@@ -125,13 +125,13 @@ stepCore512 absorbFn (State phase state) (outReady, input) =
        in if roundIdx == maxBound
             then
               let outStream = validBeat (squeezeSlice512 state' 0) True
-                  nextState = if outReady then State Absorb 0 else State (Squeeze 0) state'
-               in (nextState, (False, outStream))
+                  nextPhase = if outReady then Absorb else Squeeze 0
+               in (State nextPhase state', (False, outStream))
             else (State (Permute (roundIdx + 1)) state', (False, idleAXI4Stream))
     Squeeze _ ->
       let outStream = validBeat (squeezeSlice512 state 0) True
-          nextState = if outReady then State Absorb 0 else State (Squeeze 0) state
-       in (nextState, (False, outStream))
+          nextPhase = if outReady then Absorb else Squeeze 0
+       in (State nextPhase state, (False, outStream))
 
 core512 ::
   (HiddenClockResetEnable dom, KnownNat n) =>
