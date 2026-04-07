@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Theta
+module ThetaRev
     ( // Inputs
       input wire logic CLK  // clock
     , input wire logic RST  // reset
@@ -13,79 +13,79 @@ module Theta
       // Outputs
     , output logic [1599:0] STATE_OUT
     );
-  Theta_types::array_of_25_array_of_64_logic state;
-  Theta_types::array_of_64_logic parity0;
-  Theta_types::array_of_64_logic parity2;
-  Theta_types::array_of_64_logic lvl;
-  Theta_types::array_of_64_logic parity3;
-  Theta_types::array_of_64_logic parity1;
-  Theta_types::array_of_64_logic lvl1;
-  Theta_types::array_of_64_logic lvl2;
-  Theta_types::array_of_64_logic parity4;
-  Theta_types::array_of_64_logic lvl3;
-  Theta_types::array_of_64_logic lvl4;
-  Theta_types::array_of_1600_logic result;
-  Theta_types::array_of_25_array_of_64_logic c$app_arg;
-  Theta_types::array_of_64_logic c$lvl4_app_arg;
-  Theta_types::array_of_64_logic c$lvl3_app_arg;
-  Theta_types::array_of_64_logic c$parity4_app_arg;
-  Theta_types::array_of_64_logic c$parity4_app_arg_0;
-  Theta_types::array_of_64_logic c$parity4_app_arg_1;
-  Theta_types::array_of_64_logic c$lvl2_app_arg;
-  Theta_types::array_of_64_logic c$lvl1_app_arg;
-  Theta_types::array_of_64_logic c$parity1_app_arg;
-  Theta_types::array_of_64_logic c$parity1_app_arg_0;
-  Theta_types::array_of_64_logic c$parity1_app_arg_1;
-  Theta_types::array_of_64_logic c$parity3_app_arg;
-  Theta_types::array_of_64_logic c$parity3_app_arg_0;
-  Theta_types::array_of_64_logic c$parity3_app_arg_1;
-  Theta_types::array_of_64_logic c$lvl_app_arg;
-  Theta_types::array_of_64_logic c$parity2_app_arg;
-  Theta_types::array_of_64_logic c$parity2_app_arg_0;
-  Theta_types::array_of_64_logic c$parity2_app_arg_1;
-  Theta_types::array_of_64_logic c$parity0_app_arg;
-  Theta_types::array_of_64_logic c$parity0_app_arg_0;
-  Theta_types::array_of_64_logic c$parity0_app_arg_1;
-  Theta_types::array_of_1600_logic c$app_arg_0;
-  Theta_types::array_of_1600_logic_vector_1 c$app_arg_1;
+  ThetaRev_types::array_of_25_array_of_64_logic state;
+  ThetaRev_types::array_of_64_logic parity0;
+  ThetaRev_types::array_of_64_logic parity2;
+  ThetaRev_types::array_of_64_logic lvl;
+  ThetaRev_types::array_of_64_logic parity3;
+  ThetaRev_types::array_of_64_logic lvl1;
+  ThetaRev_types::array_of_64_logic parity1;
+  ThetaRev_types::array_of_64_logic lvl2;
+  ThetaRev_types::array_of_64_logic parity4;
+  ThetaRev_types::array_of_64_logic lvl3;
+  ThetaRev_types::array_of_64_logic lvl4;
+  ThetaRev_types::array_of_1600_logic result;
+  ThetaRev_types::array_of_25_array_of_64_logic c$app_arg;
+  ThetaRev_types::array_of_64_logic c$lvl4_app_arg;
+  ThetaRev_types::array_of_64_logic c$lvl3_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity4_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity4_app_arg_0;
+  ThetaRev_types::array_of_64_logic c$parity4_app_arg_1;
+  ThetaRev_types::array_of_64_logic c$lvl2_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity1_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity1_app_arg_0;
+  ThetaRev_types::array_of_64_logic c$parity1_app_arg_1;
+  ThetaRev_types::array_of_64_logic c$lvl1_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity3_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity3_app_arg_0;
+  ThetaRev_types::array_of_64_logic c$parity3_app_arg_1;
+  ThetaRev_types::array_of_64_logic c$lvl_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity2_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity2_app_arg_0;
+  ThetaRev_types::array_of_64_logic c$parity2_app_arg_1;
+  ThetaRev_types::array_of_64_logic c$parity0_app_arg;
+  ThetaRev_types::array_of_64_logic c$parity0_app_arg_0;
+  ThetaRev_types::array_of_64_logic c$parity0_app_arg_1;
+  ThetaRev_types::array_of_1600_logic c$app_arg_0;
+  ThetaRev_types::array_of_1600_logic_vector_1 c$app_arg_1;
   logic [1599:0] result_0;
-  Theta_types::array_of_64_logic c$vec1;
-  Theta_types::array_of_64_logic c$vec1_0;
-  Theta_types::array_of_64_logic c$vec1_1;
-  Theta_types::array_of_64_logic c$vec1_2;
-  Theta_types::array_of_64_logic c$vec1_3;
-  Theta_types::array_of_64_logic c$vec1_4;
-  Theta_types::array_of_64_logic c$vec1_5;
-  Theta_types::array_of_64_logic c$vec1_6;
-  Theta_types::array_of_64_logic c$vec2;
-  Theta_types::array_of_64_logic c$vec1_7;
-  Theta_types::array_of_64_logic c$vec1_8;
-  Theta_types::array_of_64_logic c$vec1_9;
-  Theta_types::array_of_64_logic c$vec2_0;
-  Theta_types::array_of_64_logic c$vec1_10;
-  Theta_types::array_of_64_logic c$vec1_11;
-  Theta_types::array_of_64_logic c$vec1_12;
-  Theta_types::array_of_64_logic c$vec2_1;
-  Theta_types::array_of_64_logic c$vec1_13;
-  Theta_types::array_of_64_logic c$vec1_14;
-  Theta_types::array_of_64_logic c$vec1_15;
-  Theta_types::array_of_64_logic c$vec2_2;
-  Theta_types::array_of_64_logic c$vec1_16;
-  Theta_types::array_of_64_logic c$vec1_17;
-  Theta_types::array_of_64_logic c$vec1_18;
-  Theta_types::array_of_64_logic c$vec2_3;
-  Theta_types::array_of_1600_logic_vector_1 c$vec;
+  ThetaRev_types::array_of_64_logic c$vec1;
+  ThetaRev_types::array_of_64_logic c$vec1_0;
+  ThetaRev_types::array_of_64_logic c$vec1_1;
+  ThetaRev_types::array_of_64_logic c$vec1_2;
+  ThetaRev_types::array_of_64_logic c$vec1_3;
+  ThetaRev_types::array_of_64_logic c$vec1_4;
+  ThetaRev_types::array_of_64_logic c$vec1_5;
+  ThetaRev_types::array_of_64_logic c$vec1_6;
+  ThetaRev_types::array_of_64_logic c$vec2;
+  ThetaRev_types::array_of_64_logic c$vec1_7;
+  ThetaRev_types::array_of_64_logic c$vec1_8;
+  ThetaRev_types::array_of_64_logic c$vec1_9;
+  ThetaRev_types::array_of_64_logic c$vec2_0;
+  ThetaRev_types::array_of_64_logic c$vec1_10;
+  ThetaRev_types::array_of_64_logic c$vec1_11;
+  ThetaRev_types::array_of_64_logic c$vec1_12;
+  ThetaRev_types::array_of_64_logic c$vec2_1;
+  ThetaRev_types::array_of_64_logic c$vec1_13;
+  ThetaRev_types::array_of_64_logic c$vec1_14;
+  ThetaRev_types::array_of_64_logic c$vec1_15;
+  ThetaRev_types::array_of_64_logic c$vec2_2;
+  ThetaRev_types::array_of_64_logic c$vec1_16;
+  ThetaRev_types::array_of_64_logic c$vec1_17;
+  ThetaRev_types::array_of_64_logic c$vec1_18;
+  ThetaRev_types::array_of_64_logic c$vec2_3;
+  ThetaRev_types::array_of_1600_logic_vector_1 c$vec;
 
   // unconcat begin
   genvar n;
   generate
     for (n = 0; n < $size(state); n = n + 1) begin : unconcat
-      assign state[n] = {Theta_types::array_of_64_logic_to_lv(c$app_arg_0[(n * 64) : ((n * 64) + 64 - 1)])};
+      assign state[n] = {ThetaRev_types::array_of_64_logic_to_lv(c$app_arg_0[(n * 64) : ((n * 64) + 64 - 1)])};
     end
   endgenerate
   // unconcat end
 
-  assign c$vec1 = (Theta_types::array_of_64_logic_from_lv(state[64'sd4]));
+  assign c$vec1 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd0]));
 
   // zipWith begin
   genvar n_0;
@@ -104,7 +104,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_0 = (Theta_types::array_of_64_logic_from_lv(state[64'sd2]));
+  assign c$vec1_0 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd2]));
 
   // zipWith begin
   genvar n_1;
@@ -140,7 +140,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (Theta_types::array_of_64_logic_from_lv(state[64'sd1]));
+  assign c$vec1_1 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd3]));
 
   // zipWith begin
   genvar n_3;
@@ -159,38 +159,38 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (Theta_types::array_of_64_logic_from_lv(state[64'sd3]));
-
   // zipWith begin
   genvar n_4;
   generate
-  for (n_4 = 0; n_4 < $size(parity1); n_4 = n_4 + 1) begin : zipWith_3
+  for (n_4 = 0; n_4 < $size(lvl1); n_4 = n_4 + 1) begin : zipWith_3
     logic zipWith_in1_3;
-    assign zipWith_in1_3 = c$vec1_2[n_4];
+    assign zipWith_in1_3 = parity3[n_4];
     logic zipWith_in2_3;
-    assign zipWith_in2_3 = c$parity1_app_arg[n_4];
+    assign zipWith_in2_3 = c$lvl1_app_arg[n_4];
     logic zipWith_out_3;
     assign zipWith_out_3 = zipWith_in1_3 ^ zipWith_in2_3;
 
 
-    assign parity1[n_4] = zipWith_out_3;
+    assign lvl1[n_4] = zipWith_out_3;
   end
   endgenerate
   // zipWith end
 
+  assign c$vec1_2 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd1]));
+
   // zipWith begin
   genvar n_5;
   generate
-  for (n_5 = 0; n_5 < $size(lvl1); n_5 = n_5 + 1) begin : zipWith_4
+  for (n_5 = 0; n_5 < $size(parity1); n_5 = n_5 + 1) begin : zipWith_4
     logic zipWith_in1_4;
-    assign zipWith_in1_4 = parity1[n_5];
+    assign zipWith_in1_4 = c$vec1_2[n_5];
     logic zipWith_in2_4;
-    assign zipWith_in2_4 = c$lvl1_app_arg[n_5];
+    assign zipWith_in2_4 = c$parity1_app_arg[n_5];
     logic zipWith_out_4;
     assign zipWith_out_4 = zipWith_in1_4 ^ zipWith_in2_4;
 
 
-    assign lvl1[n_5] = zipWith_out_4;
+    assign parity1[n_5] = zipWith_out_4;
   end
   endgenerate
   // zipWith end
@@ -200,7 +200,7 @@ module Theta
   generate
   for (n_6 = 0; n_6 < $size(lvl2); n_6 = n_6 + 1) begin : zipWith_5
     logic zipWith_in1_5;
-    assign zipWith_in1_5 = parity3[n_6];
+    assign zipWith_in1_5 = parity1[n_6];
     logic zipWith_in2_5;
     assign zipWith_in2_5 = c$lvl2_app_arg[n_6];
     logic zipWith_out_5;
@@ -212,7 +212,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_3 = (Theta_types::array_of_64_logic_from_lv(state[64'sd0]));
+  assign c$vec1_3 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd4]));
 
   // zipWith begin
   genvar n_7;
@@ -236,7 +236,7 @@ module Theta
   generate
   for (n_8 = 0; n_8 < $size(lvl3); n_8 = n_8 + 1) begin : zipWith_7
     logic zipWith_in1_7;
-    assign zipWith_in1_7 = parity4[n_8];
+    assign zipWith_in1_7 = parity2[n_8];
     logic zipWith_in2_7;
     assign zipWith_in2_7 = c$lvl3_app_arg[n_8];
     logic zipWith_out_7;
@@ -253,7 +253,7 @@ module Theta
   generate
   for (n_9 = 0; n_9 < $size(lvl4); n_9 = n_9 + 1) begin : zipWith_8
     logic zipWith_in1_8;
-    assign zipWith_in1_8 = parity2[n_9];
+    assign zipWith_in1_8 = parity4[n_9];
     logic zipWith_in2_8;
     assign zipWith_in2_8 = c$lvl4_app_arg[n_9];
     logic zipWith_out_8;
@@ -269,7 +269,7 @@ module Theta
   genvar n_10;
   generate
     for (n_10=0; n_10 < $size(c$app_arg); n_10 = n_10 + 1) begin : concat
-      assign result[n_10*64 : n_10*64+(64-1)] = Theta_types::array_of_64_logic_from_lv(c$app_arg[n_10]);
+      assign result[n_10*64 : n_10*64+(64-1)] = ThetaRev_types::array_of_64_logic_from_lv(c$app_arg[n_10]);
     end
   endgenerate
   // concat end
@@ -280,15 +280,15 @@ module Theta
   for (n_12=0; n_12 < $size(c$app_arg); n_12 = n_12 + 1) begin : imap
     logic [4:0] i;
     assign i = n_12;
-    Theta_types::array_of_64_logic imap_in;
-    assign imap_in = Theta_types::array_of_64_logic_from_lv(state[n_12]);
-    Theta_types::array_of_64_logic imap_out;
+    ThetaRev_types::array_of_64_logic imap_in;
+    assign imap_in = ThetaRev_types::array_of_64_logic_from_lv(state[n_12]);
+    ThetaRev_types::array_of_64_logic imap_out;
     logic [2:0] ds;
-    Theta_types::array_of_64_logic c$zipWith_arg6;
-    Theta_types::array_of_64_logic result_1;
-    Theta_types::array_of_64_logic c$zipWith_arg6_case_alt;
-    Theta_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
-    Theta_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
+    ThetaRev_types::array_of_64_logic c$zipWith_arg6;
+    ThetaRev_types::array_of_64_logic result_1;
+    ThetaRev_types::array_of_64_logic c$zipWith_arg6_case_alt;
+    ThetaRev_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
+    ThetaRev_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
     logic [4:0] c$bv;
     assign imap_out = result_1;
 
@@ -296,7 +296,7 @@ module Theta
 
     assign ds = c$bv[0+:3];
 
-    assign c$zipWith_arg6 = (ds == 3'd0) ? lvl2 : c$zipWith_arg6_case_alt;
+    assign c$zipWith_arg6 = (ds == 3'd0) ? lvl4 : c$zipWith_arg6_case_alt;
 
     // zipWith begin
     genvar n_11;
@@ -315,45 +315,45 @@ module Theta
 
     // zipWith end
 
-    assign c$zipWith_arg6_case_alt = (ds == 3'd1) ? lvl4 : c$zipWith_arg6_case_alt_0;
+    assign c$zipWith_arg6_case_alt = (ds == 3'd1) ? lvl : c$zipWith_arg6_case_alt_0;
 
-    assign c$zipWith_arg6_case_alt_0 = (ds == 3'd2) ? lvl1 : c$zipWith_arg6_case_alt_1;
+    assign c$zipWith_arg6_case_alt_0 = (ds == 3'd2) ? lvl2 : c$zipWith_arg6_case_alt_1;
 
-    assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl : lvl3;
+    assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl3 : lvl1;
 
 
-    assign c$app_arg[n_12] = {Theta_types::array_of_64_logic_to_lv(imap_out)};
+    assign c$app_arg[n_12] = {ThetaRev_types::array_of_64_logic_to_lv(imap_out)};
   end
   endgenerate
   // imap end
 
-  // rotateLeftS begin
+  // rotateRightS begin
   localparam shift_amount = 1 % 64;
 
   generate
   if (shift_amount == 0) begin : no_shift
-    assign c$lvl4_app_arg = parity4;
+    assign c$lvl4_app_arg = parity1;
   end else begin : do_shift
-    assign c$lvl4_app_arg[0:64-shift_amount-1] = parity4[shift_amount:64-1];
-    assign c$lvl4_app_arg[64-shift_amount:64-1] = parity4[0:shift_amount-1];
+    assign c$lvl4_app_arg[0:shift_amount-1] = parity1[64-shift_amount:64-1];
+    assign c$lvl4_app_arg[shift_amount:64-1] = parity1[0:64-shift_amount-1];
   end
   endgenerate
-  // rotateLeftS end
+  // rotateRightS end
 
-  // rotateLeftS begin
+  // rotateRightS begin
   localparam shift_amount_0 = 1 % 64;
 
   generate
   if (shift_amount_0 == 0) begin : no_shift_0
-    assign c$lvl3_app_arg = parity1;
+    assign c$lvl3_app_arg = parity4;
   end else begin : do_shift_0
-    assign c$lvl3_app_arg[0:64-shift_amount_0-1] = parity1[shift_amount_0:64-1];
-    assign c$lvl3_app_arg[64-shift_amount_0:64-1] = parity1[0:shift_amount_0-1];
+    assign c$lvl3_app_arg[0:shift_amount_0-1] = parity4[64-shift_amount_0:64-1];
+    assign c$lvl3_app_arg[shift_amount_0:64-1] = parity4[0:64-shift_amount_0-1];
   end
   endgenerate
-  // rotateLeftS end
+  // rotateRightS end
 
-  assign c$vec1_4 = (Theta_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_4 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd9]));
 
   // zipWith begin
   genvar n_13;
@@ -372,7 +372,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_5 = (Theta_types::array_of_64_logic_from_lv(state[64'sd10]));
+  assign c$vec1_5 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd14]));
 
   // zipWith begin
   genvar n_14;
@@ -391,9 +391,9 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_6 = (Theta_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_6 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd19]));
 
-  assign c$vec2 = (Theta_types::array_of_64_logic_from_lv(state[64'sd20]));
+  assign c$vec2 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd24]));
 
   // zipWith begin
   genvar n_15;
@@ -412,33 +412,20 @@ module Theta
   endgenerate
   // zipWith end
 
-  // rotateLeftS begin
+  // rotateRightS begin
   localparam shift_amount_1 = 1 % 64;
 
   generate
   if (shift_amount_1 == 0) begin : no_shift_1
-    assign c$lvl2_app_arg = parity0;
+    assign c$lvl2_app_arg = parity3;
   end else begin : do_shift_1
-    assign c$lvl2_app_arg[0:64-shift_amount_1-1] = parity0[shift_amount_1:64-1];
-    assign c$lvl2_app_arg[64-shift_amount_1:64-1] = parity0[0:shift_amount_1-1];
+    assign c$lvl2_app_arg[0:shift_amount_1-1] = parity3[64-shift_amount_1:64-1];
+    assign c$lvl2_app_arg[shift_amount_1:64-1] = parity3[0:64-shift_amount_1-1];
   end
   endgenerate
-  // rotateLeftS end
+  // rotateRightS end
 
-  // rotateLeftS begin
-  localparam shift_amount_2 = 1 % 64;
-
-  generate
-  if (shift_amount_2 == 0) begin : no_shift_2
-    assign c$lvl1_app_arg = parity3;
-  end else begin : do_shift_2
-    assign c$lvl1_app_arg[0:64-shift_amount_2-1] = parity3[shift_amount_2:64-1];
-    assign c$lvl1_app_arg[64-shift_amount_2:64-1] = parity3[0:shift_amount_2-1];
-  end
-  endgenerate
-  // rotateLeftS end
-
-  assign c$vec1_7 = (Theta_types::array_of_64_logic_from_lv(state[64'sd8]));
+  assign c$vec1_7 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd6]));
 
   // zipWith begin
   genvar n_16;
@@ -457,7 +444,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_8 = (Theta_types::array_of_64_logic_from_lv(state[64'sd13]));
+  assign c$vec1_8 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd11]));
 
   // zipWith begin
   genvar n_17;
@@ -476,9 +463,9 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (Theta_types::array_of_64_logic_from_lv(state[64'sd18]));
+  assign c$vec1_9 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd16]));
 
-  assign c$vec2_0 = (Theta_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec2_0 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd21]));
 
   // zipWith begin
   genvar n_18;
@@ -497,7 +484,20 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_10 = (Theta_types::array_of_64_logic_from_lv(state[64'sd6]));
+  // rotateRightS begin
+  localparam shift_amount_2 = 1 % 64;
+
+  generate
+  if (shift_amount_2 == 0) begin : no_shift_2
+    assign c$lvl1_app_arg = parity0;
+  end else begin : do_shift_2
+    assign c$lvl1_app_arg[0:shift_amount_2-1] = parity0[64-shift_amount_2:64-1];
+    assign c$lvl1_app_arg[shift_amount_2:64-1] = parity0[0:64-shift_amount_2-1];
+  end
+  endgenerate
+  // rotateRightS end
+
+  assign c$vec1_10 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd8]));
 
   // zipWith begin
   genvar n_19;
@@ -516,7 +516,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (Theta_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_11 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd13]));
 
   // zipWith begin
   genvar n_20;
@@ -535,9 +535,9 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_12 = (Theta_types::array_of_64_logic_from_lv(state[64'sd16]));
+  assign c$vec1_12 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd18]));
 
-  assign c$vec2_1 = (Theta_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec2_1 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd23]));
 
   // zipWith begin
   genvar n_21;
@@ -556,20 +556,20 @@ module Theta
   endgenerate
   // zipWith end
 
-  // rotateLeftS begin
+  // rotateRightS begin
   localparam shift_amount_3 = 1 % 64;
 
   generate
   if (shift_amount_3 == 0) begin : no_shift_3
     assign c$lvl_app_arg = parity2;
   end else begin : do_shift_3
-    assign c$lvl_app_arg[0:64-shift_amount_3-1] = parity2[shift_amount_3:64-1];
-    assign c$lvl_app_arg[64-shift_amount_3:64-1] = parity2[0:shift_amount_3-1];
+    assign c$lvl_app_arg[0:shift_amount_3-1] = parity2[64-shift_amount_3:64-1];
+    assign c$lvl_app_arg[shift_amount_3:64-1] = parity2[0:64-shift_amount_3-1];
   end
   endgenerate
-  // rotateLeftS end
+  // rotateRightS end
 
-  assign c$vec1_13 = (Theta_types::array_of_64_logic_from_lv(state[64'sd7]));
+  assign c$vec1_13 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd7]));
 
   // zipWith begin
   genvar n_22;
@@ -588,7 +588,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_14 = (Theta_types::array_of_64_logic_from_lv(state[64'sd12]));
+  assign c$vec1_14 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd12]));
 
   // zipWith begin
   genvar n_23;
@@ -607,9 +607,9 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_15 = (Theta_types::array_of_64_logic_from_lv(state[64'sd17]));
+  assign c$vec1_15 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd17]));
 
-  assign c$vec2_2 = (Theta_types::array_of_64_logic_from_lv(state[64'sd22]));
+  assign c$vec2_2 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd22]));
 
   // zipWith begin
   genvar n_24;
@@ -628,7 +628,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_16 = (Theta_types::array_of_64_logic_from_lv(state[64'sd9]));
+  assign c$vec1_16 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd5]));
 
   // zipWith begin
   genvar n_25;
@@ -647,7 +647,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_17 = (Theta_types::array_of_64_logic_from_lv(state[64'sd14]));
+  assign c$vec1_17 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd10]));
 
   // zipWith begin
   genvar n_26;
@@ -666,9 +666,9 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec1_18 = (Theta_types::array_of_64_logic_from_lv(state[64'sd19]));
+  assign c$vec1_18 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd15]));
 
-  assign c$vec2_3 = (Theta_types::array_of_64_logic_from_lv(state[64'sd24]));
+  assign c$vec2_3 = (ThetaRev_types::array_of_64_logic_from_lv(state[64'sd20]));
 
   // zipWith begin
   genvar n_27;
@@ -687,7 +687,7 @@ module Theta
   endgenerate
   // zipWith end
 
-  assign c$vec = (Theta_types::array_of_1600_logic_vector_1_from_lv(STATE_IN));
+  assign c$vec = (ThetaRev_types::array_of_1600_logic_vector_1_from_lv(STATE_IN));
 
   // map begin
   genvar n_28;
@@ -719,7 +719,7 @@ module Theta
   endgenerate
   // map end
 
-  assign result_0 = ({Theta_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_1)});
+  assign result_0 = ({ThetaRev_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_1)});
 
   assign STATE_OUT = result_0;
 

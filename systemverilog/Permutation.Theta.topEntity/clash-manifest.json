@@ -43,14 +43,14 @@
         },
         {
             "name": "Theta.sv",
-            "sha256": "8d3a991b74a8d3b9bc0bb321741cc149ed64e6e85a9ddb09483148f79d8af451"
+            "sha256": "917c181292a22edff669243db22b95c2482b1e316e2e8b4b5e054071ac5aad32"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "0e817ce638efb9ee41b78aeadedfbdf574506aa11aad33edc15611be8e1a9415",
+    "hash": "ea1195cd1a98c2522681c37bde5b9384d28a9224b27546144475a8910a0190ae",
     "top_component": {
         "name": "Theta",
         "ports_flat": [

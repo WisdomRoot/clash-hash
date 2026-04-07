@@ -48,14 +48,14 @@
         },
         {
             "name": "KeccakF1600_Perm.sv",
-            "sha256": "6b64225e375334ed02d2ae28fdd95f264c3dcda5f3f68a4e82e4d2f05301540c"
+            "sha256": "b3f7d1eb3460502ff730ea40e94cd318fc9579ab290161424e56ed5a4743a17f"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "344e1df85373f7fa1967e42566dbcf2e477732e487f2fefde5699826643c37d4",
+    "hash": "2289891fe018638aff60cdab15174d5df1c8a053d8d7c75a4c330b19b4280e70",
     "top_component": {
         "name": "KeccakF1600_Perm",
         "ports_flat": [
