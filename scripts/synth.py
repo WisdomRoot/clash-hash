@@ -34,6 +34,8 @@ SV_BASE = PROJECT_ROOT / "build" / "sv"
 EXTERNAL_VHDL_REPO = PROJECT_ROOT.parent / "keccak-vhdl"
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "build" / "synth"
 DEFAULT_LIBERTY = PROJECT_ROOT / "lib" / "nangate45" / "NangateOpenCellLibrary_typical.lib"
+ABC_CONSTRAINTS = DEFAULT_OUTPUT_ROOT / "abc.constr"
+ABC_DELAY_PS = 10_000
 
 
 def load_simple_aliases(path: Path, required: bool = False) -> dict[str, str]:
@@ -393,7 +395,27 @@ def convert_vhdl_to_sv(name: str, top: str, vhdl_files: list[Path]) -> Path:
     return out_file
 
 
-def build_yosys_commands(verilog_files: list[Path], top: str, netlist_path: Path, liberty: Path) -> list[str]:
+def write_abc_constraints(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            [
+                "set_driving_cell BUF_X4",
+                "set_load 10.0",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def build_yosys_commands(
+    verilog_files: list[Path],
+    top: str,
+    netlist_path: Path,
+    liberty: Path,
+    abc_constraints: Path,
+) -> list[str]:
     def read_step(path: Path) -> str:
         quoted = shlex.quote(str(path))
         if path.suffix.lower() == ".sv":
@@ -403,6 +425,7 @@ def build_yosys_commands(verilog_files: list[Path], top: str, netlist_path: Path
     read_cmds = [read_step(p) for p in verilog_files]
     liberty_q = shlex.quote(str(liberty))
     netlist_q = shlex.quote(str(netlist_path))
+    abc_constraints_q = shlex.quote(str(abc_constraints))
     top_q = shlex.quote(top)
 
     commands = [
@@ -412,7 +435,7 @@ def build_yosys_commands(verilog_files: list[Path], top: str, netlist_path: Path
         "opt",
         "techmap",
         f"dfflibmap -liberty {liberty_q}",
-        f"abc -liberty {liberty_q}",
+        f"abc -D {ABC_DELAY_PS} -constr {abc_constraints_q} -liberty {liberty_q}",
         "clean",
         f"write_verilog -noattr {netlist_q}",
         f"stat -top {top_q} -liberty {liberty_q}",
@@ -520,7 +543,8 @@ def run_clash_target(label: str) -> None:
     netlist_path = netlist_dir / f"{top}.mapped.v"
     report_path = report_dir / "yosys.log"
 
-    commands = build_yosys_commands(verilog_files, top, netlist_path, DEFAULT_LIBERTY)
+    write_abc_constraints(ABC_CONSTRAINTS)
+    commands = build_yosys_commands(verilog_files, top, netlist_path, DEFAULT_LIBERTY, ABC_CONSTRAINTS)
 
     print(f"[synth] {label_name} → top={top}")
     result = run_yosys(commands)
@@ -557,7 +581,8 @@ def run_vhdl_target(name: str, entry: dict) -> None:
     netlist_path = netlist_dir / f"{top}.mapped.v"
     report_path = report_dir / "yosys.log"
 
-    commands = build_yosys_commands([sv_file], top, netlist_path, DEFAULT_LIBERTY)
+    write_abc_constraints(ABC_CONSTRAINTS)
+    commands = build_yosys_commands([sv_file], top, netlist_path, DEFAULT_LIBERTY, ABC_CONSTRAINTS)
 
     print(f"[synth] {name} (VHDL) → top={top}")
     result = run_yosys(commands)
