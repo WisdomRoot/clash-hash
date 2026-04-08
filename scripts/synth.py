@@ -35,7 +35,7 @@ EXTERNAL_VHDL_REPO = PROJECT_ROOT.parent / "keccak-vhdl"
 DEFAULT_OUTPUT_ROOT = PROJECT_ROOT / "build" / "synth"
 DEFAULT_LIBERTY = PROJECT_ROOT / "lib" / "nangate45" / "NangateOpenCellLibrary_typical.lib"
 ABC_CONSTRAINTS = DEFAULT_OUTPUT_ROOT / "abc.constr"
-ABC_DELAY_PS = 10_000
+ABC_DELAY_PS = 5_000
 
 
 def load_simple_aliases(path: Path, required: bool = False) -> dict[str, str]:

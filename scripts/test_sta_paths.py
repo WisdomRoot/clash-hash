@@ -58,6 +58,10 @@ class StaPathTests(unittest.TestCase):
         self.assertTrue((self.root / "build" / "sta" / "Component.G" / "dut" / "reports" / "timing").is_dir())
         self.assertTrue((self.root / "build" / "sta" / "Component.G" / "dut" / "logs").is_dir())
 
+    def test_clash_sdc_clock_period_is_normalised(self):
+        out = sta._setup_paths("nangate45", "G")
+        self.assertIn("-period 5.000", out["sdc"].read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()

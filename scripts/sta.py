@@ -7,6 +7,7 @@ import argparse
 import getpass
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -23,6 +24,7 @@ DOCKER_PROJECT = "sta"
 DOCKER_TAG = "latest"
 DOCKER_WORK_ROOT = "/workspace/clash-hash"
 DOCKER_IMAGE = f"{DOCKER_NAMESPACE}/{DOCKER_PROJECT}:{DOCKER_TAG}"
+STA_CLOCK_PERIOD_NS = 5.0
 
 
 class StaError(RuntimeError):
@@ -161,6 +163,18 @@ def _resolve_output_label(target: str) -> str:
     return clash_aliases.get(target, target)
 
 
+def _clock_period_text() -> str:
+    return f"{STA_CLOCK_PERIOD_NS:.3f}"
+
+
+def _normalise_sdc_clock_period(text: str) -> str:
+    period = _clock_period_text()
+    half_period = f"{STA_CLOCK_PERIOD_NS / 2:.3f}"
+    text = re.sub(r"-period\s+[0-9.]+", f"-period {period}", text)
+    text = re.sub(r"-waveform\s+\{[0-9.]+\s+[0-9.]+\}", f"-waveform {{0.000 {half_period}}}", text)
+    return text
+
+
 def _auto_synthesize(target: str) -> bool:
     """Attempt to auto-synthesize the target if netlist is missing."""
     _print(f"Netlist not found, attempting to synthesize '{target}' automatically...")
@@ -200,9 +214,7 @@ def _setup_paths(process: str, target: str) -> dict[str, Path]:
     if clash_sdc and clash_sdc.exists():
         # Use Clash-generated SDC file
         _print(f"Using Clash-generated SDC: {clash_sdc}")
-        # Copy it to the STA build directory
-        import shutil as shutil_module
-        shutil_module.copy2(clash_sdc, sdc)
+        sdc.write_text(_normalise_sdc_clock_period(clash_sdc.read_text(encoding="utf-8")), encoding="utf-8")
     else:
         # Create a basic SDC file
         # Use CLK for Clash (uppercase) or clk for VHDL (lowercase)
@@ -210,7 +222,7 @@ def _setup_paths(process: str, target: str) -> dict[str, Path]:
         sdc.write_text(
             f"# Auto-generated SDC for clash-hash STA\n"
             f"# Clock: {clock_name}\n"
-            f"create_clock -name {clock_name} -period 10.0 [get_ports {clock_name}]\n"
+            f"create_clock -name {clock_name} -period {_clock_period_text()} [get_ports {clock_name}]\n"
             f"set_input_delay -clock {clock_name} 0.0 [all_inputs]\n"
             f"set_output_delay -clock {clock_name} 0.0 [all_outputs]\n"
         )
