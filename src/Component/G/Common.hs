@@ -14,6 +14,8 @@ module Component.G.Common
     core512X2,
     stepCore512X3,
     core512X3,
+    stepCore512X4,
+    core512X4,
     squeezeSlice,
     squeezeSlice512,
   )
@@ -210,3 +212,38 @@ core512X3 ::
   Pipe dom n 512
 core512X3 absorbFn (outReady, inStream) =
   mealyB (stepCore512X3 absorbFn) (State Absorb 0) (outReady, inStream)
+
+stepCore512X4 ::
+  KnownNat n =>
+  (BitVector n -> BitVector 1600) ->
+  State ->
+  (Bool, AXI4Stream n) ->
+  (State, (Bool, AXI4Stream 512))
+stepCore512X4 absorbFn (State phase state) (outReady, input) =
+  case phase of
+    Absorb ->
+      if tvalid input
+        then (State (Permute 0) (absorbFn (tdata input)), (False, idleAXI4Stream))
+        else (State Absorb state, (True, idleAXI4Stream))
+    Permute roundIdx ->
+      let state' = Permutation.keccakF1600 roundIdx state
+          state'' = Permutation.keccakF1600 (roundIdx + 1) state'
+          state''' = Permutation.keccakF1600 (roundIdx + 2) state''
+          state'''' = Permutation.keccakF1600 (roundIdx + 3) state'''
+       in if roundIdx == 20
+            then
+              let outStream = validBeat (squeezeSlice512 state'''' 0) True
+                  nextPhase = if outReady then Absorb else Squeeze 0
+               in (State nextPhase state'''', (False, outStream))
+            else (State (Permute (roundIdx + 4)) state'''', (False, idleAXI4Stream))
+    Squeeze _ ->
+      let outStream = validBeat (squeezeSlice512 state 0) True
+          nextPhase = if outReady then Absorb else Squeeze 0
+       in (State nextPhase state, (False, outStream))
+
+core512X4 ::
+  (HiddenClockResetEnable dom, KnownNat n) =>
+  (BitVector n -> BitVector 1600) ->
+  Pipe dom n 512
+core512X4 absorbFn (outReady, inStream) =
+  mealyB (stepCore512X4 absorbFn) (State Absorb 0) (outReady, inStream)
