@@ -18,6 +18,8 @@ module Component.G.Common
     core512X4,
     stepCore512X6,
     core512X6,
+    stepCore512X8,
+    core512X8,
     squeezeSlice,
     squeezeSlice512,
   )
@@ -286,3 +288,42 @@ core512X6 ::
   Pipe dom n 512
 core512X6 absorbFn (outReady, inStream) =
   mealyB (stepCore512X6 absorbFn) (State Absorb 0) (outReady, inStream)
+
+stepCore512X8 ::
+  KnownNat n =>
+  (BitVector n -> BitVector 1600) ->
+  State ->
+  (Bool, AXI4Stream n) ->
+  (State, (Bool, AXI4Stream 512))
+stepCore512X8 absorbFn (State phase state) (outReady, input) =
+  case phase of
+    Absorb ->
+      if tvalid input
+        then (State (Permute 0) (absorbFn (tdata input)), (False, idleAXI4Stream))
+        else (State Absorb state, (True, idleAXI4Stream))
+    Permute roundIdx ->
+      let state1 = Permutation.keccakF1600 roundIdx state
+          state2 = Permutation.keccakF1600 (roundIdx + 1) state1
+          state3 = Permutation.keccakF1600 (roundIdx + 2) state2
+          state4 = Permutation.keccakF1600 (roundIdx + 3) state3
+          state5 = Permutation.keccakF1600 (roundIdx + 4) state4
+          state6 = Permutation.keccakF1600 (roundIdx + 5) state5
+          state7 = Permutation.keccakF1600 (roundIdx + 6) state6
+          state8 = Permutation.keccakF1600 (roundIdx + 7) state7
+       in if roundIdx == 16
+            then
+              let outStream = validBeat (squeezeSlice512 state8 0) True
+                  nextPhase = if outReady then Absorb else Squeeze 0
+               in (State nextPhase state8, (False, outStream))
+            else (State (Permute (roundIdx + 8)) state8, (False, idleAXI4Stream))
+    Squeeze _ ->
+      let outStream = validBeat (squeezeSlice512 state 0) True
+          nextPhase = if outReady then Absorb else Squeeze 0
+       in (State nextPhase state, (False, outStream))
+
+core512X8 ::
+  (HiddenClockResetEnable dom, KnownNat n) =>
+  (BitVector n -> BitVector 1600) ->
+  Pipe dom n 512
+core512X8 absorbFn (outReady, inStream) =
+  mealyB (stepCore512X8 absorbFn) (State Absorb 0) (outReady, inStream)
