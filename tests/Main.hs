@@ -8,6 +8,7 @@ import Test.G2 qualified
 import Test.G3 qualified
 import Test.G4 qualified
 import Test.G qualified
+import Test.GX2 qualified
 import Test.Lookahead4 qualified
 import Test.XOF qualified
 import Test.XOF6 qualified
@@ -38,6 +39,7 @@ main = do
   g3Tests <- testSpec "G3" Test.G3.spec
   g4Tests <- testSpec "G4" Test.G4.spec
   gTests <- testSpec "G" Test.G.spec
+  gx2Tests <- testSpec "GX2" Test.GX2.spec
   xofTests <- testSpec "XOF" Test.XOF.spec
   xof6Tests <- testSpec "XOF6" Test.XOF6.spec
   lookahead4Tests <- testSpec "lookahead4" Test.Lookahead4.spec
@@ -66,6 +68,7 @@ main = do
         g3Tests,
         g4Tests,
         gTests,
+        gx2Tests,
         xofTests,
         xof6Tests,
         lookahead4Tests,
