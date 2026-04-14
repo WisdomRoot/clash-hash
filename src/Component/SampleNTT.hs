@@ -133,11 +133,37 @@ step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case 
               then (State (Squeeze counter) state (Buffer3 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
               else (State (Squeeze counter) state (Buffer5 b0 b1 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
 
+stepRegs ::
+  Phase ->
+  BitVector 1600 ->
+  Buffer ->
+  Bool ->
+  AXI4Stream 272 ->
+  (Phase, BitVector 1600, Buffer, (Bool, AXI4Stream 24))
+stepRegs phase state buffer tready inStream =
+  let (State phase' state' buffer', out) = step (State phase state buffer) (tready, inStream)
+   in (phase', state', buffer', out)
+
 i272o24l2Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
 i272o24l2Core (coeffReady, seedStream) =
-  mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
+  (inReady, outStream)
+  where
+    phase = register Absorb phase'
+    keccakState = register 0 keccakState'
+    buffer = register Buffer0 buffer'
+
+    (phase', keccakState', buffer', outSig) =
+      unbundle $
+        stepRegs
+          <$> phase
+          <*> keccakState
+          <*> buffer
+          <*> coeffReady
+          <*> seedStream
+
+    (inReady, outStream) = unbundle outSig
 
 {-# ANN
   i272o24l2
