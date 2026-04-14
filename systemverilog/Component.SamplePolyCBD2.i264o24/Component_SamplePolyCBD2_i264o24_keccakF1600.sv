@@ -11,61 +11,60 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
       // Outputs
     , output logic [1599:0] result
     );
-  logic [63:0] lvl;
-  logic [1599:0] c$app_arg;
-  dut_types::array_of_1600_logic_vector_1 c$app_arg_0;
+  dut_types::array_of_1600_logic_vector_1 c$app_arg;
   logic [1599:0] result_0;
+  logic [1599:0] lvl;
   dut_types::array_of_1600_logic result_1;
-  logic [1599:0] lvl1;
-  dut_types::array_of_1600_logic_vector_1 result_2;
-  dut_types::array_of_1600_logic c$lvl1_app_arg;
-  logic [1599:0] lvl2;
-  dut_types::array_of_1600_logic_vector_1 result_3;
-  dut_types::array_of_1600_logic c$lvl2_app_arg;
-  logic [1599:0] lvl3;
-  dut_types::array_of_1600_logic_vector_1 result_4;
-  dut_types::array_of_1600_logic c$lvl3_app_arg;
-  dut_types::array_of_25_array_of_64_logic c$lvl3_app_arg_0;
-  dut_types::array_of_64_logic lvl8;
-  dut_types::array_of_64_logic lvl7;
-  dut_types::array_of_64_logic lvl6;
-  dut_types::array_of_64_logic lvl5;
-  dut_types::array_of_64_logic lvl4;
-  dut_types::array_of_64_logic c$lvl8_app_arg;
-  dut_types::array_of_64_logic parity4;
-  dut_types::array_of_64_logic c$lvl7_app_arg;
+  dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg;
+  logic [1599:0] lvl_0;
+  dut_types::array_of_1600_logic result_2;
+  dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg_0;
+  logic [1599:0] lvl_1;
+  dut_types::array_of_1600_logic result_3;
+  dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg_1;
+  dut_types::array_of_25_array_of_64_logic state;
+  dut_types::array_of_64_logic parity0;
+  dut_types::array_of_64_logic parity2;
+  dut_types::array_of_64_logic lvl_2;
+  dut_types::array_of_64_logic parity3;
   dut_types::array_of_64_logic parity1;
+  dut_types::array_of_64_logic lvl1;
+  dut_types::array_of_64_logic lvl2;
+  dut_types::array_of_64_logic parity4;
+  dut_types::array_of_64_logic lvl3;
+  dut_types::array_of_64_logic lvl4;
+  dut_types::array_of_1600_logic result_4;
+  dut_types::array_of_25_array_of_64_logic c$app_arg_0;
+  dut_types::array_of_64_logic c$lvl4_app_arg;
+  dut_types::array_of_64_logic c$lvl3_app_arg;
   dut_types::array_of_64_logic c$parity4_app_arg;
   dut_types::array_of_64_logic c$parity4_app_arg_0;
   dut_types::array_of_64_logic c$parity4_app_arg_1;
-  dut_types::array_of_64_logic c$lvl6_app_arg;
-  dut_types::array_of_64_logic parity0;
-  dut_types::array_of_64_logic c$lvl5_app_arg;
-  dut_types::array_of_64_logic parity3;
+  dut_types::array_of_64_logic c$lvl2_app_arg;
+  dut_types::array_of_64_logic c$lvl1_app_arg;
   dut_types::array_of_64_logic c$parity1_app_arg;
   dut_types::array_of_64_logic c$parity1_app_arg_0;
   dut_types::array_of_64_logic c$parity1_app_arg_1;
   dut_types::array_of_64_logic c$parity3_app_arg;
   dut_types::array_of_64_logic c$parity3_app_arg_0;
   dut_types::array_of_64_logic c$parity3_app_arg_1;
-  dut_types::array_of_64_logic c$lvl4_app_arg;
-  dut_types::array_of_64_logic parity2;
+  dut_types::array_of_64_logic c$lvl_app_arg_2;
   dut_types::array_of_64_logic c$parity2_app_arg;
   dut_types::array_of_64_logic c$parity2_app_arg_0;
   dut_types::array_of_64_logic c$parity2_app_arg_1;
   dut_types::array_of_64_logic c$parity0_app_arg;
   dut_types::array_of_64_logic c$parity0_app_arg_0;
   dut_types::array_of_64_logic c$parity0_app_arg_1;
-  dut_types::array_of_25_array_of_64_logic state;
-  dut_types::array_of_1600_logic c$state_app_arg;
-  dut_types::array_of_64_logic_vector_1 c$lvl_app_arg;
-  dut_types::array_of_24_array_of_64_logic c$lvl_app_arg_0;
-  dut_types::array_of_24_array_of_7_logic c$lvl_app_arg_1;
-  dut_types::array_of_168_logic c$lvl_app_arg_2;
+  dut_types::array_of_1600_logic c$app_arg_1;
+  dut_types::array_of_64_logic_vector_1 c$app_arg_2;
+  dut_types::array_of_24_array_of_64_logic c$app_arg_3;
+  dut_types::array_of_24_array_of_7_logic c$app_arg_4;
+  dut_types::array_of_168_logic c$app_arg_5;
   dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
   dut_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
   dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
   dut_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
+  logic [1599:0] c$app_arg_6;
   dut_types::array_of_1600_Tuple3 c$vec;
   dut_types::array_of_1600_logic_vector_11 c$vec_0;
   dut_types::array_of_1600_logic_vector_11 c$vec_1;
@@ -74,18 +73,18 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   dut_types::array_of_64_logic c$vec1_1;
   dut_types::array_of_64_logic c$vec1_2;
   dut_types::array_of_64_logic c$vec1_3;
-  dut_types::array_of_64_logic c$vec2;
   dut_types::array_of_64_logic c$vec1_4;
   dut_types::array_of_64_logic c$vec1_5;
   dut_types::array_of_64_logic c$vec1_6;
+  dut_types::array_of_64_logic c$vec2;
   dut_types::array_of_64_logic c$vec1_7;
   dut_types::array_of_64_logic c$vec1_8;
-  dut_types::array_of_64_logic c$vec2_0;
   dut_types::array_of_64_logic c$vec1_9;
+  dut_types::array_of_64_logic c$vec2_0;
   dut_types::array_of_64_logic c$vec1_10;
   dut_types::array_of_64_logic c$vec1_11;
-  dut_types::array_of_64_logic c$vec2_1;
   dut_types::array_of_64_logic c$vec1_12;
+  dut_types::array_of_64_logic c$vec2_1;
   dut_types::array_of_64_logic c$vec1_13;
   dut_types::array_of_64_logic c$vec1_14;
   dut_types::array_of_64_logic c$vec1_15;
@@ -101,33 +100,24 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   dut_types::array_of_8_logic c$vec1_19;
   dut_types::array_of_8_logic c$vec2_5;
 
-  // setSlice begin
-  always_comb begin
-    result = c$app_arg;
-    result[63 : 0] = ((c$app_arg[63 : 0]) ^ lvl);
-  end
-  // setSlice end
-
-  assign lvl = ({dut_types::array_of_64_logic_vector_1_to_lv(c$lvl_app_arg)});
-
-  assign c$app_arg = result_0;
-
   // map begin
   genvar n;
   generate
-  for (n=0; n < $size(c$app_arg_0); n = n + 1) begin : map
+  for (n=0; n < $size(c$app_arg); n = n + 1) begin : map
     logic map_in;
     assign map_in = result_1[n];
     logic [0:0] map_out;
     assign map_out = (map_in);
 
 
-    assign c$app_arg_0[n] = map_out;
+    assign c$app_arg[n] = map_out;
   end
   endgenerate
   // map end
 
-  assign result_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg_0)});
+  assign result_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)});
+
+  assign lvl = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg)});
 
   assign c$vec = '{0: {11'd1599,11'd1343,11'd1407}
                   ,1: {11'd1598,11'd1342,11'd1406}
@@ -1749,7 +1739,7 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
 
     assign i2 = map_in_0.Tuple3_sel2;
 
-    assign c$case_alt = (lvl1[($unsigned({{(64-11) {1'b0}},i0}))]) ^ ((~ (lvl1[($unsigned({{(64-11) {1'b0}},i1}))])) & (lvl1[($unsigned({{(64-11) {1'b0}},i2}))]));
+    assign c$case_alt = (lvl[($unsigned({{(64-11) {1'b0}},i0}))]) ^ ((~ (lvl[($unsigned({{(64-11) {1'b0}},i1}))])) & (lvl[($unsigned({{(64-11) {1'b0}},i2}))]));
 
 
     assign result_1[n_0] = map_out_0;
@@ -1757,22 +1747,22 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   endgenerate
   // map end
 
-  assign lvl1 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_2)});
-
   // map begin
   genvar n_1;
   generate
-  for (n_1=0; n_1 < $size(result_2); n_1 = n_1 + 1) begin : map_1
+  for (n_1=0; n_1 < $size(c$lvl_app_arg); n_1 = n_1 + 1) begin : map_1
     logic map_in_1;
-    assign map_in_1 = c$lvl1_app_arg[n_1];
+    assign map_in_1 = result_2[n_1];
     logic [0:0] map_out_1;
     assign map_out_1 = (map_in_1);
 
 
-    assign result_2[n_1] = map_out_1;
+    assign c$lvl_app_arg[n_1] = map_out_1;
   end
   endgenerate
   // map end
+
+  assign lvl_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_0)});
 
   assign c$vec_0 = '{0: 11'd1407
                     ,1: 11'd1406
@@ -3378,34 +3368,34 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   // map begin
   genvar n_2;
   generate
-  for (n_2=0; n_2 < $size(c$lvl1_app_arg); n_2 = n_2 + 1) begin : map_2
+  for (n_2=0; n_2 < $size(result_2); n_2 = n_2 + 1) begin : map_2
     logic [10:0] map_in_2;
     assign map_in_2 = c$vec_0[n_2];
     logic map_out_2;
-    assign map_out_2 = lvl2[($unsigned({{(64-11) {1'b0}},map_in_2}))];
+    assign map_out_2 = lvl_0[($unsigned({{(64-11) {1'b0}},map_in_2}))];
 
 
-    assign c$lvl1_app_arg[n_2] = map_out_2;
+    assign result_2[n_2] = map_out_2;
   end
   endgenerate
   // map end
-
-  assign lvl2 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_3)});
 
   // map begin
   genvar n_3;
   generate
-  for (n_3=0; n_3 < $size(result_3); n_3 = n_3 + 1) begin : map_3
+  for (n_3=0; n_3 < $size(c$lvl_app_arg_0); n_3 = n_3 + 1) begin : map_3
     logic map_in_3;
-    assign map_in_3 = c$lvl2_app_arg[n_3];
+    assign map_in_3 = result_3[n_3];
     logic [0:0] map_out_3;
     assign map_out_3 = (map_in_3);
 
 
-    assign result_3[n_3] = map_out_3;
+    assign c$lvl_app_arg_0[n_3] = map_out_3;
   end
   endgenerate
   // map end
+
+  assign lvl_1 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_1)});
 
   assign c$vec_1 = '{0: 11'd1585
                     ,1: 11'd1584
@@ -5011,52 +5001,239 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   // map begin
   genvar n_4;
   generate
-  for (n_4=0; n_4 < $size(c$lvl2_app_arg); n_4 = n_4 + 1) begin : map_4
+  for (n_4=0; n_4 < $size(result_3); n_4 = n_4 + 1) begin : map_4
     logic [10:0] map_in_4;
     assign map_in_4 = c$vec_1[n_4];
     logic map_out_4;
-    assign map_out_4 = lvl3[($unsigned({{(64-11) {1'b0}},map_in_4}))];
+    assign map_out_4 = lvl_1[($unsigned({{(64-11) {1'b0}},map_in_4}))];
 
 
-    assign c$lvl2_app_arg[n_4] = map_out_4;
+    assign result_3[n_4] = map_out_4;
   end
   endgenerate
   // map end
-
-  assign lvl3 = ({dut_types::array_of_1600_logic_vector_1_to_lv(result_4)});
 
   // map begin
   genvar n_5;
   generate
-  for (n_5=0; n_5 < $size(result_4); n_5 = n_5 + 1) begin : map_5
+  for (n_5=0; n_5 < $size(c$lvl_app_arg_1); n_5 = n_5 + 1) begin : map_5
     logic map_in_5;
-    assign map_in_5 = c$lvl3_app_arg[n_5];
+    assign map_in_5 = result_4[n_5];
     logic [0:0] map_out_5;
     assign map_out_5 = (map_in_5);
 
 
-    assign result_4[n_5] = map_out_5;
+    assign c$lvl_app_arg_1[n_5] = map_out_5;
   end
   endgenerate
   // map end
 
-  // concat begin
+  // unconcat begin
   genvar n_6;
   generate
-    for (n_6=0; n_6 < $size(c$lvl3_app_arg_0); n_6 = n_6 + 1) begin : concat
-      assign c$lvl3_app_arg[n_6*64 : n_6*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$lvl3_app_arg_0[n_6]);
+    for (n_6 = 0; n_6 < $size(state); n_6 = n_6 + 1) begin : unconcat
+      assign state[n_6] = {dut_types::array_of_64_logic_to_lv(c$app_arg_1[(n_6 * 64) : ((n_6 * 64) + 64 - 1)])};
+    end
+  endgenerate
+  // unconcat end
+
+  assign c$vec1 = (dut_types::array_of_64_logic_from_lv(state[64'sd4]));
+
+  // zipWith begin
+  genvar n_7;
+  generate
+  for (n_7 = 0; n_7 < $size(parity0); n_7 = n_7 + 1) begin : zipWith
+    logic zipWith_in1;
+    assign zipWith_in1 = c$vec1[n_7];
+    logic zipWith_in2;
+    assign zipWith_in2 = c$parity0_app_arg[n_7];
+    logic zipWith_out;
+    assign zipWith_out = zipWith_in1 ^ zipWith_in2;
+
+
+    assign parity0[n_7] = zipWith_out;
+  end
+  endgenerate
+  // zipWith end
+
+  assign c$vec1_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd2]));
+
+  // zipWith begin
+  genvar n_8;
+  generate
+  for (n_8 = 0; n_8 < $size(parity2); n_8 = n_8 + 1) begin : zipWith_0
+    logic zipWith_in1_0;
+    assign zipWith_in1_0 = c$vec1_0[n_8];
+    logic zipWith_in2_0;
+    assign zipWith_in2_0 = c$parity2_app_arg[n_8];
+    logic zipWith_out_0;
+    assign zipWith_out_0 = zipWith_in1_0 ^ zipWith_in2_0;
+
+
+    assign parity2[n_8] = zipWith_out_0;
+  end
+  endgenerate
+  // zipWith end
+
+  // zipWith begin
+  genvar n_9;
+  generate
+  for (n_9 = 0; n_9 < $size(lvl_2); n_9 = n_9 + 1) begin : zipWith_1
+    logic zipWith_in1_1;
+    assign zipWith_in1_1 = parity0[n_9];
+    logic zipWith_in2_1;
+    assign zipWith_in2_1 = c$lvl_app_arg_2[n_9];
+    logic zipWith_out_1;
+    assign zipWith_out_1 = zipWith_in1_1 ^ zipWith_in2_1;
+
+
+    assign lvl_2[n_9] = zipWith_out_1;
+  end
+  endgenerate
+  // zipWith end
+
+  assign c$vec1_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd1]));
+
+  // zipWith begin
+  genvar n_10;
+  generate
+  for (n_10 = 0; n_10 < $size(parity3); n_10 = n_10 + 1) begin : zipWith_2
+    logic zipWith_in1_2;
+    assign zipWith_in1_2 = c$vec1_1[n_10];
+    logic zipWith_in2_2;
+    assign zipWith_in2_2 = c$parity3_app_arg[n_10];
+    logic zipWith_out_2;
+    assign zipWith_out_2 = zipWith_in1_2 ^ zipWith_in2_2;
+
+
+    assign parity3[n_10] = zipWith_out_2;
+  end
+  endgenerate
+  // zipWith end
+
+  assign c$vec1_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd3]));
+
+  // zipWith begin
+  genvar n_11;
+  generate
+  for (n_11 = 0; n_11 < $size(parity1); n_11 = n_11 + 1) begin : zipWith_3
+    logic zipWith_in1_3;
+    assign zipWith_in1_3 = c$vec1_2[n_11];
+    logic zipWith_in2_3;
+    assign zipWith_in2_3 = c$parity1_app_arg[n_11];
+    logic zipWith_out_3;
+    assign zipWith_out_3 = zipWith_in1_3 ^ zipWith_in2_3;
+
+
+    assign parity1[n_11] = zipWith_out_3;
+  end
+  endgenerate
+  // zipWith end
+
+  // zipWith begin
+  genvar n_12;
+  generate
+  for (n_12 = 0; n_12 < $size(lvl1); n_12 = n_12 + 1) begin : zipWith_4
+    logic zipWith_in1_4;
+    assign zipWith_in1_4 = parity1[n_12];
+    logic zipWith_in2_4;
+    assign zipWith_in2_4 = c$lvl1_app_arg[n_12];
+    logic zipWith_out_4;
+    assign zipWith_out_4 = zipWith_in1_4 ^ zipWith_in2_4;
+
+
+    assign lvl1[n_12] = zipWith_out_4;
+  end
+  endgenerate
+  // zipWith end
+
+  // zipWith begin
+  genvar n_13;
+  generate
+  for (n_13 = 0; n_13 < $size(lvl2); n_13 = n_13 + 1) begin : zipWith_5
+    logic zipWith_in1_5;
+    assign zipWith_in1_5 = parity3[n_13];
+    logic zipWith_in2_5;
+    assign zipWith_in2_5 = c$lvl2_app_arg[n_13];
+    logic zipWith_out_5;
+    assign zipWith_out_5 = zipWith_in1_5 ^ zipWith_in2_5;
+
+
+    assign lvl2[n_13] = zipWith_out_5;
+  end
+  endgenerate
+  // zipWith end
+
+  assign c$vec1_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd0]));
+
+  // zipWith begin
+  genvar n_14;
+  generate
+  for (n_14 = 0; n_14 < $size(parity4); n_14 = n_14 + 1) begin : zipWith_6
+    logic zipWith_in1_6;
+    assign zipWith_in1_6 = c$vec1_3[n_14];
+    logic zipWith_in2_6;
+    assign zipWith_in2_6 = c$parity4_app_arg[n_14];
+    logic zipWith_out_6;
+    assign zipWith_out_6 = zipWith_in1_6 ^ zipWith_in2_6;
+
+
+    assign parity4[n_14] = zipWith_out_6;
+  end
+  endgenerate
+  // zipWith end
+
+  // zipWith begin
+  genvar n_15;
+  generate
+  for (n_15 = 0; n_15 < $size(lvl3); n_15 = n_15 + 1) begin : zipWith_7
+    logic zipWith_in1_7;
+    assign zipWith_in1_7 = parity4[n_15];
+    logic zipWith_in2_7;
+    assign zipWith_in2_7 = c$lvl3_app_arg[n_15];
+    logic zipWith_out_7;
+    assign zipWith_out_7 = zipWith_in1_7 ^ zipWith_in2_7;
+
+
+    assign lvl3[n_15] = zipWith_out_7;
+  end
+  endgenerate
+  // zipWith end
+
+  // zipWith begin
+  genvar n_16;
+  generate
+  for (n_16 = 0; n_16 < $size(lvl4); n_16 = n_16 + 1) begin : zipWith_8
+    logic zipWith_in1_8;
+    assign zipWith_in1_8 = parity2[n_16];
+    logic zipWith_in2_8;
+    assign zipWith_in2_8 = c$lvl4_app_arg[n_16];
+    logic zipWith_out_8;
+    assign zipWith_out_8 = zipWith_in1_8 ^ zipWith_in2_8;
+
+
+    assign lvl4[n_16] = zipWith_out_8;
+  end
+  endgenerate
+  // zipWith end
+
+  // concat begin
+  genvar n_17;
+  generate
+    for (n_17=0; n_17 < $size(c$app_arg_0); n_17 = n_17 + 1) begin : concat
+      assign result_4[n_17*64 : n_17*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
     end
   endgenerate
   // concat end
 
   // imap begin
-  genvar n_8;
+  genvar n_19;
   generate
-  for (n_8=0; n_8 < $size(c$lvl3_app_arg_0); n_8 = n_8 + 1) begin : imap
+  for (n_19=0; n_19 < $size(c$app_arg_0); n_19 = n_19 + 1) begin : imap
     logic [4:0] i;
-    assign i = n_8;
+    assign i = n_19;
     dut_types::array_of_64_logic imap_in;
-    assign imap_in = dut_types::array_of_64_logic_from_lv(state[n_8]);
+    assign imap_in = dut_types::array_of_64_logic_from_lv(state[n_19]);
     dut_types::array_of_64_logic imap_out;
     logic [2:0] ds;
     dut_types::array_of_64_logic c$zipWith_arg6;
@@ -5071,241 +5248,118 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
 
     assign ds = c$bv[0+:3];
 
-    assign c$zipWith_arg6 = (ds == 3'd0) ? lvl6 : c$zipWith_arg6_case_alt;
+    assign c$zipWith_arg6 = (ds == 3'd0) ? lvl2 : c$zipWith_arg6_case_alt;
 
     // zipWith begin
-    genvar n_7;
+    genvar n_18;
 
-    for (n_7 = 0; n_7 < $size(result_5); n_7 = n_7 + 1) begin : zipWith
-      logic zipWith_in1;
-      assign zipWith_in1 = imap_in[n_7];
-      logic zipWith_in2;
-      assign zipWith_in2 = c$zipWith_arg6[n_7];
-      logic zipWith_out;
-      assign zipWith_out = zipWith_in1 ^ zipWith_in2;
+    for (n_18 = 0; n_18 < $size(result_5); n_18 = n_18 + 1) begin : zipWith_9
+      logic zipWith_in1_9;
+      assign zipWith_in1_9 = imap_in[n_18];
+      logic zipWith_in2_9;
+      assign zipWith_in2_9 = c$zipWith_arg6[n_18];
+      logic zipWith_out_9;
+      assign zipWith_out_9 = zipWith_in1_9 ^ zipWith_in2_9;
 
 
-      assign result_5[n_7] = zipWith_out;
+      assign result_5[n_18] = zipWith_out_9;
     end
 
     // zipWith end
 
-    assign c$zipWith_arg6_case_alt = (ds == 3'd1) ? lvl8 : c$zipWith_arg6_case_alt_0;
+    assign c$zipWith_arg6_case_alt = (ds == 3'd1) ? lvl4 : c$zipWith_arg6_case_alt_0;
 
-    assign c$zipWith_arg6_case_alt_0 = (ds == 3'd2) ? lvl5 : c$zipWith_arg6_case_alt_1;
+    assign c$zipWith_arg6_case_alt_0 = (ds == 3'd2) ? lvl1 : c$zipWith_arg6_case_alt_1;
 
-    assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl4 : lvl7;
+    assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl_2 : lvl3;
 
 
-    assign c$lvl3_app_arg_0[n_8] = {dut_types::array_of_64_logic_to_lv(imap_out)};
+    assign c$app_arg_0[n_19] = {dut_types::array_of_64_logic_to_lv(imap_out)};
   end
   endgenerate
   // imap end
-
-  // zipWith begin
-  genvar n_9;
-  generate
-  for (n_9 = 0; n_9 < $size(lvl8); n_9 = n_9 + 1) begin : zipWith_0
-    logic zipWith_in1_0;
-    assign zipWith_in1_0 = parity2[n_9];
-    logic zipWith_in2_0;
-    assign zipWith_in2_0 = c$lvl8_app_arg[n_9];
-    logic zipWith_out_0;
-    assign zipWith_out_0 = zipWith_in1_0 ^ zipWith_in2_0;
-
-
-    assign lvl8[n_9] = zipWith_out_0;
-  end
-  endgenerate
-  // zipWith end
-
-  // zipWith begin
-  genvar n_10;
-  generate
-  for (n_10 = 0; n_10 < $size(lvl7); n_10 = n_10 + 1) begin : zipWith_1
-    logic zipWith_in1_1;
-    assign zipWith_in1_1 = parity4[n_10];
-    logic zipWith_in2_1;
-    assign zipWith_in2_1 = c$lvl7_app_arg[n_10];
-    logic zipWith_out_1;
-    assign zipWith_out_1 = zipWith_in1_1 ^ zipWith_in2_1;
-
-
-    assign lvl7[n_10] = zipWith_out_1;
-  end
-  endgenerate
-  // zipWith end
-
-  // zipWith begin
-  genvar n_11;
-  generate
-  for (n_11 = 0; n_11 < $size(lvl6); n_11 = n_11 + 1) begin : zipWith_2
-    logic zipWith_in1_2;
-    assign zipWith_in1_2 = parity3[n_11];
-    logic zipWith_in2_2;
-    assign zipWith_in2_2 = c$lvl6_app_arg[n_11];
-    logic zipWith_out_2;
-    assign zipWith_out_2 = zipWith_in1_2 ^ zipWith_in2_2;
-
-
-    assign lvl6[n_11] = zipWith_out_2;
-  end
-  endgenerate
-  // zipWith end
-
-  // zipWith begin
-  genvar n_12;
-  generate
-  for (n_12 = 0; n_12 < $size(lvl5); n_12 = n_12 + 1) begin : zipWith_3
-    logic zipWith_in1_3;
-    assign zipWith_in1_3 = parity1[n_12];
-    logic zipWith_in2_3;
-    assign zipWith_in2_3 = c$lvl5_app_arg[n_12];
-    logic zipWith_out_3;
-    assign zipWith_out_3 = zipWith_in1_3 ^ zipWith_in2_3;
-
-
-    assign lvl5[n_12] = zipWith_out_3;
-  end
-  endgenerate
-  // zipWith end
-
-  // zipWith begin
-  genvar n_13;
-  generate
-  for (n_13 = 0; n_13 < $size(lvl4); n_13 = n_13 + 1) begin : zipWith_4
-    logic zipWith_in1_4;
-    assign zipWith_in1_4 = parity0[n_13];
-    logic zipWith_in2_4;
-    assign zipWith_in2_4 = c$lvl4_app_arg[n_13];
-    logic zipWith_out_4;
-    assign zipWith_out_4 = zipWith_in1_4 ^ zipWith_in2_4;
-
-
-    assign lvl4[n_13] = zipWith_out_4;
-  end
-  endgenerate
-  // zipWith end
 
   // rotateLeftS begin
   localparam shift_amount = 1 % 64;
 
   generate
   if (shift_amount == 0) begin : no_shift
-    assign c$lvl8_app_arg = parity4;
+    assign c$lvl4_app_arg = parity4;
   end else begin : do_shift
-    assign c$lvl8_app_arg[0:64-shift_amount-1] = parity4[shift_amount:64-1];
-    assign c$lvl8_app_arg[64-shift_amount:64-1] = parity4[0:shift_amount-1];
+    assign c$lvl4_app_arg[0:64-shift_amount-1] = parity4[shift_amount:64-1];
+    assign c$lvl4_app_arg[64-shift_amount:64-1] = parity4[0:shift_amount-1];
   end
   endgenerate
   // rotateLeftS end
-
-  assign c$vec1 = (dut_types::array_of_64_logic_from_lv(state[64'sd0]));
-
-  // zipWith begin
-  genvar n_14;
-  generate
-  for (n_14 = 0; n_14 < $size(parity4); n_14 = n_14 + 1) begin : zipWith_5
-    logic zipWith_in1_5;
-    assign zipWith_in1_5 = c$vec1[n_14];
-    logic zipWith_in2_5;
-    assign zipWith_in2_5 = c$parity4_app_arg[n_14];
-    logic zipWith_out_5;
-    assign zipWith_out_5 = zipWith_in1_5 ^ zipWith_in2_5;
-
-
-    assign parity4[n_14] = zipWith_out_5;
-  end
-  endgenerate
-  // zipWith end
 
   // rotateLeftS begin
   localparam shift_amount_0 = 1 % 64;
 
   generate
   if (shift_amount_0 == 0) begin : no_shift_0
-    assign c$lvl7_app_arg = parity1;
+    assign c$lvl3_app_arg = parity1;
   end else begin : do_shift_0
-    assign c$lvl7_app_arg[0:64-shift_amount_0-1] = parity1[shift_amount_0:64-1];
-    assign c$lvl7_app_arg[64-shift_amount_0:64-1] = parity1[0:shift_amount_0-1];
+    assign c$lvl3_app_arg[0:64-shift_amount_0-1] = parity1[shift_amount_0:64-1];
+    assign c$lvl3_app_arg[64-shift_amount_0:64-1] = parity1[0:shift_amount_0-1];
   end
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd3]));
+  assign c$vec1_4 = (dut_types::array_of_64_logic_from_lv(state[64'sd5]));
 
   // zipWith begin
-  genvar n_15;
+  genvar n_20;
   generate
-  for (n_15 = 0; n_15 < $size(parity1); n_15 = n_15 + 1) begin : zipWith_6
-    logic zipWith_in1_6;
-    assign zipWith_in1_6 = c$vec1_0[n_15];
-    logic zipWith_in2_6;
-    assign zipWith_in2_6 = c$parity1_app_arg[n_15];
-    logic zipWith_out_6;
-    assign zipWith_out_6 = zipWith_in1_6 ^ zipWith_in2_6;
+  for (n_20 = 0; n_20 < $size(c$parity4_app_arg); n_20 = n_20 + 1) begin : zipWith_10
+    logic zipWith_in1_10;
+    assign zipWith_in1_10 = c$vec1_4[n_20];
+    logic zipWith_in2_10;
+    assign zipWith_in2_10 = c$parity4_app_arg_0[n_20];
+    logic zipWith_out_10;
+    assign zipWith_out_10 = zipWith_in1_10 ^ zipWith_in2_10;
 
 
-    assign parity1[n_15] = zipWith_out_6;
+    assign c$parity4_app_arg[n_20] = zipWith_out_10;
   end
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_5 = (dut_types::array_of_64_logic_from_lv(state[64'sd10]));
 
   // zipWith begin
-  genvar n_16;
+  genvar n_21;
   generate
-  for (n_16 = 0; n_16 < $size(c$parity4_app_arg); n_16 = n_16 + 1) begin : zipWith_7
-    logic zipWith_in1_7;
-    assign zipWith_in1_7 = c$vec1_1[n_16];
-    logic zipWith_in2_7;
-    assign zipWith_in2_7 = c$parity4_app_arg_0[n_16];
-    logic zipWith_out_7;
-    assign zipWith_out_7 = zipWith_in1_7 ^ zipWith_in2_7;
+  for (n_21 = 0; n_21 < $size(c$parity4_app_arg_0); n_21 = n_21 + 1) begin : zipWith_11
+    logic zipWith_in1_11;
+    assign zipWith_in1_11 = c$vec1_5[n_21];
+    logic zipWith_in2_11;
+    assign zipWith_in2_11 = c$parity4_app_arg_1[n_21];
+    logic zipWith_out_11;
+    assign zipWith_out_11 = zipWith_in1_11 ^ zipWith_in2_11;
 
 
-    assign c$parity4_app_arg[n_16] = zipWith_out_7;
+    assign c$parity4_app_arg_0[n_21] = zipWith_out_11;
   end
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd10]));
-
-  // zipWith begin
-  genvar n_17;
-  generate
-  for (n_17 = 0; n_17 < $size(c$parity4_app_arg_0); n_17 = n_17 + 1) begin : zipWith_8
-    logic zipWith_in1_8;
-    assign zipWith_in1_8 = c$vec1_2[n_17];
-    logic zipWith_in2_8;
-    assign zipWith_in2_8 = c$parity4_app_arg_1[n_17];
-    logic zipWith_out_8;
-    assign zipWith_out_8 = zipWith_in1_8 ^ zipWith_in2_8;
-
-
-    assign c$parity4_app_arg_0[n_17] = zipWith_out_8;
-  end
-  endgenerate
-  // zipWith end
-
-  assign c$vec1_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_6 = (dut_types::array_of_64_logic_from_lv(state[64'sd15]));
 
   assign c$vec2 = (dut_types::array_of_64_logic_from_lv(state[64'sd20]));
 
   // zipWith begin
-  genvar n_18;
+  genvar n_22;
   generate
-  for (n_18 = 0; n_18 < $size(c$parity4_app_arg_1); n_18 = n_18 + 1) begin : zipWith_9
-    logic zipWith_in1_9;
-    assign zipWith_in1_9 = c$vec1_3[n_18];
-    logic zipWith_in2_9;
-    assign zipWith_in2_9 = c$vec2[n_18];
-    logic zipWith_out_9;
-    assign zipWith_out_9 = zipWith_in1_9 ^ zipWith_in2_9;
+  for (n_22 = 0; n_22 < $size(c$parity4_app_arg_1); n_22 = n_22 + 1) begin : zipWith_12
+    logic zipWith_in1_12;
+    assign zipWith_in1_12 = c$vec1_6[n_22];
+    logic zipWith_in2_12;
+    assign zipWith_in2_12 = c$vec2[n_22];
+    logic zipWith_out_12;
+    assign zipWith_out_12 = zipWith_in1_12 ^ zipWith_in2_12;
 
 
-    assign c$parity4_app_arg_1[n_18] = zipWith_out_9;
+    assign c$parity4_app_arg_1[n_22] = zipWith_out_12;
   end
   endgenerate
   // zipWith end
@@ -5315,179 +5369,141 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
 
   generate
   if (shift_amount_1 == 0) begin : no_shift_1
-    assign c$lvl6_app_arg = parity0;
+    assign c$lvl2_app_arg = parity0;
   end else begin : do_shift_1
-    assign c$lvl6_app_arg[0:64-shift_amount_1-1] = parity0[shift_amount_1:64-1];
-    assign c$lvl6_app_arg[64-shift_amount_1:64-1] = parity0[0:shift_amount_1-1];
+    assign c$lvl2_app_arg[0:64-shift_amount_1-1] = parity0[shift_amount_1:64-1];
+    assign c$lvl2_app_arg[64-shift_amount_1:64-1] = parity0[0:shift_amount_1-1];
   end
   endgenerate
   // rotateLeftS end
-
-  assign c$vec1_4 = (dut_types::array_of_64_logic_from_lv(state[64'sd4]));
-
-  // zipWith begin
-  genvar n_19;
-  generate
-  for (n_19 = 0; n_19 < $size(parity0); n_19 = n_19 + 1) begin : zipWith_10
-    logic zipWith_in1_10;
-    assign zipWith_in1_10 = c$vec1_4[n_19];
-    logic zipWith_in2_10;
-    assign zipWith_in2_10 = c$parity0_app_arg[n_19];
-    logic zipWith_out_10;
-    assign zipWith_out_10 = zipWith_in1_10 ^ zipWith_in2_10;
-
-
-    assign parity0[n_19] = zipWith_out_10;
-  end
-  endgenerate
-  // zipWith end
 
   // rotateLeftS begin
   localparam shift_amount_2 = 1 % 64;
 
   generate
   if (shift_amount_2 == 0) begin : no_shift_2
-    assign c$lvl5_app_arg = parity3;
+    assign c$lvl1_app_arg = parity3;
   end else begin : do_shift_2
-    assign c$lvl5_app_arg[0:64-shift_amount_2-1] = parity3[shift_amount_2:64-1];
-    assign c$lvl5_app_arg[64-shift_amount_2:64-1] = parity3[0:shift_amount_2-1];
+    assign c$lvl1_app_arg[0:64-shift_amount_2-1] = parity3[shift_amount_2:64-1];
+    assign c$lvl1_app_arg[64-shift_amount_2:64-1] = parity3[0:shift_amount_2-1];
   end
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_5 = (dut_types::array_of_64_logic_from_lv(state[64'sd1]));
-
-  // zipWith begin
-  genvar n_20;
-  generate
-  for (n_20 = 0; n_20 < $size(parity3); n_20 = n_20 + 1) begin : zipWith_11
-    logic zipWith_in1_11;
-    assign zipWith_in1_11 = c$vec1_5[n_20];
-    logic zipWith_in2_11;
-    assign zipWith_in2_11 = c$parity3_app_arg[n_20];
-    logic zipWith_out_11;
-    assign zipWith_out_11 = zipWith_in1_11 ^ zipWith_in2_11;
-
-
-    assign parity3[n_20] = zipWith_out_11;
-  end
-  endgenerate
-  // zipWith end
-
-  assign c$vec1_6 = (dut_types::array_of_64_logic_from_lv(state[64'sd8]));
-
-  // zipWith begin
-  genvar n_21;
-  generate
-  for (n_21 = 0; n_21 < $size(c$parity1_app_arg); n_21 = n_21 + 1) begin : zipWith_12
-    logic zipWith_in1_12;
-    assign zipWith_in1_12 = c$vec1_6[n_21];
-    logic zipWith_in2_12;
-    assign zipWith_in2_12 = c$parity1_app_arg_0[n_21];
-    logic zipWith_out_12;
-    assign zipWith_out_12 = zipWith_in1_12 ^ zipWith_in2_12;
-
-
-    assign c$parity1_app_arg[n_21] = zipWith_out_12;
-  end
-  endgenerate
-  // zipWith end
-
-  assign c$vec1_7 = (dut_types::array_of_64_logic_from_lv(state[64'sd13]));
-
-  // zipWith begin
-  genvar n_22;
-  generate
-  for (n_22 = 0; n_22 < $size(c$parity1_app_arg_0); n_22 = n_22 + 1) begin : zipWith_13
-    logic zipWith_in1_13;
-    assign zipWith_in1_13 = c$vec1_7[n_22];
-    logic zipWith_in2_13;
-    assign zipWith_in2_13 = c$parity1_app_arg_1[n_22];
-    logic zipWith_out_13;
-    assign zipWith_out_13 = zipWith_in1_13 ^ zipWith_in2_13;
-
-
-    assign c$parity1_app_arg_0[n_22] = zipWith_out_13;
-  end
-  endgenerate
-  // zipWith end
-
-  assign c$vec1_8 = (dut_types::array_of_64_logic_from_lv(state[64'sd18]));
-
-  assign c$vec2_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec1_7 = (dut_types::array_of_64_logic_from_lv(state[64'sd8]));
 
   // zipWith begin
   genvar n_23;
   generate
-  for (n_23 = 0; n_23 < $size(c$parity1_app_arg_1); n_23 = n_23 + 1) begin : zipWith_14
-    logic zipWith_in1_14;
-    assign zipWith_in1_14 = c$vec1_8[n_23];
-    logic zipWith_in2_14;
-    assign zipWith_in2_14 = c$vec2_0[n_23];
-    logic zipWith_out_14;
-    assign zipWith_out_14 = zipWith_in1_14 ^ zipWith_in2_14;
+  for (n_23 = 0; n_23 < $size(c$parity1_app_arg); n_23 = n_23 + 1) begin : zipWith_13
+    logic zipWith_in1_13;
+    assign zipWith_in1_13 = c$vec1_7[n_23];
+    logic zipWith_in2_13;
+    assign zipWith_in2_13 = c$parity1_app_arg_0[n_23];
+    logic zipWith_out_13;
+    assign zipWith_out_13 = zipWith_in1_13 ^ zipWith_in2_13;
 
 
-    assign c$parity1_app_arg_1[n_23] = zipWith_out_14;
+    assign c$parity1_app_arg[n_23] = zipWith_out_13;
   end
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (dut_types::array_of_64_logic_from_lv(state[64'sd6]));
+  assign c$vec1_8 = (dut_types::array_of_64_logic_from_lv(state[64'sd13]));
 
   // zipWith begin
   genvar n_24;
   generate
-  for (n_24 = 0; n_24 < $size(c$parity3_app_arg); n_24 = n_24 + 1) begin : zipWith_15
-    logic zipWith_in1_15;
-    assign zipWith_in1_15 = c$vec1_9[n_24];
-    logic zipWith_in2_15;
-    assign zipWith_in2_15 = c$parity3_app_arg_0[n_24];
-    logic zipWith_out_15;
-    assign zipWith_out_15 = zipWith_in1_15 ^ zipWith_in2_15;
+  for (n_24 = 0; n_24 < $size(c$parity1_app_arg_0); n_24 = n_24 + 1) begin : zipWith_14
+    logic zipWith_in1_14;
+    assign zipWith_in1_14 = c$vec1_8[n_24];
+    logic zipWith_in2_14;
+    assign zipWith_in2_14 = c$parity1_app_arg_1[n_24];
+    logic zipWith_out_14;
+    assign zipWith_out_14 = zipWith_in1_14 ^ zipWith_in2_14;
 
 
-    assign c$parity3_app_arg[n_24] = zipWith_out_15;
+    assign c$parity1_app_arg_0[n_24] = zipWith_out_14;
   end
   endgenerate
   // zipWith end
 
-  assign c$vec1_10 = (dut_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_9 = (dut_types::array_of_64_logic_from_lv(state[64'sd18]));
+
+  assign c$vec2_0 = (dut_types::array_of_64_logic_from_lv(state[64'sd23]));
 
   // zipWith begin
   genvar n_25;
   generate
-  for (n_25 = 0; n_25 < $size(c$parity3_app_arg_0); n_25 = n_25 + 1) begin : zipWith_16
-    logic zipWith_in1_16;
-    assign zipWith_in1_16 = c$vec1_10[n_25];
-    logic zipWith_in2_16;
-    assign zipWith_in2_16 = c$parity3_app_arg_1[n_25];
-    logic zipWith_out_16;
-    assign zipWith_out_16 = zipWith_in1_16 ^ zipWith_in2_16;
+  for (n_25 = 0; n_25 < $size(c$parity1_app_arg_1); n_25 = n_25 + 1) begin : zipWith_15
+    logic zipWith_in1_15;
+    assign zipWith_in1_15 = c$vec1_9[n_25];
+    logic zipWith_in2_15;
+    assign zipWith_in2_15 = c$vec2_0[n_25];
+    logic zipWith_out_15;
+    assign zipWith_out_15 = zipWith_in1_15 ^ zipWith_in2_15;
 
 
-    assign c$parity3_app_arg_0[n_25] = zipWith_out_16;
+    assign c$parity1_app_arg_1[n_25] = zipWith_out_15;
   end
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (dut_types::array_of_64_logic_from_lv(state[64'sd16]));
-
-  assign c$vec2_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec1_10 = (dut_types::array_of_64_logic_from_lv(state[64'sd6]));
 
   // zipWith begin
   genvar n_26;
   generate
-  for (n_26 = 0; n_26 < $size(c$parity3_app_arg_1); n_26 = n_26 + 1) begin : zipWith_17
+  for (n_26 = 0; n_26 < $size(c$parity3_app_arg); n_26 = n_26 + 1) begin : zipWith_16
+    logic zipWith_in1_16;
+    assign zipWith_in1_16 = c$vec1_10[n_26];
+    logic zipWith_in2_16;
+    assign zipWith_in2_16 = c$parity3_app_arg_0[n_26];
+    logic zipWith_out_16;
+    assign zipWith_out_16 = zipWith_in1_16 ^ zipWith_in2_16;
+
+
+    assign c$parity3_app_arg[n_26] = zipWith_out_16;
+  end
+  endgenerate
+  // zipWith end
+
+  assign c$vec1_11 = (dut_types::array_of_64_logic_from_lv(state[64'sd11]));
+
+  // zipWith begin
+  genvar n_27;
+  generate
+  for (n_27 = 0; n_27 < $size(c$parity3_app_arg_0); n_27 = n_27 + 1) begin : zipWith_17
     logic zipWith_in1_17;
-    assign zipWith_in1_17 = c$vec1_11[n_26];
+    assign zipWith_in1_17 = c$vec1_11[n_27];
     logic zipWith_in2_17;
-    assign zipWith_in2_17 = c$vec2_1[n_26];
+    assign zipWith_in2_17 = c$parity3_app_arg_1[n_27];
     logic zipWith_out_17;
     assign zipWith_out_17 = zipWith_in1_17 ^ zipWith_in2_17;
 
 
-    assign c$parity3_app_arg_1[n_26] = zipWith_out_17;
+    assign c$parity3_app_arg_0[n_27] = zipWith_out_17;
+  end
+  endgenerate
+  // zipWith end
+
+  assign c$vec1_12 = (dut_types::array_of_64_logic_from_lv(state[64'sd16]));
+
+  assign c$vec2_1 = (dut_types::array_of_64_logic_from_lv(state[64'sd21]));
+
+  // zipWith begin
+  genvar n_28;
+  generate
+  for (n_28 = 0; n_28 < $size(c$parity3_app_arg_1); n_28 = n_28 + 1) begin : zipWith_18
+    logic zipWith_in1_18;
+    assign zipWith_in1_18 = c$vec1_12[n_28];
+    logic zipWith_in2_18;
+    assign zipWith_in2_18 = c$vec2_1[n_28];
+    logic zipWith_out_18;
+    assign zipWith_out_18 = zipWith_in1_18 ^ zipWith_in2_18;
+
+
+    assign c$parity3_app_arg_1[n_28] = zipWith_out_18;
   end
   endgenerate
   // zipWith end
@@ -5497,48 +5513,29 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
 
   generate
   if (shift_amount_3 == 0) begin : no_shift_3
-    assign c$lvl4_app_arg = parity2;
+    assign c$lvl_app_arg_2 = parity2;
   end else begin : do_shift_3
-    assign c$lvl4_app_arg[0:64-shift_amount_3-1] = parity2[shift_amount_3:64-1];
-    assign c$lvl4_app_arg[64-shift_amount_3:64-1] = parity2[0:shift_amount_3-1];
+    assign c$lvl_app_arg_2[0:64-shift_amount_3-1] = parity2[shift_amount_3:64-1];
+    assign c$lvl_app_arg_2[64-shift_amount_3:64-1] = parity2[0:shift_amount_3-1];
   end
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_12 = (dut_types::array_of_64_logic_from_lv(state[64'sd2]));
-
-  // zipWith begin
-  genvar n_27;
-  generate
-  for (n_27 = 0; n_27 < $size(parity2); n_27 = n_27 + 1) begin : zipWith_18
-    logic zipWith_in1_18;
-    assign zipWith_in1_18 = c$vec1_12[n_27];
-    logic zipWith_in2_18;
-    assign zipWith_in2_18 = c$parity2_app_arg[n_27];
-    logic zipWith_out_18;
-    assign zipWith_out_18 = zipWith_in1_18 ^ zipWith_in2_18;
-
-
-    assign parity2[n_27] = zipWith_out_18;
-  end
-  endgenerate
-  // zipWith end
-
   assign c$vec1_13 = (dut_types::array_of_64_logic_from_lv(state[64'sd7]));
 
   // zipWith begin
-  genvar n_28;
+  genvar n_29;
   generate
-  for (n_28 = 0; n_28 < $size(c$parity2_app_arg); n_28 = n_28 + 1) begin : zipWith_19
+  for (n_29 = 0; n_29 < $size(c$parity2_app_arg); n_29 = n_29 + 1) begin : zipWith_19
     logic zipWith_in1_19;
-    assign zipWith_in1_19 = c$vec1_13[n_28];
+    assign zipWith_in1_19 = c$vec1_13[n_29];
     logic zipWith_in2_19;
-    assign zipWith_in2_19 = c$parity2_app_arg_0[n_28];
+    assign zipWith_in2_19 = c$parity2_app_arg_0[n_29];
     logic zipWith_out_19;
     assign zipWith_out_19 = zipWith_in1_19 ^ zipWith_in2_19;
 
 
-    assign c$parity2_app_arg[n_28] = zipWith_out_19;
+    assign c$parity2_app_arg[n_29] = zipWith_out_19;
   end
   endgenerate
   // zipWith end
@@ -5546,18 +5543,18 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   assign c$vec1_14 = (dut_types::array_of_64_logic_from_lv(state[64'sd12]));
 
   // zipWith begin
-  genvar n_29;
+  genvar n_30;
   generate
-  for (n_29 = 0; n_29 < $size(c$parity2_app_arg_0); n_29 = n_29 + 1) begin : zipWith_20
+  for (n_30 = 0; n_30 < $size(c$parity2_app_arg_0); n_30 = n_30 + 1) begin : zipWith_20
     logic zipWith_in1_20;
-    assign zipWith_in1_20 = c$vec1_14[n_29];
+    assign zipWith_in1_20 = c$vec1_14[n_30];
     logic zipWith_in2_20;
-    assign zipWith_in2_20 = c$parity2_app_arg_1[n_29];
+    assign zipWith_in2_20 = c$parity2_app_arg_1[n_30];
     logic zipWith_out_20;
     assign zipWith_out_20 = zipWith_in1_20 ^ zipWith_in2_20;
 
 
-    assign c$parity2_app_arg_0[n_29] = zipWith_out_20;
+    assign c$parity2_app_arg_0[n_30] = zipWith_out_20;
   end
   endgenerate
   // zipWith end
@@ -5567,18 +5564,18 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   assign c$vec2_2 = (dut_types::array_of_64_logic_from_lv(state[64'sd22]));
 
   // zipWith begin
-  genvar n_30;
+  genvar n_31;
   generate
-  for (n_30 = 0; n_30 < $size(c$parity2_app_arg_1); n_30 = n_30 + 1) begin : zipWith_21
+  for (n_31 = 0; n_31 < $size(c$parity2_app_arg_1); n_31 = n_31 + 1) begin : zipWith_21
     logic zipWith_in1_21;
-    assign zipWith_in1_21 = c$vec1_15[n_30];
+    assign zipWith_in1_21 = c$vec1_15[n_31];
     logic zipWith_in2_21;
-    assign zipWith_in2_21 = c$vec2_2[n_30];
+    assign zipWith_in2_21 = c$vec2_2[n_31];
     logic zipWith_out_21;
     assign zipWith_out_21 = zipWith_in1_21 ^ zipWith_in2_21;
 
 
-    assign c$parity2_app_arg_1[n_30] = zipWith_out_21;
+    assign c$parity2_app_arg_1[n_31] = zipWith_out_21;
   end
   endgenerate
   // zipWith end
@@ -5586,18 +5583,18 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   assign c$vec1_16 = (dut_types::array_of_64_logic_from_lv(state[64'sd9]));
 
   // zipWith begin
-  genvar n_31;
+  genvar n_32;
   generate
-  for (n_31 = 0; n_31 < $size(c$parity0_app_arg); n_31 = n_31 + 1) begin : zipWith_22
+  for (n_32 = 0; n_32 < $size(c$parity0_app_arg); n_32 = n_32 + 1) begin : zipWith_22
     logic zipWith_in1_22;
-    assign zipWith_in1_22 = c$vec1_16[n_31];
+    assign zipWith_in1_22 = c$vec1_16[n_32];
     logic zipWith_in2_22;
-    assign zipWith_in2_22 = c$parity0_app_arg_0[n_31];
+    assign zipWith_in2_22 = c$parity0_app_arg_0[n_32];
     logic zipWith_out_22;
     assign zipWith_out_22 = zipWith_in1_22 ^ zipWith_in2_22;
 
 
-    assign c$parity0_app_arg[n_31] = zipWith_out_22;
+    assign c$parity0_app_arg[n_32] = zipWith_out_22;
   end
   endgenerate
   // zipWith end
@@ -5605,18 +5602,18 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   assign c$vec1_17 = (dut_types::array_of_64_logic_from_lv(state[64'sd14]));
 
   // zipWith begin
-  genvar n_32;
+  genvar n_33;
   generate
-  for (n_32 = 0; n_32 < $size(c$parity0_app_arg_0); n_32 = n_32 + 1) begin : zipWith_23
+  for (n_33 = 0; n_33 < $size(c$parity0_app_arg_0); n_33 = n_33 + 1) begin : zipWith_23
     logic zipWith_in1_23;
-    assign zipWith_in1_23 = c$vec1_17[n_32];
+    assign zipWith_in1_23 = c$vec1_17[n_33];
     logic zipWith_in2_23;
-    assign zipWith_in2_23 = c$parity0_app_arg_1[n_32];
+    assign zipWith_in2_23 = c$parity0_app_arg_1[n_33];
     logic zipWith_out_23;
     assign zipWith_out_23 = zipWith_in1_23 ^ zipWith_in2_23;
 
 
-    assign c$parity0_app_arg_0[n_32] = zipWith_out_23;
+    assign c$parity0_app_arg_0[n_33] = zipWith_out_23;
   end
   endgenerate
   // zipWith end
@@ -5626,61 +5623,59 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   assign c$vec2_3 = (dut_types::array_of_64_logic_from_lv(state[64'sd24]));
 
   // zipWith begin
-  genvar n_33;
+  genvar n_34;
   generate
-  for (n_33 = 0; n_33 < $size(c$parity0_app_arg_1); n_33 = n_33 + 1) begin : zipWith_24
+  for (n_34 = 0; n_34 < $size(c$parity0_app_arg_1); n_34 = n_34 + 1) begin : zipWith_24
     logic zipWith_in1_24;
-    assign zipWith_in1_24 = c$vec1_18[n_33];
+    assign zipWith_in1_24 = c$vec1_18[n_34];
     logic zipWith_in2_24;
-    assign zipWith_in2_24 = c$vec2_3[n_33];
+    assign zipWith_in2_24 = c$vec2_3[n_34];
     logic zipWith_out_24;
     assign zipWith_out_24 = zipWith_in1_24 ^ zipWith_in2_24;
 
 
-    assign c$parity0_app_arg_1[n_33] = zipWith_out_24;
+    assign c$parity0_app_arg_1[n_34] = zipWith_out_24;
   end
   endgenerate
   // zipWith end
-
-  // unconcat begin
-  genvar n_34;
-  generate
-    for (n_34 = 0; n_34 < $size(state); n_34 = n_34 + 1) begin : unconcat
-      assign state[n_34] = {dut_types::array_of_64_logic_to_lv(c$state_app_arg[(n_34 * 64) : ((n_34 * 64) + 64 - 1)])};
-    end
-  endgenerate
-  // unconcat end
 
   assign c$vec_2 = (dut_types::array_of_1600_logic_vector_1_from_lv(x));
 
   // map begin
   genvar n_35;
   generate
-  for (n_35=0; n_35 < $size(c$state_app_arg); n_35 = n_35 + 1) begin : map_6
+  for (n_35=0; n_35 < $size(c$app_arg_1); n_35 = n_35 + 1) begin : map_6
     logic [0:0] map_in_6;
     assign map_in_6 = c$vec_2[n_35];
     logic map_out_6;
     assign map_out_6 = map_in_6;
 
 
-    assign c$state_app_arg[n_35] = map_out_6;
+    assign c$app_arg_1[n_35] = map_out_6;
   end
   endgenerate
   // map end
 
-  assign c$vec_3 = (dut_types::array_of_64_logic_from_lv(c$lvl_app_arg_0[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
+  // setSlice begin
+  always_comb begin
+    result = c$app_arg_6;
+    result[63 : 0] = ((c$app_arg_6[63 : 0]) ^ (({dut_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
+  end
+  // setSlice end
+
+  assign c$vec_3 = (dut_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
 
   // map begin
   genvar n_36;
   generate
-  for (n_36=0; n_36 < $size(c$lvl_app_arg); n_36 = n_36 + 1) begin : map_7
+  for (n_36=0; n_36 < $size(c$app_arg_2); n_36 = n_36 + 1) begin : map_7
     logic map_in_7;
     assign map_in_7 = c$vec_3[n_36];
     logic [0:0] map_out_7;
     assign map_out_7 = (map_in_7);
 
 
-    assign c$lvl_app_arg[n_36] = map_out_7;
+    assign c$app_arg_2[n_36] = map_out_7;
   end
   endgenerate
   // map end
@@ -5688,9 +5683,9 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   // map begin
   genvar n_39;
   generate
-  for (n_39=0; n_39 < $size(c$lvl_app_arg_0); n_39 = n_39 + 1) begin : map_8
+  for (n_39=0; n_39 < $size(c$app_arg_3); n_39 = n_39 + 1) begin : map_8
     dut_types::array_of_7_logic map_in_8;
-    assign map_in_8 = dut_types::array_of_7_logic_from_lv(c$lvl_app_arg_1[n_39]);
+    assign map_in_8 = dut_types::array_of_7_logic_from_lv(c$app_arg_4[n_39]);
     dut_types::array_of_64_logic map_out_8;
     dut_types::array_of_8_array_of_64_logic ws;
     dut_types::array_of_7_array_of_64_logic ws1;
@@ -5818,7 +5813,7 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
     // zipWith end
 
 
-    assign c$lvl_app_arg_0[n_39] = {dut_types::array_of_64_logic_to_lv(map_out_8)};
+    assign c$app_arg_3[n_39] = {dut_types::array_of_64_logic_to_lv(map_out_8)};
   end
   endgenerate
   // map end
@@ -5826,8 +5821,8 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   // unconcat begin
   genvar n_40;
   generate
-    for (n_40 = 0; n_40 < $size(c$lvl_app_arg_1); n_40 = n_40 + 1) begin : unconcat_0
-      assign c$lvl_app_arg_1[n_40] = {dut_types::array_of_7_logic_to_lv(c$lvl_app_arg_2[(n_40 * 7) : ((n_40 * 7) + 7 - 1)])};
+    for (n_40 = 0; n_40 < $size(c$app_arg_4); n_40 = n_40 + 1) begin : unconcat_0
+      assign c$app_arg_4[n_40] = {dut_types::array_of_7_logic_to_lv(c$app_arg_5[(n_40 * 7) : ((n_40 * 7) + 7 - 1)])};
     end
   endgenerate
   // unconcat end
@@ -5835,14 +5830,14 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   // map begin
   genvar n_41;
   generate
-  for (n_41=0; n_41 < $size(c$lvl_app_arg_2); n_41 = n_41 + 1) begin : map_9
+  for (n_41=0; n_41 < $size(c$app_arg_5); n_41 = n_41 + 1) begin : map_9
     dut_types::Tuple2 map_in_9;
     assign map_in_9 = \Permutation.Constants.iotaConstants_xs [n_41];
     logic map_out_9;
     assign map_out_9 = map_in_9.Tuple2_sel0;
 
 
-    assign c$lvl_app_arg_2[n_41] = map_out_9;
+    assign c$app_arg_5[n_41] = map_out_9;
   end
   endgenerate
   // map end
@@ -5981,6 +5976,8 @@ module Component_SamplePolyCBD2_i264o24_keccakF1600
   // map end
 
   assign \Permutation.Constants.iotaConstants5  = \Permutation.Constants.iotaConstants_xs ;
+
+  assign c$app_arg_6 = result_0;
 
 
 endmodule
