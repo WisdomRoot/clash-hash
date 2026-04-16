@@ -35,20 +35,12 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
             "name": "dut_types.sv",
-            "sha256": "365247aaa6d86ce567ade731132a6d8aa3bd544d3243ad7c8e2baf76f25a2434"
+            "sha256": "39dc8f3b304f2b1edbc79a27c2cfae573a6688bc8974d12d1d75a7f298f28a35"
         },
         {
             "name": "Component_SampleNTT_i272o24l2_keccakF1600.sv",
@@ -56,14 +48,14 @@
         },
         {
             "name": "dut.sv",
-            "sha256": "413c73ef05c8744e72a84f1755b7b03d680d63ae56efbcc26f95a59f162c2f16"
+            "sha256": "83432881764875ee02de2ddfd499644356dc494722a6c88d70beab03b573e9bd"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "4481cf718e290c8892efb5fcf8f0a4bd67671ec2722325044a169928eb817633",
+    "hash": "71d4774e89225e3a20077600c8791afc94c0ec0121c7c2954577ceede62a339f",
     "top_component": {
         "name": "dut",
         "ports_flat": [

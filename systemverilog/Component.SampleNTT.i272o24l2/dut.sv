@@ -19,15 +19,34 @@ module dut
     , output logic COEFF_TLAST
     , output logic SEED_TREADY
     );
-  logic [6:0] c$ds1_app_arg = {2'b00,5'bxxxxx};
-  logic [1599:0] c$ds1_app_arg_0 = 1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
-  logic [62:0] c$ds1_app_arg_1 = {3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-  dut_types::Tuple2_2 result_0;
-  dut_types::Tuple4 result_1;
+  logic [62:0] c$ds1_app_arg = {3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+  logic [1599:0] result_0;
+  logic [1599:0] c$app_arg;
+  logic [1599:0] result_1;
+  logic [1599:0] c$app_arg_0;
+  logic [1599:0] result_2;
+  logic [1599:0] c$app_arg_1;
+  logic [1599:0] result_3;
+  logic [1599:0] c$app_arg_2;
+  logic [1599:0] result_4;
+  logic [1599:0] c$app_arg_3;
+  logic [1599:0] result_5;
+  logic [1599:0] c$app_arg_4;
+  logic [1599:0] c$keccakState_case_alt;
+  logic [1599:0] c$keccakState_case_alt_0;
+  logic [1599:0] c$keccakState_case_alt_1;
+  dut_types::Tuple2_2 result_6;
+  logic [271:0] inputMsg;
+  logic msgValid;
+  logic [4:0] counter;
+  logic coeffReady;
+  dut_types::AXI4Stream seedStream;
+  logic [6:0] phase = {2'b00,5'bxxxxx};
+  dut_types::Tuple3_0 result_7;
   dut_types::Tuple4 c$ds_case_alt;
   dut_types::Tuple4 c$ds_case_alt_0;
-  logic msgValid;
-  dut_types::Tuple4 result_2;
+  logic msgValid_0;
+  dut_types::Tuple4 result_8;
   dut_types::Tuple4 c$ds_case_alt_1;
   dut_types::Tuple4 c$ds_case_alt_2;
   dut_types::Tuple4 c$ds_case_alt_3;
@@ -67,21 +86,21 @@ module dut
   logic [11:0] c0_1;
   logic [11:0] c0_2;
   logic [6:0] c$ds_app_arg;
-  dut_types::Tuple4 result_3;
-  logic [1599:0] result_4;
-  logic [1599:0] c$app_arg;
-  logic [1599:0] result_5;
-  logic [1599:0] c$app_arg_0;
-  logic [1599:0] result_6;
-  logic [1599:0] c$app_arg_1;
-  logic [1599:0] result_7;
-  logic [1599:0] c$app_arg_2;
-  logic [1599:0] result_8;
-  logic [1599:0] c$app_arg_3;
-  logic [1599:0] result_9;
-  logic [1599:0] c$app_arg_4;
-  logic [271:0] inputMsg;
-  logic [50:0] result_10;
+  dut_types::Tuple4 result_9;
+  logic [1599:0] result_10;
+  logic [1599:0] c$app_arg_5;
+  logic [1599:0] result_11;
+  logic [1599:0] c$app_arg_6;
+  logic [1599:0] result_12;
+  logic [1599:0] c$app_arg_7;
+  logic [1599:0] result_13;
+  logic [1599:0] c$app_arg_8;
+  logic [1599:0] result_14;
+  logic [1599:0] c$app_arg_9;
+  logic [1599:0] result_15;
+  logic [1599:0] c$app_arg_10;
+  logic [271:0] inputMsg_0;
+  logic [50:0] result_16;
   logic [50:0] c$case_alt;
   logic [50:0] c$case_alt_0;
   logic [50:0] c$case_alt_1;
@@ -133,11 +152,10 @@ module dut
   logic [47:0] c$chunk_case_alt_24;
   logic [47:0] c$chunk_case_alt_25;
   logic [1599:0] c$chunk_app_arg;
-  logic [4:0] counter;
-  logic [1599:0] c$keccakF1600_out;
   logic [4:0] counter_0;
-  logic coeffReady;
-  dut_types::AXI4Stream seedStream;
+  logic [1599:0] c$keccakF1600_out;
+  logic [4:0] counter_1;
+  logic [1599:0] keccakState = 1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
   dut_types::Tuple2_3 c$arg;
   dut_types::Tuple2_4 result;
   dut_types::AXI4Stream_0 COEFF;
@@ -150,114 +168,179 @@ module dut
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : c$ds1_app_arg_register
     if ( RST) begin
-      c$ds1_app_arg <= {2'b00,5'bxxxxx};
+      c$ds1_app_arg <= {3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
     end else  if (EN)  begin
-      c$ds1_app_arg <= result_1.Tuple4_sel0;
+      c$ds1_app_arg <= result_7.Tuple3_0_sel1;
     end
   end
   // register end
+
+  // replaceBit start
+  always_comb begin
+    result_0 = c$app_arg;
+    result_0[64'sd272] = (~ (c$app_arg[64'sd272]));
+  end
+  // replaceBit end
+
+  assign c$app_arg = result_1;
+
+  // replaceBit start
+  always_comb begin
+    result_1 = c$app_arg_0;
+    result_1[64'sd273] = (~ (c$app_arg_0[64'sd273]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_0 = result_2;
+
+  // replaceBit start
+  always_comb begin
+    result_2 = c$app_arg_1;
+    result_2[64'sd274] = (~ (c$app_arg_1[64'sd274]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_1 = result_3;
+
+  // replaceBit start
+  always_comb begin
+    result_3 = c$app_arg_2;
+    result_3[64'sd275] = (~ (c$app_arg_2[64'sd275]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_2 = result_4;
+
+  // replaceBit start
+  always_comb begin
+    result_4 = c$app_arg_3;
+    result_4[64'sd276] = (~ (c$app_arg_3[64'sd276]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_3 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
+
+  // replaceBit start
+  always_comb begin
+    result_5 = c$app_arg_4;
+    result_5[64'sd1343] = (~ (c$app_arg_4[64'sd1343]));
+  end
+  // replaceBit end
+
+  assign c$app_arg_4 = result_0;
+
+  assign c$keccakState_case_alt = msgValid ? result_5 : keccakState;
+
+  Component_SampleNTT_i272o24l2_keccakF1600 Component_SampleNTT_i272o24l2_keccakF1600_c$keccakState_case_alt_0
+    ( .result (c$keccakState_case_alt_0)
+    , .roundIdx (counter)
+    , .x (keccakState) );
+
+  always_comb begin
+    case(phase[6:5])
+      2'b00 : c$keccakState_case_alt_1 = c$keccakState_case_alt;
+      2'b01 : c$keccakState_case_alt_1 = c$keccakState_case_alt_0;
+      default : c$keccakState_case_alt_1 = keccakState;
+    endcase
+  end
+
+  assign result_6 = {result_7[26:26]
+                    ,result_7[25:0]};
+
+  assign inputMsg = seedStream.AXI4Stream_sel0;
+
+  assign msgValid = seedStream.AXI4Stream_sel1;
+
+  assign counter = phase[4:0];
+
+  assign coeffReady = c$arg.Tuple2_3_sel1;
+
+  assign seedStream = c$arg.Tuple2_3_sel0;
 
   // register begin
-  always_ff @(posedge CLK or  posedge  RST) begin : c$ds1_app_arg_0_register
+  always_ff @(posedge CLK or  posedge  RST) begin : phase_register
     if ( RST) begin
-      c$ds1_app_arg_0 <= 1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
+      phase <= {2'b00,5'bxxxxx};
     end else  if (EN)  begin
-      c$ds1_app_arg_0 <= result_1.Tuple4_sel1;
+      phase <= result_7.Tuple3_0_sel0;
     end
   end
   // register end
 
-  // register begin
-  always_ff @(posedge CLK or  posedge  RST) begin : c$ds1_app_arg_1_register
-    if ( RST) begin
-      c$ds1_app_arg_1 <= {3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-    end else  if (EN)  begin
-      c$ds1_app_arg_1 <= result_1.Tuple4_sel2;
-    end
-  end
-  // register end
-
-  assign result_0 = {result_1[26:26]
-                    ,result_1[25:0]};
-
-  assign result_1 = {c$ds_case_alt.Tuple4_sel0
-                    ,c$ds_case_alt.Tuple4_sel1
+  assign result_7 = {c$ds_case_alt.Tuple4_sel0
                     ,c$ds_case_alt.Tuple4_sel2
                     ,c$ds_case_alt.Tuple4_sel3};
 
   always_comb begin
-    case(c$ds1_app_arg[6:5])
+    case(phase[6:5])
       2'b00 : c$ds_case_alt = c$ds_case_alt_0;
-      2'b01 : c$ds_case_alt = result_3;
-      default : c$ds_case_alt = result_2;
+      2'b01 : c$ds_case_alt = result_9;
+      default : c$ds_case_alt = result_8;
     endcase
   end
 
-  assign c$ds_case_alt_0 = msgValid ? {{2'b01,5'd0}
-                                      ,result_4
-                                      ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0
-                                       ,{24'b000000000000000000000000
-                                        ,1'b0
-                                        ,1'b0}}} : {{2'b00,5'bxxxxx}
-                                                   ,c$ds1_app_arg_0
-                                                   ,c$ds1_app_arg_1
-                                                   ,{1'b1
-                                                    ,{24'b000000000000000000000000,1'b0,1'b0}}};
-
-  assign msgValid = seedStream.AXI4Stream_sel1;
-
-  always_comb begin
-    case(c$ds1_app_arg_1[62:60])
-      3'b000 : result_2 = c$ds_case_alt_6;
-      3'b001 : result_2 = c$ds_case_alt_5;
-      3'b010 : result_2 = c$ds_case_alt_4;
-      3'b011 : result_2 = c$ds_case_alt_3;
-      3'b100 : result_2 = c$ds_case_alt_2;
-      default : result_2 = c$ds_case_alt_1;
-    endcase
-  end
-
-  assign c$ds_case_alt_1 = coeffReady ? {c$ds1_app_arg
-                                        ,c$ds1_app_arg_0
-                                        ,{3'b011,b2,b3,b4,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b0,{{b1,b0},1'b1,1'b0}}} : {c$ds1_app_arg
-                                                                       ,c$ds1_app_arg_0
-                                                                       ,c$ds1_app_arg_1
-                                                                       ,{1'b0,{{b1,b0},1'b1,1'b0}}};
-
-  assign c$ds_case_alt_2 = coeffReady ? {c$ds1_app_arg
-                                        ,c$ds1_app_arg_0
-                                        ,{3'b010,b2_0,b3_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b0
-                                         ,{{b1_0,b0_0},1'b1,1'b0}}} : {c$ds1_app_arg
-                                                                      ,c$ds1_app_arg_0
-                                                                      ,c$ds1_app_arg_1
-                                                                      ,{1'b0,{{b1_0,b0_0},1'b1,1'b0}}};
-
-  assign c$ds_case_alt_3 = coeffReady ? {c$ds1_app_arg
-                                        ,c$ds1_app_arg_0
-                                        ,{3'b001,b2_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                        ,{1'b0
-                                         ,{{b1_1,b0_1},1'b1,1'b0}}} : {c$ds1_app_arg
-                                                                      ,c$ds1_app_arg_0
-                                                                      ,c$ds1_app_arg_1
-                                                                      ,{1'b0,{{b1_1,b0_1},1'b1,1'b0}}};
-
-  assign c$ds_case_alt_4 = coeffReady ? {c$ds1_app_arg
-                                        ,c$ds1_app_arg_0
+  assign c$ds_case_alt_0 = msgValid_0 ? {{2'b01,5'd0}
+                                        ,result_15
                                         ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                         ,{1'b0
-                                         ,{{b1_2,b0_2},1'b1,1'b0}}} : {c$ds1_app_arg
-                                                                      ,c$ds1_app_arg_0
-                                                                      ,c$ds1_app_arg_1
-                                                                      ,{1'b0,{{b1_2,b0_2},1'b1,1'b0}}};
+                                         ,{24'b000000000000000000000000
+                                          ,1'b0
+                                          ,1'b0}}} : {{2'b00,5'bxxxxx}
+                                                     ,keccakState
+                                                     ,c$ds1_app_arg
+                                                     ,{1'b1
+                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
+
+  assign msgValid_0 = seedStream.AXI4Stream_sel1;
 
   always_comb begin
-    case(result_10[50:48])
+    case(c$ds1_app_arg[62:60])
+      3'b000 : result_8 = c$ds_case_alt_6;
+      3'b001 : result_8 = c$ds_case_alt_5;
+      3'b010 : result_8 = c$ds_case_alt_4;
+      3'b011 : result_8 = c$ds_case_alt_3;
+      3'b100 : result_8 = c$ds_case_alt_2;
+      default : result_8 = c$ds_case_alt_1;
+    endcase
+  end
+
+  assign c$ds_case_alt_1 = coeffReady ? {phase
+                                        ,keccakState
+                                        ,{3'b011,b2,b3,b4,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
+                                        ,{1'b0,{{b1,b0},1'b1,1'b0}}} : {phase
+                                                                       ,keccakState
+                                                                       ,c$ds1_app_arg
+                                                                       ,{1'b0,{{b1,b0},1'b1,1'b0}}};
+
+  assign c$ds_case_alt_2 = coeffReady ? {phase
+                                        ,keccakState
+                                        ,{3'b010,b2_0,b3_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                        ,{1'b0,{{b1_0,b0_0},1'b1,1'b0}}} : {phase
+                                                                           ,keccakState
+                                                                           ,c$ds1_app_arg
+                                                                           ,{1'b0,{{b1_0,b0_0},1'b1,1'b0}}};
+
+  assign c$ds_case_alt_3 = coeffReady ? {phase
+                                        ,keccakState
+                                        ,{3'b001,b2_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                        ,{1'b0,{{b1_1,b0_1},1'b1,1'b0}}} : {phase
+                                                                           ,keccakState
+                                                                           ,c$ds1_app_arg
+                                                                           ,{1'b0,{{b1_1,b0_1},1'b1,1'b0}}};
+
+  assign c$ds_case_alt_4 = coeffReady ? {phase
+                                        ,keccakState
+                                        ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+                                        ,{1'b0,{{b1_2,b0_2},1'b1,1'b0}}} : {phase
+                                                                           ,keccakState
+                                                                           ,c$ds1_app_arg
+                                                                           ,{1'b0,{{b1_2,b0_2},1'b1,1'b0}}};
+
+  always_comb begin
+    case(result_16[50:48])
       3'b000 : c$ds_case_alt_5 = {c$ds_app_arg
-                                 ,c$ds1_app_arg_0
-                                 ,c$ds1_app_arg_1
+                                 ,keccakState
+                                 ,c$ds1_app_arg
                                  ,{1'b0
                                   ,{24'b000000000000000000000000,1'b0,1'b0}}};
       3'b001 : c$ds_case_alt_5 = c$ds_case_alt_10;
@@ -268,14 +351,14 @@ module dut
   end
 
   always_comb begin
-    case(result_10[50:48])
+    case(result_16[50:48])
       3'b000 : c$ds_case_alt_6 = {c$ds_app_arg
-                                 ,c$ds1_app_arg_0
+                                 ,keccakState
                                  ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                  ,{1'b0
                                   ,{24'b000000000000000000000000,1'b0,1'b0}}};
       3'b001 : c$ds_case_alt_6 = {c$ds_app_arg
-                                 ,c$ds1_app_arg_0
+                                 ,keccakState
                                  ,{3'b001,c0_2,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                  ,{1'b0
                                   ,{24'b000000000000000000000000,1'b0,1'b0}}};
@@ -285,88 +368,88 @@ module dut
     endcase
   end
 
-  assign b4 = c$ds1_app_arg_1[11:0];
+  assign b4 = c$ds1_app_arg[11:0];
 
-  assign b3 = c$ds1_app_arg_1[23:12];
+  assign b3 = c$ds1_app_arg[23:12];
 
-  assign b2 = c$ds1_app_arg_1[35:24];
+  assign b2 = c$ds1_app_arg[35:24];
 
-  assign b1 = c$ds1_app_arg_1[47:36];
+  assign b1 = c$ds1_app_arg[47:36];
 
-  assign b0 = c$ds1_app_arg_1[59:48];
+  assign b0 = c$ds1_app_arg[59:48];
 
-  assign b3_0 = c$ds1_app_arg_1[23:12];
+  assign b3_0 = c$ds1_app_arg[23:12];
 
-  assign b2_0 = c$ds1_app_arg_1[35:24];
+  assign b2_0 = c$ds1_app_arg[35:24];
 
-  assign b1_0 = c$ds1_app_arg_1[47:36];
+  assign b1_0 = c$ds1_app_arg[47:36];
 
-  assign b0_0 = c$ds1_app_arg_1[59:48];
+  assign b0_0 = c$ds1_app_arg[59:48];
 
-  assign b2_1 = c$ds1_app_arg_1[35:24];
+  assign b2_1 = c$ds1_app_arg[35:24];
 
-  assign b1_1 = c$ds1_app_arg_1[47:36];
+  assign b1_1 = c$ds1_app_arg[47:36];
 
-  assign b0_1 = c$ds1_app_arg_1[59:48];
+  assign b0_1 = c$ds1_app_arg[59:48];
 
-  assign b1_2 = c$ds1_app_arg_1[47:36];
+  assign b1_2 = c$ds1_app_arg[47:36];
 
-  assign b0_2 = c$ds1_app_arg_1[59:48];
+  assign b0_2 = c$ds1_app_arg[59:48];
 
   assign c$ds_case_alt_7 = coeffReady ? {c$ds_app_arg
-                                        ,c$ds1_app_arg_0
+                                        ,keccakState
                                         ,{3'b011,c1,c2,c3,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
                                         ,{1'b0,{{c0,b0_3},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                         ,c$ds1_app_arg_0
+                                                                         ,keccakState
                                                                          ,{3'b101,b0_3,c0,c1,c2,c3}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
   assign c$ds_case_alt_8 = coeffReady ? {c$ds_app_arg
-                                        ,c$ds1_app_arg_0
+                                        ,keccakState
                                         ,{3'b010,c1_0,c2_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                         ,{1'b0,{{c0_0,b0_3},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                           ,c$ds1_app_arg_0
+                                                                           ,keccakState
                                                                            ,{3'b100,b0_3,c0_0,c1_0,c2_0,12'bxxxxxxxxxxxx}
                                                                            ,{1'b0
                                                                             ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
   assign c$ds_case_alt_9 = coeffReady ? {c$ds_app_arg
-                                        ,c$ds1_app_arg_0
+                                        ,keccakState
                                         ,{3'b001,c1_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                         ,{1'b0,{{c0_1,b0_3},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                           ,c$ds1_app_arg_0
+                                                                           ,keccakState
                                                                            ,{3'b011,b0_3,c0_1,c1_1,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                            ,{1'b0
                                                                             ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
   assign c$ds_case_alt_10 = coeffReady ? {c$ds_app_arg
-                                         ,c$ds1_app_arg_0
+                                         ,keccakState
                                          ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                          ,{1'b0,{{c0_2,b0_3},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                            ,c$ds1_app_arg_0
+                                                                            ,keccakState
                                                                             ,{3'b010,b0_3,c0_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                             ,{1'b0
                                                                              ,{24'b000000000000000000000000
                                                                               ,1'b0
                                                                               ,1'b0}}};
 
-  assign b0_3 = c$ds1_app_arg_1[59:48];
+  assign b0_3 = c$ds1_app_arg[59:48];
 
   assign c$ds_case_alt_11 = coeffReady ? {c$ds_app_arg
-                                         ,c$ds1_app_arg_0
+                                         ,keccakState
                                          ,{3'b010,c2,c3,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                          ,{1'b0,{{c1,c0},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                        ,c$ds1_app_arg_0
+                                                                        ,keccakState
                                                                         ,{3'b100,c0,c1,c2,c3,12'bxxxxxxxxxxxx}
                                                                         ,{1'b0
                                                                          ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
   assign c$ds_case_alt_12 = coeffReady ? {c$ds_app_arg
-                                         ,c$ds1_app_arg_0
+                                         ,keccakState
                                          ,{3'b001,c2_0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                          ,{1'b0,{{c1_0,c0_0},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                            ,c$ds1_app_arg_0
+                                                                            ,keccakState
                                                                             ,{3'b011,c0_0,c1_0,c2_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                             ,{1'b0
                                                                              ,{24'b000000000000000000000000
@@ -374,107 +457,107 @@ module dut
                                                                               ,1'b0}}};
 
   assign c$ds_case_alt_13 = coeffReady ? {c$ds_app_arg
-                                         ,c$ds1_app_arg_0
+                                         ,keccakState
                                          ,{3'b000,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                          ,{1'b0,{{c1_1,c0_1},1'b1,1'b0}}} : {c$ds_app_arg
-                                                                            ,c$ds1_app_arg_0
+                                                                            ,keccakState
                                                                             ,{3'b010,c0_1,c1_1,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                             ,{1'b0
                                                                              ,{24'b000000000000000000000000
                                                                               ,1'b0
                                                                               ,1'b0}}};
 
-  assign c3 = result_10[11:0];
+  assign c3 = result_16[11:0];
 
-  assign c2 = result_10[23:12];
+  assign c2 = result_16[23:12];
 
-  assign c1 = result_10[35:24];
+  assign c1 = result_16[35:24];
 
-  assign c0 = result_10[47:36];
+  assign c0 = result_16[47:36];
 
-  assign c2_0 = result_10[23:12];
+  assign c2_0 = result_16[23:12];
 
-  assign c1_0 = result_10[35:24];
+  assign c1_0 = result_16[35:24];
 
-  assign c0_0 = result_10[47:36];
+  assign c0_0 = result_16[47:36];
 
-  assign c1_1 = result_10[35:24];
+  assign c1_1 = result_16[35:24];
 
-  assign c0_1 = result_10[47:36];
+  assign c0_1 = result_16[47:36];
 
-  assign c0_2 = result_10[47:36];
+  assign c0_2 = result_16[47:36];
 
-  assign c$ds_app_arg = (counter == 5'd27) ? {2'b01,5'd0} : {2'b10,counter + 5'd1};
+  assign c$ds_app_arg = (counter_0 == 5'd27) ? {2'b01,5'd0} : {2'b10,counter_0 + 5'd1};
 
-  assign result_3 = (counter_0 == 5'd23) ? {{2'b10,5'd0}
+  assign result_9 = (counter_1 == 5'd23) ? {{2'b10,5'd0}
                                            ,c$keccakF1600_out
-                                           ,c$ds1_app_arg_1
+                                           ,c$ds1_app_arg
                                            ,{1'b0
                                             ,{24'b000000000000000000000000
                                              ,1'b0
-                                             ,1'b0}}} : {{2'b01,counter_0 + 5'd1}
+                                             ,1'b0}}} : {{2'b01,counter_1 + 5'd1}
                                                         ,c$keccakF1600_out
-                                                        ,c$ds1_app_arg_1
+                                                        ,c$ds1_app_arg
                                                         ,{1'b0
                                                          ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
   // replaceBit start
   always_comb begin
-    result_4 = c$app_arg;
-    result_4[64'sd1343] = (~ (c$app_arg[64'sd1343]));
+    result_10 = c$app_arg_5;
+    result_10[64'sd272] = (~ (c$app_arg_5[64'sd272]));
   end
   // replaceBit end
 
-  assign c$app_arg = result_5;
+  assign c$app_arg_5 = result_11;
 
   // replaceBit start
   always_comb begin
-    result_5 = c$app_arg_0;
-    result_5[64'sd272] = (~ (c$app_arg_0[64'sd272]));
+    result_11 = c$app_arg_6;
+    result_11[64'sd273] = (~ (c$app_arg_6[64'sd273]));
   end
   // replaceBit end
 
-  assign c$app_arg_0 = result_6;
+  assign c$app_arg_6 = result_12;
 
   // replaceBit start
   always_comb begin
-    result_6 = c$app_arg_1;
-    result_6[64'sd273] = (~ (c$app_arg_1[64'sd273]));
+    result_12 = c$app_arg_7;
+    result_12[64'sd274] = (~ (c$app_arg_7[64'sd274]));
   end
   // replaceBit end
 
-  assign c$app_arg_1 = result_7;
+  assign c$app_arg_7 = result_13;
 
   // replaceBit start
   always_comb begin
-    result_7 = c$app_arg_2;
-    result_7[64'sd274] = (~ (c$app_arg_2[64'sd274]));
+    result_13 = c$app_arg_8;
+    result_13[64'sd275] = (~ (c$app_arg_8[64'sd275]));
   end
   // replaceBit end
 
-  assign c$app_arg_2 = result_8;
+  assign c$app_arg_8 = result_14;
 
   // replaceBit start
   always_comb begin
-    result_8 = c$app_arg_3;
-    result_8[64'sd275] = (~ (c$app_arg_3[64'sd275]));
+    result_14 = c$app_arg_9;
+    result_14[64'sd276] = (~ (c$app_arg_9[64'sd276]));
   end
   // replaceBit end
 
-  assign c$app_arg_3 = result_9;
+  assign c$app_arg_9 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg_0});
 
   // replaceBit start
   always_comb begin
-    result_9 = c$app_arg_4;
-    result_9[64'sd276] = (~ (c$app_arg_4[64'sd276]));
+    result_15 = c$app_arg_10;
+    result_15[64'sd1343] = (~ (c$app_arg_10[64'sd1343]));
   end
   // replaceBit end
 
-  assign c$app_arg_4 = ({1328'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,inputMsg});
+  assign c$app_arg_10 = result_10;
 
-  assign inputMsg = seedStream.AXI4Stream_sel0;
+  assign inputMsg_0 = seedStream.AXI4Stream_sel0;
 
-  assign result_10 = (c0_3 < 12'b110100000001) ? c$case_alt : c$case_alt_0;
+  assign result_16 = (c0_3 < 12'b110100000001) ? c$case_alt : c$case_alt_0;
 
   assign c$case_alt = c$case_scrut ? c$case_alt_1 : c$case_alt_2;
 
@@ -520,79 +603,85 @@ module dut
 
   assign c$c0_app_arg = chunk;
 
-  assign chunk = (counter == 5'd0) ? (c$chunk_app_arg[47 : 0]) : c$chunk_case_alt;
+  assign chunk = (counter_0 == 5'd0) ? (c$chunk_app_arg[47 : 0]) : c$chunk_case_alt;
 
-  assign c$chunk_case_alt = (counter == 5'd1) ? (c$chunk_app_arg[95 : 48]) : c$chunk_case_alt_0;
+  assign c$chunk_case_alt = (counter_0 == 5'd1) ? (c$chunk_app_arg[95 : 48]) : c$chunk_case_alt_0;
 
-  assign c$chunk_case_alt_0 = (counter == 5'd2) ? (c$chunk_app_arg[143 : 96]) : c$chunk_case_alt_1;
+  assign c$chunk_case_alt_0 = (counter_0 == 5'd2) ? (c$chunk_app_arg[143 : 96]) : c$chunk_case_alt_1;
 
-  assign c$chunk_case_alt_1 = (counter == 5'd3) ? (c$chunk_app_arg[191 : 144]) : c$chunk_case_alt_2;
+  assign c$chunk_case_alt_1 = (counter_0 == 5'd3) ? (c$chunk_app_arg[191 : 144]) : c$chunk_case_alt_2;
 
-  assign c$chunk_case_alt_2 = (counter == 5'd4) ? (c$chunk_app_arg[239 : 192]) : c$chunk_case_alt_3;
+  assign c$chunk_case_alt_2 = (counter_0 == 5'd4) ? (c$chunk_app_arg[239 : 192]) : c$chunk_case_alt_3;
 
-  assign c$chunk_case_alt_3 = (counter == 5'd5) ? (c$chunk_app_arg[287 : 240]) : c$chunk_case_alt_4;
+  assign c$chunk_case_alt_3 = (counter_0 == 5'd5) ? (c$chunk_app_arg[287 : 240]) : c$chunk_case_alt_4;
 
-  assign c$chunk_case_alt_4 = (counter == 5'd6) ? (c$chunk_app_arg[335 : 288]) : c$chunk_case_alt_5;
+  assign c$chunk_case_alt_4 = (counter_0 == 5'd6) ? (c$chunk_app_arg[335 : 288]) : c$chunk_case_alt_5;
 
-  assign c$chunk_case_alt_5 = (counter == 5'd7) ? (c$chunk_app_arg[383 : 336]) : c$chunk_case_alt_6;
+  assign c$chunk_case_alt_5 = (counter_0 == 5'd7) ? (c$chunk_app_arg[383 : 336]) : c$chunk_case_alt_6;
 
-  assign c$chunk_case_alt_6 = (counter == 5'd8) ? (c$chunk_app_arg[431 : 384]) : c$chunk_case_alt_7;
+  assign c$chunk_case_alt_6 = (counter_0 == 5'd8) ? (c$chunk_app_arg[431 : 384]) : c$chunk_case_alt_7;
 
-  assign c$chunk_case_alt_7 = (counter == 5'd9) ? (c$chunk_app_arg[479 : 432]) : c$chunk_case_alt_8;
+  assign c$chunk_case_alt_7 = (counter_0 == 5'd9) ? (c$chunk_app_arg[479 : 432]) : c$chunk_case_alt_8;
 
-  assign c$chunk_case_alt_8 = (counter == 5'd10) ? (c$chunk_app_arg[527 : 480]) : c$chunk_case_alt_9;
+  assign c$chunk_case_alt_8 = (counter_0 == 5'd10) ? (c$chunk_app_arg[527 : 480]) : c$chunk_case_alt_9;
 
-  assign c$chunk_case_alt_9 = (counter == 5'd11) ? (c$chunk_app_arg[575 : 528]) : c$chunk_case_alt_10;
+  assign c$chunk_case_alt_9 = (counter_0 == 5'd11) ? (c$chunk_app_arg[575 : 528]) : c$chunk_case_alt_10;
 
-  assign c$chunk_case_alt_10 = (counter == 5'd12) ? (c$chunk_app_arg[623 : 576]) : c$chunk_case_alt_11;
+  assign c$chunk_case_alt_10 = (counter_0 == 5'd12) ? (c$chunk_app_arg[623 : 576]) : c$chunk_case_alt_11;
 
-  assign c$chunk_case_alt_11 = (counter == 5'd13) ? (c$chunk_app_arg[671 : 624]) : c$chunk_case_alt_12;
+  assign c$chunk_case_alt_11 = (counter_0 == 5'd13) ? (c$chunk_app_arg[671 : 624]) : c$chunk_case_alt_12;
 
-  assign c$chunk_case_alt_12 = (counter == 5'd14) ? (c$chunk_app_arg[719 : 672]) : c$chunk_case_alt_13;
+  assign c$chunk_case_alt_12 = (counter_0 == 5'd14) ? (c$chunk_app_arg[719 : 672]) : c$chunk_case_alt_13;
 
-  assign c$chunk_case_alt_13 = (counter == 5'd15) ? (c$chunk_app_arg[767 : 720]) : c$chunk_case_alt_14;
+  assign c$chunk_case_alt_13 = (counter_0 == 5'd15) ? (c$chunk_app_arg[767 : 720]) : c$chunk_case_alt_14;
 
-  assign c$chunk_case_alt_14 = (counter == 5'd16) ? (c$chunk_app_arg[815 : 768]) : c$chunk_case_alt_15;
+  assign c$chunk_case_alt_14 = (counter_0 == 5'd16) ? (c$chunk_app_arg[815 : 768]) : c$chunk_case_alt_15;
 
-  assign c$chunk_case_alt_15 = (counter == 5'd17) ? (c$chunk_app_arg[863 : 816]) : c$chunk_case_alt_16;
+  assign c$chunk_case_alt_15 = (counter_0 == 5'd17) ? (c$chunk_app_arg[863 : 816]) : c$chunk_case_alt_16;
 
-  assign c$chunk_case_alt_16 = (counter == 5'd18) ? (c$chunk_app_arg[911 : 864]) : c$chunk_case_alt_17;
+  assign c$chunk_case_alt_16 = (counter_0 == 5'd18) ? (c$chunk_app_arg[911 : 864]) : c$chunk_case_alt_17;
 
-  assign c$chunk_case_alt_17 = (counter == 5'd19) ? (c$chunk_app_arg[959 : 912]) : c$chunk_case_alt_18;
+  assign c$chunk_case_alt_17 = (counter_0 == 5'd19) ? (c$chunk_app_arg[959 : 912]) : c$chunk_case_alt_18;
 
-  assign c$chunk_case_alt_18 = (counter == 5'd20) ? (c$chunk_app_arg[1007 : 960]) : c$chunk_case_alt_19;
+  assign c$chunk_case_alt_18 = (counter_0 == 5'd20) ? (c$chunk_app_arg[1007 : 960]) : c$chunk_case_alt_19;
 
-  assign c$chunk_case_alt_19 = (counter == 5'd21) ? (c$chunk_app_arg[1055 : 1008]) : c$chunk_case_alt_20;
+  assign c$chunk_case_alt_19 = (counter_0 == 5'd21) ? (c$chunk_app_arg[1055 : 1008]) : c$chunk_case_alt_20;
 
-  assign c$chunk_case_alt_20 = (counter == 5'd22) ? (c$chunk_app_arg[1103 : 1056]) : c$chunk_case_alt_21;
+  assign c$chunk_case_alt_20 = (counter_0 == 5'd22) ? (c$chunk_app_arg[1103 : 1056]) : c$chunk_case_alt_21;
 
-  assign c$chunk_case_alt_21 = (counter == 5'd23) ? (c$chunk_app_arg[1151 : 1104]) : c$chunk_case_alt_22;
+  assign c$chunk_case_alt_21 = (counter_0 == 5'd23) ? (c$chunk_app_arg[1151 : 1104]) : c$chunk_case_alt_22;
 
-  assign c$chunk_case_alt_22 = (counter == 5'd24) ? (c$chunk_app_arg[1199 : 1152]) : c$chunk_case_alt_23;
+  assign c$chunk_case_alt_22 = (counter_0 == 5'd24) ? (c$chunk_app_arg[1199 : 1152]) : c$chunk_case_alt_23;
 
-  assign c$chunk_case_alt_23 = (counter == 5'd25) ? (c$chunk_app_arg[1247 : 1200]) : c$chunk_case_alt_24;
+  assign c$chunk_case_alt_23 = (counter_0 == 5'd25) ? (c$chunk_app_arg[1247 : 1200]) : c$chunk_case_alt_24;
 
-  assign c$chunk_case_alt_24 = (counter == 5'd26) ? (c$chunk_app_arg[1295 : 1248]) : c$chunk_case_alt_25;
+  assign c$chunk_case_alt_24 = (counter_0 == 5'd26) ? (c$chunk_app_arg[1295 : 1248]) : c$chunk_case_alt_25;
 
-  assign c$chunk_case_alt_25 = (counter == 5'd27) ? (c$chunk_app_arg[1343 : 1296]) : ({48 {1'bx}});
+  assign c$chunk_case_alt_25 = (counter_0 == 5'd27) ? (c$chunk_app_arg[1343 : 1296]) : ({48 {1'bx}});
 
-  assign c$chunk_app_arg = c$ds1_app_arg_0;
+  assign c$chunk_app_arg = keccakState;
 
-  assign counter = c$ds1_app_arg[4:0];
+  assign counter_0 = phase[4:0];
 
   Component_SampleNTT_i272o24l2_keccakF1600 Component_SampleNTT_i272o24l2_keccakF1600_c$keccakF1600_out
     ( .result (c$keccakF1600_out)
-    , .roundIdx (counter_0)
-    , .x (c$ds1_app_arg_0) );
+    , .roundIdx (counter_1)
+    , .x (keccakState) );
 
-  assign counter_0 = c$ds1_app_arg[4:0];
+  assign counter_1 = phase[4:0];
 
-  assign coeffReady = c$arg.Tuple2_3_sel1;
+  // register begin
+  always_ff @(posedge CLK or  posedge  RST) begin : keccakState_register
+    if ( RST) begin
+      keccakState <= 1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
+    end else  if (EN)  begin
+      keccakState <= c$keccakState_case_alt_1;
+    end
+  end
+  // register end
 
-  assign seedStream = c$arg.Tuple2_3_sel0;
-
-  assign result = {result_0.Tuple2_2_sel1
-                  ,result_0.Tuple2_2_sel0};
+  assign result = {result_6.Tuple2_2_sel1
+                  ,result_6.Tuple2_2_sel0};
 
   assign COEFF = result.Tuple2_4_sel0;
 

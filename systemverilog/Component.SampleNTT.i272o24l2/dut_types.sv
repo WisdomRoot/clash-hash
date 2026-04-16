@@ -14,6 +14,11 @@ package dut_types;
     AXI4Stream_0 Tuple2_2_sel1;
   } Tuple2_2;
   typedef struct packed {
+    logic [6:0] Tuple3_0_sel0;
+    logic [62:0] Tuple3_0_sel1;
+    Tuple2_2 Tuple3_0_sel2;
+  } Tuple3_0;
+  typedef struct packed {
     logic [6:0] Tuple4_sel0;
     logic [1599:0] Tuple4_sel1;
     logic [62:0] Tuple4_sel2;

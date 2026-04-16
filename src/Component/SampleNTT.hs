@@ -133,16 +133,29 @@ step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case 
               then (State (Squeeze counter) state (Buffer3 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
               else (State (Squeeze counter) state (Buffer5 b0 b1 b2 b3 b4), (False, validBeat (b1 ++# b0) False))
 
-stepRegs ::
+stepControl ::
   Phase ->
   BitVector 1600 ->
   Buffer ->
   Bool ->
   AXI4Stream 272 ->
-  (Phase, BitVector 1600, Buffer, (Bool, AXI4Stream 24))
-stepRegs phase state buffer tready inStream =
-  let (State phase' state' buffer', out) = step (State phase state buffer) (tready, inStream)
-   in (phase', state', buffer', out)
+  (Phase, Buffer, (Bool, AXI4Stream 24))
+stepControl phase state buffer tready inStream =
+  let (State phase' _stateIgnored buffer', out) = step (State phase state buffer) (tready, inStream)
+   in (phase', buffer', out)
+
+stepState ::
+  Phase ->
+  BitVector 1600 ->
+  AXI4Stream 272 ->
+  BitVector 1600
+stepState phase state (AXI4Stream inputMsg msgValid _) = case phase of
+  Absorb ->
+    if msgValid
+      then absorb34 inputMsg
+      else state
+  Permute counter -> Permutation.keccakF1600 counter state
+  Squeeze _ -> state
 
 i272o24l2Core ::
   HiddenClockResetEnable dom =>
@@ -154,14 +167,16 @@ i272o24l2Core (coeffReady, seedStream) =
     keccakState = register 0 keccakState'
     buffer = register Buffer0 buffer'
 
-    (phase', keccakState', buffer', outSig) =
+    (phase', buffer', outSig) =
       unbundle $
-        stepRegs
+        stepControl
           <$> phase
           <*> keccakState
           <*> buffer
           <*> coeffReady
           <*> seedStream
+
+    keccakState' = stepState <$> phase <*> keccakState <*> seedStream
 
     (inReady, outStream) = unbundle outSig
 
