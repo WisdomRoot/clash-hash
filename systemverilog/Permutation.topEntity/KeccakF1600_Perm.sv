@@ -23,7 +23,7 @@ module KeccakF1600_Perm
 
   assign STATE_OUT_fun_arg_0 = ROUND_IDX_0.Tuple2_2_sel1;
 
-  Permutation_topEntity_keccakF1600 permSeq1_Permutation_topEntity_keccakF1600_STATE_OUT
+  Permutation_topEntity_keccakF1600 topEntity1_Permutation_topEntity_keccakF1600_STATE_OUT
     ( .result (STATE_OUT)
     , .roundIdx (STATE_OUT_fun_arg)
     , .x (STATE_OUT_fun_arg_0) );

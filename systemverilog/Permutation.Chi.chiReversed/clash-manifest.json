@@ -34,14 +34,6 @@
             "sha256": "15d1826935e9a3ec7e711143511b72b83f1d0ed80f1fac14c959fbd7bef98d56"
         },
         {
-            "name": "ChiRev_shim.cpp",
-            "sha256": "15d1826935e9a3ec7e711143511b72b83f1d0ed80f1fac14c959fbd7bef98d56"
-        },
-        {
-            "name": "ChiRev_shim.cpp",
-            "sha256": "15d1826935e9a3ec7e711143511b72b83f1d0ed80f1fac14c959fbd7bef98d56"
-        },
-        {
             "name": "ChiRev.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -58,7 +50,7 @@
         20,
         20
     ],
-    "hash": "dd0a4131b0579c9f1b3daaca37659852c8a6d6e2111c7acb4ca19039cb3520b8",
+    "hash": "619615466106a7d874676b24f6f78aa228784dc609db95777adcf24f4fa4a17d",
     "top_component": {
         "name": "ChiRev",
         "ports_flat": [

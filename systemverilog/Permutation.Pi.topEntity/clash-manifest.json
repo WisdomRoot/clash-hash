@@ -1,7 +1,6 @@
 {
     "components": [
-        "Permutation_permSeq_keccakF1600",
-        "KeccakF1600_PermSeq"
+        "Pi"
     ],
     "dependencies": {
         "transitive": []
@@ -31,45 +30,29 @@
     },
     "files": [
         {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
+            "name": "Pi_shim.cpp",
+            "sha256": "56a4e01a6e1097e9454e53d5029369d0d39752d4ecd63ceffdaddc7c594bf794"
         },
         {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
-        },
-        {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
-        },
-        {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
-        },
-        {
-            "name": "KeccakF1600_PermSeq.sdc",
+            "name": "Pi.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "KeccakF1600_PermSeq_types.sv",
-            "sha256": "bef47ccb227effeae87f2d816c3fa9206e94091a652b30f9fdcc70a668d07e18"
+            "name": "Pi_types.sv",
+            "sha256": "9e51251565eabc7af931a6fd88694c8674020814410643c41285e3461855a30d"
         },
         {
-            "name": "Permutation_permSeq_keccakF1600.sv",
-            "sha256": "f6263fa5cfca84caef23685b41af372dc0a1027058b3a73f29358442014d04b7"
-        },
-        {
-            "name": "KeccakF1600_PermSeq.sv",
-            "sha256": "c3e2ec0d4d8199338d4d9685e5acd400cff5c3d3ad408c40d5a10cace4acebc1"
+            "name": "Pi.sv",
+            "sha256": "9367bdb50dc3e2e5d4a336d9b72e8758400e353c25c2262469da88160b729dd5"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "25a15420f92901ab02c0da96a7b442398dafb0e3426ccc5342f120216e192c39",
+    "hash": "d540c29a3f34fd107095e7ee7a393162ecd781000cd4f661feed5c03d3e15d72",
     "top_component": {
-        "name": "KeccakF1600_PermSeq",
+        "name": "Pi",
         "ports_flat": [
             {
                 "direction": "in",
@@ -98,9 +81,9 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "ROUND_IDX",
-                "type_name": "logic [1604:0]",
-                "width": 1605
+                "name": "STATE_IN",
+                "type_name": "logic [1599:0]",
+                "width": 1600
             },
             {
                 "direction": "out",
