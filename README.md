@@ -85,12 +85,18 @@ Note: The probability of successfully emitting 2 valid coefficients per cycle is
 
 ### SampleNTT (lookahead = 6)
 
-- ID: `SN-O24-L6`
 - Description: ML-KEM `SampleNTT`, samples 8 coefficients to output 2 coefficients per cycle.
 - In: `32-byte rho || 1-byte i || 1-byte j`
 - Out: `12-bit coeff0 || 12-bit coeff1`
-- Module: `systemverilog/Component.SampleNTT6.i272o24l6/dut.sv`
-- Area: 27189.988
+
+| ID | Cycles | CP (ns) | Area (um²) | TP (Gbps) | TP/A (Gbps/mm²) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| [`SN-O24-L6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6/dut.sv) | variable | 1.74 | 27853.126 | — | — | baseline |
+| [`SN-O24-L6-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x2/dut.sv) | variable | 1.81 | 37312.352 | — | — | 2 rounds/cycle |
+| [`SN-O24-L6-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x3/dut.sv) | variable | 1.97 | 46895.268 | — | — | 3 rounds/cycle |
+| [`SN-O24-L6-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x4/dut.sv) | variable | 1.92 | 56398.916 | — | — | 4 rounds/cycle |
+| [`SN-O24-L6-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x6/dut.sv) | variable | 2.77 | 75471.382 | — | — | 6 rounds/cycle |
+| [`SN-O24-L6-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x8/dut.sv) | variable | 3.90 | 94512.194 | — | — | 8 rounds/cycle |
 
 Note: The probability of successfully emitting 2 valid coefficients per cycle is 0.99999146181.
 
