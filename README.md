@@ -9,10 +9,15 @@
 - `TP/A@5ns (Gbps/mm²) = TP@5ns(Gbps) * 1e6 / Area(um²)`
 - `Cycles` is end-to-end cycles per operation
 - `OutputBits` is the total output bits produced per operation for that component
+- For variable-cycle streamers, each family section defines how `E[Cycles]` is modeled.
 
 ## ML-KEM Components
 
 ### G (General)
+
+- Description: General ML-KEM, with `k` as a parameter.
+- In: `32-byte d || 1-byte k`
+- Out: `32-byte rho || 32-byte sigma`
 
 | ID | Cycles | CP | Area | TP@CP | TP/A@CP | TP@5ns | TP/A@5ns | Notes |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
@@ -23,10 +28,6 @@
 | [`G-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX6.i272o512/dut.sv) | 5 | 2.77 | 71772.652 | 36.97 | 515.06 | 20.48 | 285.35 | 6 rounds/cycle |
 | [`G-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX8.i272o512/dut.sv) | 4 | 3.61 | 90817.188 | 35.46 | 390.42 | 25.60 | 281.88 | 8 rounds/cycle |
   
-- Description: General ML-KEM, with `k` as a parameter.
-- In: `32-byte d || 1-byte k`
-- Out: `32-byte rho || 32-byte sigma`
-
 ### G (k = 2)
 
 - ID: [`G2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G2.i256o512/dut.sv)
@@ -91,16 +92,21 @@ Note: The probability of successfully emitting 2 valid coefficients per cycle is
 - In: `32-byte rho || 1-byte i || 1-byte j`
 - Out: `12-bit coeff0 || 12-bit coeff1`
 
-| ID | Cycles | CP (ns) | Area (um²) | TP (Gbps) | TP/A (Gbps/mm²) | Notes |
-|---|---:|---:|---:|---:|---:|---|
-| [`SN-O24-L6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6/dut.sv) | variable | 1.74 | 27853.126 | — | — | baseline |
-| [`SN-O24-L6-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x2/dut.sv) | variable | 1.81 | 37312.352 | — | — | 2 rounds/cycle |
-| [`SN-O24-L6-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x3/dut.sv) | variable | 1.97 | 46895.268 | — | — | 3 rounds/cycle |
-| [`SN-O24-L6-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x4/dut.sv) | variable | 1.92 | 56398.916 | — | — | 4 rounds/cycle |
-| [`SN-O24-L6-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x6/dut.sv) | variable | 2.77 | 75471.382 | — | — | 6 rounds/cycle |
-| [`SN-O24-L6-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x8/dut.sv) | variable | 3.90 | 94512.194 | — | — | 8 rounds/cycle |
+| ID | E[Cycles] | CP | Area | E[TP@CP] | E[TP/A@CP] | E[TP@5ns] | E[TP/A@5ns] | Notes |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| [`SN-O24-L6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6/dut.sv) | 201.83 | 1.58 | 26271.490 | 9.63 | 366.69 | 3.04 | 115.87 | baseline |
+| [`SN-O24-L6-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x2/dut.sv) | 165.41 | 1.81 | 37312.352 | 10.26 | 274.99 | 3.71 | 99.55 | 2 rounds/cycle |
+| [`SN-O24-L6-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x3/dut.sv) | 153.28 | 1.97 | 46895.268 | 10.17 | 216.95 | 4.01 | 85.48 | 3 rounds/cycle |
+| [`SN-O24-L6-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x4/dut.sv) | 147.21 | 1.92 | 56398.916 | 10.87 | 192.72 | 4.17 | 74.00 | 4 rounds/cycle |
+| [`SN-O24-L6-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x6/dut.sv) | 141.14 | 2.77 | 75471.382 | 7.86 | 104.12 | 4.35 | 57.68 | 6 rounds/cycle |
+| [`SN-O24-L6-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x8/dut.sv) | 138.10 | 3.90 | 94512.194 | 5.70 | 60.35 | 4.45 | 47.07 | 8 rounds/cycle |
 
-Note: The probability of successfully emitting 2 valid coefficients per cycle is 0.99999146181.
+Notes:
+- These are full-job metrics for producing `256` coefficients (`OutputBits = 256 * 12 = 3072`).
+- `E[Cycles] = 1 + C_perm * E[PermCount] + 128 / r`
+  where `E[PermCount] ≈ 3.0344` and `r = 0.99999146181`.
+- `C_perm` is permute cycles per permutation block: `24, 12, 8, 6, 4, 3` for `L6, X2, X3, X4, X6, X8`.
+- `r` is computed from the Markov model via `python3 scripts/markov_emit_rate.py --n 8`.
 
 ### SamplePolyCBD+PRF (General)
 
