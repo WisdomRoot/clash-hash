@@ -1,5 +1,6 @@
 {
     "components": [
+        "Component_SampleNTT6_i272o24l6x2_keccakF1600",
         "dut"
     ],
     "dependencies": {
@@ -39,18 +40,22 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "6aae2663b8e97ecdd507a3058ef43c89d331456fc555ab0d50334f8923151d9e"
+            "sha256": "a00c563a3c9d82426981432e21cab50118e5f99b143090e0efa8118a85c679da"
+        },
+        {
+            "name": "Component_SampleNTT6_i272o24l6x2_keccakF1600.sv",
+            "sha256": "28916e70c5cd9ec3c9990a948b653adc051f17b6064ade376c9dba8a52937c51"
         },
         {
             "name": "dut.sv",
-            "sha256": "cbad41d0456050ccc9ab09e4c2b84c3bcec53642e6331294bd1fc921b769eb95"
+            "sha256": "aa8e5b3951caa695edcfe191c86399e46eeb94e27dfaf1365ba58e049572d49b"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "2f3281bda34f76a8d4887e399f163b957850dc4793ff97fc1b27956b883a5b04",
+    "hash": "0542e08e7c49e092e734e6ca89803d0bb56b14ab9702dac67db2bf742003ce98",
     "top_component": {
         "name": "dut",
         "ports_flat": [
@@ -81,56 +86,56 @@
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "STATE_IN_TDATA",
-                "type_name": "logic [1599:0]",
-                "width": 1600
+                "name": "SEED_TDATA",
+                "type_name": "logic [271:0]",
+                "width": 272
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "STATE_IN_TVALID",
-                "type_name": "logic",
-                "width": 1
-            },
-            {
-                "direction": "in",
-                "is_clock": false,
-                "name": "STATE_IN_TLAST",
+                "name": "SEED_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "in",
                 "is_clock": false,
-                "name": "STATE_OUT_TREADY",
+                "name": "SEED_TLAST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "COEFF_TREADY",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "STATE_OUT_TDATA",
-                "type_name": "logic [1599:0]",
-                "width": 1600
+                "name": "COEFF_TDATA",
+                "type_name": "logic [23:0]",
+                "width": 24
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "STATE_OUT_TVALID",
+                "name": "COEFF_TVALID",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "STATE_OUT_TLAST",
+                "name": "COEFF_TLAST",
                 "type_name": "logic",
                 "width": 1
             },
             {
                 "direction": "out",
                 "is_clock": false,
-                "name": "STATE_IN_TREADY",
+                "name": "SEED_TREADY",
                 "type_name": "logic",
                 "width": 1
             }
