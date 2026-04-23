@@ -3,8 +3,10 @@
 ## Notes
 
 - `CP (ns)`: critical path from STA report
-- `TP (Gbps) = (OutputBits / Cycles) / CP(ns)`
-- `TP/A (Gbps/mm²) = TP(Gbps) * 1e6 / Area(um²)`
+- `TP@CP (Gbps) = (OutputBits / Cycles) / CP(ns)`
+- `TP/A@CP (Gbps/mm²) = TP@CP(Gbps) * 1e6 / Area(um²)`
+- `TP@5ns (Gbps) = (OutputBits / Cycles) / 5`
+- `TP/A@5ns (Gbps/mm²) = TP@5ns(Gbps) * 1e6 / Area(um²)`
 - `Cycles` is end-to-end cycles per operation
 - `OutputBits` is the total output bits produced per operation for that component
 
@@ -12,14 +14,14 @@
 
 ### G (General)
 
-| ID | Cycles | CP (ns) | Area (um²) | TP (Gbps) | TP/A (Gbps/mm²) | Notes |
-|---|---:|---:|---:|---:|---:|---|
-| [`G`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G.i272o512/dut.sv) | 25 | 0.65 | 24269.574 | 31.51 | 1298.33 | Baseline |
-| [`G-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX2.i272o512/dut.sv) | 13 | 1.06 | 34245.106 | 37.16 | 1085.12 | 2 rounds/cycle |
-| [`G-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX3.i272o512/dut.sv) | 9 | 1.49 | 43184.568 | 38.18 | 884.11 | 3 rounds/cycle |
-| [`G-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX4.i272o512/dut.sv) | 7 | 1.92 | 52851.008 | 38.10 | 720.89 | 4 rounds/cycle |
-| [`G-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX6.i272o512/dut.sv) | 5 | 2.77 | 71772.652 | 36.97 | 515.10 | 6 rounds/cycle |
-| [`G-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX8.i272o512/dut.sv) | 4 | 3.61 | 90817.188 | 35.46 | 390.45 | 8 rounds/cycle |
+| ID | Cycles | CP | Area | TP@CP | TP/A@CP | TP@5ns | TP/A@5ns | Notes |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| [`G`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G.i272o512/dut.sv) | 25 | 0.65 | 24269.574 | 31.51 | 1298.24 | 4.10 | 168.77 | Baseline |
+| [`G-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX2.i272o512/dut.sv) | 13 | 1.06 | 34245.106 | 37.16 | 1084.98 | 7.88 | 230.02 | 2 rounds/cycle |
+| [`G-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX3.i272o512/dut.sv) | 9 | 1.49 | 43184.568 | 38.18 | 884.12 | 11.38 | 263.47 | 3 rounds/cycle |
+| [`G-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX4.i272o512/dut.sv) | 7 | 1.92 | 52851.008 | 38.10 | 720.80 | 14.63 | 276.79 | 4 rounds/cycle |
+| [`G-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX6.i272o512/dut.sv) | 5 | 2.77 | 71772.652 | 36.97 | 515.06 | 20.48 | 285.35 | 6 rounds/cycle |
+| [`G-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX8.i272o512/dut.sv) | 4 | 3.61 | 90817.188 | 35.46 | 390.42 | 25.60 | 281.88 | 8 rounds/cycle |
   
 - Description: General ML-KEM, with `k` as a parameter.
 - In: `32-byte d || 1-byte k`
