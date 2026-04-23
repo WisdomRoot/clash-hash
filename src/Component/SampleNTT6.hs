@@ -3,6 +3,16 @@
 module Component.SampleNTT6
   ( i272o24l6,
     i272o24l6Core,
+    i272o24l6x2,
+    i272o24l6x2Core,
+    i272o24l6x3,
+    i272o24l6x3Core,
+    i272o24l6x4,
+    i272o24l6x4Core,
+    i272o24l6x6,
+    i272o24l6x6Core,
+    i272o24l6x8,
+    i272o24l6x8Core,
   )
 where
 
@@ -184,52 +194,119 @@ step (State phase state buffer) (tready, AXI4Stream inputMsg msgValid _) = case 
                   then (State (Squeeze counter) state buffer', (False, validBeat pair False))
                   else (State (Squeeze counter) state buffer, (False, validBeat pair False))
 
-stepControl ::
-  Phase ->
-  BitVector 1600 ->
-  Buffer ->
-  Bool ->
-  AXI4Stream 272 ->
-  (Phase, Buffer, (Bool, AXI4Stream 24))
-stepControl phase state buffer tready inStream =
-  let (State phase' _stateIgnored buffer', out) = step (State phase state buffer) (tready, inStream)
-   in (phase', buffer', out)
+stepX2 ::
+  State ->
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+stepX2 (State phase state buffer) (tready, inputStream) = case phase of
+  Permute counter ->
+    let state1 = Permutation.keccakF1600 counter state
+        state2 = Permutation.keccakF1600 (counter + 1) state1
+     in if counter == 22
+          then (State (Squeeze 0) state2 buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 2)) state2 buffer, (False, idleAXI4Stream))
+  _ -> step (State phase state buffer) (tready, inputStream)
 
-stepState ::
-  Phase ->
-  BitVector 1600 ->
-  AXI4Stream 272 ->
-  BitVector 1600
-stepState phase state (AXI4Stream inputMsg msgValid _) = case phase of
-  Absorb ->
-    if msgValid
-      then absorb34 inputMsg
-      else state
-  Permute counter -> Permutation.keccakF1600 counter state
-  Squeeze _ -> state
+stepX3 ::
+  State ->
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+stepX3 (State phase state buffer) (tready, inputStream) = case phase of
+  Permute counter ->
+    let state1 = Permutation.keccakF1600 counter state
+        state2 = Permutation.keccakF1600 (counter + 1) state1
+        state3 = Permutation.keccakF1600 (counter + 2) state2
+     in if counter == 21
+          then (State (Squeeze 0) state3 buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 3)) state3 buffer, (False, idleAXI4Stream))
+  _ -> step (State phase state buffer) (tready, inputStream)
+
+stepX4 ::
+  State ->
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+stepX4 (State phase state buffer) (tready, inputStream) = case phase of
+  Permute counter ->
+    let state1 = Permutation.keccakF1600 counter state
+        state2 = Permutation.keccakF1600 (counter + 1) state1
+        state3 = Permutation.keccakF1600 (counter + 2) state2
+        state4 = Permutation.keccakF1600 (counter + 3) state3
+     in if counter == 20
+          then (State (Squeeze 0) state4 buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 4)) state4 buffer, (False, idleAXI4Stream))
+  _ -> step (State phase state buffer) (tready, inputStream)
+
+stepX6 ::
+  State ->
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+stepX6 (State phase state buffer) (tready, inputStream) = case phase of
+  Permute counter ->
+    let state1 = Permutation.keccakF1600 counter state
+        state2 = Permutation.keccakF1600 (counter + 1) state1
+        state3 = Permutation.keccakF1600 (counter + 2) state2
+        state4 = Permutation.keccakF1600 (counter + 3) state3
+        state5 = Permutation.keccakF1600 (counter + 4) state4
+        state6 = Permutation.keccakF1600 (counter + 5) state5
+     in if counter == 18
+          then (State (Squeeze 0) state6 buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 6)) state6 buffer, (False, idleAXI4Stream))
+  _ -> step (State phase state buffer) (tready, inputStream)
+
+stepX8 ::
+  State ->
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+stepX8 (State phase state buffer) (tready, inputStream) = case phase of
+  Permute counter ->
+    let state1 = Permutation.keccakF1600 counter state
+        state2 = Permutation.keccakF1600 (counter + 1) state1
+        state3 = Permutation.keccakF1600 (counter + 2) state2
+        state4 = Permutation.keccakF1600 (counter + 3) state3
+        state5 = Permutation.keccakF1600 (counter + 4) state4
+        state6 = Permutation.keccakF1600 (counter + 5) state5
+        state7 = Permutation.keccakF1600 (counter + 6) state6
+        state8 = Permutation.keccakF1600 (counter + 7) state7
+     in if counter == 16
+          then (State (Squeeze 0) state8 buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 8)) state8 buffer, (False, idleAXI4Stream))
+  _ -> step (State phase state buffer) (tready, inputStream)
 
 i272o24l6Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
 i272o24l6Core (coeffReady, seedStream) =
-  (inReady, outStream)
-  where
-    phase = register Absorb phase'
-    keccakState = register 0 keccakState'
-    buffer = register Buffer0 buffer'
+  mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
-    (phase', buffer', outSig) =
-      unbundle $
-        stepControl
-          <$> phase
-          <*> keccakState
-          <*> buffer
-          <*> coeffReady
-          <*> seedStream
+i272o24l6x2Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6x2Core (coeffReady, seedStream) =
+  mealyB stepX2 (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
-    keccakState' = stepState <$> phase <*> keccakState <*> seedStream
+i272o24l6x3Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6x3Core (coeffReady, seedStream) =
+  mealyB stepX3 (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
-    (inReady, outStream) = unbundle outSig
+i272o24l6x4Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6x4Core (coeffReady, seedStream) =
+  mealyB stepX4 (State Absorb 0 Buffer0) (coeffReady, seedStream)
+
+i272o24l6x6Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6x6Core (coeffReady, seedStream) =
+  mealyB stepX6 (State Absorb 0 Buffer0) (coeffReady, seedStream)
+
+i272o24l6x8Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6x8Core (coeffReady, seedStream) =
+  mealyB stepX8 (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
 {-# ANN
   i272o24l6
@@ -262,6 +339,166 @@ i272o24l6 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
 i272o24l6 = toDUT i272o24l6Core
+
+{-# ANN
+  i272o24l6x2
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6x2 #-}
+i272o24l6x2 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6x2 = toDUT i272o24l6x2Core
+
+{-# ANN
+  i272o24l6x3
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6x3 #-}
+i272o24l6x3 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6x3 = toDUT i272o24l6x3Core
+
+{-# ANN
+  i272o24l6x4
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6x4 #-}
+i272o24l6x4 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6x4 = toDUT i272o24l6x4Core
+
+{-# ANN
+  i272o24l6x6
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6x6 #-}
+i272o24l6x6 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6x6 = toDUT i272o24l6x6Core
+
+{-# ANN
+  i272o24l6x8
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6x8 #-}
+i272o24l6x8 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6x8 = toDUT i272o24l6x8Core
 
 absorb34 :: BitVector 272 -> BitVector 1600
 absorb34 = pad34Bytes . placeMsg

@@ -1,0 +1,105 @@
+{
+    "components": [
+        "IotaRev"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "IotaRev_shim.cpp",
+            "sha256": "a180086f7738bd3d65c4de329778bb9cbba53e475af3c89e52d7d1d8aebf64bb"
+        },
+        {
+            "name": "IotaRev.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "IotaRev_types.sv",
+            "sha256": "6cc08877d6bc2b18a5c3a3c0235d4ebb06bddcfaa861dffe8f18156ba4249dcd"
+        },
+        {
+            "name": "IotaRev.sv",
+            "sha256": "193a29c66b163138eb59e871aeaa63a44b7fe709077cc65e2ae90e4b23e4d5d7"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "849a5d7d0083a9d4b079d6e016117490a6b93933e15a12a8b21d0fcf7fb16ea2",
+    "top_component": {
+        "name": "IotaRev",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "ROUND_IDX",
+                "type_name": "logic [4:0]",
+                "width": 5
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "STATE_IN",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "STATE_OUT",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            }
+        ]
+    },
+    "version": "unstable"
+}

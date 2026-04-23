@@ -2,11 +2,11 @@
   "SHA3-256": "Component.SHA3256.i64o64",
   "SHA3-512": "Component.SHA3512.i64o64",
   "G": "Component.G.i272o512",
-  "GX2": "Component.GX2.i272o512",
-  "GX3": "Component.GX3.i272o512",
-  "GX4": "Component.GX4.i272o512",
-  "GX6": "Component.GX6.i272o512",
-  "GX8": "Component.GX8.i272o512",
+  "G-X2": "Component.GX2.i272o512",
+  "G-X3": "Component.GX3.i272o512",
+  "G-X4": "Component.GX4.i272o512",
+  "G-X6": "Component.GX6.i272o512",
+  "G-X8": "Component.GX8.i272o512",
   "G2": "Component.G2.i256o512",
   "G3": "Component.G3.i256o512",
   "G4": "Component.G4.i256o512",
@@ -35,5 +35,10 @@
   "ThetaRev": "Permutation.Theta.thetaReversed",
   "SN-O24-L2": "Component.SampleNTT.i272o24l2",
   "SN-O24-L4": "Component.SampleNTT4.i272o24l4",
-  "SN-O24-L6": "Component.SampleNTT6.i272o24l6"
+  "SN-O24-L6": "Component.SampleNTT6.i272o24l6",
+  "SN-O24-L6-X2": "Component.SampleNTT6.i272o24l6x2",
+  "SN-O24-L6-X3": "Component.SampleNTT6.i272o24l6x3",
+  "SN-O24-L6-X4": "Component.SampleNTT6.i272o24l6x4",
+  "SN-O24-L6-X6": "Component.SampleNTT6.i272o24l6x6",
+  "SN-O24-L6-X8": "Component.SampleNTT6.i272o24l6x8"
 }

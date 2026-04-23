@@ -1,0 +1,98 @@
+{
+    "components": [
+        "PiRev"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "PiRev_shim.cpp",
+            "sha256": "f2156f7fe19f9732673c42e25f2bcf40f2685607a1c434cb54063bea2a758931"
+        },
+        {
+            "name": "PiRev.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "PiRev_types.sv",
+            "sha256": "83a5119f1de0eba15f54079be18ec7ddc3367f1b010e483e97907dadeb821fd6"
+        },
+        {
+            "name": "PiRev.sv",
+            "sha256": "8cdea303424130475c094f1514cd4302a2d7d26a562d9be0950908d4d3cebf2c"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "180cd68049099167bc0dcc6da4f3972ec3cb932fb114446181c0cf6211090f7c",
+    "top_component": {
+        "name": "PiRev",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "STATE_IN",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "STATE_OUT",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            }
+        ]
+    },
+    "version": "unstable"
+}

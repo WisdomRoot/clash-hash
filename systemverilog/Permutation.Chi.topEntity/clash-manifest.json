@@ -34,10 +34,6 @@
             "sha256": "0ef935488a6875f0c1a3ca67abe304b59b9912136eef9e7c06b1080847a814af"
         },
         {
-            "name": "Chi_shim.cpp",
-            "sha256": "0ef935488a6875f0c1a3ca67abe304b59b9912136eef9e7c06b1080847a814af"
-        },
-        {
             "name": "Chi.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -54,7 +50,7 @@
         20,
         20
     ],
-    "hash": "cc438057ffb13e3c5707b55de8039644149027a955c21800a698a7689c0d2994",
+    "hash": "3621f733fa6754550247628549d6844f13eefed85d20235ff786ff8876b61caa",
     "top_component": {
         "name": "Chi",
         "ports_flat": [
