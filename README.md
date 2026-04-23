@@ -1,42 +1,65 @@
 # clash-hash
 
+## Notes
+
+- `CP (ns)`: critical path from STA report
+- `TP (Gbps) = (OutputBits / Cycles) / CP(ns)`
+- `TP/A (Gbps/mm²) = TP(Gbps) * 1e6 / Area(um²)`
+- `Cycles` is end-to-end cycles per operation
+- `OutputBits` is the total output bits produced per operation for that component
+
 ## ML-KEM Components
 
 ### G (General)
 
-- ID: `G`
-- Description: General ML-KEM `G`, with `k` carried in-band.
+| ID | Cycles | CP (ns) | Area (um²) | TP (Gbps) | TP/A (Gbps/mm²) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| [`G`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G.i272o512/dut.sv) | 25 | 0.65 | 24269.574 | 31.51 | 1298.33 | Baseline |
+| [`G-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX2.i272o512/dut.sv) | 13 | 1.06 | 34245.106 | 37.16 | 1085.12 | 2 rounds/cycle |
+| [`G-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX3.i272o512/dut.sv) | 9 | 1.49 | 43184.568 | 38.18 | 884.11 | 3 rounds/cycle |
+| [`G-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX4.i272o512/dut.sv) | 7 | 1.92 | 52851.008 | 38.10 | 720.89 | 4 rounds/cycle |
+| [`G-X6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX6.i272o512/dut.sv) | 5 | 2.77 | 71772.652 | 36.97 | 515.10 | 6 rounds/cycle |
+| [`G-X8`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.GX8.i272o512/dut.sv) | 4 | 3.61 | 90817.188 | 35.46 | 390.45 | 8 rounds/cycle |
+  
+- Description: General ML-KEM, with `k` as a parameter.
 - In: `32-byte d || 1-byte k`
 - Out: `32-byte rho || 32-byte sigma`
-- Module: `systemverilog/Component.G.i272o512/dut.sv`
-- Area: 24527.594
 
 ### G (k = 2)
 
-- ID: `G2`
+- ID: [`G2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G2.i256o512/dut.sv)
 - Description: Specialization of `G` with `k = 2` for ML-KEM-512.
 - In: `32-byte d`
 - Out: `32-byte rho || 32-byte sigma`
-- Module: `systemverilog/Component.G2.i256o512/dut.sv`
-- Area: 24517.220
+- Cycles: `25`
+- CP: `0.64 ns`
+- Area: `24258.402 um²`
+- TP: `32.00 Gbps`
+- TP/A: `1319.13 Gbps/mm²`
 
 ### G (k = 3)
 
-- ID: `G3`
+- ID: [`G3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G3.i256o512/dut.sv)
 - Description: Specialization of `G` with `k = 3` for ML-KEM-768.
 - In: `32-byte d`
 - Out: `32-byte rho || 32-byte sigma`
-- Module: `systemverilog/Component.G3.i256o512/dut.sv`
-- Area: 24517.486
+- Cycles: `25`
+- CP: `0.64 ns`
+- Area: `24259.466 um²`
+- TP: `32.00 Gbps`
+- TP/A: `1319.07 Gbps/mm²`
 
 ### G (k = 4)
 
-- ID: `G4`
+- ID: [`G4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.G4.i256o512/dut.sv)
 - Description: Specialization of `G` with `k = 4` for ML-KEM-1024.
 - In: `32-byte d`
 - Out: `32-byte rho || 32-byte sigma`
-- Module: `systemverilog/Component.G4.i256o512/dut.sv`
-- Area: 24517.220
+- Cycles: `25`
+- CP: `0.64 ns`
+- Area: `24258.402 um²`
+- TP: `32.00 Gbps`
+- TP/A: `1319.13 Gbps/mm²`
 
 ### SampleNTT (lookahead = 2)
 

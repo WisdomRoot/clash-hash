@@ -35,10 +35,6 @@
             "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
         },
         {
-            "name": "dut_shim.cpp",
-            "sha256": "046b64e799ae57f8a2d90ccb4fec0e199cf0e50b8329a860689ae731da0a12db"
-        },
-        {
             "name": "dut.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -48,18 +44,18 @@
         },
         {
             "name": "Component_G4_i256o512_keccakF1600.sv",
-            "sha256": "a7f54a5238600c878c2642742c76ab96f97e7038132e0680b0334d7770a4ca1f"
+            "sha256": "e69ec682b8aeccd30db0e2a1a05c0c0e6d96862274a1a196d8296a1abb7d22cf"
         },
         {
             "name": "dut.sv",
-            "sha256": "3ee4030cce9bde39b6f601bc182af30ccf4d075aef78c0ecd57e5fc1050406c4"
+            "sha256": "4d68194e632c5334311a049955653de2ad5e19d001cc1d249428d6c8409d5c02"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "aaf24b3a7fdd26d9a5af5283e783c6bc5550ddbc53481cd44535bb84c61aaca9",
+    "hash": "5271022ccca0b24611715d3b1a71288337cece1a584be6121de155fc933ee8da",
     "top_component": {
         "name": "dut",
         "ports_flat": [
