@@ -7,6 +7,8 @@ module Component.SampleNTT6
     i272o24l6x2Core,
     i272o24l6x3,
     i272o24l6x3Core,
+    i272o24l6x4,
+    i272o24l6x4Core,
   )
 where
 
@@ -215,6 +217,21 @@ stepX3 (State phase state buffer) (tready, inputStream) = case phase of
           else (State (Permute (counter + 3)) state3 buffer, (False, idleAXI4Stream))
   _ -> step (State phase state buffer) (tready, inputStream)
 
+stepX4 ::
+  State ->
+  (Bool, AXI4Stream 272) ->
+  (State, (Bool, AXI4Stream 24))
+stepX4 (State phase state buffer) (tready, inputStream) = case phase of
+  Permute counter ->
+    let state1 = Permutation.keccakF1600 counter state
+        state2 = Permutation.keccakF1600 (counter + 1) state1
+        state3 = Permutation.keccakF1600 (counter + 2) state2
+        state4 = Permutation.keccakF1600 (counter + 3) state3
+     in if counter == 20
+          then (State (Squeeze 0) state4 buffer, (False, idleAXI4Stream))
+          else (State (Permute (counter + 4)) state4 buffer, (False, idleAXI4Stream))
+  _ -> step (State phase state buffer) (tready, inputStream)
+
 i272o24l6Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
@@ -232,6 +249,12 @@ i272o24l6x3Core ::
   Pipe dom 272 24
 i272o24l6x3Core (coeffReady, seedStream) =
   mealyB stepX3 (State Absorb 0 Buffer0) (coeffReady, seedStream)
+
+i272o24l6x4Core ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6x4Core (coeffReady, seedStream) =
+  mealyB stepX4 (State Absorb 0 Buffer0) (coeffReady, seedStream)
 
 {-# ANN
   i272o24l6
@@ -328,6 +351,38 @@ i272o24l6x3 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
 i272o24l6x3 = toDUT i272o24l6x3Core
+
+{-# ANN
+  i272o24l6x4
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6x4 #-}
+i272o24l6x4 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6x4 = toDUT i272o24l6x4Core
 
 absorb34 :: BitVector 272 -> BitVector 1600
 absorb34 = pad34Bytes . placeMsg
