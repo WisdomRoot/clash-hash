@@ -60,7 +60,7 @@ genCase = do
   P.pure (inputTiming, backpressure)
 
 spec :: Spec
-spec = describe "GX3" $ do
+spec = describe "G-X3" $ do
   it "matches expected output (no backpressure)" $ do
     let input = toBV @272 ("0123456789abcdef0123456789abcdef" P.<> BS.pack [0x02])
     runPipeInput i272o512AsPipe simulate [Input [input]] [Ready 1]

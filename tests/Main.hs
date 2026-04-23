@@ -43,11 +43,11 @@ main = do
   g3Tests <- testSpec "G3" Test.G3.spec
   g4Tests <- testSpec "G4" Test.G4.spec
   gTests <- testSpec "G" Test.G.spec
-  gx2Tests <- testSpec "GX2" Test.GX2.spec
-  gx3Tests <- testSpec "GX3" Test.GX3.spec
-  gx4Tests <- testSpec "GX4" Test.GX4.spec
-  gx6Tests <- testSpec "GX6" Test.GX6.spec
-  gx8Tests <- testSpec "GX8" Test.GX8.spec
+  gx2Tests <- testSpec "G-X2" Test.GX2.spec
+  gx3Tests <- testSpec "G-X3" Test.GX3.spec
+  gx4Tests <- testSpec "G-X4" Test.GX4.spec
+  gx6Tests <- testSpec "G-X6" Test.GX6.spec
+  gx8Tests <- testSpec "G-X8" Test.GX8.spec
   xofTests <- testSpec "XOF" Test.XOF.spec
   xof6Tests <- testSpec "XOF6" Test.XOF6.spec
   lookahead4Tests <- testSpec "lookahead4" Test.Lookahead4.spec
