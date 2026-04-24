@@ -35,18 +35,6 @@
             "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
         },
         {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
-        },
-        {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
-        },
-        {
-            "name": "KeccakF1600_PermSeq_shim.cpp",
-            "sha256": "6845280ea79c4aa9f3d4495dd5b1b89e601383885aa8f9a522ae5c0b318c0e60"
-        },
-        {
             "name": "KeccakF1600_PermSeq.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
@@ -56,18 +44,18 @@
         },
         {
             "name": "Permutation_permSeq_keccakF1600.sv",
-            "sha256": "f6263fa5cfca84caef23685b41af372dc0a1027058b3a73f29358442014d04b7"
+            "sha256": "48beed70f9ce7cd0bd5944075503148ebddb1dd963baf7a61f6b93db88bea38d"
         },
         {
             "name": "KeccakF1600_PermSeq.sv",
-            "sha256": "c3e2ec0d4d8199338d4d9685e5acd400cff5c3d3ad408c40d5a10cace4acebc1"
+            "sha256": "998e28be20613122ba098a3ac615121e7e8916fa10acf06ad8bd1c5033af1557"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "25a15420f92901ab02c0da96a7b442398dafb0e3426ccc5342f120216e192c39",
+    "hash": "a30ce29a4a845912abb9a5287ba78ee6db3fdd995a593a8ec52f3b11f37a2590",
     "top_component": {
         "name": "KeccakF1600_PermSeq",
         "ports_flat": [

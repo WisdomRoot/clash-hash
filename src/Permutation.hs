@@ -20,6 +20,8 @@ module Permutation
 
     -- * Top entity
     topEntity,
+    permX2,
+    permX2Composed,
     permSeq,
     permReversed,
   )
@@ -156,6 +158,18 @@ iotaF1600 roundIdx bv =
 --------------------------------------------------------------------------------
 
 -- Complete Keccak-f[1600] round: Theta, Rho, Pi, Chi, Iota
+keccakRound1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
+keccakRound1600 roundIdx =
+  iotaF1600 roundIdx
+    . pack
+    . chiF1600
+    . piF1600
+    . rhoF1600
+    . thetaF1600
+    . unpack
+
+{-# INLINE keccakRound1600 #-}
+
 -- OPAQUE ensures Clash treats this as a black box:
 --   - No inlining or specialization (keeps single definition)
 --   - Emits separate component once, wired to all callers
@@ -173,14 +187,7 @@ keccakF1600Reversed roundIdx =
 
 {-# OPAQUE keccakF1600 #-}
 keccakF1600 :: Index 24 -> BitVector 1600 -> BitVector 1600
-keccakF1600 roundIdx =
-  iotaF1600 roundIdx
-    . pack
-    . chiF1600
-    . piF1600
-    . rhoF1600
-    . thetaF1600
-    . unpack
+keccakF1600 = keccakRound1600
 
 keccakF1600Reversed24 :: BitVector 1600 -> BitVector 1600
 keccakF1600Reversed24 initialState =
@@ -225,6 +232,64 @@ topEntity ::
   Signal System (Index 24, BitVector 1600) ->
   Signal System (BitVector 1600)
 topEntity _clk _rst _en = fmap (uncurry keccakF1600)
+
+{-# ANN
+  permX2
+  ( Synthesize
+      { t_name = "KeccakF1600_PermX2",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "ROUND_IDX",
+            PortName "STATE_IN"
+          ],
+        t_output = PortName "STATE_OUT"
+      }
+  )
+  #-}
+{-# NOINLINE permX2 #-}
+permX2 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (Index 24, BitVector 1600) ->
+  Signal System (BitVector 1600)
+permX2 _clk _rst _en =
+  fmap
+    ( \(roundIdx, stateIn) ->
+        let state' = keccakRound1600 roundIdx stateIn
+         in keccakRound1600 (roundIdx + 1) state'
+    )
+
+{-# ANN
+  permX2Composed
+  ( Synthesize
+      { t_name = "KeccakF1600_PermX2Comp",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "ROUND_IDX",
+            PortName "STATE_IN"
+          ],
+        t_output = PortName "STATE_OUT"
+      }
+  )
+  #-}
+{-# NOINLINE permX2Composed #-}
+permX2Composed ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (Index 24, BitVector 1600) ->
+  Signal System (BitVector 1600)
+permX2Composed _clk _rst _en =
+  fmap
+    ( \(roundIdx, stateIn) ->
+        let state' = keccakF1600 roundIdx stateIn
+         in keccakF1600 (roundIdx + 1) state'
+    )
 
 {-# ANN
   permSeq

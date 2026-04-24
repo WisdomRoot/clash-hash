@@ -3,7 +3,7 @@
 */
 `default_nettype none
 `timescale 100fs/100fs
-module Permutation_permSeq_keccakF1600
+module Permutation_permX2Composed_keccakF1600
     ( // Inputs
       input wire logic [4:0] c$arg
     , input wire logic [1599:0] c$arg_0
@@ -11,93 +11,93 @@ module Permutation_permSeq_keccakF1600
       // Outputs
     , output logic [1599:0] result
     );
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1 c$app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1 c$app_arg;
   logic [1599:0] lvl;
-  KeccakF1600_PermSeq_types::array_of_1600_logic result_0;
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1 c$lvl_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic result_0;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1 c$lvl_app_arg;
   logic [1599:0] lvl_0;
-  KeccakF1600_PermSeq_types::array_of_1600_logic result_1;
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1 c$lvl_app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic result_1;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1 c$lvl_app_arg_0;
   logic [1599:0] lvl_1;
-  KeccakF1600_PermSeq_types::array_of_1600_logic result_2;
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1 c$lvl_app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_25_array_of_64_logic state;
-  KeccakF1600_PermSeq_types::array_of_64_logic parity0;
-  KeccakF1600_PermSeq_types::array_of_64_logic parity2;
-  KeccakF1600_PermSeq_types::array_of_64_logic lvl_2;
-  KeccakF1600_PermSeq_types::array_of_64_logic parity3;
-  KeccakF1600_PermSeq_types::array_of_64_logic parity1;
-  KeccakF1600_PermSeq_types::array_of_64_logic lvl1;
-  KeccakF1600_PermSeq_types::array_of_64_logic lvl2;
-  KeccakF1600_PermSeq_types::array_of_64_logic parity4;
-  KeccakF1600_PermSeq_types::array_of_64_logic lvl3;
-  KeccakF1600_PermSeq_types::array_of_64_logic lvl4;
-  KeccakF1600_PermSeq_types::array_of_1600_logic result_3;
-  KeccakF1600_PermSeq_types::array_of_25_array_of_64_logic c$app_arg_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$lvl4_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$lvl3_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity4_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity4_app_arg_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity4_app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$lvl2_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$lvl1_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity1_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity1_app_arg_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity1_app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity3_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity3_app_arg_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity3_app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$lvl_app_arg_2;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity2_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity2_app_arg_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity2_app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity0_app_arg;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity0_app_arg_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$parity0_app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_1600_logic c$app_arg_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic_vector_1 c$app_arg_2;
-  KeccakF1600_PermSeq_types::array_of_24_array_of_64_logic c$app_arg_3;
-  KeccakF1600_PermSeq_types::array_of_24_array_of_7_logic c$app_arg_4;
-  KeccakF1600_PermSeq_types::array_of_168_logic c$app_arg_5;
-  KeccakF1600_PermSeq_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
-  KeccakF1600_PermSeq_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
-  KeccakF1600_PermSeq_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
-  KeccakF1600_PermSeq_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic result_2;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1 c$lvl_app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_25_array_of_64_logic state;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic parity0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic parity2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic lvl_2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic parity3;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic parity1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic lvl1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic lvl2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic parity4;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic lvl3;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic lvl4;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic result_3;
+  KeccakF1600_PermX2Comp_types::array_of_25_array_of_64_logic c$app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$lvl4_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$lvl3_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity4_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity4_app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity4_app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$lvl2_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$lvl1_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity1_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity1_app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity1_app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity3_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity3_app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity3_app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$lvl_app_arg_2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity2_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity2_app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity2_app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity0_app_arg;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity0_app_arg_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$parity0_app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic c$app_arg_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic_vector_1 c$app_arg_2;
+  KeccakF1600_PermX2Comp_types::array_of_24_array_of_64_logic c$app_arg_3;
+  KeccakF1600_PermX2Comp_types::array_of_24_array_of_7_logic c$app_arg_4;
+  KeccakF1600_PermX2Comp_types::array_of_168_logic c$app_arg_5;
+  KeccakF1600_PermX2Comp_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants_xs ;
+  KeccakF1600_PermX2Comp_types::array_of_169_Tuple2 \Permutation.Constants.iotaConstants3 ;
+  KeccakF1600_PermX2Comp_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants4 ;
+  KeccakF1600_PermX2Comp_types::array_of_168_Tuple2 \Permutation.Constants.iotaConstants5 ;
   logic [1599:0] c$app_arg_6;
-  KeccakF1600_PermSeq_types::array_of_1600_Tuple3 c$vec;
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_11 c$vec_0;
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_11 c$vec_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_2;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_3;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_4;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_5;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_6;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec2;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_7;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_8;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_9;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec2_0;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_10;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_11;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_12;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec2_1;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_13;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_14;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_15;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec2_2;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_16;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_17;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec1_18;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec2_3;
-  KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1 c$vec_2;
-  KeccakF1600_PermSeq_types::array_of_64_logic c$vec_3;
-  KeccakF1600_PermSeq_types::array_of_8_logic c$vec_4;
-  KeccakF1600_PermSeq_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
-  KeccakF1600_PermSeq_types::array_of_8_logic c$vec1_19;
-  KeccakF1600_PermSeq_types::array_of_8_logic c$vec2_5;
+  KeccakF1600_PermX2Comp_types::array_of_1600_Tuple3 c$vec;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_11 c$vec_0;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_11 c$vec_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_3;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_4;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_5;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_6;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_7;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_8;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_9;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec2_0;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_10;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_11;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_12;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec2_1;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_13;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_14;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_15;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec2_2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_16;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_17;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec1_18;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec2_3;
+  KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1 c$vec_2;
+  KeccakF1600_PermX2Comp_types::array_of_64_logic c$vec_3;
+  KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec_4;
+  KeccakF1600_PermX2Comp_types::array_of_8_logic \Permutation.Constants.iotaConstants3__dc_arg_res ;
+  KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec1_19;
+  KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec2_5;
 
   // map begin
   genvar n;
@@ -114,7 +114,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // map end
 
-  assign lvl = ({KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg)});
+  assign lvl = ({KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg)});
 
   assign c$vec = '{0: {11'd1599,11'd1343,11'd1407}
                   ,1: {11'd1598,11'd1342,11'd1406}
@@ -1721,7 +1721,7 @@ module Permutation_permSeq_keccakF1600
   genvar n_0;
   generate
   for (n_0=0; n_0 < $size(result_0); n_0 = n_0 + 1) begin : map_0
-    KeccakF1600_PermSeq_types::Tuple3 map_in_0;
+    KeccakF1600_PermX2Comp_types::Tuple3 map_in_0;
     assign map_in_0 = c$vec[n_0];
     logic map_out_0;
     logic [10:0] i0;
@@ -1759,7 +1759,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // map end
 
-  assign lvl_0 = ({KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_0)});
+  assign lvl_0 = ({KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_0)});
 
   assign c$vec_0 = '{0: 11'd1407
                     ,1: 11'd1406
@@ -3392,7 +3392,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // map end
 
-  assign lvl_1 = ({KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_1)});
+  assign lvl_1 = ({KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg_1)});
 
   assign c$vec_1 = '{0: 11'd1585
                     ,1: 11'd1584
@@ -5029,12 +5029,12 @@ module Permutation_permSeq_keccakF1600
   genvar n_6;
   generate
     for (n_6 = 0; n_6 < $size(state); n_6 = n_6 + 1) begin : unconcat
-      assign state[n_6] = {KeccakF1600_PermSeq_types::array_of_64_logic_to_lv(c$app_arg_1[(n_6 * 64) : ((n_6 * 64) + 64 - 1)])};
+      assign state[n_6] = {KeccakF1600_PermX2Comp_types::array_of_64_logic_to_lv(c$app_arg_1[(n_6 * 64) : ((n_6 * 64) + 64 - 1)])};
     end
   endgenerate
   // unconcat end
 
-  assign c$vec1 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd4]));
+  assign c$vec1 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd4]));
 
   // zipWith begin
   genvar n_7;
@@ -5053,7 +5053,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_0 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd2]));
+  assign c$vec1_0 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd2]));
 
   // zipWith begin
   genvar n_8;
@@ -5089,7 +5089,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_1 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd1]));
+  assign c$vec1_1 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd1]));
 
   // zipWith begin
   genvar n_10;
@@ -5108,7 +5108,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_2 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd3]));
+  assign c$vec1_2 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd3]));
 
   // zipWith begin
   genvar n_11;
@@ -5161,7 +5161,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_3 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd0]));
+  assign c$vec1_3 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd0]));
 
   // zipWith begin
   genvar n_14;
@@ -5218,7 +5218,7 @@ module Permutation_permSeq_keccakF1600
   genvar n_17;
   generate
     for (n_17=0; n_17 < $size(c$app_arg_0); n_17 = n_17 + 1) begin : concat
-      assign result_3[n_17*64 : n_17*64+(64-1)] = KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
+      assign result_3[n_17*64 : n_17*64+(64-1)] = KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
     end
   endgenerate
   // concat end
@@ -5229,15 +5229,15 @@ module Permutation_permSeq_keccakF1600
   for (n_19=0; n_19 < $size(c$app_arg_0); n_19 = n_19 + 1) begin : imap
     logic [4:0] i;
     assign i = n_19;
-    KeccakF1600_PermSeq_types::array_of_64_logic imap_in;
-    assign imap_in = KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[n_19]);
-    KeccakF1600_PermSeq_types::array_of_64_logic imap_out;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic imap_in;
+    assign imap_in = KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[n_19]);
+    KeccakF1600_PermX2Comp_types::array_of_64_logic imap_out;
     logic [2:0] ds;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$zipWith_arg6;
-    KeccakF1600_PermSeq_types::array_of_64_logic result_4;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$zipWith_arg6_case_alt;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$zipWith_arg6;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic result_4;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$zipWith_arg6_case_alt;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
     logic [4:0] c$bv;
     assign imap_out = result_4;
 
@@ -5271,7 +5271,7 @@ module Permutation_permSeq_keccakF1600
     assign c$zipWith_arg6_case_alt_1 = (ds == 3'd3) ? lvl_2 : lvl3;
 
 
-    assign c$app_arg_0[n_19] = {KeccakF1600_PermSeq_types::array_of_64_logic_to_lv(imap_out)};
+    assign c$app_arg_0[n_19] = {KeccakF1600_PermX2Comp_types::array_of_64_logic_to_lv(imap_out)};
   end
   endgenerate
   // imap end
@@ -5302,7 +5302,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_4 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd5]));
+  assign c$vec1_4 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd5]));
 
   // zipWith begin
   genvar n_20;
@@ -5321,7 +5321,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_5 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd10]));
+  assign c$vec1_5 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd10]));
 
   // zipWith begin
   genvar n_21;
@@ -5340,9 +5340,9 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_6 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd15]));
+  assign c$vec1_6 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd15]));
 
-  assign c$vec2 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd20]));
+  assign c$vec2 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd20]));
 
   // zipWith begin
   genvar n_22;
@@ -5387,7 +5387,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_7 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd8]));
+  assign c$vec1_7 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd8]));
 
   // zipWith begin
   genvar n_23;
@@ -5406,7 +5406,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_8 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd13]));
+  assign c$vec1_8 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd13]));
 
   // zipWith begin
   genvar n_24;
@@ -5425,9 +5425,9 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_9 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd18]));
+  assign c$vec1_9 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd18]));
 
-  assign c$vec2_0 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd23]));
+  assign c$vec2_0 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd23]));
 
   // zipWith begin
   genvar n_25;
@@ -5446,7 +5446,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_10 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd6]));
+  assign c$vec1_10 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd6]));
 
   // zipWith begin
   genvar n_26;
@@ -5465,7 +5465,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_11 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd11]));
+  assign c$vec1_11 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd11]));
 
   // zipWith begin
   genvar n_27;
@@ -5484,9 +5484,9 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_12 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd16]));
+  assign c$vec1_12 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd16]));
 
-  assign c$vec2_1 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd21]));
+  assign c$vec2_1 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd21]));
 
   // zipWith begin
   genvar n_28;
@@ -5518,7 +5518,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // rotateLeftS end
 
-  assign c$vec1_13 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd7]));
+  assign c$vec1_13 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd7]));
 
   // zipWith begin
   genvar n_29;
@@ -5537,7 +5537,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_14 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd12]));
+  assign c$vec1_14 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd12]));
 
   // zipWith begin
   genvar n_30;
@@ -5556,9 +5556,9 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_15 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd17]));
+  assign c$vec1_15 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd17]));
 
-  assign c$vec2_2 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd22]));
+  assign c$vec2_2 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd22]));
 
   // zipWith begin
   genvar n_31;
@@ -5577,7 +5577,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_16 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd9]));
+  assign c$vec1_16 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd9]));
 
   // zipWith begin
   genvar n_32;
@@ -5596,7 +5596,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_17 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd14]));
+  assign c$vec1_17 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd14]));
 
   // zipWith begin
   genvar n_33;
@@ -5615,9 +5615,9 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec1_18 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd19]));
+  assign c$vec1_18 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd19]));
 
-  assign c$vec2_3 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(state[64'sd24]));
+  assign c$vec2_3 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(state[64'sd24]));
 
   // zipWith begin
   genvar n_34;
@@ -5636,7 +5636,7 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec_2 = (KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1_from_lv(c$arg_0));
+  assign c$vec_2 = (KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1_from_lv(c$arg_0));
 
   // map begin
   genvar n_35;
@@ -5656,11 +5656,11 @@ module Permutation_permSeq_keccakF1600
   // setSlice begin
   always_comb begin
     result = c$app_arg_6;
-    result[63 : 0] = ((c$app_arg_6[63 : 0]) ^ (({KeccakF1600_PermSeq_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
+    result[63 : 0] = ((c$app_arg_6[63 : 0]) ^ (({KeccakF1600_PermX2Comp_types::array_of_64_logic_vector_1_to_lv(c$app_arg_2)})));
   end
   // setSlice end
 
-  assign c$vec_3 = (KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},c$arg}))]));
+  assign c$vec_3 = (KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},c$arg}))]));
 
   // map begin
   genvar n_36;
@@ -5681,17 +5681,17 @@ module Permutation_permSeq_keccakF1600
   genvar n_39;
   generate
   for (n_39=0; n_39 < $size(c$app_arg_3); n_39 = n_39 + 1) begin : map_8
-    KeccakF1600_PermSeq_types::array_of_7_logic map_in_8;
-    assign map_in_8 = KeccakF1600_PermSeq_types::array_of_7_logic_from_lv(c$app_arg_4[n_39]);
-    KeccakF1600_PermSeq_types::array_of_64_logic map_out_8;
-    KeccakF1600_PermSeq_types::array_of_8_array_of_64_logic ws;
-    KeccakF1600_PermSeq_types::array_of_7_array_of_64_logic ws1;
-    KeccakF1600_PermSeq_types::array_of_64_logic result_5;
-    KeccakF1600_PermSeq_types::array_of_7_Tuple2_0 c$ws1_app_arg;
-    KeccakF1600_PermSeq_types::array_of_7_array_of_64_logic c$vec2_4;
+    KeccakF1600_PermX2Comp_types::array_of_7_logic map_in_8;
+    assign map_in_8 = KeccakF1600_PermX2Comp_types::array_of_7_logic_from_lv(c$app_arg_4[n_39]);
+    KeccakF1600_PermX2Comp_types::array_of_64_logic map_out_8;
+    KeccakF1600_PermX2Comp_types::array_of_8_array_of_64_logic ws;
+    KeccakF1600_PermX2Comp_types::array_of_7_array_of_64_logic ws1;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic result_5;
+    KeccakF1600_PermX2Comp_types::array_of_7_Tuple2_0 c$ws1_app_arg;
+    KeccakF1600_PermX2Comp_types::array_of_7_array_of_64_logic c$vec2_4;
     assign map_out_8 = result_5;
 
-    assign ws = KeccakF1600_PermSeq_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
+    assign ws = KeccakF1600_PermX2Comp_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
 
     // imap begin
     genvar n_37;
@@ -5699,26 +5699,26 @@ module Permutation_permSeq_keccakF1600
     for (n_37=0; n_37 < $size(ws1); n_37 = n_37 + 1) begin : imap_0
       logic [2:0] i_0;
       assign i_0 = n_37;
-      KeccakF1600_PermSeq_types::Tuple2_0 imap_in_0;
+      KeccakF1600_PermX2Comp_types::Tuple2_0 imap_in_0;
       assign imap_in_0 = c$ws1_app_arg[n_37];
-      KeccakF1600_PermSeq_types::array_of_64_logic imap_out_0;
-      KeccakF1600_PermSeq_types::array_of_64_logic y;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_0;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_1;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_2;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_3;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_4;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_5;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_6;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_7;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_8;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_9;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_10;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_11;
-    KeccakF1600_PermSeq_types::array_of_64_logic c$case_alt_12;
+      KeccakF1600_PermX2Comp_types::array_of_64_logic imap_out_0;
+      KeccakF1600_PermX2Comp_types::array_of_64_logic y;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_0;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_1;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_2;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_3;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_4;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_5;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_6;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_7;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_8;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_9;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_10;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_11;
+    KeccakF1600_PermX2Comp_types::array_of_64_logic c$case_alt_12;
     assign imap_out_0 = c$case_alt_0;
 
-    assign y = KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
+    assign y = KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(imap_in_0.Tuple2_0_sel1);
 
     assign c$case_alt_0 = (i_0 == 3'd0) ? c$case_alt_1 : c$case_alt_2;
 
@@ -5782,12 +5782,12 @@ module Permutation_permSeq_keccakF1600
     // replaceVec end
 
 
-      assign ws1[n_37] = {KeccakF1600_PermSeq_types::array_of_64_logic_to_lv(imap_out_0)};
+      assign ws1[n_37] = {KeccakF1600_PermX2Comp_types::array_of_64_logic_to_lv(imap_out_0)};
     end
 
     // imap end
 
-    assign result_5 = KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+    assign result_5 = KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(ws[$high(ws)]);
 
     assign c$vec2_4 = (ws[0 : $high(ws) - 1]);
 
@@ -5797,11 +5797,11 @@ module Permutation_permSeq_keccakF1600
     for (n_38 = 0; n_38 < $size(c$ws1_app_arg); n_38 = n_38 + 1) begin : zipWith_25
       logic zipWith_in1_25;
       assign zipWith_in1_25 = map_in_8[n_38];
-      KeccakF1600_PermSeq_types::array_of_64_logic zipWith_in2_25;
-      assign zipWith_in2_25 = KeccakF1600_PermSeq_types::array_of_64_logic_from_lv(c$vec2_4[n_38]);
-      KeccakF1600_PermSeq_types::Tuple2_0 zipWith_out_25;
+      KeccakF1600_PermX2Comp_types::array_of_64_logic zipWith_in2_25;
+      assign zipWith_in2_25 = KeccakF1600_PermX2Comp_types::array_of_64_logic_from_lv(c$vec2_4[n_38]);
+      KeccakF1600_PermX2Comp_types::Tuple2_0 zipWith_out_25;
       assign zipWith_out_25 = {zipWith_in1_25
-                     ,{KeccakF1600_PermSeq_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
+                     ,{KeccakF1600_PermX2Comp_types::array_of_64_logic_to_lv(zipWith_in2_25)}};
 
 
       assign c$ws1_app_arg[n_38] = zipWith_out_25;
@@ -5810,7 +5810,7 @@ module Permutation_permSeq_keccakF1600
     // zipWith end
 
 
-    assign c$app_arg_3[n_39] = {KeccakF1600_PermSeq_types::array_of_64_logic_to_lv(map_out_8)};
+    assign c$app_arg_3[n_39] = {KeccakF1600_PermX2Comp_types::array_of_64_logic_to_lv(map_out_8)};
   end
   endgenerate
   // map end
@@ -5819,7 +5819,7 @@ module Permutation_permSeq_keccakF1600
   genvar n_40;
   generate
     for (n_40 = 0; n_40 < $size(c$app_arg_4); n_40 = n_40 + 1) begin : unconcat_0
-      assign c$app_arg_4[n_40] = {KeccakF1600_PermSeq_types::array_of_7_logic_to_lv(c$app_arg_5[(n_40 * 7) : ((n_40 * 7) + 7 - 1)])};
+      assign c$app_arg_4[n_40] = {KeccakF1600_PermX2Comp_types::array_of_7_logic_to_lv(c$app_arg_5[(n_40 * 7) : ((n_40 * 7) + 7 - 1)])};
     end
   endgenerate
   // unconcat end
@@ -5828,7 +5828,7 @@ module Permutation_permSeq_keccakF1600
   genvar n_41;
   generate
   for (n_41=0; n_41 < $size(c$app_arg_5); n_41 = n_41 + 1) begin : map_9
-    KeccakF1600_PermSeq_types::Tuple2 map_in_9;
+    KeccakF1600_PermX2Comp_types::Tuple2 map_in_9;
     assign map_in_9 = \Permutation.Constants.iotaConstants_xs [n_41];
     logic map_out_9;
     assign map_out_9 = map_in_9.Tuple2_sel0;
@@ -5877,7 +5877,7 @@ module Permutation_permSeq_keccakF1600
     logic zipWith_in2_26;
     assign zipWith_in2_26 = c$vec2_5[n_42];
     logic zipWith_out_26;
-    KeccakF1600_PermSeq_types::array_of_8_logic c$vec_5;
+    KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec_5;
     assign c$vec_5 = '{0: 1'b1
                       ,1: 1'b0
                       ,2: 1'b0
@@ -5895,24 +5895,24 @@ module Permutation_permSeq_keccakF1600
   endgenerate
   // zipWith end
 
-  assign \Permutation.Constants.iotaConstants3  = KeccakF1600_PermSeq_types::array_of_169_Tuple2_cons({c$vec_4[0]
-                                                                                                      ,{KeccakF1600_PermSeq_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
+  assign \Permutation.Constants.iotaConstants3  = KeccakF1600_PermX2Comp_types::array_of_169_Tuple2_cons({c$vec_4[0]
+                                                                                                         ,{KeccakF1600_PermX2Comp_types::array_of_8_logic_to_lv(\Permutation.Constants.iotaConstants3__dc_arg_res )}}, \Permutation.Constants.iotaConstants4 );
 
   // map begin
   genvar n_44;
   generate
   for (n_44=0; n_44 < $size(\Permutation.Constants.iotaConstants4 ); n_44 = n_44 + 1) begin : map_10
-    KeccakF1600_PermSeq_types::Tuple2 map_in_10;
+    KeccakF1600_PermX2Comp_types::Tuple2 map_in_10;
     assign map_in_10 = \Permutation.Constants.iotaConstants5 [n_44];
-    KeccakF1600_PermSeq_types::Tuple2 map_out_10;
-    KeccakF1600_PermSeq_types::array_of_8_logic result_7;
-    KeccakF1600_PermSeq_types::Tuple2_1 c$case_scrut;
+    KeccakF1600_PermX2Comp_types::Tuple2 map_out_10;
+    KeccakF1600_PermX2Comp_types::array_of_8_logic result_7;
+    KeccakF1600_PermX2Comp_types::Tuple2_1 c$case_scrut;
     logic feedback;
-    KeccakF1600_PermSeq_types::array_of_8_logic x;
-    KeccakF1600_PermSeq_types::Tuple2 result_6;
-    KeccakF1600_PermSeq_types::array_of_8_logic c$vec2_6;
-    KeccakF1600_PermSeq_types::array_of_8_logic c$vec_6;
-    KeccakF1600_PermSeq_types::array_of_8_logic c$vec_7;
+    KeccakF1600_PermX2Comp_types::array_of_8_logic x;
+    KeccakF1600_PermX2Comp_types::Tuple2 result_6;
+    KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec2_6;
+    KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec_6;
+    KeccakF1600_PermX2Comp_types::array_of_8_logic c$vec_7;
     assign map_out_10 = result_6;
 
     assign c$vec2_6 = '{0: 1'b1
@@ -5943,7 +5943,7 @@ module Permutation_permSeq_keccakF1600
 
     // splitAt begin
     logic [0:9-1] [0:1-1] vec;
-    assign vec = {KeccakF1600_PermSeq_types::array_of_9_logic_to_lv((KeccakF1600_PermSeq_types::array_of_9_logic_from_lv({{KeccakF1600_PermSeq_types::array_of_1_logic_to_lv('{0: 1'b0})},{KeccakF1600_PermSeq_types::array_of_8_logic_to_lv(KeccakF1600_PermSeq_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1))}})))};
+    assign vec = {KeccakF1600_PermX2Comp_types::array_of_9_logic_to_lv((KeccakF1600_PermX2Comp_types::array_of_9_logic_from_lv({{KeccakF1600_PermX2Comp_types::array_of_1_logic_to_lv('{0: 1'b0})},{KeccakF1600_PermX2Comp_types::array_of_8_logic_to_lv(KeccakF1600_PermX2Comp_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1))}})))};
 
       if (8 == 9) begin : no_split
         assign c$case_scrut = {vec};
@@ -5955,16 +5955,16 @@ module Permutation_permSeq_keccakF1600
 
     // splitAt end
 
-    assign c$vec_6 = KeccakF1600_PermSeq_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
+    assign c$vec_6 = KeccakF1600_PermX2Comp_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
 
     assign feedback = c$vec_6[$high(c$vec_6)];
 
-    assign x = KeccakF1600_PermSeq_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
+    assign x = KeccakF1600_PermX2Comp_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
 
-    assign c$vec_7 = KeccakF1600_PermSeq_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
+    assign c$vec_7 = KeccakF1600_PermX2Comp_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
 
     assign result_6 = {c$vec_7[0]
-                      ,{KeccakF1600_PermSeq_types::array_of_8_logic_to_lv(result_7)}};
+                      ,{KeccakF1600_PermX2Comp_types::array_of_8_logic_to_lv(result_7)}};
 
 
     assign \Permutation.Constants.iotaConstants4 [n_44] = map_out_10;
@@ -5974,7 +5974,7 @@ module Permutation_permSeq_keccakF1600
 
   assign \Permutation.Constants.iotaConstants5  = \Permutation.Constants.iotaConstants_xs ;
 
-  assign c$app_arg_6 = (({KeccakF1600_PermSeq_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)}));
+  assign c$app_arg_6 = (({KeccakF1600_PermX2Comp_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)}));
 
 
 endmodule

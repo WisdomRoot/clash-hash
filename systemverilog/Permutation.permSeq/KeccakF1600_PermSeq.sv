@@ -24,8 +24,8 @@ module KeccakF1600_PermSeq
 
   Permutation_permSeq_keccakF1600 Permutation_permSeq_keccakF1600_c$state_app_arg
     ( .result (c$state_app_arg)
-    , .roundIdx (c$state_app_arg_fun_arg)
-    , .x (state) );
+    , .c$arg (c$state_app_arg_fun_arg)
+    , .c$arg_0 (state) );
 
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : state_register

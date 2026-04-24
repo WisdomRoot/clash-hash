@@ -1,7 +1,6 @@
 {
     "components": [
-        "Permutation_topEntity_keccakF1600",
-        "KeccakF1600_Perm"
+        "KeccakF1600_PermX2"
     ],
     "dependencies": {
         "transitive": []
@@ -31,33 +30,33 @@
     },
     "files": [
         {
-            "name": "KeccakF1600_Perm_shim.cpp",
-            "sha256": "56d89238abee0d4c7faf79b02520a514bd579b97311bf1150fa18b8fe71027d7"
+            "name": "KeccakF1600_PermX2_shim.cpp",
+            "sha256": "f533997a35c93dcdcb9790bebb6e3d292f22487a61f444cf6e5f27cf7696f7cb"
         },
         {
-            "name": "KeccakF1600_Perm.sdc",
+            "name": "KeccakF1600_PermX2_shim.cpp",
+            "sha256": "f533997a35c93dcdcb9790bebb6e3d292f22487a61f444cf6e5f27cf7696f7cb"
+        },
+        {
+            "name": "KeccakF1600_PermX2.sdc",
             "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
         },
         {
-            "name": "KeccakF1600_Perm_types.sv",
-            "sha256": "b393fe076309a7a4815e63d29517c563de884d094dcdf61ef4fcfda9dfe02d80"
+            "name": "KeccakF1600_PermX2_types.sv",
+            "sha256": "d83222bf23886bac12152c6d67d1b97b2e96039d1726460a645ae9f9be1fdf73"
         },
         {
-            "name": "Permutation_topEntity_keccakF1600.sv",
-            "sha256": "8c3e7aaaf57ff0971a189a807564a97e648d12835e2741bbd02570e54c0fd4d8"
-        },
-        {
-            "name": "KeccakF1600_Perm.sv",
-            "sha256": "2cb62ec54f79f434007d4eeeb45e73490e6b9373efc2648d656b9c19b8e9931e"
+            "name": "KeccakF1600_PermX2.sv",
+            "sha256": "b87a933f4d81d318948b9045f2ecb7f0fb8dfa077bdbaa8a3736c655f6a3f33e"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "9fffbe176ad2dc614deed9179c434a5ca36de2ed0219dc2e1efffd395b3cb625",
+    "hash": "591819bf89cb623937c8a630864cc677a274c27013b3e44d691a28484d6f8773",
     "top_component": {
-        "name": "KeccakF1600_Perm",
+        "name": "KeccakF1600_PermX2",
         "ports_flat": [
             {
                 "direction": "in",

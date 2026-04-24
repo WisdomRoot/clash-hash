@@ -25,8 +25,8 @@ module KeccakF1600_Perm
 
   Permutation_topEntity_keccakF1600 topEntity1_Permutation_topEntity_keccakF1600_STATE_OUT
     ( .result (STATE_OUT)
-    , .roundIdx (STATE_OUT_fun_arg)
-    , .x (STATE_OUT_fun_arg_0) );
+    , .c$arg (STATE_OUT_fun_arg)
+    , .c$arg_0 (STATE_OUT_fun_arg_0) );
 
 
 endmodule

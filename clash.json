@@ -21,6 +21,8 @@
   "CBD-O24": "Component.SamplePolyCBD.i272o24",
   "Dev": "Component.Dev.topEntity",
   "Perm": "Permutation.topEntity",
+  "Perm-X2": "Permutation.permX2",
+  "Perm-X2-Comp": "Permutation.permX2Composed",
   "PermSeq": "Permutation.permSeq",
   "PermRev": "Permutation.permReversed",
   "Chi": "Permutation.Chi.topEntity",

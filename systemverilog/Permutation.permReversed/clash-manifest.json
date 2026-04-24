@@ -55,7 +55,7 @@
         20,
         20
     ],
-    "hash": "58413b21de3ab5eaa5fc89707780dad1e58b770576d850d8b0c7560c865b0934",
+    "hash": "f907d39bb61590ed2c081c8850822bed1f53013bb08e682ccfff3f1d938b8a69",
     "top_component": {
         "name": "KeccakF1600_PermRev",
         "ports_flat": [
