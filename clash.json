@@ -22,6 +22,7 @@
   "Dev": "Component.Dev.topEntity",
   "Perm": "Permutation.topEntity",
   "Perm-X2": "Permutation.permX2",
+  "Perm-X3": "Permutation.permX3",
   "Perm-X2-Comp": "Permutation.permX2Composed",
   "PermSeq": "Permutation.permSeq",
   "PermRev": "Permutation.permReversed",

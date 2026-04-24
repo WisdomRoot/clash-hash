@@ -1,0 +1,98 @@
+{
+    "components": [
+        "KeccakF1600_PermX3"
+    ],
+    "dependencies": {
+        "transitive": []
+    },
+    "domains": {
+        "IntelSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "System": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Asynchronous",
+            "reset_polarity": "ActiveHigh"
+        },
+        "XilinxSystem": {
+            "active_edge": "Rising",
+            "init_behavior": "Defined",
+            "period": 10000,
+            "reset_kind": "Synchronous",
+            "reset_polarity": "ActiveHigh"
+        }
+    },
+    "files": [
+        {
+            "name": "KeccakF1600_PermX3_shim.cpp",
+            "sha256": "bef09715d7a05677149bf46c8175f2e5a76038fac158202089a0f0d883cc503a"
+        },
+        {
+            "name": "KeccakF1600_PermX3.sdc",
+            "sha256": "7237af4c9051e2d6cb8a5cd8f4744c232557e6e6f08edfe5c8f3d5d3f4f8b973"
+        },
+        {
+            "name": "KeccakF1600_PermX3_types.sv",
+            "sha256": "466ec33b7f0102b216e9e66e3e7a9335d0a14f2c56b1182372be2f0cbd0b5f74"
+        },
+        {
+            "name": "KeccakF1600_PermX3.sv",
+            "sha256": "03878e9d749deda24aff9ba64b6a40a64d379867a448f632e6d73d051863333c"
+        }
+    ],
+    "flags": [
+        20,
+        20
+    ],
+    "hash": "36ee8247654a6c6c2a6193e78c12960eee9bee327c66165c4386606bd61a140a",
+    "top_component": {
+        "name": "KeccakF1600_PermX3",
+        "ports_flat": [
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": true,
+                "name": "CLK",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "RST",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "domain": "System",
+                "is_clock": false,
+                "name": "EN",
+                "type_name": "logic",
+                "width": 1
+            },
+            {
+                "direction": "in",
+                "is_clock": false,
+                "name": "ROUND_IDX",
+                "type_name": "logic [1604:0]",
+                "width": 1605
+            },
+            {
+                "direction": "out",
+                "is_clock": false,
+                "name": "STATE_OUT",
+                "type_name": "logic [1599:0]",
+                "width": 1600
+            }
+        ]
+    },
+    "version": "unstable"
+}

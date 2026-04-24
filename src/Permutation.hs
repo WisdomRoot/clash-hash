@@ -21,6 +21,7 @@ module Permutation
     -- * Top entity
     topEntity,
     permX2,
+    permX3,
     permX2Composed,
     permSeq,
     permReversed,
@@ -260,6 +261,36 @@ permX2 _clk _rst _en =
     ( \(roundIdx, stateIn) ->
         let state' = keccakRound1600 roundIdx stateIn
          in keccakRound1600 (roundIdx + 1) state'
+    )
+
+{-# ANN
+  permX3
+  ( Synthesize
+      { t_name = "KeccakF1600_PermX3",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortName "ROUND_IDX",
+            PortName "STATE_IN"
+          ],
+        t_output = PortName "STATE_OUT"
+      }
+  )
+  #-}
+{-# NOINLINE permX3 #-}
+permX3 ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (Index 24, BitVector 1600) ->
+  Signal System (BitVector 1600)
+permX3 _clk _rst _en =
+  fmap
+    ( \(roundIdx, stateIn) ->
+        let state1 = keccakRound1600 roundIdx stateIn
+            state2 = keccakRound1600 (roundIdx + 1) state1
+         in keccakRound1600 (roundIdx + 2) state2
     )
 
 {-# ANN
