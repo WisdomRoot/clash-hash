@@ -3,6 +3,8 @@
 module Component.SampleNTT6
   ( i272o24l6,
     i272o24l6Core,
+    i272o24l6Merged,
+    i272o24l6MergedCore,
     i272o24l6x2,
     i272o24l6x2Core,
     i272o24l6x3,
@@ -537,6 +539,12 @@ i272o24l6Core (coeffReady, seedStream) =
 
     (inReady, outStream) = unbundle outSig
 
+i272o24l6MergedCore ::
+  HiddenClockResetEnable dom =>
+  Pipe dom 272 24
+i272o24l6MergedCore (coeffReady, seedStream) =
+  mealyB step (State Absorb 0 Buffer0) (coeffReady, seedStream)
+
 i272o24l6x2Core ::
   HiddenClockResetEnable dom =>
   Pipe dom 272 24
@@ -710,6 +718,38 @@ i272o24l6x2 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
 i272o24l6x2 = toDUT i272o24l6x2Core
+
+{-# ANN
+  i272o24l6Merged
+  ( Synthesize
+      { t_name = "dut",
+        t_inputs =
+          [ PortName "CLK",
+            PortName "RST",
+            PortName "EN",
+            PortProduct
+              ""
+              [ PortProduct "SEED" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+                PortName "COEFF_TREADY"
+              ]
+          ],
+        t_output =
+          PortProduct
+            ""
+            [ PortProduct "COEFF" [PortName "TDATA", PortName "TVALID", PortName "TLAST"],
+              PortName "SEED_TREADY"
+            ]
+      }
+  )
+  #-}
+{-# NOINLINE i272o24l6Merged #-}
+i272o24l6Merged ::
+  Clock System ->
+  Reset System ->
+  Enable System ->
+  Signal System (AXI4Stream 272, Bool) ->
+  Signal System (AXI4Stream 24, Bool)
+i272o24l6Merged = toDUT i272o24l6MergedCore
 
 {-# ANN
   i272o24l6x3
