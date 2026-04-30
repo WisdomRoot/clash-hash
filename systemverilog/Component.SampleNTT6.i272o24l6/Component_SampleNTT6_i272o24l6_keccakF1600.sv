@@ -5,22 +5,21 @@
 `timescale 100fs/100fs
 module Component_SampleNTT6_i272o24l6_keccakF1600
     ( // Inputs
-      input wire logic [4:0] roundIdx
-    , input wire logic [1599:0] x
+      input wire logic [4:0] c$arg
+    , input wire logic [1599:0] c$arg_0
 
       // Outputs
     , output logic [1599:0] result
     );
   dut_types::array_of_1600_logic_vector_1 c$app_arg;
-  logic [1599:0] result_0;
   logic [1599:0] lvl;
-  dut_types::array_of_1600_logic result_1;
+  dut_types::array_of_1600_logic result_0;
   dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg;
   logic [1599:0] lvl_0;
-  dut_types::array_of_1600_logic result_2;
+  dut_types::array_of_1600_logic result_1;
   dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg_0;
   logic [1599:0] lvl_1;
-  dut_types::array_of_1600_logic result_3;
+  dut_types::array_of_1600_logic result_2;
   dut_types::array_of_1600_logic_vector_1 c$lvl_app_arg_1;
   dut_types::array_of_25_array_of_64_logic state;
   dut_types::array_of_64_logic parity0;
@@ -33,7 +32,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   dut_types::array_of_64_logic parity4;
   dut_types::array_of_64_logic lvl3;
   dut_types::array_of_64_logic lvl4;
-  dut_types::array_of_1600_logic result_4;
+  dut_types::array_of_1600_logic result_3;
   dut_types::array_of_25_array_of_64_logic c$app_arg_0;
   dut_types::array_of_64_logic c$lvl4_app_arg;
   dut_types::array_of_64_logic c$lvl3_app_arg;
@@ -105,7 +104,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   generate
   for (n=0; n < $size(c$app_arg); n = n + 1) begin : map
     logic map_in;
-    assign map_in = result_1[n];
+    assign map_in = result_0[n];
     logic [0:0] map_out;
     assign map_out = (map_in);
 
@@ -114,8 +113,6 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   end
   endgenerate
   // map end
-
-  assign result_0 = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)});
 
   assign lvl = ({dut_types::array_of_1600_logic_vector_1_to_lv(c$lvl_app_arg)});
 
@@ -1723,7 +1720,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   // map begin
   genvar n_0;
   generate
-  for (n_0=0; n_0 < $size(result_1); n_0 = n_0 + 1) begin : map_0
+  for (n_0=0; n_0 < $size(result_0); n_0 = n_0 + 1) begin : map_0
     dut_types::Tuple3 map_in_0;
     assign map_in_0 = c$vec[n_0];
     logic map_out_0;
@@ -1742,7 +1739,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
     assign c$case_alt = (lvl[($unsigned({{(64-11) {1'b0}},i0}))]) ^ ((~ (lvl[($unsigned({{(64-11) {1'b0}},i1}))])) & (lvl[($unsigned({{(64-11) {1'b0}},i2}))]));
 
 
-    assign result_1[n_0] = map_out_0;
+    assign result_0[n_0] = map_out_0;
   end
   endgenerate
   // map end
@@ -1752,7 +1749,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   generate
   for (n_1=0; n_1 < $size(c$lvl_app_arg); n_1 = n_1 + 1) begin : map_1
     logic map_in_1;
-    assign map_in_1 = result_2[n_1];
+    assign map_in_1 = result_1[n_1];
     logic [0:0] map_out_1;
     assign map_out_1 = (map_in_1);
 
@@ -3368,14 +3365,14 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   // map begin
   genvar n_2;
   generate
-  for (n_2=0; n_2 < $size(result_2); n_2 = n_2 + 1) begin : map_2
+  for (n_2=0; n_2 < $size(result_1); n_2 = n_2 + 1) begin : map_2
     logic [10:0] map_in_2;
     assign map_in_2 = c$vec_0[n_2];
     logic map_out_2;
     assign map_out_2 = lvl_0[($unsigned({{(64-11) {1'b0}},map_in_2}))];
 
 
-    assign result_2[n_2] = map_out_2;
+    assign result_1[n_2] = map_out_2;
   end
   endgenerate
   // map end
@@ -3385,7 +3382,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   generate
   for (n_3=0; n_3 < $size(c$lvl_app_arg_0); n_3 = n_3 + 1) begin : map_3
     logic map_in_3;
-    assign map_in_3 = result_3[n_3];
+    assign map_in_3 = result_2[n_3];
     logic [0:0] map_out_3;
     assign map_out_3 = (map_in_3);
 
@@ -5001,14 +4998,14 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   // map begin
   genvar n_4;
   generate
-  for (n_4=0; n_4 < $size(result_3); n_4 = n_4 + 1) begin : map_4
+  for (n_4=0; n_4 < $size(result_2); n_4 = n_4 + 1) begin : map_4
     logic [10:0] map_in_4;
     assign map_in_4 = c$vec_1[n_4];
     logic map_out_4;
     assign map_out_4 = lvl_1[($unsigned({{(64-11) {1'b0}},map_in_4}))];
 
 
-    assign result_3[n_4] = map_out_4;
+    assign result_2[n_4] = map_out_4;
   end
   endgenerate
   // map end
@@ -5018,7 +5015,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   generate
   for (n_5=0; n_5 < $size(c$lvl_app_arg_1); n_5 = n_5 + 1) begin : map_5
     logic map_in_5;
-    assign map_in_5 = result_4[n_5];
+    assign map_in_5 = result_3[n_5];
     logic [0:0] map_out_5;
     assign map_out_5 = (map_in_5);
 
@@ -5221,7 +5218,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   genvar n_17;
   generate
     for (n_17=0; n_17 < $size(c$app_arg_0); n_17 = n_17 + 1) begin : concat
-      assign result_4[n_17*64 : n_17*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
+      assign result_3[n_17*64 : n_17*64+(64-1)] = dut_types::array_of_64_logic_from_lv(c$app_arg_0[n_17]);
     end
   endgenerate
   // concat end
@@ -5237,12 +5234,12 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
     dut_types::array_of_64_logic imap_out;
     logic [2:0] ds;
     dut_types::array_of_64_logic c$zipWith_arg6;
-    dut_types::array_of_64_logic result_5;
+    dut_types::array_of_64_logic result_4;
     dut_types::array_of_64_logic c$zipWith_arg6_case_alt;
     dut_types::array_of_64_logic c$zipWith_arg6_case_alt_0;
     dut_types::array_of_64_logic c$zipWith_arg6_case_alt_1;
     logic [4:0] c$bv;
-    assign imap_out = result_5;
+    assign imap_out = result_4;
 
     assign c$bv = (i % 5'd5);
 
@@ -5253,7 +5250,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
     // zipWith begin
     genvar n_18;
 
-    for (n_18 = 0; n_18 < $size(result_5); n_18 = n_18 + 1) begin : zipWith_9
+    for (n_18 = 0; n_18 < $size(result_4); n_18 = n_18 + 1) begin : zipWith_9
       logic zipWith_in1_9;
       assign zipWith_in1_9 = imap_in[n_18];
       logic zipWith_in2_9;
@@ -5262,7 +5259,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
       assign zipWith_out_9 = zipWith_in1_9 ^ zipWith_in2_9;
 
 
-      assign result_5[n_18] = zipWith_out_9;
+      assign result_4[n_18] = zipWith_out_9;
     end
 
     // zipWith end
@@ -5639,7 +5636,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   endgenerate
   // zipWith end
 
-  assign c$vec_2 = (dut_types::array_of_1600_logic_vector_1_from_lv(x));
+  assign c$vec_2 = (dut_types::array_of_1600_logic_vector_1_from_lv(c$arg_0));
 
   // map begin
   genvar n_35;
@@ -5663,7 +5660,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
   end
   // setSlice end
 
-  assign c$vec_3 = (dut_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},roundIdx}))]));
+  assign c$vec_3 = (dut_types::array_of_64_logic_from_lv(c$app_arg_3[($unsigned({{(64-5) {1'b0}},c$arg}))]));
 
   // map begin
   genvar n_36;
@@ -5689,10 +5686,10 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
     dut_types::array_of_64_logic map_out_8;
     dut_types::array_of_8_array_of_64_logic ws;
     dut_types::array_of_7_array_of_64_logic ws1;
-    dut_types::array_of_64_logic result_6;
+    dut_types::array_of_64_logic result_5;
     dut_types::array_of_7_Tuple2_0 c$ws1_app_arg;
     dut_types::array_of_7_array_of_64_logic c$vec2_4;
-    assign map_out_8 = result_6;
+    assign map_out_8 = result_5;
 
     assign ws = dut_types::array_of_8_array_of_64_logic_cons('{64 {1'b0}}, ws1);
 
@@ -5790,7 +5787,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
 
     // imap end
 
-    assign result_6 = dut_types::array_of_64_logic_from_lv(ws[$high(ws)]);
+    assign result_5 = dut_types::array_of_64_logic_from_lv(ws[$high(ws)]);
 
     assign c$vec2_4 = (ws[0 : $high(ws) - 1]);
 
@@ -5908,15 +5905,15 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
     dut_types::Tuple2 map_in_10;
     assign map_in_10 = \Permutation.Constants.iotaConstants5 [n_44];
     dut_types::Tuple2 map_out_10;
-    dut_types::array_of_8_logic result_8;
+    dut_types::array_of_8_logic result_7;
     dut_types::Tuple2_1 c$case_scrut;
     logic feedback;
-    dut_types::array_of_8_logic x_0;
-    dut_types::Tuple2 result_7;
+    dut_types::array_of_8_logic x;
+    dut_types::Tuple2 result_6;
     dut_types::array_of_8_logic c$vec2_6;
     dut_types::array_of_8_logic c$vec_6;
     dut_types::array_of_8_logic c$vec_7;
-    assign map_out_10 = result_7;
+    assign map_out_10 = result_6;
 
     assign c$vec2_6 = '{0: 1'b1
                        ,1: 1'b0
@@ -5930,16 +5927,16 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
     // zipWith begin
     genvar n_43;
 
-    for (n_43 = 0; n_43 < $size(result_8); n_43 = n_43 + 1) begin : zipWith_27
+    for (n_43 = 0; n_43 < $size(result_7); n_43 = n_43 + 1) begin : zipWith_27
       logic zipWith_in1_27;
-      assign zipWith_in1_27 = x_0[n_43];
+      assign zipWith_in1_27 = x[n_43];
       logic zipWith_in2_27;
       assign zipWith_in2_27 = c$vec2_6[n_43];
       logic zipWith_out_27;
       assign zipWith_out_27 = zipWith_in1_27 ^ (feedback & zipWith_in2_27);
 
 
-      assign result_8[n_43] = zipWith_out_27;
+      assign result_7[n_43] = zipWith_out_27;
     end
 
     // zipWith end
@@ -5962,12 +5959,12 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
 
     assign feedback = c$vec_6[$high(c$vec_6)];
 
-    assign x_0 = dut_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
+    assign x = dut_types::array_of_8_logic_from_lv(c$case_scrut.Tuple2_1_sel0);
 
     assign c$vec_7 = dut_types::array_of_8_logic_from_lv(map_in_10.Tuple2_sel1);
 
-    assign result_7 = {c$vec_7[0]
-                      ,{dut_types::array_of_8_logic_to_lv(result_8)}};
+    assign result_6 = {c$vec_7[0]
+                      ,{dut_types::array_of_8_logic_to_lv(result_7)}};
 
 
     assign \Permutation.Constants.iotaConstants4 [n_44] = map_out_10;
@@ -5977,7 +5974,7 @@ module Component_SampleNTT6_i272o24l6_keccakF1600
 
   assign \Permutation.Constants.iotaConstants5  = \Permutation.Constants.iotaConstants_xs ;
 
-  assign c$app_arg_6 = result_0;
+  assign c$app_arg_6 = (({dut_types::array_of_1600_logic_vector_1_to_lv(c$app_arg)}));
 
 
 endmodule

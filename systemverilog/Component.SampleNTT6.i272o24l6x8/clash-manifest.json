@@ -40,22 +40,22 @@
         },
         {
             "name": "dut_types.sv",
-            "sha256": "a00c563a3c9d82426981432e21cab50118e5f99b143090e0efa8118a85c679da"
+            "sha256": "013ae397a78da8e4425e7773e1d6e9ef6c15ca93834889290f2162faf16f2899"
         },
         {
             "name": "Component_SampleNTT6_i272o24l6x8_keccakF1600.sv",
-            "sha256": "d781b74a67761c4b4addb0870a770d5877289e761b0d3499ccb83408e917089e"
+            "sha256": "22080629f601789ff5def5556b7803e93fb08c7016f0677d2fa6db8435c329d7"
         },
         {
             "name": "dut.sv",
-            "sha256": "9b1edec3def94ea9b96601ae7d6e2171bba14ff1219f11621ef80c11b73f53e3"
+            "sha256": "9aa05f4dcf8a4b9cefc0ce1cf612a568a23f6c74f413cd62f8df13887a58ba36"
         }
     ],
     "flags": [
         20,
         20
     ],
-    "hash": "a4f738ff8813290657750771ebd427ea14c61dc7f0e4aa980224c9df3bc07e16",
+    "hash": "ff355b0ef6a8d9267b9cc2604cc9bdb4f81585d22fd9da37bec80b3adbe3f82d",
     "top_component": {
         "name": "dut",
         "ports_flat": [
