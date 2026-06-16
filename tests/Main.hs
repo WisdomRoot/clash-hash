@@ -56,6 +56,7 @@ main = do
   snO24L2Tests <- testSpec "SN-O24-L2" Test.SampleNTT.specL2
   snO24L4Tests <- testSpec "SN-O24-L4" Test.SampleNTT.specL4
   snO24L6Tests <- testSpec "SN-O24-L6" Test.SampleNTT.specL6
+  snO48L6Tests <- testSpec "SN-O48-L6" Test.SampleNTT.specL6O48
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
 
@@ -90,5 +91,6 @@ main = do
         refShake256Tests,
         snO24L2Tests,
         snO24L4Tests,
-        snO24L6Tests
+        snO24L6Tests,
+        snO48L6Tests
       ]

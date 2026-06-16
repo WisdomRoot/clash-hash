@@ -1,12 +1,13 @@
 {-# LANGUAGE DataKinds #-}
 
-module Test.SampleNTT (spec, specL2, specL4, specL6) where
+module Test.SampleNTT (spec, specL2, specL4, specL6, specL6O48) where
 
 import AXI4Stream (Pipe, Pipe2)
 import Clash.Prelude (BitVector, System, clockGen, enableGen, resetGen, withClockResetEnable, (++#))
 import Component.SampleNTT qualified as SampleNTT
 import Component.SampleNTT4 qualified as SampleNTT4
 import Component.SampleNTT6 qualified as SampleNTT6
+import Component.SampleNTT6O48 qualified as SampleNTT6O48
 import Data.ByteString (ByteString)
 import Data.Foldable (for_)
 import Data.List qualified as L
@@ -40,6 +41,9 @@ specL4 = sampleNTTSpec2 "SN-O24-L4" 4 7 SampleNTT4.i272o24l4Core
 specL6 :: Spec
 specL6 = sampleNTTSpec "SN-O24-L6" 6 9 i272o24l6AsPipe
 
+specL6O48 :: Spec
+specL6O48 = sampleNTTO48Spec "SN-O48-L6" i272o48l6AsPipe
+
 i272o24l2AsPipe :: Pipe System 272 24
 i272o24l2AsPipe args =
   withClockResetEnable clockGen resetGen enableGen (SampleNTT.i272o24l2Core args)
@@ -47,6 +51,10 @@ i272o24l2AsPipe args =
 i272o24l6AsPipe :: Pipe System 272 24
 i272o24l6AsPipe args =
   withClockResetEnable clockGen resetGen enableGen (SampleNTT6.i272o24l6Core args)
+
+i272o48l6AsPipe :: Pipe System 272 48
+i272o48l6AsPipe args =
+  withClockResetEnable clockGen resetGen enableGen (SampleNTT6O48.i272o48l6Core args)
 
 sampleNTTSpec ::
   P.String ->
@@ -120,6 +128,28 @@ sampleNTTSpec2 name lookaheadCount bufferSize pipeEntity =
       it "correctly handles random 34-byte test cases" $
         withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runPipe2TestWith (simulate lookaheadCount bufferSize) pipeEntity)
 
+sampleNTTO48Spec ::
+  P.String ->
+  Pipe System 272 48 ->
+  Spec
+sampleNTTO48Spec name pipeEntity =
+  describe name $ do
+    describe "Basic functionality tests (34-byte seeds)" $
+      for_ Samples.basicSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipeTestWithO48 simulateO48L6 pipeEntity testCase
+    describe "Upstream stall handling (34-byte seeds)" $
+      for_ Samples.stallSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipeTestWithO48 simulateO48L6 pipeEntity testCase
+    describe "Downstream backpressure handling (34-byte seeds)" $
+      for_ Samples.backpressureSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipeTestWithO48 simulateO48L6 pipeEntity testCase
+    describe "Combined stress tests (34-byte seeds)" $
+      for_ Samples.combinedSeedCases $ \testCase ->
+        it (testLabel testCase) $ runPipeTestWithO48 simulateO48L6 pipeEntity testCase
+    describe "QuickCheck property tests (34-byte seeds)" $
+      it "correctly handles random 34-byte test cases" $
+        withMaxSuccess 20 $ forAll Samples.genSampleNTTTest (runPipeTestWithO48 simulateO48L6 pipeEntity)
+
 runPipe2TestWith ::
   (ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24) ->
   Pipe2 System 272 24 ->
@@ -143,6 +173,186 @@ runPipe2TestWith expectedFn pipeEntity testCase =
       simulateCase inputTiming' backpressureTiming' =
         expectedFn seed backpressureTiming' inputTiming'
    in runPipe2InputExact pipeEntity simulateCase inputTiming backpressureTiming
+
+runPipeTestWithO48 ::
+  (ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 48) ->
+  Pipe System 272 48 ->
+  ShakeTest ->
+  P.IO ()
+runPipeTestWithO48 expectedFn pipeEntity testCase =
+  let seed = testMessage testCase
+      holdCycles =
+        case testUpstreamStall testCase of
+          NoUpstreamStall -> 0
+          UpstreamStall pattern -> P.length (P.takeWhile P.id pattern)
+      inputTiming =
+        if holdCycles P.== 0
+          then [Input [bsToBV272Normal seed]]
+          else [Hold holdCycles, Input [bsToBV272Normal seed]]
+      bpPattern = backpressurePattern (testDownstreamBackpressure testCase)
+      backpressureTiming =
+        [ if b then Ready (P.length grp) else Backpress (P.length grp)
+          | grp@(b : _) <- L.group bpPattern
+        ]
+      simulateCase inputTiming' backpressureTiming' =
+        expectedFn seed backpressureTiming' inputTiming'
+   in runPipeInputExact pipeEntity simulateCase inputTiming backpressureTiming
+
+simulateO48L6 :: ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 48
+simulateO48L6 seed backpressureTiming inputTiming =
+  let (inputPattern, _) = expandInputTiming inputTiming
+      startSilence =
+        case L.findIndex isJust inputPattern of
+          Just i -> i
+          Nothing -> P.error "SampleNTT.simulateO48L6: no input provided"
+      (packedBytes, validityRaw) = getSampleNTTOutput seed
+      coeffs = unpackPython384Bytes packedBytes
+      chunks = chunksOfO48 8 (assignCandidatesO48 validityRaw coeffs)
+      readyPattern = expandBackpressureTiming backpressureTiming
+      readyStream = case readyPattern of
+        [] -> P.repeat P.True
+        _ -> P.cycle readyPattern
+      (idleOut, readyAfterIdle) = consumeN48 startSilence readyStream
+      (permuteOut, readyAfterPermute) = consumeN48 25 readyAfterIdle
+      (squeezeOut, _) = runO48Blocks chunks [] readyAfterPermute 0
+   in compress48 (idleOut P.++ permuteOut P.++ squeezeOut)
+
+runO48Blocks ::
+  [[P.Maybe Word16]] ->
+  [Word16] ->
+  [P.Bool] ->
+  P.Int ->
+  ([P.Maybe (BitVector 48)], [P.Bool])
+runO48Blocks chunks buffer rs emitted
+  | emitted P.>= 64 = ([], rs)
+  | P.otherwise =
+      let (blockChunks, restChunks) = P.splitAt 14 chunks
+       in if P.null blockChunks
+            then
+              if P.length buffer P.< 4
+                then P.error "SampleNTT.simulateO48L6: candidate chunks exhausted"
+                else
+                  let (drainOut, buffer', rs', emitted') = runO48Drain buffer rs emitted
+                   in if emitted' P.>= 64
+                        then (drainOut, rs')
+                        else runO48Blocks [] buffer' rs' emitted'
+            else
+              let (blockOut, buffer', rs', emitted') = runO48SqueezeBlock blockChunks buffer rs emitted
+               in if emitted' P.>= 64
+                    then (blockOut, rs')
+                    else
+                      let (gapOut, rs'') = consumeN48 24 rs'
+                          (moreOut, rs''') = runO48Blocks restChunks buffer' rs'' emitted'
+                       in (blockOut P.++ gapOut P.++ moreOut, rs''')
+
+runO48SqueezeBlock ::
+  [[P.Maybe Word16]] ->
+  [Word16] ->
+  [P.Bool] ->
+  P.Int ->
+  ([P.Maybe (BitVector 48)], [Word16], [P.Bool], P.Int)
+runO48SqueezeBlock block buffer rs emitted = go 0 buffer rs emitted []
+  where
+    blockLen = P.length block
+    go idx buf ready emitted' acc
+      | emitted' P.>= 64 = (P.reverse acc, buf, ready, emitted')
+      | idx P.>= blockLen = (P.reverse acc, buf, ready, emitted')
+      | P.otherwise =
+          case ready of
+            [] -> P.error "SampleNTT.simulateO48L6: empty backpressure pattern"
+            r : rs' ->
+              let chunk = block P.!! idx
+                  (outMaybe, buf', advanceIdx, produced) = stepO48 buf chunk r
+                  idx' = if advanceIdx then idx P.+ 1 else idx
+                  emitted'' = emitted' P.+ produced
+               in go idx' buf' rs' emitted'' (outMaybe : acc)
+
+stepO48 ::
+  [Word16] ->
+  [P.Maybe Word16] ->
+  P.Bool ->
+  (P.Maybe (BitVector 48), [Word16], P.Bool, P.Int)
+stepO48 buffer chunk tready =
+  case buffer of
+    a : b : c : d : rest ->
+      if tready
+        then (P.Just (mkQuad a b c d), rest, P.False, 1)
+        else (P.Nothing, buffer, P.False, 0)
+    _ ->
+      let vals = catMaybes chunk
+          buffer' = buffer P.++ vals
+       in case buffer' of
+            a : b : c : d : rest ->
+              if tready
+                then (P.Just (mkQuad a b c d), rest, P.True, 1)
+                else (P.Nothing, buffer', P.True, 0)
+            _ -> (P.Nothing, buffer', P.True, 0)
+
+runO48Drain ::
+  [Word16] ->
+  [P.Bool] ->
+  P.Int ->
+  ([P.Maybe (BitVector 48)], [Word16], [P.Bool], P.Int)
+runO48Drain buffer rs emitted
+  | emitted P.>= 64 = ([], buffer, rs, emitted)
+  | P.length buffer P.< 4 = ([], buffer, rs, emitted)
+  | P.otherwise =
+      case rs of
+        [] -> P.error "SampleNTT.simulateO48L6: empty backpressure pattern during drain"
+        r : rs' ->
+          let (outMaybe, buffer', produced) =
+                case buffer of
+                  a : b : c : d : rest ->
+                    if r
+                      then (P.Just (mkQuad a b c d), rest, 1)
+                      else (P.Nothing, buffer, 0)
+                  _ -> (P.Nothing, buffer, 0)
+              (out, buffer'', rs'', emitted') = runO48Drain buffer' rs' (emitted P.+ produced)
+           in (outMaybe : out, buffer'', rs'', emitted')
+
+consumeN48 :: P.Int -> [P.Bool] -> ([P.Maybe (BitVector 48)], [P.Bool])
+consumeN48 n rs =
+  case n of
+    0 -> ([], rs)
+    _ ->
+      case rs of
+        _ : rs' ->
+          let (out, rs'') = consumeN48 (n P.- 1) rs'
+           in (Nothing : out, rs'')
+        [] -> P.error "SampleNTT.simulateO48L6: empty backpressure pattern"
+
+toBV12O48 :: Word16 -> BitVector 12
+toBV12O48 v = P.fromIntegral v
+
+mkQuad :: Word16 -> Word16 -> Word16 -> Word16 -> BitVector 48
+mkQuad a b c d = toBV12O48 d ++# toBV12O48 c ++# toBV12O48 b ++# toBV12O48 a
+
+chunksOfO48 :: P.Int -> [a] -> [[a]]
+chunksOfO48 n xs =
+  case P.splitAt n xs of
+    ([], _) -> []
+    (chunk, rest) -> chunk : chunksOfO48 n rest
+
+assignCandidatesO48 :: [P.Bool] -> [Word16] -> [P.Maybe Word16]
+assignCandidatesO48 [] [] = []
+assignCandidatesO48 [] _ = P.error "SampleNTT.assignCandidatesO48: extra coefficients"
+assignCandidatesO48 (v : vs) coeffs' =
+  if v
+    then case coeffs' of
+      [] -> P.error "SampleNTT.assignCandidatesO48: ran out of coefficients"
+      c : cs -> P.Just c : assignCandidatesO48 vs cs
+    else P.Nothing : assignCandidatesO48 vs coeffs'
+
+compress48 :: [P.Maybe (BitVector 48)] -> OutputTiming 48
+compress48 [] = []
+compress48 xs =
+  case P.span (\v -> P.not (isJust v)) xs of
+    (nothings, rest) | P.not (P.null nothings) ->
+      Silent (P.length nothings) : compress48 rest
+    _ ->
+      let (justs, rest) = P.span isJust xs
+          vals = [v | Just v <- justs]
+       in Output vals : compress48 rest
 
 simulate :: P.Int -> P.Int -> ByteString -> BackpressureTiming -> InputTiming 272 -> OutputTiming 24
 simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
@@ -187,12 +397,12 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           chunkWidth = lookaheadCount P.+ 2
           expectedBufferSize = chunkWidth P.+ 1
           candidates = assignCandidates validityRaw coeffs
+          chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
           blocks =
             if lookaheadCount P.== 4
               then buildL4Blocks candidates
               else
-                let chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
-                    paddedBlockCandidates = chunksPerBlock P.* chunkWidth
+                let paddedBlockCandidates = chunksPerBlock P.* chunkWidth
                  in buildBufferedBlocks 112 paddedBlockCandidates chunkWidth candidates
           readyPattern = expandBackpressureTiming backpressureTiming
           readyStream = case readyPattern of
@@ -201,7 +411,6 @@ simulate lookaheadCount bufferSize seed backpressureTiming inputTiming =
           (idleOut, readyAfterIdle) = consumeN startSilence readyStream
           (permuteOut, readyAfterPermute) = consumeN 25 readyAfterIdle
           drainDuringGap = lookaheadCount P.== 4
-          chunksPerBlock = (112 P.+ chunkWidth P.- 1) `P.div` chunkWidth
           emptyDrainBlock = P.replicate chunksPerBlock (P.replicate chunkWidth P.Nothing)
           (squeezeOut, _) = runBlocksBuffered drainDuringGap emptyDrainBlock blocks [] readyAfterPermute 0
        in if bufferSize P./= expectedBufferSize
