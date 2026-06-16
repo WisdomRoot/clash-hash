@@ -95,6 +95,7 @@ Note: The probability of successfully emitting 2 valid coefficients per cycle is
 | ID | E[Cycles] | CP | Area | E[TP@CP] | E[TP/A@CP] | E[TP@5ns] | E[TP/A@5ns] | Notes |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
 | [`SN-O24-L6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6/dut.sv) | 201.83 | 1.58 | 26271.490 | 9.63 | 366.69 | 3.04 | 115.87 | baseline |
+| [`SN-O48-L6`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6O48.i272o48l6/dut.sv) | 137.53 | 2.33 | 28037.464 | 9.59 | 341.91 | 4.47 | 159.33 | 4 coefficients/cycle |
 | [`SN-O24-L6-X2`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x2/dut.sv) | 165.41 | 1.81 | 37312.352 | 10.26 | 274.99 | 3.71 | 99.55 | 2 rounds/cycle |
 | [`SN-O24-L6-X3`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x3/dut.sv) | 153.28 | 1.97 | 46895.268 | 10.17 | 216.95 | 4.01 | 85.48 | 3 rounds/cycle |
 | [`SN-O24-L6-X4`](https://github.com/WisdomRoot/clash-hash/blob/main/systemverilog/Component.SampleNTT6.i272o24l6x4/dut.sv) | 147.21 | 1.92 | 56398.916 | 10.87 | 192.72 | 4.17 | 74.00 | 4 rounds/cycle |
@@ -103,8 +104,9 @@ Note: The probability of successfully emitting 2 valid coefficients per cycle is
 
 Notes:
 - These are full-job metrics for producing `256` coefficients (`OutputBits = 256 * 12 = 3072`).
-- `E[Cycles] = 1 + C_perm * E[PermCount] + 128 / r`
+- O24 variants use `E[Cycles] = 1 + C_perm * E[PermCount] + 128 / r`
   where `E[PermCount] ≈ 3.0344` and `r = 0.99999146181`.
+- `SN-O48-L6` uses the same lookahead-6 candidate screening but emits `12-bit coeff0 || coeff1 || coeff2 || coeff3`; its expected cycles use the quad-output model from `python3 scripts/markov_emit_rate.py --n 8 --emit-width 4 --output-count 64 --perm-cycles 24`.
 - `C_perm` is permute cycles per permutation block: `24, 12, 8, 6, 4, 3` for `L6, X2, X3, X4, X6, X8`.
 - `r` is computed from the Markov model via `python3 scripts/markov_emit_rate.py --n 8`.
 

@@ -310,6 +310,17 @@ def parse_clash_target(label: str) -> tuple[str, str | None]:
     return label, None
 
 
+def module_source_path(module_name: str) -> Path | None:
+    source = PROJECT_ROOT / "src" / Path(*module_name.split(".")).with_suffix(".hs")
+    return source if source.is_file() else None
+
+
+def main_is_name(main_is: str | None) -> str | None:
+    if main_is is None:
+        return None
+    return main_is.split(".")[-1]
+
+
 def load_aliases(path: Path, required: bool = False) -> dict[str, str]:
     if not path.is_file():
         if required:
@@ -493,14 +504,21 @@ def hdl_stage_current(target: str, module_name: str | None = None, main_is: str 
 
 
 def run_hdl(target: str, module_name: str, main_is: str | None) -> None:
-    clash_cmd = ["stack", "exec", "clash", "--", "--systemverilog", module_name]
+    source = module_source_path(module_name)
+    if source is None:
+        clash_cmd = ["stack", "exec", "clash", "--", "--systemverilog", module_name]
+    else:
+        clash_cmd = ["stack", "exec", "clash", "--", "--systemverilog", "-isrc", str(source.relative_to(PROJECT_ROOT))]
     if main_is:
-        clash_cmd += ["-main-is", main_is]
+        clash_cmd += ["-main-is", main_is_name(main_is)]
     run_cmd(clash_cmd, f"SystemVerilog gen for {module_name}")
 
-    verilog_cmd = ["stack", "exec", "clash", "--", "--verilog", module_name]
+    if source is None:
+        verilog_cmd = ["stack", "exec", "clash", "--", "--verilog", module_name]
+    else:
+        verilog_cmd = ["stack", "exec", "clash", "--", "--verilog", "-isrc", str(source.relative_to(PROJECT_ROOT))]
     if main_is:
-        verilog_cmd += ["-main-is", main_is]
+        verilog_cmd += ["-main-is", main_is_name(main_is)]
     run_cmd(verilog_cmd, f"Verilog gen for {module_name}")
 
 

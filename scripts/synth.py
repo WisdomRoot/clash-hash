@@ -91,10 +91,25 @@ def _parse_clash_target(label: str) -> tuple[str, str | None]:
     return label, None
 
 
+def _module_source_path(module_name: str) -> Path | None:
+    source = PROJECT_ROOT / "src" / Path(*module_name.split(".")).with_suffix(".hs")
+    return source if source.is_file() else None
+
+
+def _main_is_name(main_is: str | None) -> str | None:
+    if main_is is None:
+        return None
+    return main_is.split(".")[-1]
+
+
 def _run_clash_codegen(flag: str, module_name: str, main_is: str | None) -> tuple[bool, str]:
-    cmd = ["stack", "exec", "clash", "--", flag, module_name]
+    source = _module_source_path(module_name)
+    if source is None:
+        cmd = ["stack", "exec", "clash", "--", flag, module_name]
+    else:
+        cmd = ["stack", "exec", "clash", "--", flag, "-isrc", str(source.relative_to(PROJECT_ROOT))]
     if main_is:
-        cmd += ["-main-is", main_is]
+        cmd += ["-main-is", _main_is_name(main_is)]
     result = subprocess.run(
         cmd,
         cwd=PROJECT_ROOT,
