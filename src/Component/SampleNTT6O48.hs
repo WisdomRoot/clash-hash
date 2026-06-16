@@ -8,8 +8,8 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
+import Component.SampleNTT.Common (absorb34)
 import Permutation qualified
-import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
 
 data Buffer
@@ -192,18 +192,3 @@ i272o48l6 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 48, Bool)
 i272o48l6 = toDUT i272o48l6Core
-
-absorb34 :: BitVector 272 -> BitVector 1600
-absorb34 = pad34Bytes . placeMsg
-  where
-    placeMsg :: BitVector 272 -> BitVector 1600
-    placeMsg msg = (0 :: BitVector 1328) ++# msg
-
-    pad34Bytes :: BitVector 1600 -> BitVector 1600
-    pad34Bytes =
-      complementAt 1343
-        . complementAt 272
-        . complementAt 273
-        . complementAt 274
-        . complementAt 275
-        . complementAt 276

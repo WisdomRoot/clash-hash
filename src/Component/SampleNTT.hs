@@ -8,8 +8,8 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
+import Component.SampleNTT.Common (absorb34)
 import Permutation qualified
-import Sponge.NonPipelined (complementAt)
 import TH (mkRead)
 
 -- | Collected coefficients that are pending output
@@ -211,23 +211,3 @@ i272o24l2 ::
   Signal System (AXI4Stream 272, Bool) ->
   Signal System (AXI4Stream 24, Bool)
 i272o24l2 = toDUT i272o24l2Core
-
--- | Absorb 34 bytes: place message and apply padding
-absorb34 :: BitVector 272 -> BitVector 1600
-absorb34 = pad34Bytes . placeMsg
-  where
-    --  Place 34-byte message at the start of state (no XOR needed since state starts at 0)
-    placeMsg :: BitVector 272 -> BitVector 1600
-    placeMsg msg = (0 :: BitVector 1328) ++# msg
-
-    --  Padding function for fixed 34-byte input + SHAKE padding.
-    pad34Bytes :: BitVector 1600 -> BitVector 1600
-    pad34Bytes =
-      complementAt 1343 -- final pad bit (last bit of rate)
-        . complementAt 272 -- DS bits in byte 34
-        . complementAt 273
-        . complementAt 274
-        . complementAt 275
-        . complementAt 276
-
---------------------------------------------------------------------------------
