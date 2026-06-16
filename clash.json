@@ -39,6 +39,7 @@
   "SN-O24-L2": "Component.SampleNTT.i272o24l2",
   "SN-O24-L4": "Component.SampleNTT4.i272o24l4",
   "SN-O24-L6": "Component.SampleNTT6.i272o24l6",
+  "SN-O48-L6": "Component.SampleNTT6O48.i272o48l6",
   "SN-O24-L6-Merged": "Component.SampleNTT6.i272o24l6Merged",
   "SN-O24-L6-X2": "Component.SampleNTT6.i272o24l6x2",
   "SN-O24-L6-X3": "Component.SampleNTT6.i272o24l6x3",
