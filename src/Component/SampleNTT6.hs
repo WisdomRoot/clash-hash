@@ -20,7 +20,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Component.SampleNTT.Common (absorb34)
+import Component.SampleNTT.Common (absorb34, screenCoeff96)
 import Permutation qualified
 import TH (mkRead)
 
@@ -73,28 +73,10 @@ pushCandidate valid _ = valid
 
 screenCandidates :: BitVector 96 -> Candidates
 screenCandidates chunk =
-  let c0 = slice (SNat @11) (SNat @0) chunk
-      c1 = slice (SNat @23) (SNat @12) chunk
-      c2 = slice (SNat @35) (SNat @24) chunk
-      c3 = slice (SNat @47) (SNat @36) chunk
-      c4 = slice (SNat @59) (SNat @48) chunk
-      c5 = slice (SNat @71) (SNat @60) chunk
-      c6 = slice (SNat @83) (SNat @72) chunk
-      c7 = slice (SNat @95) (SNat @84) chunk
-      candidates =
-        (c0, c0 < 3329)
-          :> (c1, c1 < 3329)
-          :> (c2, c2 < 3329)
-          :> (c3, c3 < 3329)
-          :> (c4, c4 < 3329)
-          :> (c5, c5 < 3329)
-          :> (c6, c6 < 3329)
-          :> (c7, c7 < 3329)
-          :> Nil
-   in foldl
-        (\valid (candidate, isValid) -> if isValid then pushCandidate valid candidate else valid)
-        Valid0
-        candidates
+  foldl
+    (\valid (isValid, candidate) -> if isValid then pushCandidate valid candidate else valid)
+    Valid0
+    (screenCoeff96 chunk)
 
 popPair :: Buffer -> (BitVector 24, Buffer)
 popPair (Buffer2 a b) = (b ++# a, Buffer0)

@@ -19,6 +19,7 @@ module dut
     , output logic COEFF_TLAST
     , output logic SEED_TREADY
     );
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic [111:0] c$ds1_app_arg = {4'b0000,108'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
   logic [1599:0] result_0;
   logic [1599:0] c$app_arg;
@@ -32,19 +33,29 @@ module dut
   logic [1599:0] c$app_arg_3;
   logic [1599:0] result_5;
   logic [1599:0] c$app_arg_4;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic [1599:0] c$keccakState_case_alt;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic [1599:0] c$keccakState_case_alt_0;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic [1599:0] c$keccakState_case_alt_1;
-  dut_types::Tuple2_2 result_6;
+  dut_types::Tuple2_3 result_6;
+  // src/Component/SampleNTT6.hs:277:1-9
   logic [271:0] inputMsg;
+  // src/Component/SampleNTT6.hs:277:1-9
   logic msgValid;
+  // src/Component/SampleNTT6.hs:277:1-9
   logic [4:0] counter;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic coeffReady;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   dut_types::AXI4Stream seedStream;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic [6:0] phase = {2'b00,5'bxxxxx};
   dut_types::Tuple3_0 c$case_alt;
   dut_types::Tuple3_0 c$case_alt_0;
   dut_types::Tuple3_0 c$case_alt_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic msgValid_0;
   dut_types::Tuple3_0 result_7;
   dut_types::Tuple3_0 c$case_alt_2;
@@ -57,6 +68,7 @@ module dut
   dut_types::Tuple3_0 c$case_alt_9;
   dut_types::Tuple3_0 c$case_alt_10;
   dut_types::Tuple3_0 c$case_alt_11;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] b0;
   dut_types::Tuple3_0 c$case_alt_12;
   dut_types::Tuple3_0 c$case_alt_13;
@@ -65,123 +77,234 @@ module dut
   dut_types::Tuple3_0 c$case_alt_16;
   dut_types::Tuple3_0 c$case_alt_17;
   dut_types::Tuple3_0 c$case_alt_18;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c7;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c6;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c5;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c4;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c3;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c6_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c5_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c4_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c3_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c2_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c5_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c4_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c3_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c2_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c4_2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c3_2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c2_2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1_2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c3_3;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c2_3;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1_3;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_3;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c2_4;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1_4;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_4;
+  // src/Component/SampleNTT6.hs:188:1-11
+  logic [6:0] nextPhase;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c1_5;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_5;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [11:0] c0_6;
-  logic [6:0] c$app_arg_5;
   dut_types::Tuple3_0 result_8;
-  dut_types::Tuple2_3 ds2;
-  logic [11:0] i;
-  logic [11:0] h;
-  logic [11:0] g;
-  logic [11:0] f;
-  logic [11:0] e;
-  logic [11:0] d;
-  logic [11:0] c;
-  logic [11:0] b;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a;
-  logic [11:0] h_0;
-  logic [11:0] g_0;
-  logic [11:0] f_0;
-  logic [11:0] e_0;
-  logic [11:0] d_0;
-  logic [11:0] c_0;
-  logic [11:0] b_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] d;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] e;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] f;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] g;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] h;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] i;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_0;
-  logic [11:0] g_1;
-  logic [11:0] f_1;
-  logic [11:0] e_1;
-  logic [11:0] d_1;
-  logic [11:0] c_1;
-  logic [11:0] b_1;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] d_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] e_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] f_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] g_0;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] h_0;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_1;
-  logic [11:0] f_2;
-  logic [11:0] e_2;
-  logic [11:0] d_2;
-  logic [11:0] c_2;
-  logic [11:0] b_2;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_1;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c_1;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] d_1;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] e_1;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] f_1;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] g_1;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_2;
-  logic [11:0] e_3;
-  logic [11:0] d_3;
-  logic [11:0] c_3;
-  logic [11:0] b_3;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_2;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c_2;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] d_2;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] e_2;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] f_2;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_3;
-  logic [11:0] d_4;
-  logic [11:0] c_4;
-  logic [11:0] b_4;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_3;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c_3;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] d_3;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] e_3;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_4;
-  logic [11:0] c_5;
-  logic [11:0] b_5;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_4;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c_4;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] d_4;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_5;
-  logic [11:0] b_6;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_5;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] c_5;
+  // src/Component/SampleNTT6.hs:82:1-7
   logic [11:0] a_6;
+  // src/Component/SampleNTT6.hs:82:1-7
+  logic [11:0] b_6;
+  dut_types::Tuple2_4 result_9;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [4:0] counter_0;
-  logic [99:0] result_9;
+  logic [99:0] result_10;
+  // src/Component/SampleNTT6.hs:75:1-16
   dut_types::array_of_9_logic_vector_100 ws;
-  dut_types::array_of_8_logic_vector_100 result_10;
+  dut_types::array_of_8_logic_vector_100 result_11;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c7_0;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c6_1;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c5_2;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c4_3;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c3_4;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c2_5;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c1_6;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [11:0] c0_7;
+  // src/Component/SampleNTT6.hs:75:1-16
   logic [95:0] c$c0_app_arg;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] chunk;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_0;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_1;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_2;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_3;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_4;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_5;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_6;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_7;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_8;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_9;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_10;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [95:0] c$chunk_case_alt_11;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [1599:0] c$chunk_app_arg;
+  // src/Component/SampleNTT6.hs:188:1-11
+  logic c$chunk_case_scrut;
+  // src/Component/SampleNTT6.hs:188:1-11
   logic [3:0] counter_1;
+  // src/Component/SampleNTT6.hs:(501,1)-(503,17)
   logic [1599:0] keccakState = 1600'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
-  dut_types::Tuple2_4 c$arg;
-  dut_types::array_of_8_Tuple2_5 c$vec1;
+  dut_types::Tuple2_5 c$arg;
+  dut_types::array_of_8_Tuple2_6 c$vec1;
   dut_types::array_of_8_logic_vector_100 c$vec2;
-  dut_types::Tuple2_6 result;
+  dut_types::Tuple2_7 result;
   dut_types::AXI4Stream_0 COEFF;
 
   assign c$arg = {{SEED_TDATA
@@ -277,9 +400,9 @@ module dut
 
   assign counter = phase[4:0];
 
-  assign coeffReady = c$arg.Tuple2_4_sel1;
+  assign coeffReady = c$arg.Tuple2_5_sel1;
 
-  assign seedStream = c$arg.Tuple2_4_sel0;
+  assign seedStream = c$arg.Tuple2_5_sel0;
 
   // register begin
   always_ff @(posedge CLK or  posedge  RST) begin : phase_register
@@ -330,8 +453,8 @@ module dut
   end
 
   always_comb begin
-    case(result_9[99:96])
-      4'b0000 : c$case_alt_2 = {c$app_arg_5
+    case(result_10[99:96])
+      4'b0000 : c$case_alt_2 = {nextPhase
                                ,c$ds1_app_arg
                                ,{1'b0
                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
@@ -347,12 +470,12 @@ module dut
   end
 
   always_comb begin
-    case(result_9[99:96])
-      4'b0000 : c$case_alt_3 = {c$app_arg_5
+    case(result_10[99:96])
+      4'b0000 : c$case_alt_3 = {nextPhase
                                ,{4'b0000,108'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                ,{1'b0
                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
-      4'b0001 : c$case_alt_3 = {c$app_arg_5
+      4'b0001 : c$case_alt_3 = {nextPhase
                                ,{4'b0001,c0_6,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                ,{1'b0
                                 ,{24'b000000000000000000000000,1'b0,1'b0}}};
@@ -366,441 +489,473 @@ module dut
     endcase
   end
 
-  assign c$case_alt_4 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_4 = coeffReady ? {nextPhase
                                      ,{4'b0111,c1,c2,c3,c4,c5,c6,c7,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
-                                     ,{1'b0,{{c0,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                     ,{1'b0,{{c0,b0},1'b1,1'b0}}} : {nextPhase
                                                                     ,{4'b1001,b0,c0,c1,c2,c3,c4,c5,c6,c7}
                                                                     ,{1'b0
                                                                      ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_5 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_5 = coeffReady ? {nextPhase
                                      ,{4'b0110,c1_0,c2_0,c3_0,c4_0,c5_0,c6_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                     ,{1'b0,{{c0_0,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                     ,{1'b0,{{c0_0,b0},1'b1,1'b0}}} : {nextPhase
                                                                       ,{4'b1000,b0,c0_0,c1_0,c2_0,c3_0,c4_0,c5_0,c6_0,12'bxxxxxxxxxxxx}
                                                                       ,{1'b0
                                                                        ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_6 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_6 = coeffReady ? {nextPhase
                                      ,{4'b0101,c1_1,c2_1,c3_1,c4_1,c5_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                     ,{1'b0,{{c0_1,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                     ,{1'b0,{{c0_1,b0},1'b1,1'b0}}} : {nextPhase
                                                                       ,{4'b0111,b0,c0_1,c1_1,c2_1,c3_1,c4_1,c5_1,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                       ,{1'b0
                                                                        ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_7 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_7 = coeffReady ? {nextPhase
                                      ,{4'b0100,c1_2,c2_2,c3_2,c4_2,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                     ,{1'b0,{{c0_2,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                     ,{1'b0,{{c0_2,b0},1'b1,1'b0}}} : {nextPhase
                                                                       ,{4'b0110,b0,c0_2,c1_2,c2_2,c3_2,c4_2,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                       ,{1'b0
                                                                        ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_8 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_8 = coeffReady ? {nextPhase
                                      ,{4'b0011,c1_3,c2_3,c3_3,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                     ,{1'b0,{{c0_3,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                     ,{1'b0,{{c0_3,b0},1'b1,1'b0}}} : {nextPhase
                                                                       ,{4'b0101,b0,c0_3,c1_3,c2_3,c3_3,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                       ,{1'b0
                                                                        ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_9 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_9 = coeffReady ? {nextPhase
                                      ,{4'b0010,c1_4,c2_4,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                     ,{1'b0,{{c0_4,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                     ,{1'b0,{{c0_4,b0},1'b1,1'b0}}} : {nextPhase
                                                                       ,{4'b0100,b0,c0_4,c1_4,c2_4,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                       ,{1'b0
                                                                        ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_10 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_10 = coeffReady ? {nextPhase
                                       ,{4'b0001,c1_5,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c0_5,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c0_5,b0},1'b1,1'b0}}} : {nextPhase
                                                                        ,{4'b0011,b0,c0_5,c1_5,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                        ,{1'b0
                                                                         ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_11 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_11 = coeffReady ? {nextPhase
                                       ,{4'b0000,108'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c0_6,b0},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c0_6,b0},1'b1,1'b0}}} : {nextPhase
                                                                        ,{4'b0010,b0,c0_6,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                        ,{1'b0
                                                                         ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
   assign b0 = c$ds1_app_arg[107:96];
 
-  assign c$case_alt_12 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_12 = coeffReady ? {nextPhase
                                       ,{4'b0110,c2,c3,c4,c5,c6,c7,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1,c0},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1,c0},1'b1,1'b0}}} : {nextPhase
                                                                      ,{4'b1000,c0,c1,c2,c3,c4,c5,c6,c7,12'bxxxxxxxxxxxx}
                                                                      ,{1'b0
                                                                       ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_13 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_13 = coeffReady ? {nextPhase
                                       ,{4'b0101,c2_0,c3_0,c4_0,c5_0,c6_0,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1_0,c0_0},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1_0,c0_0},1'b1,1'b0}}} : {nextPhase
                                                                          ,{4'b0111,c0_0,c1_0,c2_0,c3_0,c4_0,c5_0,c6_0,24'bxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_14 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_14 = coeffReady ? {nextPhase
                                       ,{4'b0100,c2_1,c3_1,c4_1,c5_1,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1_1,c0_1},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1_1,c0_1},1'b1,1'b0}}} : {nextPhase
                                                                          ,{4'b0110,c0_1,c1_1,c2_1,c3_1,c4_1,c5_1,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_15 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_15 = coeffReady ? {nextPhase
                                       ,{4'b0011,c2_2,c3_2,c4_2,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1_2,c0_2},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1_2,c0_2},1'b1,1'b0}}} : {nextPhase
                                                                          ,{4'b0101,c0_2,c1_2,c2_2,c3_2,c4_2,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_16 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_16 = coeffReady ? {nextPhase
                                       ,{4'b0010,c2_3,c3_3,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1_3,c0_3},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1_3,c0_3},1'b1,1'b0}}} : {nextPhase
                                                                          ,{4'b0100,c0_3,c1_3,c2_3,c3_3,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_17 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_17 = coeffReady ? {nextPhase
                                       ,{4'b0001,c2_4,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1_4,c0_4},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1_4,c0_4},1'b1,1'b0}}} : {nextPhase
                                                                          ,{4'b0011,c0_4,c1_4,c2_4,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c$case_alt_18 = coeffReady ? {c$app_arg_5
+  assign c$case_alt_18 = coeffReady ? {nextPhase
                                       ,{4'b0000,108'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
-                                      ,{1'b0,{{c1_5,c0_5},1'b1,1'b0}}} : {c$app_arg_5
+                                      ,{1'b0,{{c1_5,c0_5},1'b1,1'b0}}} : {nextPhase
                                                                          ,{4'b0010,c0_5,c1_5,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
                                                                          ,{1'b0
                                                                           ,{24'b000000000000000000000000,1'b0,1'b0}}};
 
-  assign c7 = result_9[11:0];
+  assign c7 = result_10[11:0];
 
-  assign c6 = result_9[23:12];
+  assign c6 = result_10[23:12];
 
-  assign c5 = result_9[35:24];
+  assign c5 = result_10[35:24];
 
-  assign c4 = result_9[47:36];
+  assign c4 = result_10[47:36];
 
-  assign c3 = result_9[59:48];
+  assign c3 = result_10[59:48];
 
-  assign c2 = result_9[71:60];
+  assign c2 = result_10[71:60];
 
-  assign c1 = result_9[83:72];
+  assign c1 = result_10[83:72];
 
-  assign c0 = result_9[95:84];
+  assign c0 = result_10[95:84];
 
-  assign c6_0 = result_9[23:12];
+  assign c6_0 = result_10[23:12];
 
-  assign c5_0 = result_9[35:24];
+  assign c5_0 = result_10[35:24];
 
-  assign c4_0 = result_9[47:36];
+  assign c4_0 = result_10[47:36];
 
-  assign c3_0 = result_9[59:48];
+  assign c3_0 = result_10[59:48];
 
-  assign c2_0 = result_9[71:60];
+  assign c2_0 = result_10[71:60];
 
-  assign c1_0 = result_9[83:72];
+  assign c1_0 = result_10[83:72];
 
-  assign c0_0 = result_9[95:84];
+  assign c0_0 = result_10[95:84];
 
-  assign c5_1 = result_9[35:24];
+  assign c5_1 = result_10[35:24];
 
-  assign c4_1 = result_9[47:36];
+  assign c4_1 = result_10[47:36];
 
-  assign c3_1 = result_9[59:48];
+  assign c3_1 = result_10[59:48];
 
-  assign c2_1 = result_9[71:60];
+  assign c2_1 = result_10[71:60];
 
-  assign c1_1 = result_9[83:72];
+  assign c1_1 = result_10[83:72];
 
-  assign c0_1 = result_9[95:84];
+  assign c0_1 = result_10[95:84];
 
-  assign c4_2 = result_9[47:36];
+  assign c4_2 = result_10[47:36];
 
-  assign c3_2 = result_9[59:48];
+  assign c3_2 = result_10[59:48];
 
-  assign c2_2 = result_9[71:60];
+  assign c2_2 = result_10[71:60];
 
-  assign c1_2 = result_9[83:72];
+  assign c1_2 = result_10[83:72];
 
-  assign c0_2 = result_9[95:84];
+  assign c0_2 = result_10[95:84];
 
-  assign c3_3 = result_9[59:48];
+  assign c3_3 = result_10[59:48];
 
-  assign c2_3 = result_9[71:60];
+  assign c2_3 = result_10[71:60];
 
-  assign c1_3 = result_9[83:72];
+  assign c1_3 = result_10[83:72];
 
-  assign c0_3 = result_9[95:84];
+  assign c0_3 = result_10[95:84];
 
-  assign c2_4 = result_9[71:60];
+  assign c2_4 = result_10[71:60];
 
-  assign c1_4 = result_9[83:72];
+  assign c1_4 = result_10[83:72];
 
-  assign c0_4 = result_9[95:84];
+  assign c0_4 = result_10[95:84];
 
-  assign c1_5 = result_9[83:72];
+  assign nextPhase = c$chunk_case_scrut ? {2'b01,5'd0} : {2'b10,counter_1 + 4'd1,1'bx};
 
-  assign c0_5 = result_9[95:84];
+  assign c1_5 = result_10[83:72];
 
-  assign c0_6 = result_9[95:84];
+  assign c0_5 = result_10[95:84];
 
-  assign c$app_arg_5 = (counter_1 == 4'd13) ? {2'b01,5'd0} : {2'b10,counter_1 + 4'd1,1'bx};
+  assign c0_6 = result_10[95:84];
 
   assign result_8 = coeffReady ? {phase
-                                 ,ds2.Tuple2_3_sel1
-                                 ,{1'b0,{ds2.Tuple2_3_sel0,1'b1,1'b0}}} : {phase
+                                 ,result_9.Tuple2_4_sel1
+                                 ,{1'b0
+                                  ,{result_9.Tuple2_4_sel0,1'b1,1'b0}}} : {phase
                                                                           ,c$ds1_app_arg
-                                                                          ,{1'b0,{ds2.Tuple2_3_sel0,1'b1,1'b0}}};
-
-  always_comb begin
-    case(c$ds1_app_arg[111:108])
-      4'b0010 : ds2 = {{b_6,a_6}
-                      ,{4'b0000,108'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      4'b0011 : ds2 = {{b_5,a_5}
-                      ,{4'b0001,c_5,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      4'b0100 : ds2 = {{b_4,a_4}
-                      ,{4'b0010,c_4,d_4,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      4'b0101 : ds2 = {{b_3,a_3}
-                      ,{4'b0011,c_3,d_3,e_3,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      4'b0110 : ds2 = {{b_2,a_2}
-                      ,{4'b0100,c_2,d_2,e_2,f_2,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      4'b0111 : ds2 = {{b_1,a_1}
-                      ,{4'b0101,c_1,d_1,e_1,f_1,g_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      4'b1000 : ds2 = {{b_0,a_0}
-                      ,{4'b0110,c_0,d_0,e_0,f_0,g_0,h_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
-      default : ds2 = {{b,a}
-                      ,{4'b0111,c,d,e,f,g,h,i,24'bxxxxxxxxxxxxxxxxxxxxxxxx}};
-    endcase
-  end
-
-  assign i = c$ds1_app_arg[11:0];
-
-  assign h = c$ds1_app_arg[23:12];
-
-  assign g = c$ds1_app_arg[35:24];
-
-  assign f = c$ds1_app_arg[47:36];
-
-  assign e = c$ds1_app_arg[59:48];
-
-  assign d = c$ds1_app_arg[71:60];
-
-  assign c = c$ds1_app_arg[83:72];
-
-  assign b = c$ds1_app_arg[95:84];
+                                                                          ,{1'b0,{result_9.Tuple2_4_sel0,1'b1,1'b0}}};
 
   assign a = c$ds1_app_arg[107:96];
 
-  assign h_0 = c$ds1_app_arg[23:12];
+  assign b = c$ds1_app_arg[95:84];
 
-  assign g_0 = c$ds1_app_arg[35:24];
+  assign c = c$ds1_app_arg[83:72];
 
-  assign f_0 = c$ds1_app_arg[47:36];
+  assign d = c$ds1_app_arg[71:60];
 
-  assign e_0 = c$ds1_app_arg[59:48];
+  assign e = c$ds1_app_arg[59:48];
 
-  assign d_0 = c$ds1_app_arg[71:60];
+  assign f = c$ds1_app_arg[47:36];
 
-  assign c_0 = c$ds1_app_arg[83:72];
+  assign g = c$ds1_app_arg[35:24];
 
-  assign b_0 = c$ds1_app_arg[95:84];
+  assign h = c$ds1_app_arg[23:12];
+
+  assign i = c$ds1_app_arg[11:0];
 
   assign a_0 = c$ds1_app_arg[107:96];
 
-  assign g_1 = c$ds1_app_arg[35:24];
+  assign b_0 = c$ds1_app_arg[95:84];
 
-  assign f_1 = c$ds1_app_arg[47:36];
+  assign c_0 = c$ds1_app_arg[83:72];
 
-  assign e_1 = c$ds1_app_arg[59:48];
+  assign d_0 = c$ds1_app_arg[71:60];
 
-  assign d_1 = c$ds1_app_arg[71:60];
+  assign e_0 = c$ds1_app_arg[59:48];
 
-  assign c_1 = c$ds1_app_arg[83:72];
+  assign f_0 = c$ds1_app_arg[47:36];
 
-  assign b_1 = c$ds1_app_arg[95:84];
+  assign g_0 = c$ds1_app_arg[35:24];
+
+  assign h_0 = c$ds1_app_arg[23:12];
 
   assign a_1 = c$ds1_app_arg[107:96];
 
-  assign f_2 = c$ds1_app_arg[47:36];
+  assign b_1 = c$ds1_app_arg[95:84];
 
-  assign e_2 = c$ds1_app_arg[59:48];
+  assign c_1 = c$ds1_app_arg[83:72];
 
-  assign d_2 = c$ds1_app_arg[71:60];
+  assign d_1 = c$ds1_app_arg[71:60];
 
-  assign c_2 = c$ds1_app_arg[83:72];
+  assign e_1 = c$ds1_app_arg[59:48];
 
-  assign b_2 = c$ds1_app_arg[95:84];
+  assign f_1 = c$ds1_app_arg[47:36];
+
+  assign g_1 = c$ds1_app_arg[35:24];
 
   assign a_2 = c$ds1_app_arg[107:96];
 
-  assign e_3 = c$ds1_app_arg[59:48];
+  assign b_2 = c$ds1_app_arg[95:84];
 
-  assign d_3 = c$ds1_app_arg[71:60];
+  assign c_2 = c$ds1_app_arg[83:72];
 
-  assign c_3 = c$ds1_app_arg[83:72];
+  assign d_2 = c$ds1_app_arg[71:60];
 
-  assign b_3 = c$ds1_app_arg[95:84];
+  assign e_2 = c$ds1_app_arg[59:48];
+
+  assign f_2 = c$ds1_app_arg[47:36];
 
   assign a_3 = c$ds1_app_arg[107:96];
 
-  assign d_4 = c$ds1_app_arg[71:60];
+  assign b_3 = c$ds1_app_arg[95:84];
 
-  assign c_4 = c$ds1_app_arg[83:72];
+  assign c_3 = c$ds1_app_arg[83:72];
 
-  assign b_4 = c$ds1_app_arg[95:84];
+  assign d_3 = c$ds1_app_arg[71:60];
+
+  assign e_3 = c$ds1_app_arg[59:48];
 
   assign a_4 = c$ds1_app_arg[107:96];
 
-  assign c_5 = c$ds1_app_arg[83:72];
+  assign b_4 = c$ds1_app_arg[95:84];
 
-  assign b_5 = c$ds1_app_arg[95:84];
+  assign c_4 = c$ds1_app_arg[83:72];
+
+  assign d_4 = c$ds1_app_arg[71:60];
 
   assign a_5 = c$ds1_app_arg[107:96];
 
-  assign b_6 = c$ds1_app_arg[95:84];
+  assign b_5 = c$ds1_app_arg[95:84];
+
+  assign c_5 = c$ds1_app_arg[83:72];
 
   assign a_6 = c$ds1_app_arg[107:96];
 
+  assign b_6 = c$ds1_app_arg[95:84];
+
+  always_comb begin
+    case(c$ds1_app_arg[111:108])
+      4'b0010 : result_9 = {{b_6,a_6}
+                           ,{4'b0000,108'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b0011 : result_9 = {{b_5,a_5}
+                           ,{4'b0001,c_5,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b0100 : result_9 = {{b_4,a_4}
+                           ,{4'b0010,c_4,d_4,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b0101 : result_9 = {{b_3,a_3}
+                           ,{4'b0011,c_3,d_3,e_3,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b0110 : result_9 = {{b_2,a_2}
+                           ,{4'b0100,c_2,d_2,e_2,f_2,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b0111 : result_9 = {{b_1,a_1}
+                           ,{4'b0101,c_1,d_1,e_1,f_1,g_1,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b1000 : result_9 = {{b_0,a_0}
+                           ,{4'b0110,c_0,d_0,e_0,f_0,g_0,h_0,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}};
+      4'b1001 : result_9 = {{b,a}
+                           ,{4'b0111,c,d,e,f,g,h,i,24'bxxxxxxxxxxxxxxxxxxxxxxxx}};
+      default : result_9 = {136 {1'bx}};
+    endcase
+  end
+
   assign counter_0 = phase[4:0];
 
-  assign result_9 = ws[$high(ws)];
+  assign result_10 = ws[$high(ws)];
 
-  assign ws = dut_types::array_of_9_logic_vector_100_cons({4'b0000,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}, result_10);
+  assign ws = dut_types::array_of_9_logic_vector_100_cons({4'b0000,96'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}, result_11);
 
-  assign c$vec1 = '{0: {c0_7
-                       ,c0_7 < 12'b110100000001}
-                   ,1: {c1_6,c1_6 < 12'b110100000001}
-                   ,2: {c2_5,c2_5 < 12'b110100000001}
-                   ,3: {c3_4,c3_4 < 12'b110100000001}
-                   ,4: {c4_3,c4_3 < 12'b110100000001}
-                   ,5: {c5_2,c5_2 < 12'b110100000001}
-                   ,6: {c6_1,c6_1 < 12'b110100000001}
-                   ,7: {c7_0,c7_0 < 12'b110100000001}};
+  assign c$vec1 = '{0: {c0_7 < 12'b110100000001
+                       ,c0_7}
+                   ,1: {c1_6 < 12'b110100000001,c1_6}
+                   ,2: {c2_5 < 12'b110100000001,c2_5}
+                   ,3: {c3_4 < 12'b110100000001,c3_4}
+                   ,4: {c4_3 < 12'b110100000001,c4_3}
+                   ,5: {c5_2 < 12'b110100000001,c5_2}
+                   ,6: {c6_1 < 12'b110100000001,c6_1}
+                   ,7: {c7_0 < 12'b110100000001,c7_0}};
 
   assign c$vec2 = (ws[0 : $high(ws) - 1]);
 
   // zipWith begin
   genvar n;
   generate
-  for (n = 0; n < $size(result_10); n = n + 1) begin : zipWith
-    dut_types::Tuple2_5 zipWith_in1;
+  for (n = 0; n < $size(result_11); n = n + 1) begin : zipWith
+    dut_types::Tuple2_6 zipWith_in1;
     assign zipWith_in1 = c$vec1[n];
     logic [99:0] zipWith_in2;
     assign zipWith_in2 = c$vec2[n];
     logic [99:0] zipWith_out;
     logic [99:0] c$case_alt_24;
     logic [99:0] c$case_alt_23;
-    logic [11:0] candidate;
-    logic isValid;
-    logic [11:0] c0_9;
-    logic [11:0] c0_10;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c1_8;
-    logic [11:0] c0_11;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c1_9;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c2_7;
-    logic [11:0] c0_12;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c1_10;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c2_8;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c3_6;
-    logic [11:0] c0_13;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c1_11;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c2_9;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c3_7;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c4_5;
-    logic [11:0] c0_14;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c1_12;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c2_10;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c3_8;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c4_6;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c5_4;
-    logic [11:0] c0_15;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c1_13;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c2_11;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c3_9;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c4_7;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c5_5;
+    // src/Component/SampleNTT6.hs:75:1-16
     logic [11:0] c6_3;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c1_14;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c2_12;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c3_10;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c4_8;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c5_6;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c6_4;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] c7_2;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic isValid;
+    // src/Component/SampleNTT6.hs:75:1-16
+    logic [11:0] candidate;
     assign zipWith_out = c$case_alt_23;
 
     always_comb begin
       case(zipWith_in2[99:96])
         4'b0000 : c$case_alt_24 = {4'b0001,candidate,84'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-        4'b0001 : c$case_alt_24 = {4'b0010,c0_9,candidate,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-        4'b0010 : c$case_alt_24 = {4'b0011,c0_10,c1_8,candidate,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-        4'b0011 : c$case_alt_24 = {4'b0100,c0_11,c1_9,c2_7,candidate,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-        4'b0100 : c$case_alt_24 = {4'b0101,c0_12,c1_10,c2_8,c3_6,candidate,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
-        4'b0101 : c$case_alt_24 = {4'b0110,c0_13,c1_11,c2_9,c3_7,c4_5,candidate,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
-        4'b0110 : c$case_alt_24 = {4'b0111,c0_14,c1_12,c2_10,c3_8,c4_6,c5_4,candidate,12'bxxxxxxxxxxxx};
-        4'b0111 : c$case_alt_24 = {4'b1000,c0_15,c1_13,c2_11,c3_9,c4_7,c5_5,c6_3,candidate};
+        4'b0001 : c$case_alt_24 = {4'b0010,c1_8,candidate,72'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+        4'b0010 : c$case_alt_24 = {4'b0011,c1_9,c2_7,candidate,60'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+        4'b0011 : c$case_alt_24 = {4'b0100,c1_10,c2_8,c3_6,candidate,48'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+        4'b0100 : c$case_alt_24 = {4'b0101,c1_11,c2_9,c3_7,c4_5,candidate,36'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx};
+        4'b0101 : c$case_alt_24 = {4'b0110,c1_12,c2_10,c3_8,c4_6,c5_4,candidate,24'bxxxxxxxxxxxxxxxxxxxxxxxx};
+        4'b0110 : c$case_alt_24 = {4'b0111,c1_13,c2_11,c3_9,c4_7,c5_5,c6_3,candidate,12'bxxxxxxxxxxxx};
+        4'b0111 : c$case_alt_24 = {4'b1000,c1_14,c2_12,c3_10,c4_8,c5_6,c6_4,c7_2,candidate};
         default : c$case_alt_24 = zipWith_in2;
       endcase
     end
 
     assign c$case_alt_23 = isValid ? c$case_alt_24 : zipWith_in2;
 
-    assign candidate = zipWith_in1.Tuple2_5_sel0;
+    assign c1_8 = zipWith_in2[95:84];
 
-    assign isValid = zipWith_in1.Tuple2_5_sel1;
+    assign c1_9 = zipWith_in2[95:84];
 
-    assign c0_9 = zipWith_in2[95:84];
+    assign c2_7 = zipWith_in2[83:72];
 
-    assign c0_10 = zipWith_in2[95:84];
+    assign c1_10 = zipWith_in2[95:84];
 
-    assign c1_8 = zipWith_in2[83:72];
+    assign c2_8 = zipWith_in2[83:72];
 
-    assign c0_11 = zipWith_in2[95:84];
+    assign c3_6 = zipWith_in2[71:60];
 
-    assign c1_9 = zipWith_in2[83:72];
+    assign c1_11 = zipWith_in2[95:84];
 
-    assign c2_7 = zipWith_in2[71:60];
+    assign c2_9 = zipWith_in2[83:72];
 
-    assign c0_12 = zipWith_in2[95:84];
+    assign c3_7 = zipWith_in2[71:60];
 
-    assign c1_10 = zipWith_in2[83:72];
+    assign c4_5 = zipWith_in2[59:48];
 
-    assign c2_8 = zipWith_in2[71:60];
+    assign c1_12 = zipWith_in2[95:84];
 
-    assign c3_6 = zipWith_in2[59:48];
+    assign c2_10 = zipWith_in2[83:72];
 
-    assign c0_13 = zipWith_in2[95:84];
+    assign c3_8 = zipWith_in2[71:60];
 
-    assign c1_11 = zipWith_in2[83:72];
+    assign c4_6 = zipWith_in2[59:48];
 
-    assign c2_9 = zipWith_in2[71:60];
+    assign c5_4 = zipWith_in2[47:36];
 
-    assign c3_7 = zipWith_in2[59:48];
+    assign c1_13 = zipWith_in2[95:84];
 
-    assign c4_5 = zipWith_in2[47:36];
+    assign c2_11 = zipWith_in2[83:72];
 
-    assign c0_14 = zipWith_in2[95:84];
+    assign c3_9 = zipWith_in2[71:60];
 
-    assign c1_12 = zipWith_in2[83:72];
+    assign c4_7 = zipWith_in2[59:48];
 
-    assign c2_10 = zipWith_in2[71:60];
+    assign c5_5 = zipWith_in2[47:36];
 
-    assign c3_8 = zipWith_in2[59:48];
+    assign c6_3 = zipWith_in2[35:24];
 
-    assign c4_6 = zipWith_in2[47:36];
+    assign c1_14 = zipWith_in2[95:84];
 
-    assign c5_4 = zipWith_in2[35:24];
+    assign c2_12 = zipWith_in2[83:72];
 
-    assign c0_15 = zipWith_in2[95:84];
+    assign c3_10 = zipWith_in2[71:60];
 
-    assign c1_13 = zipWith_in2[83:72];
+    assign c4_8 = zipWith_in2[59:48];
 
-    assign c2_11 = zipWith_in2[71:60];
+    assign c5_6 = zipWith_in2[47:36];
 
-    assign c3_9 = zipWith_in2[59:48];
+    assign c6_4 = zipWith_in2[35:24];
 
-    assign c4_7 = zipWith_in2[47:36];
+    assign c7_2 = zipWith_in2[23:12];
 
-    assign c5_5 = zipWith_in2[35:24];
+    assign isValid = zipWith_in1.Tuple2_6_sel0;
 
-    assign c6_3 = zipWith_in2[23:12];
+    assign candidate = zipWith_in1.Tuple2_6_sel1;
 
 
-    assign result_10[n] = zipWith_out;
+    assign result_11[n] = zipWith_out;
   end
   endgenerate
   // zipWith end
@@ -849,9 +1004,11 @@ module dut
 
   assign c$chunk_case_alt_10 = (counter_1 == 4'd12) ? (c$chunk_app_arg[1247 : 1152]) : c$chunk_case_alt_11;
 
-  assign c$chunk_case_alt_11 = (counter_1 == 4'd13) ? (c$chunk_app_arg[1343 : 1248]) : ({96 {1'bx}});
+  assign c$chunk_case_alt_11 = c$chunk_case_scrut ? (c$chunk_app_arg[1343 : 1248]) : ({96 {1'bx}});
 
   assign c$chunk_app_arg = keccakState;
+
+  assign c$chunk_case_scrut = counter_1 == 4'd13;
 
   assign counter_1 = phase[4:1];
 
@@ -865,12 +1022,12 @@ module dut
   end
   // register end
 
-  assign result = {result_6.Tuple2_2_sel1
-                  ,result_6.Tuple2_2_sel0};
+  assign result = {result_6.Tuple2_3_sel1
+                  ,result_6.Tuple2_3_sel0};
 
-  assign COEFF = result.Tuple2_6_sel0;
+  assign COEFF = result.Tuple2_7_sel0;
 
-  assign SEED_TREADY = result.Tuple2_6_sel1;
+  assign SEED_TREADY = result.Tuple2_7_sel1;
 
   assign COEFF_TDATA = COEFF.AXI4Stream_0_sel0;
 

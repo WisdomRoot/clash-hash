@@ -8,7 +8,7 @@ where
 
 import AXI4Stream
 import Clash.Prelude hiding (permute, tlast)
-import Component.SampleNTT.Common (absorb34)
+import Component.SampleNTT.Common (absorb34, screenCoeff96)
 import Permutation qualified
 import TH (mkRead)
 
@@ -54,22 +54,10 @@ pushBuffer buffer _ = buffer
 
 screenIntoBuffer :: Buffer -> BitVector 96 -> Buffer
 screenIntoBuffer buffer chunk =
-  let c0 = slice (SNat @11) (SNat @0) chunk
-      c1 = slice (SNat @23) (SNat @12) chunk
-      c2 = slice (SNat @35) (SNat @24) chunk
-      c3 = slice (SNat @47) (SNat @36) chunk
-      c4 = slice (SNat @59) (SNat @48) chunk
-      c5 = slice (SNat @71) (SNat @60) chunk
-      c6 = slice (SNat @83) (SNat @72) chunk
-      c7 = slice (SNat @95) (SNat @84) chunk
-      buffer0 = if c0 < 3329 then pushBuffer buffer c0 else buffer
-      buffer1 = if c1 < 3329 then pushBuffer buffer0 c1 else buffer0
-      buffer2 = if c2 < 3329 then pushBuffer buffer1 c2 else buffer1
-      buffer3 = if c3 < 3329 then pushBuffer buffer2 c3 else buffer2
-      buffer4 = if c4 < 3329 then pushBuffer buffer3 c4 else buffer3
-      buffer5 = if c5 < 3329 then pushBuffer buffer4 c5 else buffer4
-      buffer6 = if c6 < 3329 then pushBuffer buffer5 c6 else buffer5
-   in if c7 < 3329 then pushBuffer buffer6 c7 else buffer6
+  foldl
+    (\pending (isValid, candidate) -> if isValid then pushBuffer pending candidate else pending)
+    buffer
+    (screenCoeff96 chunk)
 {-# INLINE screenIntoBuffer #-}
 
 popQuad :: Buffer -> (BitVector 48, Buffer)
