@@ -19,6 +19,7 @@ import Test.XOF6 qualified
 import Test.SHAKE256 qualified
 import Test.SHAKE128 qualified
 import Test.SampleNTT qualified
+import Test.NTT qualified
 import Test.Permutation qualified
 import Test.SamplePolyCBD qualified
 import Test.SamplePolyCBD2 qualified
@@ -57,6 +58,7 @@ main = do
   snO24L4Tests <- testSpec "SN-O24-L4" Test.SampleNTT.specL4
   snO24L6Tests <- testSpec "SN-O24-L6" Test.SampleNTT.specL6
   snO48L6Tests <- testSpec "SN-O48-L6" Test.SampleNTT.specL6O48
+  nttTests <- testSpec "NTT" Test.NTT.spec
   refSha3Tests <- testSpec "Reference SHA3-256" Test.Reference.SHA3.spec
   refShake256Tests <- testSpec "Reference SHAKE-256" Test.Reference.SHAKE256.spec
 
@@ -92,5 +94,6 @@ main = do
         snO24L2Tests,
         snO24L4Tests,
         snO24L6Tests,
-        snO48L6Tests
+        snO48L6Tests,
+        nttTests
       ]
