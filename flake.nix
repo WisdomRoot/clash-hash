@@ -75,51 +75,71 @@
       packages = forEachSystem mkPackages;
 
       devShells = forEachSystem (system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnsupportedSystem = true;
-            ghc966 = pkgs.haskell.compiler.ghc966;
-          };
-          pkgSet = mkPackages system;
-          gccShim = pkgs.writeShellScriptBin "gcc" ''
-            exec ${pkgs.clang}/bin/clang "$@"
-          '';
-        in {
-          default = pkgs.mkShell {
-            packages = [
-              pkgSet.yosysPkg
-              pkgs.python3
-              pkgSet.synthCli
-              pkgSet.benchCli
-              pkgSet.staCli
-              pkgs.clang
-              pkgs.stack
-              pkgs.pkg-config
-              pkgs.git
-              gccShim
-            ];
-            shellHook = ''
-              export NANGATE45_LIB=$PWD/lib/nangate45/NangateOpenCellLibrary_typical.lib
-              export CC=${pkgs.clang}/bin/clang
-              export CXX=${pkgs.clang}/bin/clang++
-              export MACOSX_DEPLOYMENT_TARGET=15.0
-              export NIX_LDFLAGS="-w $NIX_LDFLAGS"
+  let
+    pkgs = import nixpkgs {
+      inherit system;
+      config.allowUnsupportedSystem = true;
+    };
 
-              # Set KYBER_PY_PATH for external reference tests
-              export KYBER_PY_PATH=$PWD/../kyber-py/src
+    pkgSet = mkPackages system;
 
-              # Setup Python virtual environment for kyber-py
-              if [ ! -d .venv ]; then
-                echo "Creating Python virtual environment..."
-                ${pkgs.python3}/bin/python -m venv .venv
-                .venv/bin/pip install --quiet kyber-py
-              fi
-              source .venv/bin/activate
-            '';
-          };
-        });
+    ghc966 = pkgs.haskell.compiler.ghc966;
 
+    gccShim = pkgs.writeShellScriptBin "gcc" ''
+      exec ${pkgs.clang}/bin/clang "$@"
+    '';
+  in {
+    default = pkgs.mkShell {
+      packages = [
+        # Haskell toolchain
+        ghc966
+        pkgs.cabal-install
+        pkgs.stack
+
+        # Hardware tools
+        pkgSet.yosysPkg
+        pkgSet.synthCli
+        pkgSet.benchCli
+        pkgSet.staCli
+
+        # Other development tools
+        pkgs.python3
+        pkgs.clang
+        pkgs.pkg-config
+        pkgs.git
+        pkgs.tmux
+        gccShim
+      ];
+
+      shellHook = ''
+        export NANGATE45_LIB=$PWD/lib/nangate45/NangateOpenCellLibrary_typical.lib
+        export CC=${pkgs.clang}/bin/clang
+        export CXX=${pkgs.clang}/bin/clang++
+
+        # This variable is only relevant on macOS.
+        if [ "$(uname -s)" = "Darwin" ]; then
+          export MACOSX_DEPLOYMENT_TARGET=15.0
+        fi
+
+        export NIX_LDFLAGS="-w ''${NIX_LDFLAGS:-}"
+
+        export KYBER_PY_PATH=$PWD/../kyber-py/src
+
+        if [ ! -d .venv ]; then
+          echo "Creating Python virtual environment..."
+          ${pkgs.python3}/bin/python -m venv .venv
+          .venv/bin/pip install --quiet kyber-py
+        fi
+
+        source .venv/bin/activate
+
+        echo "ML-DSA development shell"
+        echo "GHC:   $(ghc --numeric-version)"
+        echo "Stack: $(stack --numeric-version)"
+        echo "Yosys: $(yosys -V)"
+      '';
+    };
+  });
       apps = forEachSystem (system:
         let
           pkgSet = mkPackages system;
