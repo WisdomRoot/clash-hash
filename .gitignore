@@ -1,0 +1,34 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Stack / Cabal
+.stack-work/
+dist-newstyle/
+cabal.project.local
+cabal.project.freeze
+
+# Clash / synthesis output
+verilog/
+vhdl/
+systemverilog/
+build/
+result/
+
+# Haskell generated files
+*.o
+*.hi
+*.dyn_o
+*.dyn_hi
+
+# Local package environment
+clash.env
+
+# macOS / editors
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
