@@ -79,6 +79,7 @@
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnsupportedSystem = true;
+            ghc966 = pkgs.haskell.compiler.ghc966;
           };
           pkgSet = mkPackages system;
           gccShim = pkgs.writeShellScriptBin "gcc" ''
