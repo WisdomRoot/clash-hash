@@ -9,6 +9,7 @@ module MLDSA.Polynomial
     dotProductNTT,
     matrixVectorMulNTT,
     addPolyVec,
+    zeroVector
   )
 where
 
@@ -22,14 +23,14 @@ type PolyVec = BoxedV.Vector Poly
 
 type PolyMat = BoxedV.Vector PolyVec
 
-nttPolyVec :: Int -> V.Vector Int -> BoxedV.Vector (V.Vector Int) -> BoxedV.Vector (V.Vector Int)
+nttPolyVec :: Int -> Poly -> PolyVec -> PolyVec
 nttPolyVec q zetas = BoxedV.map (ntt q zetas)
 
 addPoly :: Int -> Poly -> Poly -> Poly
 addPoly q = V.zipWith $ \x y -> (x + y) `mod` q
 
 mulPolyNTT :: Int -> Poly -> Poly -> Poly
-mulPolyNTT q = V.zipWith $ \x y -> fromInteger $ (toInteger x * toInteger y) `mod` toInteger q
+mulPolyNTT q = V.zipWith $ \x y -> fromIntegral ((fromIntegral x * fromIntegral y) `mod` fromIntegral q)
 
 zeroPoly :: Poly
 zeroPoly = V.replicate 256 0
@@ -46,3 +47,6 @@ addPolyVec :: Int -> PolyVec -> PolyVec -> PolyVec
 addPolyVec q xs ys
   | BoxedV.length xs /= BoxedV.length ys = error "addPolyVec: vector length mismatch"
   | otherwise = BoxedV.zipWith (addPoly q) xs ys
+
+zeroVector :: Int -> PolyVec
+zeroVector n = BoxedV.replicate n zeroPoly
