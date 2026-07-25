@@ -1,0 +1,18 @@
+snapshot: lts-22.43
+
+packages:
+  - .
+
+system-ghc: true
+install-ghc: false
+notify-if-nix-on-path: false
+
+extra-deps:
+  - clash-ghc-1.10.0
+  - clash-lib-1.10.0
+  - clash-prelude-1.10.0
+
+  - ghc-typelits-knownnat-0.8.4
+  - ghc-typelits-natnormalise-0.9.6
+  - ghc-typelits-extra-0.5.4
+  - ghc-tcplugin-api-0.19.0.0

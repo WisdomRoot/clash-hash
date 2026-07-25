@@ -1,0 +1,50 @@
+cabal-version:      3.0
+name:               ml-dsa
+version:            0.1.0.0
+synopsis:           ML-DSA implementation in Haskell
+license:            MIT
+author:             Jason
+build-type:         Simple
+
+library
+    exposed-modules:    MLDSA,
+                        MLDSA.KeyGen,
+                        MLDSA.NTT,
+                        MLDSA.Auxiliary,
+                        MLDSA.Polynomial,
+                        Component.NTT
+
+    hs-source-dirs:     .
+                        src
+
+    build-depends:      base >= 4.14 && < 5,
+                        vector,
+                        crypton,
+                        bytestring,
+                        memory,
+                        clash-prelude,
+                        ghc-typelits-knownnat,
+                        ghc-typelits-extra,
+                        ghc-typelits-natnormalise
+
+    build-tool-depends: clash-ghc:clash
+
+    default-language:   Haskell2010
+
+test-suite ml-dsa-tests
+    type:               exitcode-stdio-1.0
+    main-is:            Main.hs
+    hs-source-dirs:     tests
+
+    other-modules:      Test.NTT
+
+    build-depends:      base >= 4.14 && < 5,
+                        ml-dsa,
+                        hspec,
+                        tasty,
+                        tasty-hspec,
+                        clash-prelude
+
+    default-language:   Haskell2010
+
+    default-extensions: ImportQualifiedPost
