@@ -51,7 +51,7 @@ ENV PATH="$PATH:/OpenSTA/build"
 RUN pip3 install pyyaml numpy
 
 # Set working directory
-WORKDIR /workspace/clash-hash
+WORKDIR /workspace/ML-DSA
 
 # Default command
 CMD ["/bin/bash"]
