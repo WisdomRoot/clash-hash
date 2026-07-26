@@ -453,7 +453,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Direct execution mode (inside Docker or on host with OpenSTA)
     try:
-        _print("clash-hash Static Timing Analysis Starting...")
+        _print("ML-DSA Static Timing Analysis Starting...")
         _print(f"  Process: {args.process}")
         _print(f"  Target: {args.target}")
 
