@@ -29,6 +29,12 @@ nttPolyVec q zetas = BoxedV.map (ntt q zetas)
 addPoly :: Int -> Poly -> Poly -> Poly
 addPoly q = V.zipWith $ \x y -> (x + y) `mod` q
 
+subPoly :: Int -> Poly -> Poly -> Poly
+subPoly q = V.zipWith $ \x y -> (x - y + q) `mod` q
+
+negPoly :: Int -> Poly -> Poly
+negPoly q = V.map (q -)
+
 mulPolyNTT :: Int -> Poly -> Poly -> Poly
 mulPolyNTT q = V.zipWith $ \x y -> fromIntegral ((fromIntegral x * fromIntegral y) `mod` fromIntegral q)
 
@@ -47,6 +53,14 @@ addPolyVec :: Int -> PolyVec -> PolyVec -> PolyVec
 addPolyVec q xs ys
   | BoxedV.length xs /= BoxedV.length ys = error "addPolyVec: vector length mismatch"
   | otherwise = BoxedV.zipWith (addPoly q) xs ys
+
+subPolyVec :: Int -> PolyVec -> PolyVec -> PolyVec
+subPolyVec q xs ys
+  | BoxedV.length xs /= BoxedV.length ys = error "subPolyVec: vector length mismatch"
+  | otherwise = BoxedV.zipWith (subPoly q) xs ys
+
+negPolyVec :: Int -> PolyVec -> PolyVec
+negPolyVec q = BoxedV.map (negPoly q)
 
 zeroVector :: Int -> PolyVec
 zeroVector n = BoxedV.replicate n zeroPoly
