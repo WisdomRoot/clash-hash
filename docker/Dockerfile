@@ -11,10 +11,11 @@ ENV NPROC=8
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt update && \
     apt install -y --no-install-recommends tzdata && \
-    apt install -y vim g++ gcc cmake swig tcl-dev flex bison make git python3 \
-                   gdb wget python3-pip libc6-dev libffi-dev libgmp-dev xz-utils \
-                   zlib1g-dev gnupg netbase m4 tcsh tcl-dev tk-dev libeigen3-dev \
-                   autoconf automake libtool && \
+    apt install -y --no-install-recommends \
+        vim g++ gcc cmake swig tcl-dev flex bison make git python3 \
+        gdb wget python3-pip libc6-dev libffi-dev libgmp-dev xz-utils \
+        zlib1g-dev gnupg netbase m4 tcsh tk-dev libeigen3-dev \
+        autoconf automake libtool libgtest-dev && \
     apt-get autoclean && apt-get clean
 
 # Install yq for YAML processing (optional, but useful)

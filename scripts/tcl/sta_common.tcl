@@ -1,4 +1,4 @@
-# clash-hash OpenSTA Common Setup
+# ML-DSA OpenSTA Common Setup
 
 source [file join [file dirname [info script]] sta_utils.tcl]
 
@@ -9,7 +9,7 @@ set sdc_file $::env(STA_SDC_FILE)
 set top_module $::env(STA_TOP_MODULE)
 set reports_dir $::env(STA_OUTPUT_DIR_FULL)/reports
 
-puts "clash-hash OpenSTA Analysis"
+puts "ML-DSA OpenSTA Analysis"
 puts "==========================="
 puts "Liberty File: $liberty_file"
 puts "Netlist File: $netlist_file"

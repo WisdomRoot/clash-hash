@@ -1,4 +1,4 @@
-# clash-hash OpenSTA Utility Functions
+# ML-DSA OpenSTA Utility Functions
 
 proc setup_path_groups {input_list output_list path_group_list_name} {
     upvar $path_group_list_name path_group_list

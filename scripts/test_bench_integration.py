@@ -35,7 +35,7 @@ class BenchIntegrationTests(unittest.TestCase):
         self.target = "Demo"
         self.label = "Component.Demo"
         self.top = "dut"
-        self.stack_artifact = self.root / ".stack-work" / "dist" / "ghc-9.6.6" / "build" / "libHSclash-hash-test.a"
+        self.stack_artifact = self.root / ".stack-work" / "dist" / "ghc-9.6.6" / "build" / "libML-DSA-test.a"
         self.stack_artifact.parent.mkdir(parents=True, exist_ok=True)
         self.stack_artifact.write_text("stack", encoding="utf-8")
         self.liberty = self.root / "lib" / "nangate45" / "NangateOpenCellLibrary_typical.lib"
@@ -68,7 +68,7 @@ class BenchIntegrationTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def fake_run_cmd(self, cmd, label, timeout=3600):
-        if cmd[:3] == ["stack", "build", "clash-hash:lib"]:
+        if cmd[:3] == ["stack", "build", "ML-DSA:lib"]:
             self.calls["stack"] += 1
         return ""
 

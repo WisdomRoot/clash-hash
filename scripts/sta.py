@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run OpenSTA for synthesized clash-hash modules."""
+"""Run OpenSTA for synthesized ML-DSA modules."""
 
 from __future__ import annotations
 
@@ -19,10 +19,10 @@ BUILD_DIR = PROJECT_ROOT / "build"
 CLASH_TARGETS_FILE = PROJECT_ROOT / "clash.json"
 VHDL_TARGETS_FILE = PROJECT_ROOT / "vhdl.json"
 
-DOCKER_NAMESPACE = "clash-hash"
+DOCKER_NAMESPACE = "ML-DSA"
 DOCKER_PROJECT = "sta"
 DOCKER_TAG = "latest"
-DOCKER_WORK_ROOT = "/workspace/clash-hash"
+DOCKER_WORK_ROOT = "/workspace/ML-DSA"
 DOCKER_IMAGE = f"{DOCKER_NAMESPACE}/{DOCKER_PROJECT}:{DOCKER_TAG}"
 STA_CLOCK_PERIOD_NS = 5.0
 
@@ -220,7 +220,7 @@ def _setup_paths(process: str, target: str) -> dict[str, Path]:
         # Use CLK for Clash (uppercase) or clk for VHDL (lowercase)
         clock_name = "CLK" if clash_sdc is not None or "vhdl" not in str(netlist) else "clk"
         sdc.write_text(
-            f"# Auto-generated SDC for clash-hash STA\n"
+            f"# Auto-generated SDC for ML-DSA STA\n"
             f"# Clock: {clock_name}\n"
             f"create_clock -name {clock_name} -period {_clock_period_text()} [get_ports {clock_name}]\n"
             f"set_input_delay -clock {clock_name} 0.0 [all_inputs]\n"
@@ -242,7 +242,7 @@ def _setup_paths(process: str, target: str) -> dict[str, Path]:
 
 def _show_configuration(process: str, module: str, lib_path: Path, paths: dict[str, Path]) -> None:
     """Print a summary of the STA run configuration."""
-    _print("clash-hash Static Timing Analysis Configuration:")
+    _print("ML-DSA Static Timing Analysis Configuration:")
     _print(f"  Process: {process}")
     _print(f"  Liberty File: {lib_path}")
     _print(f"  Netlist File: {paths['netlist']}")
@@ -283,7 +283,7 @@ def _ensure_docker_image() -> bool:
 
 def _sta_container_name() -> str:
     """Compute the STA container name."""
-    return f"clash-hash-sta_{getpass.getuser()}"
+    return f"ML-DSA-sta_{getpass.getuser()}"
 
 
 def _ensure_docker_container() -> bool:
@@ -431,7 +431,7 @@ def main(argv: list[str] | None = None) -> int:
             args.no_docker = True
         else:
             # Use Docker mode
-            _print("clash-hash Static Timing Analysis (Docker mode)")
+            _print("ML-DSA Static Timing Analysis (Docker mode)")
             _print(f"  Target: {args.target}")
             _print(f"  Process: {args.process}")
 
