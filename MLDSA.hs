@@ -11,10 +11,31 @@ module MLDSA
   )
 where
 
+import Data.ByteString (ByteString)
+import qualified Data.Vector as BoxedV
 import MLDSA.Auxiliary
 import MLDSA.KeyGen
 import MLDSA.NTT
 import MLDSA.Polynomial
+
+data KeyGenResult = KeyGenResult
+  { keyGenRho :: ByteString,
+    keyGenRhoPrime :: ByteString,
+    keyGenK :: ByteString,
+    keyGenAHat :: PolyMat,
+    keyGenS1 :: PolyVec,
+    keyGenS2 :: PolyVec,
+    keyGenT :: PolyVec
+  }
+  deriving (Show)
+
+-- Parameters:
+--   q      = 8380417
+--   eta    = 2 or 4, depending on the ML-DSA parameter set
+--   k      = number of matrix rows
+--   l      = number of matrix columns
+--   zetas  = the 256-entry ML-DSA NTT twiddle-factor table
+--   xi     = 32-byte random seed
 
 p :: Integer
 p = 8380417
@@ -44,3 +65,30 @@ extGCD a b = (t, s - q * t, g)
     (q, r) = a `quotRem` b
     (s, t, g) = extGCD b r
 
+keyGenFromSeed :: Int -> Int -> Int -> Int -> Poly -> ByteString -> KeyGenResult
+keyGenFromSeed q eta k l zetas xi
+  | q <= 0 = error "keyGenFromSeed: q must be positive"
+  | eta /= 2 && eta /= 4 = error "keyGenFromSeed: eta must be 2 or 4"
+  | k <= 0 = error "keyGenFromSeed: k must be positive"
+  | l <= 0 = error "keyGenFromSeed: l must be positive"
+  | BoxedV.length aHat /= k = error "keyGenFromSeed: ExpandA returned wrong row count"
+  | BoxedV.length s1 /= l = error "keyGenFromSeed: ExpandS returned wrong s1 length"
+  | BoxedV.length s2 /= k = error "keyGenFromSeed: ExpandS returned wrong s2 length"
+  | otherwise =
+      KeyGenResult
+        { keyGenRho = rho,
+          keyGenRhoPrime = rhoPrime,
+          keyGenK = key,
+          keyGenAHat = aHat,
+          keyGenS1 = s1,
+          keyGenS2 = s2,
+          keyGenT = t
+        }
+  where
+    seeds@(KeyGenSeeds rho rhoPrime key) = expandSeed xi
+    aHat = expandA q k l rho
+    (s1, s2) = expandS eta k l rhoPrime
+    t = addPolyVec q (BoxedV.map (invNtt q zetas) (matrixVectorMulNTT q aHat (nttPolyVec q zetas s1))) s2
+
+keyGen :: Int -> Int -> Int -> Int -> Poly -> IO KeyGenResult
+keyGen q eta k l zetas = keyGenFromSeed q eta k l zetas <$> generateXi
