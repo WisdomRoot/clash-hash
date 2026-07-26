@@ -564,6 +564,7 @@ def run_clash_target(label: str) -> None:
     print(f"[synth] {label_name} → top={top}")
     result = run_yosys(commands)
     output = f"{result.stdout}{result.stderr}"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(output, encoding="utf-8")
 
     if result.returncode != 0:
@@ -602,6 +603,7 @@ def run_vhdl_target(name: str, entry: dict) -> None:
     print(f"[synth] {name} (VHDL) → top={top}")
     result = run_yosys(commands)
     output = f"{result.stdout}{result.stderr}"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(output, encoding="utf-8")
 
     if result.returncode != 0:
