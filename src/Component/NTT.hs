@@ -3,7 +3,8 @@
 
 module Component.NTT
   ( topEntity
-  , butterfly
+  , butterfly1
+  , butterfly2
   ) where
 
 import Clash.Prelude
@@ -42,37 +43,57 @@ mulModQ a b =
       productWide = resize a * resize b
    in resize (productWide `mod` fromInteger q)
 
-butterfly :: (Coeff, Coeff, Coeff) -> (Coeff, Coeff)
-butterfly (a, b, zeta) =
+butterfly1 :: (Coeff, Coeff, Coeff) -> (Coeff, Coeff)
+butterfly1 (a, b, zeta) =
   let t = mulModQ zeta b in (addModQ a t, subModQ a t)
+
+butterfly2 :: ((Coeff, Coeff, Coeff),(Coeff, Coeff, Coeff)) -> ((Coeff, Coeff),(Coeff,Coeff))
+butterfly2 ((a0,b0,z0),(a1,b1,z1)) = (butterfly1 (a0,b0,z0), butterfly1 (a1,b1,z1))
 
 topEntity
   :: Clock System
   -> Reset System
   -> Enable System
-  -> Signal System (Coeff, Coeff, Coeff)
-  -> Signal System (Coeff, Coeff)
+  -> Signal System ((Coeff, Coeff, Coeff),(Coeff, Coeff, Coeff))
+  -> Signal System ((Coeff, Coeff),(Coeff,Coeff))
 topEntity _clk _rst _en =
-  fmap butterfly
+  fmap butterfly2
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "NTT"
+    { t_name = "NTT2Butterfly"
     , t_inputs =
         [ PortName "clk"
         , PortName "rst"
         , PortName "en"
         , PortProduct
             "input"
-            [ PortName "a"
-            , PortName "b"
-            , PortName "zeta"
+            [ PortProduct
+                "butterfly0"
+                [ PortName "a0"
+                , PortName "b0"
+                , PortName "zeta0"
+                ]
+            , PortProduct
+                "butterfly1"
+                [ PortName "a1"
+                , PortName "b1"
+                , PortName "zeta1"
+                ]
             ]
         ]
     , t_output =
         PortProduct
           "output"
-          [ PortName "outA"
-          , PortName "outB"
+          [ PortProduct
+              "butterfly0"
+              [ PortName "outA0"
+              , PortName "outB0"
+              ]
+          , PortProduct
+              "butterfly1"
+              [ PortName "outA1"
+              , PortName "outB1"
+              ]
           ]
     }) #-}
