@@ -3,15 +3,15 @@
 
 module Component.NTT
   ( topEntity
-  , butterfly1
-  , butterfly2
+  , butterfly
   ) where
 
 import Clash.Prelude
 
 type Coeff = Unsigned 23
-
 type Product = Unsigned 46
+type Poly = Vec 256 Coeff
+type Zetas = Vec 256 Coeff
 
 q :: Integer
 q = 8_380_417
@@ -26,10 +26,11 @@ addModQ a b =
 
       qWide :: Unsigned 24
       qWide = fromInteger q
-   in resize $
-        if sumWide >= qWide
-          then sumWide - qWide
-          else sumWide
+   in resize
+        ( if sumWide >= qWide
+            then sumWide - qWide
+            else sumWide
+        )
 
 subModQ :: Coeff -> Coeff -> Coeff
 subModQ a b =
@@ -41,59 +42,105 @@ mulModQ :: Coeff -> Coeff -> Coeff
 mulModQ a b =
   let productWide :: Product
       productWide = resize a * resize b
-   in resize (productWide `mod` fromInteger q)
 
-butterfly1 :: (Coeff, Coeff, Coeff) -> (Coeff, Coeff)
-butterfly1 (a, b, zeta) =
-  let t = mulModQ zeta b in (addModQ a t, subModQ a t)
+      qWide :: Product
+      qWide = fromInteger q
+   in resize (productWide `mod` qWide)
 
-butterfly2 :: ((Coeff, Coeff, Coeff),(Coeff, Coeff, Coeff)) -> ((Coeff, Coeff),(Coeff,Coeff))
-butterfly2 ((a0,b0,z0),(a1,b1,z1)) = (butterfly1 (a0,b0,z0), butterfly1 (a1,b1,z1))
+butterfly :: (Coeff, Coeff, Coeff) -> (Coeff, Coeff)
+butterfly (a, b, zeta) =
+  let t = mulModQ zeta b
+      outA = addModQ a t
+      outB = subModQ a t
+   in (outA, outB)
+
+ntt256 :: Zetas -> Poly -> Poly
+ntt256 zetas input =
+  let s128 = nttStage 128 1 zetas input
+      s64  = nttStage 64 2 zetas s128
+      s32  = nttStage 32 4 zetas s64
+      s16  = nttStage 16 8 zetas s32
+      s8   = nttStage 8 16 zetas s16
+      s4   = nttStage 4 32 zetas s8
+      s2   = nttStage 2 64 zetas s4
+      s1   = nttStage 1 128 zetas s2
+   in s1
+
+nttStage :: Unsigned 9 -> Unsigned 9 -> Zetas -> Poly -> Poly
+nttStage len zetaBase zetas input = imap calculateOutput input
+  where
+    calculateOutput :: Index 256 -> Coeff -> Coeff
+    calculateOutput index _ =
+      let i :: Unsigned 9
+          i = fromIntegral index
+
+          groupSize :: Unsigned 9
+          groupSize = 2 * len
+
+          groupIndex :: Unsigned 9
+          groupIndex = i `div` groupSize
+
+          positionInGroup :: Unsigned 9
+          positionInGroup = i `mod` groupSize
+
+          zetaIndex :: Index 256
+          zetaIndex = fromIntegral (zetaBase + groupIndex)
+
+          zeta :: Coeff
+          zeta = zetas !! zetaIndex
+       in if positionInGroup < len
+            then
+              let aIndex :: Index 256
+                  aIndex = fromIntegral i
+
+                  bIndex :: Index 256
+                  bIndex = fromIntegral (i + len)
+
+                  a = input !! aIndex
+                  b = input !! bIndex
+
+                  (outA, _) = butterfly (a, b, zeta)
+               in outA
+            else
+              let aIndex :: Index 256
+                  aIndex = fromIntegral (i - len)
+
+                  bIndex :: Index 256
+                  bIndex = fromIntegral i
+
+                  a = input !! aIndex
+                  b = input !! bIndex
+
+                  (_, outB) = butterfly (a, b, zeta)
+               in outB
 
 topEntity
   :: Clock System
   -> Reset System
   -> Enable System
-  -> Signal System ((Coeff, Coeff, Coeff),(Coeff, Coeff, Coeff))
-  -> Signal System ((Coeff, Coeff),(Coeff,Coeff))
+  -> Signal System (Coeff, Coeff, Coeff)
+  -> Signal System (Coeff, Coeff)
 topEntity _clk _rst _en =
-  fmap butterfly2
+  fmap butterfly
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "NTT2Butterfly"
+    { t_name = "NTTButterfly"
     , t_inputs =
         [ PortName "clk"
         , PortName "rst"
         , PortName "en"
         , PortProduct
             "input"
-            [ PortProduct
-                "butterfly0"
-                [ PortName "a0"
-                , PortName "b0"
-                , PortName "zeta0"
-                ]
-            , PortProduct
-                "butterfly1"
-                [ PortName "a1"
-                , PortName "b1"
-                , PortName "zeta1"
-                ]
+            [ PortName "a"
+            , PortName "b"
+            , PortName "zeta"
             ]
         ]
     , t_output =
         PortProduct
           "output"
-          [ PortProduct
-              "butterfly0"
-              [ PortName "outA0"
-              , PortName "outB0"
-              ]
-          , PortProduct
-              "butterfly1"
-              [ PortName "outA1"
-              , PortName "outB1"
-              ]
+          [ PortName "outA"
+          , PortName "outB"
           ]
     }) #-}
