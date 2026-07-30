@@ -4,6 +4,7 @@
 module Component.NTT
   ( topEntity
   , butterfly
+  , ntt256
   ) where
 
 import Clash.Prelude
@@ -118,29 +119,23 @@ topEntity
   :: Clock System
   -> Reset System
   -> Enable System
-  -> Signal System (Coeff, Coeff, Coeff)
-  -> Signal System (Coeff, Coeff)
+  -> Signal System (Zetas, Poly)
+  -> Signal System Poly
 topEntity _clk _rst _en =
-  fmap butterfly
+  fmap (\(zetas, input) -> ntt256 zetas input)
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "NTTButterfly"
+    { t_name = "NTT256"
     , t_inputs =
         [ PortName "clk"
         , PortName "rst"
         , PortName "en"
         , PortProduct
             "input"
-            [ PortName "a"
-            , PortName "b"
-            , PortName "zeta"
+            [ PortName "zetas"
+            , PortName "poly"
             ]
         ]
-    , t_output =
-        PortProduct
-          "output"
-          [ PortName "outA"
-          , PortName "outB"
-          ]
+    , t_output = PortName "result"
     }) #-}

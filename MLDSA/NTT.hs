@@ -6,16 +6,16 @@ import Data.STRef (modifySTRef', newSTRef, readSTRef)
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as VM
 
-nttSize :: Int
+nttSize :: Integer
 nttSize = 256
 
-fipsQ :: Int
+fipsQ :: Integer
 fipsQ = 8380417
 
-inverseNttFactor :: Int
+inverseNttFactor :: Integer
 inverseNttFactor = 8347681
 
-ntt :: Int -> V.Vector Int -> V.Vector Int -> V.Vector Int
+ntt :: Integer -> V.Vector Integer -> V.Vector Integer -> V.Vector Integer
 ntt q zetas w
   | q /= fipsQ =
       error "ntt: FIPS 204 requires q = 8380417"
@@ -54,7 +54,7 @@ ntt q zetas w
 
         V.freeze wHat
 
-invNtt :: Int -> V.Vector Int -> V.Vector Int -> V.Vector Int
+invNtt :: Integer -> V.Vector Integer -> V.Vector Integer -> V.Vector Integer
 invNtt q zetas wHatInput
   | q /= fipsQ =
       error "invNtt: FIPS 204 requires q = 8380417"
@@ -94,15 +94,15 @@ invNtt q zetas wHatInput
 
         V.freeze w
 
-modQ :: Int -> Int -> Int
+modQ :: Integer -> Integer -> Integer
 modQ q x = x `mod` q
 
-mulMod :: Int -> Int -> Int -> Int
+mulMod :: Integer -> Integer -> Integer -> Integer
 mulMod q a b =
   fromInteger $
     (toInteger a * toInteger b) `mod` toInteger q
 
-roundTripTest :: V.Vector Int -> V.Vector Int -> Bool
+roundTripTest :: V.Vector Integer -> V.Vector Integer -> Bool
 roundTripTest zetas input =
   invNtt fipsQ zetas (ntt fipsQ zetas input)
     == V.map (`mod` fipsQ) input
