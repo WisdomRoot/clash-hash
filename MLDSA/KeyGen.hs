@@ -36,14 +36,14 @@ expandSeed xi =
 getNewKeyGenSeeds :: IO KeyGenSeeds
 getNewKeyGenSeeds = expandSeed <$> generateXi
 
-expandA :: Int -> Int -> Int -> ByteString -> BoxedV.Vector (BoxedV.Vector (V.Vector Int))
+expandA :: Integer -> Integer -> Integer -> ByteString -> BoxedV.Vector (BoxedV.Vector (V.Vector Integer))
 expandA q k l rho =
   BoxedV.generate k $ \r ->
     BoxedV.generate l $ \s ->
       let rhoPrime = rho `BS.snoc` fromIntegral s `BS.snoc` fromIntegral r
        in rejNTTPoly q rhoPrime
 
-expandS :: Int -> Int -> Int -> ByteString -> (BoxedV.Vector (V.Vector Int), BoxedV.Vector (V.Vector Int))
+expandS :: Integer -> Integer -> Integer -> ByteString -> (BoxedV.Vector (V.Vector Integer), BoxedV.Vector (V.Vector Integer))
 expandS eta k l rhoPrime =
   ( BoxedV.generate l $ \r ->
       let rhoNu = rhoPrime `BS.snoc` fromIntegral r `BS.snoc` 0
@@ -53,7 +53,7 @@ expandS eta k l rhoPrime =
        in rejBoundedPoly eta rhoNu
   )
 
-coeffFromThreeBytes :: Word8 -> Word8 -> Word8 -> Int
+coeffFromThreeBytes :: Word8 -> Word8 -> Word8 -> Integer
 coeffFromThreeBytes b0 b1 b2 =
   let b2' = b2 .&. 0x7F
       z0 = fromIntegral b0
@@ -61,7 +61,7 @@ coeffFromThreeBytes b0 b1 b2 =
       z2 = fromIntegral b2' `shiftL` 16
    in z0 + z1 + z2
 
-rejNTTPoly :: Int -> ByteString -> V.Vector Int
+rejNTTPoly :: Integer -> ByteString -> V.Vector Integer
 rejNTTPoly q rho
   | q <= 0 = error "rejNTTPoly: q must be positive"
   | otherwise = V.fromListN 256 (sample byteStream 0)
@@ -73,7 +73,7 @@ rejNTTPoly q rho
     byteStream :: [Word8]
     byteStream = BS.unpack expanded
 
-    sample :: [Word8] -> Int -> [Int]
+    sample :: [Word8] -> Integer -> [Integer]
     sample _ 256 = []
     sample (b0 : b1 : b2 : rest) j =
       let z = coeffFromThreeBytes b0 b1 b2
@@ -85,7 +85,7 @@ rejNTTPoly q rho
         "SHAKE128 output exhausted at coefficient "
           ++ show j
 
-rejBoundedPoly :: Int -> ByteString -> V.Vector Int
+rejBoundedPoly :: Integer -> ByteString -> V.Vector Integer
 rejBoundedPoly eta rho
   | eta <= 0 = error "rejBoundedPoly: eta must be positive"
   | otherwise = V.fromListN 256 (sample byteStream 0)
@@ -96,7 +96,7 @@ rejBoundedPoly eta rho
     byteStream :: [Word8]
     byteStream = BS.unpack expanded
 
-    sample :: [Word8] -> Int -> [Int]
+    sample :: [Word8] -> Integer -> [Integer]
     sample _ 256 = []
     sample (b : bs) j =
       let z0 = fromIntegral (b .&. 0x0F)
@@ -113,7 +113,7 @@ rejBoundedPoly eta rho
     sample [] j =
       error $ "SHAKE256 output exhausted at coefficient " ++ show j
 
-keygenInternal :: Int -> Int -> Int -> Int -> V.Vector Int -> ByteString -> (KeyGenSeeds, PolyMat, PolyVec, PolyVec, PolyVec)
+keygenInternal :: Integer -> Integer -> Integer -> Integer -> V.Vector Integer -> ByteString -> (KeyGenSeeds, PolyMat, PolyVec, PolyVec, PolyVec)
 keygenInternal q eta k l zetas xi =
   let seeds@(KeyGenSeeds rho rhoPrime _) =
         expandSeed xi

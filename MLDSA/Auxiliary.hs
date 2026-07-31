@@ -9,8 +9,8 @@ import Data.Word (Word8)
 
 class DomainSpec domain where
   domainSalt :: domain -> ByteString
-  domainSeedLength :: domain -> Int
-  domainExpLength :: domain -> Int
+  domainSeedLength :: domain -> Integer
+  domainExpLength :: domain -> Integer
 
 data PQCDomain = PQC_MLDSA_256_192 | PQC_MLDSA_256_134 | PQC_MLDSA_512_396
 
@@ -27,13 +27,13 @@ instance DomainSpec PQCDomain where
   domainExpLength PQC_MLDSA_256_134 = 448
   domainExpLength PQC_MLDSA_512_396 = 1280
 
-intToBits :: Int -> Int -> [Word8]
+intToBits :: Integer -> Integer -> [Word8]
 intToBits x alpha = take alpha $ map (fromIntegral . (`mod` 2)) $ iterate (`div` 2) x
 
-bitsToInt :: [Word8] -> Int -> Int
+bitsToInt :: [Word8] -> Integer -> Integer
 bitsToInt bits alpha = foldr (\bit acc -> fromIntegral bit + 2 * acc) 0 (take alpha bits)
 
-intToBytes :: Int -> Int -> BS.ByteString
+intToBytes :: Integer -> Integer -> BS.ByteString
 intToBytes x alpha = BS.pack $ take alpha $ map (fromIntegral . (`mod` 256)) $ iterate (`div` 256) x
 
 bitsToBytes :: [Word8] -> BS.ByteString
@@ -45,7 +45,7 @@ bitsToBytes bits =
 bytesToBits :: ByteString -> [Word8]
 bytesToBits bytes = concatMap (\b -> intToBits (fromIntegral b) 8) (BS.unpack bytes)
 
-chunksOf :: Int -> [a] -> [[a]]
+chunksOf :: Integer -> [a] -> [[a]]
 chunksOf _ [] = []
 chunksOf n xs = take n xs : chunksOf n (drop n xs)
 
