@@ -14,12 +14,62 @@ type Coeff = Unsigned 23
 type Product = Unsigned 46
 type Poly = Vec 256 Coeff
 type Zetas = Vec 256 Coeff
+type MontWord = Unsigned 24
+type MontWide = Unsigned 48
 
 q :: Integer
-q = 8_380_417
+q = 8380417
 
 qCoeff :: Coeff
 qCoeff = fromInteger q
+
+qMont :: MontWord
+qMont = fromInteger q
+
+qInv :: MontWord
+qInv = 8380415
+
+rSquaredModQ :: Coeff
+rSquaredModQ = 196580
+
+montgomeryReduce :: Product -> Coeff
+montgomeryReduce productValue =
+  let
+      productExtended :: MontWide
+      productExtended = resize productValue
+
+      productLow :: MontWord
+      productLow = resize productValue
+
+      mProduct :: MontWide
+      mProduct =
+        resize productLow * resize qInv
+
+      m :: MontWord
+      m = resize mProduct
+
+      mq :: MontWide
+      mq =
+        resize m * resize qMont
+
+      sumValue :: MontWide
+      sumValue =
+        productExtended + mq
+
+      shifted :: MontWide
+      shifted =
+        shiftR sumValue 24
+
+      candidate :: MontWord
+      candidate =
+        resize shifted
+
+      reduced :: MontWord
+      reduced =
+        if candidate >= qMont
+          then candidate - qMont
+          else candidate
+   in resize reduced
 
 addModQ :: Coeff -> Coeff -> Coeff
 addModQ a b =
@@ -40,18 +90,16 @@ subModQ a b =
     then a - b
     else qCoeff - (b - a)
 
-mulModQ :: Coeff -> Coeff -> Coeff
-mulModQ a b =
+montgomeryMul :: Coeff -> Coeff -> Coeff
+montgomeryMul a b =
   let productWide :: Product
-      productWide = resize a * resize b
-
-      qWide :: Product
-      qWide = fromInteger q
-   in resize (productWide `mod` qWide)
+      productWide =
+        resize a * resize b
+   in montgomeryReduce productWide
 
 butterfly :: (Coeff, Coeff, Coeff) -> (Coeff, Coeff)
-butterfly (a, b, zeta) =
-  let t = mulModQ zeta b
+butterfly (a, b, zetaMont) =
+  let t = montgomeryMul zetaMont b
       outA = addModQ a t
       outB = subModQ a t
    in (outA, outB)
@@ -88,8 +136,8 @@ nttStage len zetaBase zetas input = imap calculateOutput input
           zetaIndex :: Index 256
           zetaIndex = fromIntegral (zetaBase + groupIndex)
 
-          zeta :: Coeff
-          zeta = zetas !! zetaIndex
+          zetaMont :: Coeff
+          zetaMont = zetas !! zetaIndex
        in if positionInGroup < len
             then
               let aIndex :: Index 256
@@ -101,7 +149,7 @@ nttStage len zetaBase zetas input = imap calculateOutput input
                   a = input !! aIndex
                   b = input !! bIndex
 
-                  (outA, _) = butterfly (a, b, zeta)
+                  (outA, _) = butterfly (a, b, zetaMont)
                in outA
             else
               let aIndex :: Index 256
@@ -113,7 +161,7 @@ nttStage len zetaBase zetas input = imap calculateOutput input
                   a = input !! aIndex
                   b = input !! bIndex
 
-                  (_, outB) = butterfly (a, b, zeta)
+                  (_, outB) = butterfly (a, b, zetaMont)
                in outB
 
 topEntity

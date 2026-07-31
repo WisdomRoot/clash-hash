@@ -2,7 +2,7 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE NumericUnderscores #-}
 
-module Test.NTT (spec) where
+module Test.NTT256 (spec) where
 
 import Clash.Prelude
   ( Unsigned
@@ -57,11 +57,21 @@ toPoly xs
   | P.otherwise =
       P.error "toPoly: expected exactly 256 coefficients"
 
+rModQInteger :: P.Integer
+rModQInteger = 16382
+
+toMontgomeryInteger :: P.Integer -> P.Integer
+toMontgomeryInteger x =
+  ((x `P.mod` q) P.* rModQInteger) `P.mod` q
+
 -- Convert exactly 256 Integer values into the hardware zeta type.
 toZetas :: [P.Integer] -> Zetas
 toZetas xs
   | P.length xs == 256 =
-      unsafeFromList (P.map toCoeff xs)
+      unsafeFromList
+        (P.map
+          (toCoeff . toMontgomeryInteger)
+          xs)
   | P.otherwise =
       P.error "toZetas: expected exactly 256 zetas"
 
