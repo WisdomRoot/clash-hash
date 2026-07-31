@@ -14,7 +14,7 @@ module MLDSA.Polynomial
 where
 
 import qualified Data.Vector as BoxedV
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 import MLDSA.NTT (ntt)
 
 type Poly = V.Vector Integer
@@ -62,5 +62,5 @@ subPolyVec q xs ys
 negPolyVec :: Integer -> PolyVec -> PolyVec
 negPolyVec q = BoxedV.map (negPoly q)
 
-zeroVector :: Integer -> PolyVec
+zeroVector :: Int -> PolyVec
 zeroVector n = BoxedV.replicate n zeroPoly

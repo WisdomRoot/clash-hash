@@ -8,6 +8,7 @@ module Component.NTT
   ) where
 
 import Clash.Prelude
+import Prelude hiding ((!!))
 
 type Coeff = Unsigned 23
 type Product = Unsigned 46

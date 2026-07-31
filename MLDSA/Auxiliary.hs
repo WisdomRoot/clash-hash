@@ -27,13 +27,13 @@ instance DomainSpec PQCDomain where
   domainExpLength PQC_MLDSA_256_134 = 448
   domainExpLength PQC_MLDSA_512_396 = 1280
 
-intToBits :: Integer -> Integer -> [Word8]
+intToBits :: Integer -> Int -> [Word8]
 intToBits x alpha = take alpha $ map (fromIntegral . (`mod` 2)) $ iterate (`div` 2) x
 
-bitsToInt :: [Word8] -> Integer -> Integer
+bitsToInt :: [Word8] -> Int -> Integer
 bitsToInt bits alpha = foldr (\bit acc -> fromIntegral bit + 2 * acc) 0 (take alpha bits)
 
-intToBytes :: Integer -> Integer -> BS.ByteString
+intToBytes :: Integer -> Int -> BS.ByteString
 intToBytes x alpha = BS.pack $ take alpha $ map (fromIntegral . (`mod` 256)) $ iterate (`div` 256) x
 
 bitsToBytes :: [Word8] -> BS.ByteString
@@ -45,7 +45,7 @@ bitsToBytes bits =
 bytesToBits :: ByteString -> [Word8]
 bytesToBits bytes = concatMap (\b -> intToBits (fromIntegral b) 8) (BS.unpack bytes)
 
-chunksOf :: Integer -> [a] -> [[a]]
+chunksOf :: Int -> [a] -> [[a]]
 chunksOf _ [] = []
 chunksOf n xs = take n xs : chunksOf n (drop n xs)
 

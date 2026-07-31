@@ -86,9 +86,9 @@ keyGenFromSeed q eta k l zetas xi
         }
   where
     seeds@(KeyGenSeeds rho rhoPrime key) = expandSeed xi
-    aHat = expandA q k l rho
-    (s1, s2) = expandS eta k l rhoPrime
-    t = addPolyVec q (BoxedV.map (invNtt q zetas) (matrixVectorMulNTT q aHat (nttPolyVec q zetas s1))) s2
+    aHat = expandA (fromIntegral q) k l rho
+    (s1, s2) = expandS (fromIntegral eta) k l rhoPrime
+    t = addPolyVec (fromIntegral q) (BoxedV.map (invNtt (fromIntegral q) zetas) (matrixVectorMulNTT (fromIntegral q) aHat (nttPolyVec (fromIntegral q) zetas s1))) s2
 
 keyGen :: Int -> Int -> Int -> Int -> Poly -> IO KeyGenResult
 keyGen q eta k l zetas = keyGenFromSeed q eta k l zetas <$> generateXi

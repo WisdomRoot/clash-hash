@@ -9,7 +9,7 @@ import Data.ByteArray (convert)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.Vector as BoxedV
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 import Data.Word (Word8)
 import MLDSA.Polynomial
 import MLDSA.NTT
@@ -36,14 +36,14 @@ expandSeed xi =
 getNewKeyGenSeeds :: IO KeyGenSeeds
 getNewKeyGenSeeds = expandSeed <$> generateXi
 
-expandA :: Integer -> Integer -> Integer -> ByteString -> BoxedV.Vector (BoxedV.Vector (V.Vector Integer))
+expandA :: Integer -> Int -> Int -> ByteString -> BoxedV.Vector (BoxedV.Vector (V.Vector Integer))
 expandA q k l rho =
   BoxedV.generate k $ \r ->
     BoxedV.generate l $ \s ->
       let rhoPrime = rho `BS.snoc` fromIntegral s `BS.snoc` fromIntegral r
        in rejNTTPoly q rhoPrime
 
-expandS :: Integer -> Integer -> Integer -> ByteString -> (BoxedV.Vector (V.Vector Integer), BoxedV.Vector (V.Vector Integer))
+expandS :: Integer -> Int -> Int -> ByteString -> (BoxedV.Vector (V.Vector Integer), BoxedV.Vector (V.Vector Integer))
 expandS eta k l rhoPrime =
   ( BoxedV.generate l $ \r ->
       let rhoNu = rhoPrime `BS.snoc` fromIntegral r `BS.snoc` 0
@@ -113,7 +113,7 @@ rejBoundedPoly eta rho
     sample [] j =
       error $ "SHAKE256 output exhausted at coefficient " ++ show j
 
-keygenInternal :: Integer -> Integer -> Integer -> Integer -> V.Vector Integer -> ByteString -> (KeyGenSeeds, PolyMat, PolyVec, PolyVec, PolyVec)
+keygenInternal :: Integer -> Integer -> Int -> Int -> V.Vector Integer -> ByteString -> (KeyGenSeeds, PolyMat, PolyVec, PolyVec, PolyVec)
 keygenInternal q eta k l zetas xi =
   let seeds@(KeyGenSeeds rho rhoPrime _) =
         expandSeed xi

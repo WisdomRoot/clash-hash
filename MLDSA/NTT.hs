@@ -3,10 +3,10 @@ module MLDSA.NTT ( ntt,invNtt) where
 import Control.Monad (forM_, when)
 import Control.Monad.ST (runST)
 import Data.STRef (modifySTRef', newSTRef, readSTRef)
-import qualified Data.Vector.Unboxed as V
-import qualified Data.Vector.Unboxed.Mutable as VM
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as VM
 
-nttSize :: Integer
+nttSize :: Int
 nttSize = 256
 
 fipsQ :: Integer
