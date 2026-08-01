@@ -184,26 +184,11 @@ The shell provides:
 - Python
 - synthesis, benchmark, and STA helper commands
 
-Confirm the environment:
-
-```bash
-ghc --version
-stack --version
-yosys -V
-```
-
 ## Build
 
 Inside `nix develop`:
 
 ```bash
-stack build
-```
-
-To rebuild from a clean Stack state:
-
-```bash
-stack clean
 stack build
 ```
 
