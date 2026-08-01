@@ -4,6 +4,7 @@
 
 - CLASH implementation of ML-DSA
 - Software of NIST ML-DSA (Haskell)
+
   | `Module` | `Description` |
   |---|---|
   | `Sign`   | Sign Generation for ML-DSA |
@@ -13,6 +14,7 @@
 ## Finished
 
 - Full length-256 NTT (CLASH)
+
   | `Component` | `Description` |
   |---|---|
   | `topEntity` | NTT for ML-DSA |
@@ -24,7 +26,9 @@
   | `subModQ` | Modular subtraction for ML-DSA |
   | `montgomeryReduce` | Montgomery reduction for ML-DSA |
   | `NTT.hs` | NTT and inverse NTT for ML-DSA |
+
 - Software of NIST ML-DSA (Haskell)
+
   | `Module` | `Description` |
   |---|---|
   | `NTT`    | Number Theoretic Transform for ML-DSA |
@@ -34,6 +38,7 @@
 
 - Include generate_keypair, public_key_encoding, private_key_encoding, seed_expand, matrix_generation, matrix_uniform, public_key_pack, private_key_pack
 - Used files:
+
   | `Module` | `Description` |
   |---|---|
   | `MLDSA.KeyGen.hs` | Key Generation for ML-DSA |
