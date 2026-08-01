@@ -248,23 +248,6 @@ A successful build with zero selected examples looks like:
 
 That means compilation succeeded, but the filter did not match any test description.
 
-### Cabal test-module entry
-
-The test suite should list the module used by `tests/Main.hs`:
-
-```cabal
-other-modules:
-    Test.NTT256
-```
-
-The module name, file path, and Cabal entry must agree:
-
-```text
-tests/Test/NTT256.hs
-module Test.NTT256
-other-modules: Test.NTT256
-```
-
 ## Software reference
 
 `MLDSA.NTT` contains the software reference:
@@ -286,38 +269,6 @@ ordinary-domain input polynomial
 ```
 
 The hardware tests convert zetas to Montgomery representation only for the DUT. The reference continues to receive ordinary zetas.
-
-## Synthesis and analysis
-
-The Nix shell exposes helper commands implemented in `scripts/`.
-
-Run commands from the repository root.
-
-### Synthesis
-
-```bash
-synth --help
-```
-
-### Benchmarking
-
-```bash
-bench --help
-```
-
-### Static timing analysis
-
-```bash
-sta --help
-```
-
-The Nix shell sets:
-
-```text
-NANGATE45_LIB=lib/nangate45/NangateOpenCellLibrary_typical.lib
-```
-
-The Nangate45 Liberty file must exist at that location for flows that use it.
 
 ## Key-generation support
 
