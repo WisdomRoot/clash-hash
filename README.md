@@ -34,37 +34,6 @@ The repository currently contains:
 - Coefficient-memory banking
 - FPGA timing and resource optimization
 
-## Repository structure
-
-```text
-ML-DSA/
-├── MLDSA.hs
-├── MLDSA/
-│   ├── Auxiliary.hs
-│   ├── KeyGen.hs
-│   ├── NTT.hs
-│   └── Polynomial.hs
-├── src/
-│   └── Component/
-│       └── NTT.hs
-├── tests/
-│   ├── Main.hs
-│   └── Test/
-│       ├── NTT.hs
-│       └── NTT256.hs
-├── scripts/
-│   ├── synth.py
-│   ├── bench.py
-│   ├── sta.py
-│   └── related tests and utilities
-├── docker/
-│   └── Dockerfile
-├── clash.json
-├── flake.nix
-├── ml-dsa.cabal
-└── stack.yaml
-```
-
 ## Main modules
 
 ### Software implementation
