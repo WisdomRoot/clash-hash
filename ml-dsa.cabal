@@ -13,7 +13,7 @@ library
                         MLDSA.Auxiliary,
                         MLDSA.Polynomial,
                         Component.NTT
-
+                        
     hs-source-dirs:     .
                         src
 
@@ -36,7 +36,7 @@ test-suite ml-dsa-tests
     main-is:            Main.hs
     hs-source-dirs:     tests
 
-    other-modules:      Test.NTT
+    other-modules:      Test.NTT256
 
     build-depends:      base >= 4.14 && < 5,
                         ml-dsa,
