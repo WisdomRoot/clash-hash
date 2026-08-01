@@ -1,10 +1,10 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE NumericUnderscores #-}
 
 module Component.NTT
   ( topEntity
   , butterfly
   , ntt256
+  , montgomeryMul
   ) where
 
 import Clash.Prelude
