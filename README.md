@@ -385,7 +385,7 @@ MLDSA/Auxiliary.hs
 MLDSA/NTT.hs
 ```
 
-## Known limitations
+## Limitations
 
 - The Clash NTT is fully combinational and may use substantial logic and routing resources.
 - Each stage is expanded rather than executed by a reusable multi-cycle butterfly engine.
@@ -394,30 +394,6 @@ MLDSA/NTT.hs
 - Timing and resource usage must be checked after synthesis.
 - Signing and verification are not yet complete.
 
-## Planned hardware improvements
-
-A future iterative NTT core can use:
-
-- one, two, or four reusable butterfly units;
-- pipelined Montgomery multiplication;
-- stage, block, offset, and zeta counters;
-- banked coefficient memory;
-- `start`, `busy`, and `done` control signals;
-- configurable performance/resource tradeoffs.
-
-The ideal butterfly issue counts are:
-
-| Butterfly units | Ideal issue cycles |
-|---:|---:|
-| 1 | 1024 |
-| 2 | 512 |
-| 4 | 256 |
-
-Actual latency will also include memory access, pipeline, and controller cycles.
-
-## License
-
-MIT
   
 
 
