@@ -36,7 +36,7 @@
 
 ### Key Generation for ML-DSA
 
-- Include generate_keypair, public_key_encoding, private_key_encoding, seed_expand, matrix_generation, matrix_uniform, public_key_pack, private_key_pack
+- Include `generate_keypair`, `public_key_encoding`, `private_key_encoding`, `seed_expand`, `matrix_generation`, `matrix_uniform`, `public_key_pack`, `private_key_pack`
 - Used files:
 
   | `Module` | `Description` |
