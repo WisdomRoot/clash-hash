@@ -5,6 +5,7 @@
 - CLASH implementation of ML-DSA
 - Software of NIST ML-DSA (Haskell)
   | `Module` | `Description` |
+  |---|---|
   | `NTT`    | Number Theoretic Transform for ML-DSA |
   | `KeyGen` | Key Generation for ML-DSA |
   | `Sign`   | Sign Generation for ML-DSA |
