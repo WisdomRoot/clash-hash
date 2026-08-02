@@ -53,14 +53,6 @@ expandS eta k l rhoPrime =
        in rejBoundedPoly eta rhoNu
   )
 
-coeffFromThreeBytes :: Word8 -> Word8 -> Word8 -> Integer
-coeffFromThreeBytes b0 b1 b2 =
-  let b2' = b2 .&. 0x7F
-      z0 = fromIntegral b0
-      z1 = fromIntegral b1 `shiftL` 8
-      z2 = fromIntegral b2' `shiftL` 16
-   in z0 + z1 + z2
-
 rejNTTPoly :: Integer -> ByteString -> V.Vector Integer
 rejNTTPoly q rho
   | q <= 0 = error "rejNTTPoly: q must be positive"

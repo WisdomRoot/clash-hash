@@ -54,3 +54,19 @@ power2Round q r =
   let rp = r `mod` q
       t2 = (r - rp) `div` 2
    in (t2, rp)
+
+coeffFromThreeBytes :: Word8 -> Word8 -> Word8 -> Integer
+coeffFromThreeBytes b0 b1 b2 =
+  let b2' = b2 .&. 0x7F
+      z0 = fromIntegral b0
+      z1 = fromIntegral b1 `shiftL` 8
+      z2 = fromIntegral b2' `shiftL` 16
+   in z0 + z1 + z2
+
+coeffFromHalfByte :: Integer -> Integer -> Integer
+coeffFromHalfByte b eta 
+  | eta == 2 = if b < 15 then 2 - (b `mod` 5) else error "invalid coefficient for eta = 2"
+  | eta == 4 = if b < 9 then 9 - b else error "invalid coefficient for eta = 4"
+  | otherwise = error "invalid eta"
+
+  

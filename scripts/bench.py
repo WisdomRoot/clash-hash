@@ -58,7 +58,7 @@ def fmt_mem(value):
     return f"{value:.2f}"
 
 
-def run_cmd(cmd, label, timeout=14400):
+def run_cmd(cmd, label, timeout=36000):
     result = subprocess.run(
         cmd,
         cwd=PROJECT_ROOT,
