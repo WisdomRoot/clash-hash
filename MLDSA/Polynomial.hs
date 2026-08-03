@@ -17,7 +17,7 @@ import qualified Data.Vector as BoxedV
 import qualified Data.Vector as V
 import MLDSA.NTT (ntt)
 
-type Poly = V.Vector Integer
+type Poly = V.Vector Int
 
 type PolyVec = BoxedV.Vector Poly
 
