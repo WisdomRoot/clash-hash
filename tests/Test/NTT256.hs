@@ -1,10 +1,12 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ImportQualifiedPost #-}
 
 module Test.NTT256 (spec) where
 
 import Clash.Prelude
 import Clash.Sized.Vector qualified as Vec
 import Component.NTT qualified as DUT
+import Component.NTTConstants qualified as Constants
 import Data.Vector qualified as V
 import MLDSA.NTT qualified as Ref
 import Prelude qualified as P
@@ -16,14 +18,13 @@ q = 8380417
 
 type Coeff = Unsigned 23
 type Poly = Vec 256 Coeff
-type Zetas = Vec 256 Coeff
 
 -- Convert an Integer into the canonical range [0, q - 1].
 toCoeff :: P.Integer -> Coeff
 toCoeff x =
   P.fromInteger (x `P.mod` q)
 
--- Convert exactly 256 Integer values into the hardware polynomial type.
+-- Convert exactly 256 integers into a hardware polynomial.
 toPoly :: [P.Integer] -> Poly
 toPoly xs
   | P.length xs P.== 256 =
@@ -31,27 +32,18 @@ toPoly xs
   | P.otherwise =
       P.error "toPoly: expected exactly 256 coefficients"
 
+-- R mod q, where R = 2^24.
 rModQInteger :: P.Integer
 rModQInteger = 16382
 
+-- Convert an ordinary value into Montgomery representation.
 toMontgomeryInteger :: P.Integer -> P.Integer
 toMontgomeryInteger x =
   ((x `P.mod` q) P.* rModQInteger) `P.mod` q
 
--- Convert exactly 256 Integer values into the hardware zeta type.
-toZetas :: [P.Integer] -> Zetas
-toZetas xs
-  | P.length xs P.== 256 =
-      Vec.unsafeFromList
-        (P.map
-          (toCoeff P.. toMontgomeryInteger)
-          xs)
-  | P.otherwise =
-      P.error "toZetas: expected exactly 256 zetas"
-
--- Drive the real topEntity input ports and collect one combinational output.
-runDUT :: [P.Integer] -> [P.Integer] -> [P.Integer]
-runDUT zetas input =
+-- Drive the real topEntity and collect one combinational output.
+runDUT :: [P.Integer] -> [P.Integer]
+runDUT input =
   case sampleN 1 outputSignal of
     [output] ->
       P.map P.toInteger (toList output)
@@ -59,18 +51,15 @@ runDUT zetas input =
     _ ->
       P.error "runDUT: unexpected output sample count"
   where
-    inputBeat :: (Zetas, Poly)
+    inputBeat :: Poly
     inputBeat =
-      (toZetas zetas, toPoly input)
+      toPoly input
 
-    zeroBeat :: (Zetas, Poly)
+    zeroBeat :: Poly
     zeroBeat =
-      ( toZetas (P.replicate 256 0)
-      , toPoly (P.replicate 256 0)
-      )
+      toPoly (P.replicate 256 0)
 
-    -- Signals must be infinite, so pad after the real input.
-    beats :: [(Zetas, Poly)]
+    beats :: [Poly]
     beats =
       inputBeat : P.repeat zeroBeat
 
@@ -81,18 +70,22 @@ runDUT zetas input =
         enableGen
         (fromList beats)
 
--- Run the software reference implementation.
-runReference :: [P.Integer] -> [P.Integer] -> [P.Integer]
-runReference zetas input =
+referenceZetas :: V.Vector P.Integer
+referenceZetas =
+  V.fromList
+    (P.map P.toInteger
+      (toList Constants.ordinaryZetas))
+
+-- Run the software reference using the same fixed ordinary zeta table.
+runReference :: [P.Integer] -> [P.Integer]
+runReference input =
   V.toList
     (Ref.ntt
       q
-      (V.fromList (P.map normalizeInteger zetas))
-      (V.fromList (P.map normalizeInteger input)))
+      referenceZetas
+      (V.fromList (P.map normalize input)))
   where
-    normalizeInteger :: P.Integer -> P.Integer
-    normalizeInteger x =
-      x `P.mod` q
+    normalize x = x `P.mod` q
 
 genCoeff :: Gen P.Integer
 genCoeff =
@@ -101,12 +94,6 @@ genCoeff =
 genPoly :: Gen [P.Integer]
 genPoly =
   vectorOf 256 genCoeff
-
-genNTTCase :: Gen ([P.Integer], [P.Integer])
-genNTTCase =
-  (,)
-    P.<$> genPoly
-    P.<*> genPoly
 
 zeroPoly :: [P.Integer]
 zeroPoly =
@@ -126,14 +113,6 @@ alternatingPoly =
   P.take 256
     (P.cycle [123456, 654321])
 
--- Deterministic test zetas.
--- Both DUT and reference receive the same table.
-testZetas :: [P.Integer]
-testZetas =
-  [ (P.fromIntegral i P.* 1753 P.+ 9271) `P.mod` q
-  | i <- [0 :: P.Int .. 255]
-  ]
-
 allReduced :: [P.Integer] -> P.Bool
 allReduced =
   P.all (\x -> 0 P.<= x P.&& x P.< q)
@@ -151,21 +130,20 @@ spec =
                 zetaMont =
                   toCoeff (toMontgomeryInteger zeta)
 
-                bHardware :: Coeff
-                bHardware =
-                  toCoeff b
-
                 actual :: P.Integer
                 actual =
                   P.toInteger
-                    (DUT.montgomeryMul zetaMont bHardware)
+                    (DUT.montgomeryMul
+                      zetaMont
+                      (toCoeff b))
 
                 expected :: P.Integer
                 expected =
                   (zeta P.* b) `P.mod` q
-              in actual `shouldBe` expected
+              in
+                actual `shouldBe` expected
 
-      it "handles Montgomery multiplication boundaries" P.$ do
+      it "handles boundary values" P.$ do
         let
           check :: P.Integer -> P.Integer -> Expectation
           check zeta b =
@@ -184,40 +162,29 @@ spec =
 
     describe "full 256-point transform" P.$ do
       it "maps the zero polynomial to zero" P.$
-        runDUT testZetas zeroPoly
+        runDUT zeroPoly
           `shouldBe` zeroPoly
 
       it "matches MLDSA.NTT on a ramp polynomial" P.$
-        runDUT testZetas rampPoly
-          `shouldBe` runReference testZetas rampPoly
+        runDUT rampPoly
+          `shouldBe` runReference rampPoly
 
       it "matches MLDSA.NTT near coefficient boundaries" P.$
-        runDUT testZetas boundaryPoly
-          `shouldBe` runReference testZetas boundaryPoly
+        runDUT boundaryPoly
+          `shouldBe` runReference boundaryPoly
 
       it "matches MLDSA.NTT on an alternating polynomial" P.$
-        runDUT testZetas alternatingPoly
-          `shouldBe` runReference testZetas alternatingPoly
-
-      it "does not consume zetas[0]" P.$ do
-        let
-          zetasA =
-            0 : P.tail testZetas
-
-          zetasB =
-            (q P.- 1) : P.tail testZetas
-
-        runDUT zetasA rampPoly
-          `shouldBe` runDUT zetasB rampPoly
+        runDUT alternatingPoly
+          `shouldBe` runReference alternatingPoly
 
       it "keeps all output coefficients reduced modulo q" P.$
         withMaxSuccess 5 P.$
-          forAll genNTTCase P.$ \(zetas, input) ->
-            runDUT zetas input
+          forAll genPoly P.$ \input ->
+            runDUT input
               `shouldSatisfy` allReduced
 
       it "matches MLDSA.NTT for random reduced inputs" P.$
         withMaxSuccess 5 P.$
-          forAll genNTTCase P.$ \(zetas, input) ->
-            runDUT zetas input
-              `shouldBe` runReference zetas input
+          forAll genPoly P.$ \input ->
+            runDUT input
+              `shouldBe` runReference input
