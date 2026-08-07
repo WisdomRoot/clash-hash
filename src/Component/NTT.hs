@@ -1,152 +1,317 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Component.NTT
   ( topEntity
   , butterfly
-  , ntt256
   , montgomeryMul
   ) where
 
 import Clash.Prelude
 import Component.NTTConstants (zetasMont)
-import Prelude hiding ((!!), zipWith, map, (++))
 import Component.NTTCore
   ( Coeff
   , butterfly
   , montgomeryMul
   )
+import GHC.Generics (Generic)
+import Prelude hiding ((!!))
 
 type Poly = Vec 256 Coeff
 
-ntt256 :: Poly -> Poly
-ntt256 input =
-  let
-    s128 = nttStage 128 1 input
-    s64  = nttStage 64 2 s128
-    s32  = nttStage 32 4 s64
-    s16  = nttStage 16 8 s32
-    s8   = nttStage 8 16 s16
-    s4   = nttStage 4 32 s8
-    s2   = nttStage 2 64 s4
-    s1   = nttStage 1 128 s2
-  in
-    s1
+data NTTState = NTTState
+  { stateBusy   :: Bool
+  , stateDone   :: Bool
+  , stateStage  :: Index 8
+  , stateOpBase :: Unsigned 9
+  , statePoly   :: Poly
+  }
+  deriving (Generic, NFDataX)
 
-nttStage128 :: Poly -> Poly
-nttStage128 input =
+
+initialState :: NTTState
+initialState =
+  NTTState
+    { stateBusy   = False
+    , stateDone   = False
+    , stateStage  = 0
+    , stateOpBase = 0
+    , statePoly   = repeat 0
+    }
+
+stageParameters
+  :: Index 8
+  -> (Unsigned 9, Unsigned 9)
+stageParameters stage =
+  case stage of
+    0 -> (128,   1)
+    1 -> ( 64,   2)
+    2 -> ( 32,   4)
+    3 -> ( 16,   8)
+    4 -> (  8,  16)
+    5 -> (  4,  32)
+    6 -> (  2,  64)
+    7 -> (  1, 128)
+
+runButterfly
+  :: Unsigned 9
+  -> Unsigned 9
+  -> Unsigned 9
+  -> Poly
+  -> (Index 256, Coeff, Index 256, Coeff)
+
+runButterfly len zetaBase opNumber poly =
   let
-    left :: Vec 128 Coeff
-    right :: Vec 128 Coeff
-    (left, right) = splitAtI input
+    groupIndex :: Unsigned 9
+    groupIndex =
+      opNumber `div` len
+
+    position :: Unsigned 9
+    position =
+      opNumber `mod` len
+
+    groupSize :: Unsigned 9
+    groupSize =
+      2 * len
+
+    aRaw :: Unsigned 9
+    aRaw =
+      groupIndex * groupSize + position
+
+    bRaw :: Unsigned 9
+    bRaw =
+      aRaw + len
+
+    aIndex :: Index 256
+    aIndex =
+      fromIntegral aRaw
+
+    bIndex :: Index 256
+    bIndex =
+      fromIntegral bRaw
+
+    zetaIndex :: Index 256
+    zetaIndex =
+      fromIntegral (zetaBase + groupIndex)
+
+    a :: Coeff
+    a =
+      poly !! aIndex
+
+    b :: Coeff
+    b =
+      poly !! bIndex
 
     zetaMont :: Coeff
-    zetaMont = zetasMont !! 1
+    zetaMont =
+      zetasMont !! zetaIndex
 
-    results :: Vec 128 (Coeff, Coeff)
-    results =
-      zipWith
-        (\a b -> butterfly (a, b, zetaMont))
-        left
-        right
+    (outA, outB) =
+      butterfly (a, b, zetaMont)
 
-    outLeft :: Vec 128 Coeff
-    outLeft = map fst results
-
-    outRight :: Vec 128 Coeff
-    outRight = map snd results
   in
-    outLeft ++ outRight
+    (aIndex, outA, bIndex, outB)
 
-nttStage :: Unsigned 9 -> Unsigned 9 -> Poly -> Poly
-nttStage len zetaBase input =
-  imap calculateOutput input
-  where
-    calculateOutput :: Index 256 -> Coeff -> Coeff
-    calculateOutput index _ =
+runFourButterflies
+  :: Index 8
+  -> Unsigned 9
+  -> Poly
+  -> Poly
+
+runFourButterflies stage opBase poly =
+  let
+    (len, zetaBase) =
+      stageParameters stage
+
+    -- Butterfly lane 0
+    (a0, outA0, b0, outB0) =
+      runButterfly
+        len
+        zetaBase
+        opBase
+        poly
+
+    -- Butterfly lane 1
+    (a1, outA1, b1, outB1) =
+      runButterfly
+        len
+        zetaBase
+        (opBase + 1)
+        poly
+
+    -- Butterfly lane 2
+    (a2, outA2, b2, outB2) =
+      runButterfly
+        len
+        zetaBase
+        (opBase + 2)
+        poly
+
+    -- Butterfly lane 3
+    (a3, outA3, b3, outB3) =
+      runButterfly
+        len
+        zetaBase
+        (opBase + 3)
+        poly
+
+
+    -- Write the 8 resulting coefficients back.
+    p1 = replace a0 outA0 poly
+    p2 = replace b0 outB0 p1
+
+    p3 = replace a1 outA1 p2
+    p4 = replace b1 outB1 p3
+
+    p5 = replace a2 outA2 p4
+    p6 = replace b2 outB2 p5
+
+    p7 = replace a3 outA3 p6
+    p8 = replace b3 outB3 p7
+
+  in
+    p8
+
+
+nttStep
+  :: NTTState
+  -> (Bool, Poly)
+  -> (NTTState, (Bool, Poly))
+
+nttStep state (start, inputPoly)
+  | not (stateBusy state) =
+      if start
+        then
+          let
+            nextState =
+              NTTState
+                { stateBusy   = True
+                , stateDone   = False
+                , stateStage  = 0
+                , stateOpBase = 0
+                , statePoly   = inputPoly
+                }
+          in
+            (nextState, (False, inputPoly))
+
+        else
+          let
+            nextState =
+              state
+                { stateDone = False
+                }
+          in
+            (nextState, (False, statePoly state))
+
+  | otherwise =
       let
-        i :: Unsigned 9
-        i =
-          fromIntegral index
+        currentStage =
+          stateStage state
 
-        groupSize :: Unsigned 9
-        groupSize =
-          2 * len
+        currentOp =
+          stateOpBase state
 
-        groupIndex :: Unsigned 9
-        groupIndex =
-          i `div` groupSize
+        updatedPoly =
+          runFourButterflies
+            currentStage
+            currentOp
+            (statePoly state)
 
-        positionInGroup :: Unsigned 9
-        positionInGroup =
-          i `mod` groupSize
+        lastGroup =
+          currentOp == 124
 
-        zetaIndex :: Index 256
-        zetaIndex =
-          fromIntegral (zetaBase + groupIndex)
+        lastStage =
+          currentStage == 7
 
-        zetaMont :: Coeff
-        zetaMont =
-          zetasMont !! zetaIndex
       in
-        if positionInGroup < len
+        if lastGroup
           then
-            let
-              aIndex :: Index 256
-              aIndex =
-                fromIntegral i
+            if lastStage
+              then
+                let
+                  nextState =
+                    NTTState
+                      { stateBusy   = False
+                      , stateDone   = True
+                      , stateStage  = 7
+                      , stateOpBase = 0
+                      , statePoly   = updatedPoly
+                      }
+                in
+                  (nextState, (True, updatedPoly))
 
-              bIndex :: Index 256
-              bIndex =
-                fromIntegral (i + len)
+              else
+                let
+                  nextState =
+                    NTTState
+                      { stateBusy   = True
+                      , stateDone   = False
+                      , stateStage  = currentStage + 1
+                      , stateOpBase = 0
+                      , statePoly   = updatedPoly
+                      }
+                in
+                  (nextState, (False, updatedPoly))
 
-              a =
-                input !! aIndex
-
-              b =
-                input !! bIndex
-
-              (outA, _) =
-                butterfly (a, b, zetaMont)
-            in
-              outA
           else
             let
-              aIndex :: Index 256
-              aIndex =
-                fromIntegral (i - len)
-
-              bIndex :: Index 256
-              bIndex =
-                fromIntegral i
-
-              a =
-                input !! aIndex
-
-              b =
-                input !! bIndex
-
-              (_, outB) =
-                butterfly (a, b, zetaMont)
+              nextState =
+                NTTState
+                  { stateBusy   = True
+                  , stateDone   = False
+                  , stateStage  = currentStage
+                  , stateOpBase = currentOp + 4
+                  , statePoly   = updatedPoly
+                  }
             in
-              outB
+              (nextState, (False, updatedPoly))
+
+
+nttSequential
+  :: HiddenClockResetEnable dom
+  => Signal dom (Bool, Poly)
+  -> Signal dom (Bool, Poly)
+
+nttSequential =
+  mealy nttStep initialState
+
 
 topEntity
   :: Clock System
   -> Reset System
   -> Enable System
+  -> Signal System Bool
   -> Signal System Poly
-  -> Signal System Poly
-topEntity _clk _rst _en =
-  fmap nttStage128
+  -> ( Signal System Bool
+     , Signal System Poly
+     )
+
+topEntity clk rst en start poly =
+  unbundle result
+  where
+    result =
+      exposeClockResetEnable
+        nttSequential
+        clk
+        rst
+        en
+        (bundle (start, poly))
+
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "NTTStage128"
+    { t_name = "NTT256"
     , t_inputs =
         [ PortName "clk"
         , PortName "rst"
         , PortName "en"
+        , PortName "start"
         , PortName "poly"
         ]
-    , t_output = PortName "result"
+    , t_output =
+        PortProduct ""
+          [ PortName "done"
+          , PortName "result"
+          ]
     }) #-}

@@ -41,34 +41,50 @@ toMontgomeryInteger :: P.Integer -> P.Integer
 toMontgomeryInteger x =
   ((x `P.mod` q) P.* rModQInteger) `P.mod` q
 
--- Drive the real topEntity and collect one combinational output.
+-- Drive the sequential 4-butterfly NTT.
+-- The NTT needs:
+--   1 load/start cycle
+--   256 processing cycles
+-- so sampling 270 cycles gives us some margin.
 runDUT :: [P.Integer] -> [P.Integer]
 runDUT input =
-  case sampleN 1 outputSignal of
-    [output] ->
+  case P.filter P.fst samples of
+    ((_, output) : _) ->
       P.map P.toInteger (toList output)
 
-    _ ->
-      P.error "runDUT: unexpected output sample count"
+    [] ->
+      P.error "runDUT: NTT did not assert done within 270 cycles"
   where
     inputBeat :: Poly
     inputBeat =
       toPoly input
 
-    zeroBeat :: Poly
-    zeroBeat =
-      toPoly (P.replicate 256 0)
+    -- resetGen is active during the initial simulation cycles,
+    -- so wait before asserting start.
+    startBeats :: [P.Bool]
+    startBeats =
+      [False, False, True] P.++ P.repeat False
 
-    beats :: [Poly]
-    beats =
-      inputBeat : P.repeat zeroBeat
+    -- Keep the input polynomial stable.
+    polyBeats :: [Poly]
+    polyBeats =
+      P.repeat inputBeat
 
-    outputSignal =
+    doneSignal :: Signal System P.Bool
+    resultSignal :: Signal System Poly
+
+    (doneSignal, resultSignal) =
       DUT.topEntity
         clockGen
         resetGen
         enableGen
-        (fromList beats)
+        (fromList startBeats)
+        (fromList polyBeats)
+
+    samples :: [(P.Bool, Poly)]
+    samples =
+      sampleN 270
+        (bundle (doneSignal, resultSignal))
 
 referenceZetas :: V.Vector P.Integer
 referenceZetas =
