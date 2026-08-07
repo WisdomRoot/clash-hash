@@ -8,6 +8,7 @@ import Data.Word (Word8)
 import qualified Data.Vector as V
 
 import MLDSA.Polynomial
+import MLDSA.Auxiliary
 
 -- | Calculate bit length for encoding
 bitLength :: Integer -> Int

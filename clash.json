@@ -1,3 +1,4 @@
 {
-  "NTT": "Component.NTT.topEntity"
+  "NTT": "Component.NTT.topEntity",
+  "Butterfly": "Component.Butterfly.topEntity"
 }

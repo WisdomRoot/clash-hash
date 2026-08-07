@@ -8,116 +8,15 @@ module Component.NTT
   ) where
 
 import Clash.Prelude
-import Component.NTTConstants (Coeff, zetasMont)
-import Prelude hiding ((!!))
+import Component.NTTConstants (zetasMont)
+import Prelude hiding ((!!), zipWith, map, (++))
+import Component.NTTCore
+  ( Coeff
+  , butterfly
+  , montgomeryMul
+  )
 
-type Product = Unsigned 46
 type Poly = Vec 256 Coeff
-type MontWord = Unsigned 24
-type MontWide = Unsigned 48
-
-q :: Integer
-q = 8380417
-
-qCoeff :: Coeff
-qCoeff = fromInteger q
-
-qMont :: MontWord
-qMont = fromInteger q
-
--- -q^(-1) mod 2^24
-qInv :: MontWord
-qInv = 8380415
-
-montgomeryReduce :: Product -> Coeff
-montgomeryReduce productValue =
-  let
-    productExtended :: MontWide
-    productExtended =
-      resize productValue
-
-    productLow :: MontWord
-    productLow =
-      resize productValue
-
-    mProduct :: MontWide
-    mProduct =
-      resize productLow * resize qInv
-
-    m :: MontWord
-    m =
-      resize mProduct
-
-    mq :: MontWide
-    mq =
-      resize m * resize qMont
-
-    sumValue :: MontWide
-    sumValue =
-      productExtended + mq
-
-    shifted :: MontWide
-    shifted =
-      shiftR sumValue 24
-
-    candidate :: MontWord
-    candidate =
-      resize shifted
-
-    reduced :: MontWord
-    reduced =
-      if candidate >= qMont
-        then candidate - qMont
-        else candidate
-  in
-    resize reduced
-
-addModQ :: Coeff -> Coeff -> Coeff
-addModQ a b =
-  let
-    sumWide :: Unsigned 24
-    sumWide =
-      resize a + resize b
-
-    qWide :: Unsigned 24
-    qWide =
-      fromInteger q
-  in
-    resize
-      (if sumWide >= qWide
-         then sumWide - qWide
-         else sumWide)
-
-subModQ :: Coeff -> Coeff -> Coeff
-subModQ a b =
-  if a >= b
-    then a - b
-    else qCoeff - (b - a)
-
--- Computes a*b*R^-1 mod q.
-montgomeryMul :: Coeff -> Coeff -> Coeff
-montgomeryMul a b =
-  let
-    productWide :: Product
-    productWide =
-      resize a * resize b
-  in
-    montgomeryReduce productWide
-
--- zetaMont must equal zeta*R mod q.
-butterfly :: (Coeff, Coeff, Coeff) -> (Coeff, Coeff)
-butterfly (a, b, zetaMont) =
-  let
-    t =
-      montgomeryMul zetaMont b
-
-    outA =
-      addModQ a t
-
-    outB =
-      subModQ a t
-  in
-    (outA, outB)
 
 ntt256 :: Poly -> Poly
 ntt256 input =
@@ -132,6 +31,31 @@ ntt256 input =
     s1   = nttStage 1 128 s2
   in
     s1
+
+nttStage128 :: Poly -> Poly
+nttStage128 input =
+  let
+    left :: Vec 128 Coeff
+    right :: Vec 128 Coeff
+    (left, right) = splitAtI input
+
+    zetaMont :: Coeff
+    zetaMont = zetasMont !! 1
+
+    results :: Vec 128 (Coeff, Coeff)
+    results =
+      zipWith
+        (\a b -> butterfly (a, b, zetaMont))
+        left
+        right
+
+    outLeft :: Vec 128 Coeff
+    outLeft = map fst results
+
+    outRight :: Vec 128 Coeff
+    outRight = map snd results
+  in
+    outLeft ++ outRight
 
 nttStage :: Unsigned 9 -> Unsigned 9 -> Poly -> Poly
 nttStage len zetaBase input =
@@ -213,11 +137,11 @@ topEntity
   -> Signal System Poly
   -> Signal System Poly
 topEntity _clk _rst _en =
-  fmap ntt256
+  fmap nttStage128
 
 {-# ANN topEntity
   (Synthesize
-    { t_name = "NTT256"
+    { t_name = "NTTStage128"
     , t_inputs =
         [ PortName "clk"
         , PortName "rst"
