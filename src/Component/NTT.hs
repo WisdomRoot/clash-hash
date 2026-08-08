@@ -16,7 +16,7 @@ import Component.NTTCore
   , montgomeryMul
   )
 import GHC.Generics (Generic)
-import Prelude hiding ((!!))
+import Prelude hiding ((!!), repeat, not)
 
 type Poly = Vec 256 Coeff
 
