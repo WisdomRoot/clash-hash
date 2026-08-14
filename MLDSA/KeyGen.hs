@@ -13,6 +13,7 @@ import qualified Data.Vector as V
 import Data.Word (Word8)
 import MLDSA.Polynomial
 import MLDSA.NTT
+import MLDSA.Auxiliary
 
 data KeyGenSeeds = KeyGenSeeds
   { seedRho :: ByteString,

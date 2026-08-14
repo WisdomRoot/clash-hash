@@ -189,6 +189,47 @@ def _auto_synthesize(target: str) -> bool:
     return result.returncode == 0
 
 
+def _sanitize_netlist_for_opensta(
+    source: Path,
+    destination: Path,
+) -> Path:
+    """Create an OpenSTA-compatible copy of a mapped Yosys netlist."""
+
+    text = source.read_text(encoding="utf-8")
+
+    # OpenSTA 3.1.0 fails on Clash/Yosys escaped identifiers such as:
+    #
+    #   \c$aIndex_app_arg
+    #
+    # Convert them to ordinary Verilog identifiers.
+    escaped_count = text.count(r"\c$")
+    text = text.replace(r"\c$", "c_")
+
+    # OpenSTA also fails on declarations such as:
+    #
+    #   wire signed [63:0] foo;
+    #
+    # At this point arithmetic is already mapped to standard cells,
+    # so signedness is no longer needed for timing connectivity.
+    text, signed_count = re.subn(
+        r"\b(wire|input|output|reg)\s+signed\b",
+        r"\1",
+        text,
+    )
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(text, encoding="utf-8")
+
+    _print(
+        "OpenSTA netlist sanitization:\n"
+        f"  escaped identifiers: {escaped_count}\n"
+        f"  signed declarations: {signed_count}\n"
+        f"  source: {source}\n"
+        f"  output: {destination}"
+    )
+
+    return destination
+
 def _setup_paths(process: str, target: str) -> dict[str, Path]:
     """Compute key paths for STA execution and create required directories."""
     # Resolve the netlist path from target (handles aliases and different formats)
@@ -232,11 +273,29 @@ def _setup_paths(process: str, target: str) -> dict[str, Path]:
     (output_dir / "reports" / "timing").mkdir(parents=True, exist_ok=True)
     (output_dir / "logs").mkdir(parents=True, exist_ok=True)
 
+    # ------------------------------------------------------------
+    # Create OpenSTA-compatible netlist.
+    #
+    # Keep the original Yosys mapped netlist untouched under
+    # build/synth and use a sanitized copy only for STA.
+    # ------------------------------------------------------------
+
+    sta_netlist = (
+        output_dir
+        / "netlist"
+        / f"{top_module}.sta.v"
+    )
+
+    sta_netlist = _sanitize_netlist_for_opensta(
+        netlist,
+        sta_netlist,
+    )
+
     return {
-        "netlist": netlist,
+        "netlist": sta_netlist,
         "sdc": sdc,
         "output": output_dir,
-        "top_module": top_module,  # Store resolved top module name
+        "top_module": top_module,
     }
 
 

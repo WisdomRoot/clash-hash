@@ -12,7 +12,9 @@ library
                         MLDSA.NTT,
                         MLDSA.Auxiliary,
                         MLDSA.Polynomial,
-                        Component.NTT
+                        Component.NTT,
+                        Component.NTTConstants,
+                        Component.NTTCore
                         
     hs-source-dirs:     .
                         src
