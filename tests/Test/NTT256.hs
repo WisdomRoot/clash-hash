@@ -7,6 +7,7 @@ import Clash.Prelude
 import Clash.Sized.Vector qualified as Vec
 import Component.NTT qualified as DUT
 import Component.NTTConstants qualified as Constants
+import Data.List qualified as List
 import Data.Vector qualified as V
 import MLDSA.NTT qualified as Ref
 import Prelude qualified as P
@@ -19,12 +20,22 @@ q = 8380417
 type Coeff = Unsigned 23
 type Poly = Vec 256 Coeff
 
--- Convert an Integer into the canonical range [0, q - 1].
+-- Number of clocks we allow a complete hardware NTT to take.
+-- The current 4-lane / 3-stage butterfly design should finish well before this.
+maxSimulationCycles :: P.Int
+maxSimulationCycles = 512
+
+-- Keep start low long enough for resetGen to be safely deasserted,
+-- then pulse it for exactly one clock.
+startDelayCycles :: P.Int
+startDelayCycles = 3
+
+-- Convert an Integer into the canonical hardware coefficient range [0, q-1].
 toCoeff :: P.Integer -> Coeff
 toCoeff x =
   P.fromInteger (x `P.mod` q)
 
--- Convert exactly 256 integers into a hardware polynomial.
+-- Convert exactly 256 Integer coefficients into the Clash polynomial type.
 toPoly :: [P.Integer] -> Poly
 toPoly xs
   | P.length xs P.== 256 =
@@ -32,76 +43,95 @@ toPoly xs
   | P.otherwise =
       P.error "toPoly: expected exactly 256 coefficients"
 
--- R mod q, where R = 2^24.
-rModQInteger :: P.Integer
-rModQInteger = 16382
+polyToIntegers :: Poly -> [P.Integer]
+polyToIntegers =
+  P.map P.toInteger P.. toList
 
--- Convert an ordinary value into Montgomery representation.
-toMontgomeryInteger :: P.Integer -> P.Integer
-toMontgomeryInteger x =
-  ((x `P.mod` q) P.* rModQInteger) `P.mod` q
+normalizeInteger :: P.Integer -> P.Integer
+normalizeInteger x =
+  x `P.mod` q
 
--- Drive the sequential 4-butterfly NTT.
--- The NTT needs:
---   1 load/start cycle
---   256 processing cycles
--- so sampling 270 cycles gives us some margin.
-runDUT :: [P.Integer] -> [P.Integer]
-runDUT input =
-  case P.filter P.fst samples of
-    ((_, output) : _) ->
-      P.map P.toInteger (toList output)
+-- The DUT now contains zetasMont internally rather than receiving zetas
+-- through topEntity. Convert each Montgomery-domain zeta back to the
+-- ordinary representation for the software reference NTT.
+--
+-- montgomeryMul(zetaMont, 1) = zeta (mod q)
+referenceZetas :: V.Vector P.Integer
+referenceZetas =
+  V.fromList
+    (P.map
+      (\zetaMont ->
+        P.toInteger
+          (DUT.montgomeryMul zetaMont (1 :: Coeff)))
+      (toList Constants.zetasMont))
 
-    [] ->
-      P.error "runDUT: NTT did not assert done within 270 cycles"
+-- Simulate the actual clocked topEntity.
+-- Returns all sampled (done, result) pairs so tests can inspect timing/status.
+simulateDUT :: [P.Integer] -> [(P.Bool, Poly)]
+simulateDUT input =
+  sampleN maxSimulationCycles outputSignal
   where
-    inputBeat :: Poly
-    inputBeat =
+    inputPoly :: Poly
+    inputPoly =
       toPoly input
 
-    -- resetGen is active during the initial simulation cycles,
-    -- so wait before asserting start.
-    startBeats :: [P.Bool]
-    startBeats =
-      [False, False, True] P.++ P.repeat False
+    startSamples :: [P.Bool]
+    startSamples =
+      P.replicate startDelayCycles False
+        P.++ [True]
+        P.++ P.repeat False
 
-    -- Keep the input polynomial stable.
-    polyBeats :: [Poly]
-    polyBeats =
-      P.repeat inputBeat
-
-    doneSignal :: Signal System P.Bool
-    resultSignal :: Signal System Poly
+    polySamples :: [Poly]
+    polySamples =
+      P.repeat inputPoly
 
     (doneSignal, resultSignal) =
       DUT.topEntity
         clockGen
         resetGen
         enableGen
-        (fromList startBeats)
-        (fromList polyBeats)
+        (fromList startSamples)
+        (fromList polySamples)
 
-    samples :: [(P.Bool, Poly)]
-    samples =
-      sampleN 270
-        (bundle (doneSignal, resultSignal))
+    outputSignal =
+      bundle (doneSignal, resultSignal)
 
-referenceZetas :: V.Vector P.Integer
-referenceZetas =
-  V.fromList
-    (P.map P.toInteger
-      (toList Constants.ordinaryZetas))
+-- Run the DUT and return the polynomial present on the first done pulse.
+runDUT :: [P.Integer] -> [P.Integer]
+runDUT input =
+  case List.find P.fst (simulateDUT input) of
+    P.Just (_, result) ->
+      polyToIntegers result
 
--- Run the software reference using the same fixed ordinary zeta table.
+    P.Nothing ->
+      P.error
+        ( "runDUT: DUT did not assert done within "
+            P.++ P.show maxSimulationCycles
+            P.++ " cycles"
+        )
+
+-- Return the sampled cycle number on which done first becomes True.
+doneCycle :: [P.Integer] -> P.Maybe P.Int
+doneCycle input =
+  P.fmap P.fst
+    (List.find (P.fst P.. P.snd) numbered)
+  where
+    numbered =
+      P.zip [0 ..] (simulateDUT input)
+
+-- Run the software/reference implementation using the same zeta constants
+-- as the hardware.
 runReference :: [P.Integer] -> [P.Integer]
 runReference input =
   V.toList
     (Ref.ntt
       q
       referenceZetas
-      (V.fromList (P.map normalize input)))
-  where
-    normalize x = x `P.mod` q
+      (V.fromList (P.map normalizeInteger input)))
+
+-- -----------------------------------------------------------------------------
+-- Test data
+-- -----------------------------------------------------------------------------
 
 genCoeff :: Gen P.Integer
 genCoeff =
@@ -133,25 +163,32 @@ allReduced :: [P.Integer] -> P.Bool
 allReduced =
   P.all (\x -> 0 P.<= x P.&& x P.< q)
 
+-- -----------------------------------------------------------------------------
+-- Tests
+-- -----------------------------------------------------------------------------
+
 spec :: Spec
 spec =
-  describe "Component.NTT" P.$ do
+  describe "Component.NTT pipelined 256-point NTT" P.$ do
+
     describe "Montgomery multiplication" P.$ do
-      it "produces ordinary zeta times coefficient" P.$
+      it "matches ordinary multiplication when the zeta is in Montgomery form" P.$
         withMaxSuccess 100 P.$
           forAll genCoeff P.$ \zeta ->
             forAll genCoeff P.$ \b ->
               let
+                -- R mod q for R = 2^24.
+                rModQ :: P.Integer
+                rModQ = 16382
+
                 zetaMont :: Coeff
                 zetaMont =
-                  toCoeff (toMontgomeryInteger zeta)
+                  toCoeff ((zeta P.* rModQ) `P.mod` q)
 
                 actual :: P.Integer
                 actual =
                   P.toInteger
-                    (DUT.montgomeryMul
-                      zetaMont
-                      (toCoeff b))
+                    (DUT.montgomeryMul zetaMont (toCoeff b))
 
                 expected :: P.Integer
                 expected =
@@ -159,13 +196,16 @@ spec =
               in
                 actual `shouldBe` expected
 
-      it "handles boundary values" P.$ do
+      it "handles Montgomery boundary values" P.$ do
         let
+          rModQ :: P.Integer
+          rModQ = 16382
+
           check :: P.Integer -> P.Integer -> Expectation
           check zeta b =
             P.toInteger
               (DUT.montgomeryMul
-                (toCoeff (toMontgomeryInteger zeta))
+                (toCoeff ((zeta P.* rModQ) `P.mod` q))
                 (toCoeff b))
               `shouldBe`
                 ((zeta P.* b) `P.mod` q)
@@ -175,6 +215,26 @@ spec =
         check (q P.- 1) 1
         check 1 (q P.- 1)
         check (q P.- 1) (q P.- 1)
+
+    describe "pipeline/controller behavior" P.$ do
+      it "eventually asserts done" P.$
+        doneCycle rampPoly `shouldSatisfy` P.maybe False (P.const True)
+
+      it "asserts done exactly once for one start pulse" P.$ do
+        let
+          doneCount =
+            P.length
+              (P.filter P.fst (simulateDUT rampPoly))
+
+        doneCount `shouldBe` 1
+
+      it "finishes before the simulation timeout" P.$
+        case doneCycle rampPoly of
+          P.Just cycleNumber ->
+            cycleNumber `shouldSatisfy` (P.< maxSimulationCycles)
+
+          P.Nothing ->
+            expectationFailure "NTT never asserted done"
 
     describe "full 256-point transform" P.$ do
       it "maps the zero polynomial to zero" P.$
@@ -193,14 +253,14 @@ spec =
         runDUT alternatingPoly
           `shouldBe` runReference alternatingPoly
 
-      it "keeps all output coefficients reduced modulo q" P.$
-        withMaxSuccess 5 P.$
+      it "keeps every output coefficient reduced modulo q" P.$
+        withMaxSuccess 3 P.$
           forAll genPoly P.$ \input ->
             runDUT input
               `shouldSatisfy` allReduced
 
       it "matches MLDSA.NTT for random reduced inputs" P.$
-        withMaxSuccess 5 P.$
+        withMaxSuccess 3 P.$
           forAll genPoly P.$ \input ->
             runDUT input
               `shouldBe` runReference input

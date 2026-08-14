@@ -13,15 +13,44 @@ import Component.NTTConstants (zetasMont)
 import Component.NTTCore
   ( Coeff
   , butterfly
+  , butterflyPipeline
   , montgomeryMul
   )
 import GHC.Generics (Generic)
-import Prelude hiding ((!!), repeat, not)
+import Prelude hiding ((!!), repeat, not, (&&))
 
 type Poly = Vec 256 Coeff
 
+-- Pipeline request/response
+data ButterflyRequest = ButterflyRequest
+  { reqAIndex    :: Index 256
+  , reqBIndex    :: Index 256
+  , reqA         :: Coeff
+  , reqB         :: Coeff
+  , reqZeta      :: Coeff
+  , reqLastGroup :: Bool
+  }
+  deriving (Generic, NFDataX)
+
+
+data ButterflyResponse = ButterflyResponse
+  { rspAIndex    :: Index 256
+  , rspBIndex    :: Index 256
+  , rspA         :: Coeff
+  , rspB         :: Coeff
+  , rspLastGroup :: Bool
+  }
+  deriving (Generic, NFDataX)
+
+-- Controller phase
+data NTTPhase
+  = Idle
+  | Issue
+  | Drain
+  deriving (Generic, NFDataX, Eq)
+
 data NTTState = NTTState
-  { stateBusy   :: Bool
+  { statePhase  :: NTTPhase
   , stateDone   :: Bool
   , stateStage  :: Index 8
   , stateOpBase :: Unsigned 9
@@ -29,20 +58,18 @@ data NTTState = NTTState
   }
   deriving (Generic, NFDataX)
 
-
 initialState :: NTTState
 initialState =
   NTTState
-    { stateBusy   = False
+    { statePhase  = Idle
     , stateDone   = False
     , stateStage  = 0
     , stateOpBase = 0
     , statePoly   = repeat 0
     }
 
-stageParameters
-  :: Index 8
-  -> (Unsigned 9, Unsigned 9)
+-- Stage parameters
+stageParameters :: Index 8 -> (Unsigned 9, Unsigned 9)
 stageParameters stage =
   case stage of
     0 -> (128,   1)
@@ -54,15 +81,27 @@ stageParameters stage =
     6 -> (  2,  64)
     7 -> (  1, 128)
 
-runButterfly
-  :: Unsigned 9
-  -> Unsigned 9
-  -> Unsigned 9
-  -> Poly
-  -> (Index 256, Coeff, Index 256, Coeff)
+-- Generate one butterfly request
+makeRequest :: Unsigned 9 -> NTTState -> (Bool, ButterflyRequest)
+makeRequest lane state =
+  if statePhase state == Issue
+    then
+      (True, request)
+    else
+      (False, request)
+  where
+    poly =
+      statePoly state
 
-runButterfly len zetaBase opNumber poly =
-  let
+    stage =
+      stateStage state
+
+    opNumber =
+      stateOpBase state + lane
+
+    (len, zetaBase) =
+      stageParameters stage
+
     groupIndex :: Unsigned 9
     groupIndex =
       opNumber `div` len
@@ -95,188 +134,314 @@ runButterfly len zetaBase opNumber poly =
     zetaIndex =
       fromIntegral (zetaBase + groupIndex)
 
-    a :: Coeff
-    a =
-      poly !! aIndex
+    request =
+      ButterflyRequest
+        { reqAIndex    = aIndex
+        , reqBIndex    = bIndex
+        , reqA         = poly !! aIndex
+        , reqB         = poly !! bIndex
+        , reqZeta      = zetasMont !! zetaIndex
+        , reqLastGroup = stateOpBase state == 124
+        }
 
-    b :: Coeff
-    b =
-      poly !! bIndex
 
-    zetaMont :: Coeff
-    zetaMont =
-      zetasMont !! zetaIndex
+-- Pipeline one butterfly lane
+pipelineLane :: HiddenClockResetEnable dom
+             => Signal dom (Bool, ButterflyRequest)
+             -> Signal dom (Bool, ButterflyResponse)
+pipelineLane requestSignal =
+  bundle (validDelayed, responseSignal)
+  where
 
-    (outA, outB) =
-      butterfly (a, b, zetaMont)
+    -- Extract arithmetic input.
+    butterflyInput =
+      fmap
+        (\(_, request) ->
+          ( reqA request
+          , reqB request
+          , reqZeta request
+          )
+        )
+        requestSignal
 
-  in
-    (aIndex, outA, bIndex, outB)
+    -- Actual 3-cycle butterfly datapath.
+    butterflyOutput =
+      butterflyPipeline butterflyInput
 
-runFourButterflies
-  :: Index 8
-  -> Unsigned 9
+    -- Metadata travelling alongside butterfly
+    metadata =
+      fmap
+        (\(valid, request) ->
+          ( valid
+          , reqAIndex request
+          , reqBIndex request
+          , reqLastGroup request
+          )
+        )
+        requestSignal
+
+
+    metaReg1 =
+      register
+        (False, 0, 0, False)
+        metadata
+
+    metaReg2 =
+      register
+        (False, 0, 0, False)
+        metaReg1
+
+    metaReg3 =
+      register
+        (False, 0, 0, False)
+        metaReg2
+
+
+    validDelayed =
+      fmap
+        (\(valid, _, _, _) -> valid)
+        metaReg3
+
+
+    responseSignal =
+      liftA2
+        (\(_, aIndex, bIndex, lastGroup) (outA, outB) ->
+          ButterflyResponse
+            { rspAIndex    = aIndex
+            , rspBIndex    = bIndex
+            , rspA         = outA
+            , rspB         = outB
+            , rspLastGroup = lastGroup
+            }
+        )
+        metaReg3
+        butterflyOutput
+
+
+-- Write one butterfly result into the polynomial
+writeResponse :: (Bool, ButterflyResponse)
   -> Poly
   -> Poly
+writeResponse (valid, response) poly =
+  if valid
+    then
+      let
+        p1 =
+          replace
+            (rspAIndex response)
+            (rspA response)
+            poly
 
-runFourButterflies stage opBase poly =
-  let
-    (len, zetaBase) =
-      stageParameters stage
+        p2 =
+          replace
+            (rspBIndex response)
+            (rspB response)
+            p1
+      in
+        p2
 
-    -- Butterfly lane 0
-    (a0, outA0, b0, outB0) =
-      runButterfly
-        len
-        zetaBase
-        opBase
-        poly
-
-    -- Butterfly lane 1
-    (a1, outA1, b1, outB1) =
-      runButterfly
-        len
-        zetaBase
-        (opBase + 1)
-        poly
-
-    -- Butterfly lane 2
-    (a2, outA2, b2, outB2) =
-      runButterfly
-        len
-        zetaBase
-        (opBase + 2)
-        poly
-
-    -- Butterfly lane 3
-    (a3, outA3, b3, outB3) =
-      runButterfly
-        len
-        zetaBase
-        (opBase + 3)
-        poly
+    else
+      poly
 
 
-    -- Write the 8 resulting coefficients back.
-    p1 = replace a0 outA0 poly
-    p2 = replace b0 outB0 p1
+-- Write four pipeline outputs
+writeFourResponses
+  :: ( (Bool, ButterflyResponse)
+     , (Bool, ButterflyResponse)
+     , (Bool, ButterflyResponse)
+     , (Bool, ButterflyResponse)
+     )
+  -> Poly
+  -> Poly
+writeFourResponses
+  (response0, response1, response2, response3)
+  poly =
+    let
+      p1 = writeResponse response0 poly
+      p2 = writeResponse response1 p1
+      p3 = writeResponse response2 p2
+      p4 = writeResponse response3 p3
+    in
+      p4
 
-    p3 = replace a1 outA1 p2
-    p4 = replace b1 outB1 p3
-
-    p5 = replace a2 outA2 p4
-    p6 = replace b2 outB2 p5
-
-    p7 = replace a3 outA3 p6
-    p8 = replace b3 outB3 p7
-
-  in
-    p8
-
-
-nttStep
+-- Controller
+nttNextState
   :: NTTState
   -> (Bool, Poly)
-  -> (NTTState, (Bool, Poly))
+  -> ( (Bool, ButterflyResponse)
+     , (Bool, ButterflyResponse)
+     , (Bool, ButterflyResponse)
+     , (Bool, ButterflyResponse)
+     )
+  -> NTTState
+nttNextState state (start, inputPoly) responses =
+  case statePhase state of
 
-nttStep state (start, inputPoly)
-  | not (stateBusy state) =
+    -- IDLE
+    Idle ->
       if start
         then
-          let
-            nextState =
-              NTTState
-                { stateBusy   = True
-                , stateDone   = False
-                , stateStage  = 0
-                , stateOpBase = 0
-                , statePoly   = inputPoly
-                }
-          in
-            (nextState, (False, inputPoly))
+          NTTState
+            { statePhase  = Issue
+            , stateDone   = False
+            , stateStage  = 0
+            , stateOpBase = 0
+            , statePoly   = inputPoly
+            }
 
         else
-          let
-            nextState =
-              state
-                { stateDone = False
-                }
-          in
-            (nextState, (False, statePoly state))
+          state
+            { stateDone = False
+            }
 
-  | otherwise =
+    -- ISSUE
+    Issue ->
       let
-        currentStage =
-          stateStage state
+
+        updatedPoly =
+          writeFourResponses
+            responses
+            (statePoly state)
 
         currentOp =
           stateOpBase state
 
-        updatedPoly =
-          runFourButterflies
-            currentStage
-            currentOp
-            (statePoly state)
-
-        lastGroup =
+        lastIssue =
           currentOp == 124
 
-        lastStage =
-          currentStage == 7
-
       in
-        if lastGroup
-          then
-            if lastStage
-              then
-                let
-                  nextState =
-                    NTTState
-                      { stateBusy   = False
-                      , stateDone   = True
-                      , stateStage  = 7
-                      , stateOpBase = 0
-                      , statePoly   = updatedPoly
-                      }
-                in
-                  (nextState, (True, updatedPoly))
 
-              else
-                let
-                  nextState =
-                    NTTState
-                      { stateBusy   = True
-                      , stateDone   = False
-                      , stateStage  = currentStage + 1
-                      , stateOpBase = 0
-                      , statePoly   = updatedPoly
-                      }
-                in
-                  (nextState, (False, updatedPoly))
+        if lastIssue
+          then
+            NTTState
+              { statePhase  = Drain
+              , stateDone   = False
+              , stateStage  = stateStage state
+              , stateOpBase = currentOp
+              , statePoly   = updatedPoly
+              }
 
           else
-            let
-              nextState =
+            NTTState
+              { statePhase  = Issue
+              , stateDone   = False
+              , stateStage  = stateStage state
+              , stateOpBase = currentOp + 4
+              , statePoly   = updatedPoly
+              }
+
+    -- DRAIN
+    Drain ->
+      let
+
+        updatedPoly =
+          writeFourResponses
+            responses
+            (statePoly state)
+
+        (valid0, response0) =
+          case responses of
+            (r0, _, _, _) -> r0
+
+        finalGroupReturned =
+          valid0 && rspLastGroup response0
+
+        lastStage =
+          stateStage state == 7
+
+      in
+
+        if finalGroupReturned
+          then
+
+            if lastStage
+              then
+                -- Entire NTT is complete.
                 NTTState
-                  { stateBusy   = True
-                  , stateDone   = False
-                  , stateStage  = currentStage
-                  , stateOpBase = currentOp + 4
+                  { statePhase  = Idle
+                  , stateDone   = True
+                  , stateStage  = 7
+                  , stateOpBase = 0
                   , statePoly   = updatedPoly
                   }
-            in
-              (nextState, (False, updatedPoly))
+
+              else
+                NTTState
+                  { statePhase  = Issue
+                  , stateDone   = False
+                  , stateStage  = stateStage state + 1
+                  , stateOpBase = 0
+                  , statePoly   = updatedPoly
+                  }
+
+          else
+            state
+              { stateDone = False
+              , statePoly = updatedPoly
+              }
 
 
-nttSequential
-  :: HiddenClockResetEnable dom
+-- Complete pipelined NTT
+nttPipelined :: HiddenClockResetEnable dom
   => Signal dom (Bool, Poly)
   -> Signal dom (Bool, Poly)
+nttPipelined inputSignal =
+  bundle
+    ( fmap stateDone stateSignal
+    , fmap statePoly stateSignal
+    )
+  where
 
-nttSequential =
-  mealy nttStep initialState
+    stateSignal =
+      register initialState nextStateSignal
+
+    -- Generate four requests every cycle
+    request0 =
+      fmap (makeRequest 0) stateSignal
+
+    request1 =
+      fmap (makeRequest 1) stateSignal
+
+    request2 =
+      fmap (makeRequest 2) stateSignal
+
+    request3 =
+      fmap (makeRequest 3) stateSignal
 
 
+    -- Four parallel pipelined butterfly lanes
+    response0 =
+      pipelineLane request0
+
+    response1 =
+      pipelineLane request1
+
+    response2 =
+      pipelineLane request2
+
+    response3 =
+      pipelineLane request3
+
+
+    responses =
+      bundle
+        ( response0
+        , response1
+        , response2
+        , response3
+        )
+
+
+    -- Controller next-state logic
+    nextStateSignal =
+      liftA3
+        nttNextState
+        stateSignal
+        inputSignal
+        responses
+
+
+-- Top entity
 topEntity
   :: Clock System
   -> Reset System
@@ -286,13 +451,13 @@ topEntity
   -> ( Signal System Bool
      , Signal System Poly
      )
-
 topEntity clk rst en start poly =
   unbundle result
   where
+
     result =
       exposeClockResetEnable
-        nttSequential
+        nttPipelined
         clk
         rst
         en
